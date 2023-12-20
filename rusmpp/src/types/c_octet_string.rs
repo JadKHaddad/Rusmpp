@@ -9,9 +9,9 @@ use crate::io::{
 };
 
 #[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Too many bytes")]
-    TooManyBytes,
+pub enum Error<const MAX: usize> {
+    #[error("Too many bytes. actual: {actual}, max: {MAX}")]
+    TooManyBytes { actual: usize },
     #[error("Not null terminated")]
     NotNullTerminated,
     #[error("Not ASCII")]
@@ -54,11 +54,13 @@ impl<const MAX: usize> COctetString<MAX> {
         Self { bytes: vec![0] }
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error<MAX>> {
         let bytes = bytes.as_ref();
 
         if bytes.as_ref().len() > MAX {
-            return Err(Error::TooManyBytes);
+            return Err(Error::TooManyBytes {
+                actual: bytes.len(),
+            });
         }
 
         if bytes[bytes.len() - 1] != 0 {
@@ -99,7 +101,7 @@ impl<const MAX: usize> std::fmt::Debug for COctetString<MAX> {
 }
 
 impl<const MAX: usize> FromStr for COctetString<MAX> {
-    type Err = Error;
+    type Err = Error<MAX>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut bytes = s.as_bytes().to_vec();
@@ -137,7 +139,7 @@ impl<const MAX: usize> AsyncIoWrite for COctetString<MAX> {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum IoCOctetStringError {
+pub enum COctetStringIoReadError {
     #[error("IO error: {0}")]
     IO(
         #[from]
@@ -152,18 +154,18 @@ pub enum IoCOctetStringError {
 
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
-    type Error = IoCOctetStringError;
+    type Error = COctetStringIoReadError;
 
     async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self, Self::Error> {
         let mut bytes = Vec::with_capacity(MAX);
         let read = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
 
         if bytes.last() != Some(&0x00) {
-            return Err(IoCOctetStringError::NotNullTerminated);
+            return Err(COctetStringIoReadError::NotNullTerminated);
         }
 
         if !bytes.is_ascii() {
-            return Err(IoCOctetStringError::NotAscii);
+            return Err(COctetStringIoReadError::NotAscii);
         }
 
         Ok(IoRead {
@@ -184,7 +186,7 @@ mod tests {
         fn too_many_bytes() {
             let bytes = b"Hello\0";
             let error = COctetString::<5>::new(bytes).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
         }
 
         #[test]
@@ -246,7 +248,7 @@ mod tests {
         fn too_many_bytes() {
             let string = "Hello";
             let error = COctetString::<5>::from_str(string).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
         }
 
         #[test]
@@ -299,7 +301,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoCOctetStringError::NotNullTerminated));
+            assert!(matches!(error, COctetStringIoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -309,7 +311,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoCOctetStringError::NotNullTerminated));
+            assert!(matches!(error, COctetStringIoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -319,7 +321,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoCOctetStringError::NotAscii));
+            assert!(matches!(error, COctetStringIoReadError::NotAscii));
         }
 
         #[tokio::test]

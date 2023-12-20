@@ -22,6 +22,10 @@ pub mod result {
     }
 
     impl<T> IoRead<T> {
+        pub fn into_value(self) -> T {
+            self.value
+        }
+
         pub fn into_parts(self) -> (T, usize) {
             (self.value, self.read)
         }
@@ -32,22 +36,30 @@ pub mod error {
     #[derive(thiserror::Error, Debug)]
     pub enum IoReadError {
         #[error("IO error: {0}")]
-        IO(#[from] std::io::Error),
+        IO(
+            #[from]
+            #[source]
+            std::io::Error,
+        ),
         #[error("COctetString error: {0}")]
-        COctetStringError(#[source] COctetStringError),
+        COctetStringError(
+            #[from]
+            #[source]
+            IoCOctetStringError,
+        ),
         #[error("OctetString error: {0}")]
-        OctetStringError(#[source] OctetStringError),
+        OctetStringError(
+            #[from]
+            #[source]
+            IoOctetStringError,
+        ),
         #[error("Unknown key: {key}")]
         UnknownKey { key: u32 },
     }
 
     /// Error when reading a COctetString
     #[derive(thiserror::Error, Debug)]
-    pub enum COctetStringError {
-        #[error("Too many bytes")]
-        TooManyBytes,
-        #[error("Too few bytes")]
-        TooFewBytes,
+    pub enum IoCOctetStringError {
         #[error("Not ASCII")]
         NotAscii,
         #[error("Not null terminated")]
@@ -56,7 +68,7 @@ pub mod error {
 
     /// Error when reading an OctetString
     #[derive(thiserror::Error, Debug)]
-    pub enum OctetStringError {
+    pub enum IoOctetStringError {
         #[error("Too many bytes")]
         TooManyBytes,
     }

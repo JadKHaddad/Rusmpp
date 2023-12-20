@@ -11,3 +11,13 @@ where
 
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error>;
 }
+
+#[async_trait::async_trait]
+pub trait AsyncIoReadWithLength
+where
+    Self: Sized + IoLength,
+{
+    type Error;
+
+    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, Self::Error>;
+}

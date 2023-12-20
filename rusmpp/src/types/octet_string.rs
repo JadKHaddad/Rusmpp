@@ -4,7 +4,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoReadWithLength, AsyncIoReadable},
+    read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError, OctetStringIoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -103,25 +103,16 @@ impl<const MAX: usize> AsyncIoWrite for OctetString<MAX> {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum IoReadError<const MAX: usize> {
-    #[error("IO error: {0}")]
-    IO(
-        #[from]
-        #[source]
-        std::io::Error,
-    ),
-    #[error("Too many bytes. actual: {actual}, max: {MAX}")]
-    TooManyBytes { actual: usize },
-}
-
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoReadWithLength for OctetString<MAX> {
-    type Error = IoReadError<MAX>;
-
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         if length > MAX {
-            return Err(Self::Error::TooManyBytes { actual: length });
+            return Err(IoReadError::OctetStringIoReadError(
+                OctetStringIoReadError::TooManyBytes {
+                    actual: length,
+                    max: MAX,
+                },
+            ));
         }
 
         let mut bytes = vec![0; length];
@@ -162,6 +153,8 @@ mod tests {
     }
 
     mod async_io {
+        use crate::io::read::IoReadError;
+
         use super::*;
 
         #[tokio::test]
@@ -181,7 +174,13 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::TooManyBytes { actual: 15 }));
+            assert!(matches!(
+                error,
+                IoReadError::OctetStringIoReadError(OctetStringIoReadError::TooManyBytes {
+                    actual: 15,
+                    ..
+                },)
+            ));
         }
 
         #[tokio::test]

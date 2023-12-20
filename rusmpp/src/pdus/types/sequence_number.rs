@@ -1,6 +1,6 @@
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable},
+    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -53,9 +53,7 @@ impl AsyncIoWrite for SequenceNumber {
 
 #[async_trait::async_trait]
 impl AsyncIoRead for SequenceNumber {
-    type Error = std::io::Error;
-
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         u32::async_io_read(buf).await.map(Self::from)
     }
 }

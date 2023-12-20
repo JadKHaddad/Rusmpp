@@ -4,7 +4,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable},
+    read::{AsyncIoRead, AsyncIoReadable, COctetStringIoReadError, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -139,34 +139,22 @@ impl<const MAX: usize> AsyncIoWrite for COctetString<MAX> {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum IoReadError {
-    #[error("IO error: {0}")]
-    IO(
-        #[from]
-        #[source]
-        std::io::Error,
-    ),
-    #[error("Not null terminated")]
-    NotNullTerminated,
-    #[error("Not ASCII")]
-    NotAscii,
-}
-
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
-    type Error = IoReadError;
-
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         let mut bytes = Vec::with_capacity(MAX);
         let _ = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
 
         if bytes.last() != Some(&0x00) {
-            return Err(Self::Error::NotNullTerminated);
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotNullTerminated,
+            ));
         }
 
         if !bytes.is_ascii() {
-            return Err(Self::Error::NotAscii);
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotAscii,
+            ));
         }
 
         Ok(Self { bytes })
@@ -299,7 +287,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotNullTerminated));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotNullTerminated)
+            ));
         }
 
         #[tokio::test]
@@ -309,7 +300,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotNullTerminated));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotNullTerminated)
+            ));
         }
 
         #[tokio::test]
@@ -319,7 +313,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotAscii));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotAscii)
+            ));
         }
 
         #[tokio::test]

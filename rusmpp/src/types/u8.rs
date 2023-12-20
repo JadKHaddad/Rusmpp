@@ -2,7 +2,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable},
+    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -25,9 +25,7 @@ impl AsyncIoWrite for u8 {
 
 #[async_trait::async_trait]
 impl AsyncIoRead for u8 {
-    type Error = std::io::Error;
-
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         Ok(buf.read_u8().await?)
     }
 }

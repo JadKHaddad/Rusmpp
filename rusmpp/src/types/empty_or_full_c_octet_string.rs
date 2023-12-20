@@ -4,7 +4,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable},
+    read::{AsyncIoRead, AsyncIoReadable, COctetStringIoReadError, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -128,42 +128,30 @@ impl<const N: usize> AsyncIoWrite for EmptyOrFullCOctetString<N> {
     }
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum IoReadError {
-    #[error("IO error: {0}")]
-    IO(
-        #[from]
-        #[source]
-        std::io::Error,
-    ),
-    #[error("Not null terminated")]
-    NotNullTerminated,
-    #[error("Too few bytes. actual: {actual}, min: 1")]
-    TooFewBytes { actual: usize },
-    #[error("Not ASCII")]
-    NotAscii,
-}
-
 #[async_trait::async_trait]
 impl<const N: usize> AsyncIoRead for EmptyOrFullCOctetString<N> {
-    type Error = IoReadError;
-
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         let mut bytes = Vec::with_capacity(N);
         let _ = buf.take(N as u64).read_until(0x00, &mut bytes).await?;
 
         if bytes.last() != Some(&0x00) {
-            return Err(Self::Error::NotNullTerminated);
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotNullTerminated,
+            ));
         }
 
         if bytes.len() > 1 && bytes.len() < N {
-            return Err(Self::Error::TooFewBytes {
-                actual: bytes.len(),
-            });
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::TooFewBytes {
+                    actual: bytes.len(),
+                },
+            ));
         }
 
         if !bytes.is_ascii() {
-            return Err(Self::Error::NotAscii);
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotAscii,
+            ));
         }
 
         Ok(Self { bytes })
@@ -301,6 +289,8 @@ mod tests {
     }
 
     mod async_io {
+        use crate::io::read::COctetStringIoReadError;
+
         use super::*;
 
         #[tokio::test]
@@ -310,7 +300,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotNullTerminated));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotNullTerminated)
+            ));
         }
 
         #[tokio::test]
@@ -320,7 +313,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotNullTerminated));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotNullTerminated,)
+            ));
         }
 
         #[tokio::test]
@@ -330,7 +326,12 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::TooFewBytes { actual: 4 }));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::TooFewBytes {
+                    actual: 4
+                },)
+            ));
         }
 
         #[tokio::test]
@@ -340,7 +341,10 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, IoReadError::NotAscii));
+            assert!(matches!(
+                error,
+                IoReadError::COctetStringIoReadError(COctetStringIoReadError::NotAscii,)
+            ));
         }
 
         #[tokio::test]

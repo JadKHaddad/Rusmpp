@@ -1,6 +1,7 @@
 use crate::{
     io::{
         length::IoLength,
+        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
@@ -47,7 +48,17 @@ impl AsyncIoWrite for Bind {
     }
 }
 
-// #[derive(thiserror::Error, Debug)]
-// pub enum IoReadError {
-
-// }
+#[async_trait::async_trait]
+impl AsyncIoRead for Bind {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
+        Ok(Self {
+            system_id: COctetString::async_io_read(buf).await?,
+            password: COctetString::async_io_read(buf).await?,
+            system_type: COctetString::async_io_read(buf).await?,
+            interface_version: InterfaceVersion::async_io_read(buf).await?,
+            addr_ton: Ton::async_io_read(buf).await?,
+            addr_npi: Npi::async_io_read(buf).await?,
+            address_range: COctetString::async_io_read(buf).await?,
+        })
+    }
+}

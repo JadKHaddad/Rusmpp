@@ -4,7 +4,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{result::IoRead, AsyncIoRead, AsyncIoReadable, IoReadResult},
+    read::{AsyncIoRead, AsyncIoReadable},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -156,9 +156,9 @@ pub enum COctetStringIoReadError {
 impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
     type Error = COctetStringIoReadError;
 
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self, Self::Error> {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
         let mut bytes = Vec::with_capacity(MAX);
-        let read = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
+        let _ = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
 
         if bytes.last() != Some(&0x00) {
             return Err(COctetStringIoReadError::NotNullTerminated);
@@ -168,10 +168,7 @@ impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
             return Err(COctetStringIoReadError::NotAscii);
         }
 
-        Ok(IoRead {
-            value: Self { bytes },
-            read,
-        })
+        Ok(Self { bytes })
     }
 }
 
@@ -327,52 +324,44 @@ mod tests {
         #[tokio::test]
         async fn ok_max() {
             let bytes = b"Hello\0";
-            let (string, read) = COctetString::<6>::async_io_read(&mut bytes.as_ref())
+            let string = COctetString::<6>::async_io_read(&mut bytes.as_ref())
                 .await
-                .unwrap()
-                .into();
+                .unwrap();
 
             assert_eq!(string.bytes, b"Hello\0");
-            assert_eq!(read, 6);
             assert_eq!(string.length(), 6);
         }
 
         #[tokio::test]
         async fn ok_not_max() {
             let bytes = b"Hello\0";
-            let (string, read) = COctetString::<25>::async_io_read(&mut bytes.as_ref())
+            let string = COctetString::<25>::async_io_read(&mut bytes.as_ref())
                 .await
-                .unwrap()
-                .into();
+                .unwrap();
 
             assert_eq!(string.bytes, b"Hello\0");
-            assert_eq!(read, 6);
             assert_eq!(string.length(), 6);
         }
 
         #[tokio::test]
         async fn ok_empty_max() {
             let bytes = b"\0";
-            let (string, read) = COctetString::<1>::async_io_read(&mut bytes.as_ref())
+            let string = COctetString::<1>::async_io_read(&mut bytes.as_ref())
                 .await
-                .unwrap()
-                .into();
+                .unwrap();
 
             assert_eq!(string.bytes, b"\0");
-            assert_eq!(read, 1);
             assert_eq!(string.length(), 1);
         }
 
         #[tokio::test]
         async fn ok_empty_not_max() {
             let bytes = b"\0";
-            let (string, read) = COctetString::<25>::async_io_read(&mut bytes.as_ref())
+            let string = COctetString::<25>::async_io_read(&mut bytes.as_ref())
                 .await
-                .unwrap()
-                .into();
+                .unwrap();
 
             assert_eq!(string.bytes, b"\0");
-            assert_eq!(read, 1);
             assert_eq!(string.length(), 1);
         }
 
@@ -380,10 +369,9 @@ mod tests {
         async fn ok_remaining() {
             let bytes = b"Hello\0World!";
             let buf = &mut bytes.as_ref();
-            let (string, read) = COctetString::<25>::async_io_read(buf).await.unwrap().into();
+            let string = COctetString::<25>::async_io_read(buf).await.unwrap();
 
             assert_eq!(string.bytes, b"Hello\0");
-            assert_eq!(read, 6);
             assert_eq!(string.length(), 6);
             assert_eq!(buf, b"World!");
         }

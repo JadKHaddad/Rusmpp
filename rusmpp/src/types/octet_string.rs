@@ -9,9 +9,9 @@ use crate::io::{
 };
 
 #[derive(thiserror::Error, Debug)]
-pub enum Error<const MAX: usize> {
-    #[error("Too many bytes. actual: {actual}, max: {MAX}")]
-    TooManyBytes { actual: usize },
+pub enum Error {
+    #[error("Too many bytes. actual: {actual}, max: {max}")]
+    TooManyBytes { actual: usize, max: usize },
 }
 
 /// An Octet String is a sequence of octets not necessarily
@@ -33,12 +33,13 @@ impl<const MAX: usize> OctetString<MAX> {
         Self { bytes: vec![0] }
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error<MAX>> {
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
             return Err(Error::TooManyBytes {
                 actual: bytes.len(),
+                max: MAX,
             });
         }
 
@@ -68,7 +69,7 @@ impl<const MAX: usize> Default for OctetString<MAX> {
 }
 
 impl<const MAX: usize> FromStr for OctetString<MAX> {
-    type Err = Error<MAX>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Self::new(s.as_bytes())
@@ -141,7 +142,7 @@ mod tests {
         fn too_many_bytes() {
             let bytes = b"Hello\0World!\0";
             let error = OctetString::<5>::new(bytes).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 13 }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 13, .. }));
         }
 
         #[test]

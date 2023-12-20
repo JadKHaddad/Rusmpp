@@ -9,9 +9,9 @@ use crate::io::{
 };
 
 #[derive(thiserror::Error, Debug)]
-pub enum Error<const N: usize> {
-    #[error("Too many bytes. actual: {actual}, max: {N}")]
-    TooManyBytes { actual: usize },
+pub enum Error {
+    #[error("Too many bytes. actual: {actual}, max: {max}")]
+    TooManyBytes { actual: usize, max: usize },
     #[error("Too few bytes. actual: {actual}, min: 1")]
     TooFewBytes { actual: usize },
     #[error("Not null terminated")]
@@ -35,7 +35,7 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
         Self { bytes: vec![0] }
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error<N>> {
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
         if bytes[bytes.len() - 1] != 0 {
@@ -60,6 +60,7 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
             if bytes.len() > N {
                 return Err(Error::TooManyBytes {
                     actual: bytes.len(),
+                    max: N,
                 });
             }
         }
@@ -90,7 +91,7 @@ impl<const N: usize> Default for EmptyOrFullCOctetString<N> {
 }
 
 impl<const N: usize> FromStr for EmptyOrFullCOctetString<N> {
-    type Err = Error<N>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut bytes = s.as_bytes().to_vec();
@@ -180,7 +181,7 @@ mod tests {
         fn too_many_bytes() {
             let bytes = b"Hello\0";
             let error = EmptyOrFullCOctetString::<5>::new(bytes).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6, .. }));
         }
 
         #[test]
@@ -249,7 +250,7 @@ mod tests {
         fn too_many_bytes() {
             let string = "Hello";
             let error = EmptyOrFullCOctetString::<5>::from_str(string).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6, .. }));
         }
 
         #[test]

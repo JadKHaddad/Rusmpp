@@ -9,9 +9,9 @@ use crate::io::{
 };
 
 #[derive(thiserror::Error, Debug)]
-pub enum Error<const MAX: usize> {
-    #[error("Too many bytes. actual: {actual}, max: {MAX}")]
-    TooManyBytes { actual: usize },
+pub enum Error {
+    #[error("Too many bytes. actual: {actual}, max: {max}")]
+    TooManyBytes { actual: usize, max: usize },
     #[error("Not null terminated")]
     NotNullTerminated,
     #[error("Not ASCII")]
@@ -54,12 +54,13 @@ impl<const MAX: usize> COctetString<MAX> {
         Self { bytes: vec![0] }
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error<MAX>> {
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
         if bytes.as_ref().len() > MAX {
             return Err(Error::TooManyBytes {
                 actual: bytes.len(),
+                max: MAX,
             });
         }
 
@@ -101,7 +102,7 @@ impl<const MAX: usize> std::fmt::Debug for COctetString<MAX> {
 }
 
 impl<const MAX: usize> FromStr for COctetString<MAX> {
-    type Err = Error<MAX>;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut bytes = s.as_bytes().to_vec();
@@ -183,7 +184,7 @@ mod tests {
         fn too_many_bytes() {
             let bytes = b"Hello\0";
             let error = COctetString::<5>::new(bytes).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6, .. }));
         }
 
         #[test]
@@ -245,7 +246,7 @@ mod tests {
         fn too_many_bytes() {
             let string = "Hello";
             let error = COctetString::<5>::from_str(string).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 6 }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6, .. }));
         }
 
         #[test]

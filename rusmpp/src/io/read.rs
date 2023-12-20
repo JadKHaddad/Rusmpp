@@ -1,19 +1,18 @@
-use self::result::IoReadResult;
-
 pub type AsyncIoReadable = dyn tokio::io::AsyncBufRead + Send + Unpin;
+
+pub type IoReadResult<T, E> = Result<self::result::IoRead<T>, E>;
 
 #[async_trait::async_trait]
 pub trait AsyncIoRead
 where
     Self: Sized,
 {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self>;
+    type Error;
+
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self, Self::Error>;
 }
 
 pub mod result {
-    use super::error::IoReadError;
-
-    pub type IoReadResult<T> = Result<IoRead<T>, IoReadError>;
 
     #[derive(Debug, Clone)]
     pub struct IoRead<T> {
@@ -26,50 +25,20 @@ pub mod result {
             self.value
         }
 
-        pub fn into_parts(self) -> (T, usize) {
-            (self.value, self.read)
+        pub fn into_size(self) -> usize {
+            self.read
         }
     }
-}
 
-pub mod error {
-    #[derive(thiserror::Error, Debug)]
-    pub enum IoReadError {
-        #[error("IO error: {0}")]
-        IO(
-            #[from]
-            #[source]
-            std::io::Error,
-        ),
-        #[error("COctetString error: {0}")]
-        COctetStringError(
-            #[from]
-            #[source]
-            IoCOctetStringError,
-        ),
-        #[error("OctetString error: {0}")]
-        OctetStringError(
-            #[from]
-            #[source]
-            IoOctetStringError,
-        ),
-        #[error("Unknown key: {key}")]
-        UnknownKey { key: u32 },
+    impl<T> From<(T, usize)> for IoRead<T> {
+        fn from((value, read): (T, usize)) -> Self {
+            Self { value, read }
+        }
     }
 
-    /// Error when reading a COctetString
-    #[derive(thiserror::Error, Debug)]
-    pub enum IoCOctetStringError {
-        #[error("Not ASCII")]
-        NotAscii,
-        #[error("Not null terminated")]
-        NotNullTerminated,
-    }
-
-    /// Error when reading an OctetString
-    #[derive(thiserror::Error, Debug)]
-    pub enum IoOctetStringError {
-        #[error("Too many bytes")]
-        TooManyBytes,
+    impl<T> From<IoRead<T>> for (T, usize) {
+        fn from(io_read: IoRead<T>) -> Self {
+            (io_read.value, io_read.read)
+        }
     }
 }

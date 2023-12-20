@@ -2,10 +2,7 @@ use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{
-        result::{IoRead, IoReadResult},
-        AsyncIoRead, AsyncIoReadable,
-    },
+    read::{result::IoRead, AsyncIoRead, AsyncIoReadable, IoReadResult},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -28,7 +25,9 @@ impl AsyncIoWrite for u32 {
 
 #[async_trait::async_trait]
 impl AsyncIoRead for u32 {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self> {
+    type Error = std::io::Error;
+
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self, Self::Error> {
         Ok(IoRead {
             value: buf.read_u32().await?,
             read: SIZE,

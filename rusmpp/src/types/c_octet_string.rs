@@ -4,11 +4,7 @@ use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
 use crate::io::{
     length::IoLength,
-    read::{
-        error::{IoCOctetStringError, IoReadError},
-        result::{IoRead, IoReadResult},
-        AsyncIoRead, AsyncIoReadable,
-    },
+    read::{result::IoRead, AsyncIoRead, AsyncIoReadable, IoReadResult},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -140,22 +136,34 @@ impl<const MAX: usize> AsyncIoWrite for COctetString<MAX> {
     }
 }
 
+#[derive(thiserror::Error, Debug)]
+pub enum IoCOctetStringError {
+    #[error("IO error: {0}")]
+    IO(
+        #[from]
+        #[source]
+        std::io::Error,
+    ),
+    #[error("Not ASCII")]
+    NotAscii,
+    #[error("Not null terminated")]
+    NotNullTerminated,
+}
+
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self> {
+    type Error = IoCOctetStringError;
+
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> IoReadResult<Self, Self::Error> {
         let mut bytes = Vec::with_capacity(MAX);
         let read = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
 
         if bytes.last() != Some(&0x00) {
-            return Err(IoReadError::COctetStringError(
-                IoCOctetStringError::NotNullTerminated,
-            ));
+            return Err(IoCOctetStringError::NotNullTerminated);
         }
 
         if !bytes.is_ascii() {
-            return Err(IoReadError::COctetStringError(
-                IoCOctetStringError::NotAscii,
-            ));
+            return Err(IoCOctetStringError::NotAscii);
         }
 
         Ok(IoRead {
@@ -291,10 +299,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                IoReadError::COctetStringError(IoCOctetStringError::NotNullTerminated)
-            ));
+            assert!(matches!(error, IoCOctetStringError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -304,10 +309,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                IoReadError::COctetStringError(IoCOctetStringError::NotNullTerminated)
-            ));
+            assert!(matches!(error, IoCOctetStringError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -317,10 +319,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                IoReadError::COctetStringError(IoCOctetStringError::NotAscii)
-            ));
+            assert!(matches!(error, IoCOctetStringError::NotAscii));
         }
 
         #[tokio::test]
@@ -329,7 +328,7 @@ mod tests {
             let (string, read) = COctetString::<6>::async_io_read(&mut bytes.as_ref())
                 .await
                 .unwrap()
-                .into_parts();
+                .into();
 
             assert_eq!(string.bytes, b"Hello\0");
             assert_eq!(read, 6);
@@ -342,7 +341,7 @@ mod tests {
             let (string, read) = COctetString::<25>::async_io_read(&mut bytes.as_ref())
                 .await
                 .unwrap()
-                .into_parts();
+                .into();
 
             assert_eq!(string.bytes, b"Hello\0");
             assert_eq!(read, 6);
@@ -355,7 +354,7 @@ mod tests {
             let (string, read) = COctetString::<1>::async_io_read(&mut bytes.as_ref())
                 .await
                 .unwrap()
-                .into_parts();
+                .into();
 
             assert_eq!(string.bytes, b"\0");
             assert_eq!(read, 1);
@@ -368,7 +367,7 @@ mod tests {
             let (string, read) = COctetString::<25>::async_io_read(&mut bytes.as_ref())
                 .await
                 .unwrap()
-                .into_parts();
+                .into();
 
             assert_eq!(string.bytes, b"\0");
             assert_eq!(read, 1);
@@ -379,10 +378,7 @@ mod tests {
         async fn ok_remaining() {
             let bytes = b"Hello\0World!";
             let buf = &mut bytes.as_ref();
-            let (string, read) = COctetString::<25>::async_io_read(buf)
-                .await
-                .unwrap()
-                .into_parts();
+            let (string, read) = COctetString::<25>::async_io_read(buf).await.unwrap().into();
 
             assert_eq!(string.bytes, b"Hello\0");
             assert_eq!(read, 6);

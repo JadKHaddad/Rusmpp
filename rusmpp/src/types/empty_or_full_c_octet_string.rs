@@ -128,7 +128,7 @@ impl<const N: usize> AsyncIoWrite for EmptyOrFullCOctetString<N> {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum EmptyOrFullCOctetStringIoReadError {
+pub enum IoReadError {
     #[error("IO error: {0}")]
     IO(
         #[from]
@@ -145,7 +145,7 @@ pub enum EmptyOrFullCOctetStringIoReadError {
 
 #[async_trait::async_trait]
 impl<const N: usize> AsyncIoRead for EmptyOrFullCOctetString<N> {
-    type Error = EmptyOrFullCOctetStringIoReadError;
+    type Error = IoReadError;
 
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
         let mut bytes = Vec::with_capacity(N);
@@ -309,10 +309,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                EmptyOrFullCOctetStringIoReadError::NotNullTerminated
-            ));
+            assert!(matches!(error, IoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -322,10 +319,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                EmptyOrFullCOctetStringIoReadError::NotNullTerminated
-            ));
+            assert!(matches!(error, IoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -335,10 +329,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                EmptyOrFullCOctetStringIoReadError::TooFewBytes { actual: 4 }
-            ));
+            assert!(matches!(error, IoReadError::TooFewBytes { actual: 4 }));
         }
 
         #[tokio::test]
@@ -348,10 +339,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(
-                error,
-                EmptyOrFullCOctetStringIoReadError::NotAscii
-            ));
+            assert!(matches!(error, IoReadError::NotAscii));
         }
 
         #[tokio::test]

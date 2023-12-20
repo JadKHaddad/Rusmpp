@@ -139,7 +139,7 @@ impl<const MAX: usize> AsyncIoWrite for COctetString<MAX> {
 }
 
 #[derive(thiserror::Error, Debug)]
-pub enum COctetStringIoReadError {
+pub enum IoReadError {
     #[error("IO error: {0}")]
     IO(
         #[from]
@@ -154,7 +154,7 @@ pub enum COctetStringIoReadError {
 
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoRead for COctetString<MAX> {
-    type Error = COctetStringIoReadError;
+    type Error = IoReadError;
 
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, Self::Error> {
         let mut bytes = Vec::with_capacity(MAX);
@@ -298,7 +298,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, COctetStringIoReadError::NotNullTerminated));
+            assert!(matches!(error, IoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -308,7 +308,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, COctetStringIoReadError::NotNullTerminated));
+            assert!(matches!(error, IoReadError::NotNullTerminated));
         }
 
         #[tokio::test]
@@ -318,7 +318,7 @@ mod tests {
                 .await
                 .unwrap_err();
 
-            assert!(matches!(error, COctetStringIoReadError::NotAscii));
+            assert!(matches!(error, IoReadError::NotAscii));
         }
 
         #[tokio::test]

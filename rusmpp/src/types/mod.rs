@@ -1,6 +1,7 @@
 pub mod c_octet_string;
 pub mod empty_or_full_c_octet_string;
 pub mod octet_string;
+pub mod option;
 /// An unsigned integer value, which can be 1, 2 or 4 octets
 /// in size. The octets are always encoded in Most Significant
 /// Byte (MSB) first order, otherwise known as Big Endian

@@ -1,0 +1,171 @@
+use crate::io::{
+    length::IoLength,
+    read::{AsyncIoRead, AsyncIoReadWithKey, AsyncIoReadable, IoReadError},
+    write::{AsyncIoWritable, AsyncIoWrite},
+};
+
+use super::{
+    body::pdu_body::PduBody,
+    types::{
+        command_id::{CommandId, NoBodyCommandId},
+        command_status::{CommandStatus, InvalidCommandStatus},
+        sequence_number::{InvalidSequenceNumber, SequenceNumber},
+    },
+};
+
+#[derive(thiserror::Error, Debug)]
+pub enum InvalidPdu {
+    #[error(transparent)]
+    InvalidCommandStatus(#[from] InvalidCommandStatus),
+    #[error(transparent)]
+    InvalidSequenceNumber(#[from] InvalidSequenceNumber),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Pdu {
+    pub command_length: u32,
+    command_id: CommandId,
+    command_status: CommandStatus,
+    sequence_number: SequenceNumber,
+    body: Option<PduBody>,
+}
+
+impl Pdu {
+    pub fn new(
+        command_status: CommandStatus,
+        sequence_number: SequenceNumber,
+        body: PduBody,
+    ) -> Result<Self, InvalidPdu> {
+        let command_id = body.command_id();
+
+        // crate::types::u32::SIZE = 4 is the size of command_length itself as a field
+        let command_length = (crate::types::u32::SIZE
+            + command_id.length()
+            + command_status.length()
+            + sequence_number.length()
+            + body.length()) as u32;
+
+        let pdu = Self {
+            command_length,
+            command_id,
+            command_status,
+            sequence_number,
+            body: Some(body),
+        };
+
+        pdu.validate()?;
+
+        Ok(pdu)
+    }
+
+    pub fn new_without_body(
+        command_id: NoBodyCommandId,
+        command_status: CommandStatus,
+        sequence_number: SequenceNumber,
+    ) -> Result<Self, InvalidPdu> {
+        let command_id: CommandId = command_id.into();
+        let command_length = (crate::types::u32::SIZE
+            + command_id.length()
+            + command_status.length()
+            + sequence_number.length()) as u32;
+
+        let pdu = Self {
+            command_length,
+            command_id,
+            command_status,
+            sequence_number,
+            body: None,
+        };
+
+        pdu.validate()?;
+
+        Ok(pdu)
+    }
+
+    pub fn validate(&self) -> Result<(), InvalidPdu> {
+        self.command_status.validate(self.command_id)?;
+        self.sequence_number.validate(self.command_id)?;
+
+        Ok(())
+    }
+
+    pub fn command_length(&self) -> u32 {
+        self.command_length
+    }
+
+    pub fn command_id(&self) -> CommandId {
+        self.command_id
+    }
+
+    pub fn command_status(&self) -> CommandStatus {
+        self.command_status
+    }
+
+    pub fn sequence_number(&self) -> SequenceNumber {
+        self.sequence_number
+    }
+
+    pub fn body(&self) -> Option<&PduBody> {
+        self.body.as_ref()
+    }
+
+    pub fn into_body(self) -> Option<PduBody> {
+        self.body
+    }
+}
+
+impl IoLength for Pdu {
+    fn length(&self) -> usize {
+        self.command_length.length()
+            + self.command_id.length()
+            + self.command_status.length()
+            + self.sequence_number.length()
+            + self.body.length()
+    }
+}
+
+#[async_trait::async_trait]
+impl AsyncIoWrite for Pdu {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+        let mut written = 0;
+
+        written += self.command_length.async_io_write(buf).await?;
+        written += self.command_id.async_io_write(buf).await?;
+        written += self.command_status.async_io_write(buf).await?;
+        written += self.sequence_number.async_io_write(buf).await?;
+        written += self.body.async_io_write(buf).await?;
+
+        Ok(written)
+    }
+}
+
+#[async_trait::async_trait]
+impl AsyncIoRead for Pdu {
+    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
+        let command_length = u32::async_io_read(buf).await?;
+        let command_id = CommandId::async_io_read(buf).await?;
+        let command_status = CommandStatus::async_io_read(buf).await?;
+        let sequence_number = SequenceNumber::async_io_read(buf).await?;
+
+        let body_expected_len = (command_length as usize).saturating_sub(
+            command_length.length()
+                + command_id.length()
+                + command_status.length()
+                + sequence_number.length(),
+        );
+
+        let body = if body_expected_len > 0 {
+            PduBody::async_io_read(command_id, buf, body_expected_len).await?
+        } else {
+            None
+        };
+
+        Ok(Self {
+            command_length,
+            command_id,
+            command_status,
+            sequence_number,
+            body,
+        })
+    }
+}

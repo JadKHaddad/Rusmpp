@@ -6,7 +6,7 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
-const SIZE: usize = 4;
+pub const SIZE: usize = 4;
 
 impl IoLength for u32 {
     fn length(&self) -> usize {

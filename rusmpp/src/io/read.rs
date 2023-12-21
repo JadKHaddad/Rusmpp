@@ -29,7 +29,7 @@ where
         key: Self::Key,
         buf: &mut AsyncIoReadable,
         length: usize,
-    ) -> Result<Self, IoReadError>;
+    ) -> Result<Option<Self>, IoReadError>;
 }
 
 #[derive(thiserror::Error, Debug)]

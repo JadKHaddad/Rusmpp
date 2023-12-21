@@ -47,14 +47,22 @@ impl AsyncIoReadWithKey for TLVValue {
         key: Self::Key,
         buf: &mut AsyncIoReadable,
         length: usize,
-    ) -> Result<Self, IoReadError> {
-        match key {
-            TLVTag::ScInterfaceVersion => Ok(TLVValue::ScInterfaceVersion(
-                InterfaceVersion::async_io_read(buf).await?,
-            )),
-            _ => Err(IoReadError::UnknownKey {
-                key: u32::from(u16::from(key)),
-            }),
+    ) -> Result<Option<Self>, IoReadError> {
+        if !key.has_value() {
+            return Ok(None);
         }
+
+        let read = match key {
+            TLVTag::ScInterfaceVersion => {
+                TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
+            }
+            _ => {
+                return Err(IoReadError::UnknownKey {
+                    key: u32::from(u16::from(key)),
+                })
+            }
+        };
+
+        Ok(Some(read))
     }
 }

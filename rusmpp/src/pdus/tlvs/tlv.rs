@@ -10,7 +10,7 @@ use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 pub struct TLV {
     tag: TLVTag,
     value_length: u16,
-    value: TLVValue,
+    value: Option<TLVValue>,
 }
 
 impl TLV {
@@ -21,7 +21,7 @@ impl TLV {
         Self {
             tag,
             value_length,
-            value,
+            value: Some(value),
         }
     }
 }

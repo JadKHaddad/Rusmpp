@@ -126,16 +126,13 @@ impl IoLength for Pdu {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for Pdu {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        let mut written = 0;
-
-        written += self.command_length.async_io_write(buf).await?;
-        written += self.command_id.async_io_write(buf).await?;
-        written += self.command_status.async_io_write(buf).await?;
-        written += self.sequence_number.async_io_write(buf).await?;
-        written += self.body.async_io_write(buf).await?;
-
-        Ok(written)
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        self.command_length.async_io_write(buf).await?;
+        self.command_id.async_io_write(buf).await?;
+        self.command_status.async_io_write(buf).await?;
+        self.sequence_number.async_io_write(buf).await?;
+        self.body.async_io_write(buf).await?;
+        Ok(())
     }
 }
 

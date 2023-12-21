@@ -133,7 +133,7 @@ impl IoLength for CommandStatus {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for CommandStatus {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         u32::from(*self).async_io_write(buf).await
     }
 }

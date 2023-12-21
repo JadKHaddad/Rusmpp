@@ -22,13 +22,11 @@ impl IoLength for BindResp {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for BindResp {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        let mut written = 0;
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        self.system_id.async_io_write(buf).await?;
+        self.sc_interface_version.async_io_write(buf).await?;
 
-        written += self.system_id.async_io_write(buf).await?;
-        written += self.sc_interface_version.async_io_write(buf).await?;
-
-        Ok(written)
+        Ok(())
     }
 }
 

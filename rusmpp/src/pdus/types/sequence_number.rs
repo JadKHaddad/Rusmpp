@@ -50,7 +50,7 @@ impl IoLength for SequenceNumber {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for SequenceNumber {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         self.value.async_io_write(buf).await
     }
 }

@@ -20,10 +20,10 @@ impl<T> AsyncIoWrite for Option<T>
 where
     T: AsyncIoWrite + Send + Sync,
 {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         match self {
             Some(v) => v.async_io_write(buf).await,
-            None => Ok(0),
+            None => Ok(()),
         }
     }
 }

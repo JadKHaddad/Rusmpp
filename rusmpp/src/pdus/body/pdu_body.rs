@@ -49,7 +49,7 @@ impl IoLength for PduBody {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for PduBody {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         match self {
             PduBody::BindTransmitter(b) => b.async_io_write(buf).await,
             PduBody::BindTransmitterResp(b) => b.async_io_write(buf).await,

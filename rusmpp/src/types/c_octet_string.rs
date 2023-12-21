@@ -132,10 +132,8 @@ impl<const MAX: usize> IoLength for COctetString<MAX> {
 
 #[async_trait::async_trait]
 impl<const MAX: usize> AsyncIoWrite for COctetString<MAX> {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        buf.write_all(&self.bytes).await?;
-
-        Ok(self.bytes.len())
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        buf.write_all(&self.bytes).await
     }
 }
 

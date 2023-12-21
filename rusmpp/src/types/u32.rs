@@ -16,10 +16,8 @@ impl IoLength for u32 {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for u32 {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        buf.write_u32(*self).await?;
-
-        Ok(SIZE)
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        buf.write_u32(*self).await
     }
 }
 

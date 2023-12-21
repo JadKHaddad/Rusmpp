@@ -37,7 +37,7 @@ impl IoLength for Ton {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for Ton {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         u8::from(*self).async_io_write(buf).await
     }
 }

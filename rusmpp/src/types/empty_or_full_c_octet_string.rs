@@ -121,10 +121,8 @@ impl<const N: usize> IoLength for EmptyOrFullCOctetString<N> {
 
 #[async_trait::async_trait]
 impl<const N: usize> AsyncIoWrite for EmptyOrFullCOctetString<N> {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        buf.write_all(&self.bytes).await?;
-
-        Ok(self.bytes.len())
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        buf.write_all(&self.bytes).await
     }
 }
 

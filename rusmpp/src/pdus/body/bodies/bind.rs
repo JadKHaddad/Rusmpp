@@ -33,18 +33,16 @@ impl IoLength for Bind {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for Bind {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        let mut written = 0;
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        self.system_id.async_io_write(buf).await?;
+        self.password.async_io_write(buf).await?;
+        self.system_type.async_io_write(buf).await?;
+        self.interface_version.async_io_write(buf).await?;
+        self.addr_ton.async_io_write(buf).await?;
+        self.addr_npi.async_io_write(buf).await?;
+        self.address_range.async_io_write(buf).await?;
 
-        written += self.system_id.async_io_write(buf).await?;
-        written += self.password.async_io_write(buf).await?;
-        written += self.system_type.async_io_write(buf).await?;
-        written += self.interface_version.async_io_write(buf).await?;
-        written += self.addr_ton.async_io_write(buf).await?;
-        written += self.addr_npi.async_io_write(buf).await?;
-        written += self.address_range.async_io_write(buf).await?;
-
-        Ok(written)
+        Ok(())
     }
 }
 

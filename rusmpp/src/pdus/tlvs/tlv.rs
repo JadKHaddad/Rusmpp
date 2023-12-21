@@ -34,14 +34,12 @@ impl IoLength for TLV {
 
 #[async_trait::async_trait]
 impl AsyncIoWrite for TLV {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<usize> {
-        let mut written = 0;
+    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
+        self.tag.async_io_write(buf).await?;
+        self.value_length.async_io_write(buf).await?;
+        self.value.async_io_write(buf).await?;
 
-        written += self.tag.async_io_write(buf).await?;
-        written += self.value_length.async_io_write(buf).await?;
-        written += self.value.async_io_write(buf).await?;
-
-        Ok(written)
+        Ok(())
     }
 }
 

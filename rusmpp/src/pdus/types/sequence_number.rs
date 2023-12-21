@@ -26,6 +26,10 @@ pub struct SequenceNumber {
 }
 
 impl SequenceNumber {
+    pub fn new(value: u32) -> Self {
+        Self { value }
+    }
+
     pub fn validate(&self, command_id: CommandId) -> Result<(), InvalidSequenceNumber> {
         if self.value == 0 && command_id != CommandId::GenericNack {
             return Err(InvalidSequenceNumber {

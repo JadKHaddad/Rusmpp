@@ -23,7 +23,7 @@ pub enum InvalidPdu {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Pdu {
-    pub command_length: u32,
+    command_length: u32,
     command_id: CommandId,
     command_status: CommandStatus,
     sequence_number: SequenceNumber,

@@ -6,7 +6,10 @@ pub mod types;
 mod tests {
     use std::str::FromStr;
 
-    use tokio::{io::BufReader, net::TcpStream};
+    use tokio::{
+        io::{AsyncWriteExt, BufReader},
+        net::{TcpListener, TcpStream},
+    };
 
     use crate::{
         io::{read::AsyncIoRead, write::AsyncIoWrite},
@@ -113,6 +116,7 @@ mod tests {
     }
 
     #[tokio::test]
+    #[ignore]
     async fn send_three() {
         let mut stream = TcpStream::connect("34.242.18.250:2775")
             .await
@@ -164,5 +168,61 @@ mod tests {
     #[tokio::test]
     async fn invalid_pdu_with_generic_nack() {
         // TODO
+    }
+
+    #[tokio::test]
+    #[ignore]
+    async fn send_slow() {
+        tokio::spawn(async move {
+            let listener = TcpListener::bind("127.0.0.1:8080")
+                .await
+                .expect("Failed to bind");
+
+            println!("Listening on: {}", listener.local_addr().unwrap());
+
+            loop {
+                let (stream, _) = listener.accept().await.expect("Failed to accept");
+                tokio::spawn(async move {
+                    let mut buf_reader = BufReader::new(stream);
+
+                    match Pdu::async_io_read(&mut buf_reader).await {
+                        Ok(pdu) => {
+                            println!("Got pdu: {:#?}", pdu);
+                        }
+                        Err(e) => {
+                            eprintln!("error parsing pdu: {}", e)
+                        }
+                    }
+                });
+            }
+        });
+
+        let pdu = Pdu::new(
+            CommandStatus::EsmeRok,
+            SequenceNumber::new(1),
+            PduBody::BindTransceiver(create_default_bind()),
+        )
+        .unwrap();
+
+        let mut pdu_bytes = Vec::new();
+        pdu.async_io_write(&mut pdu_bytes)
+            .await
+            .expect("Failed to write pdu bytes to vec");
+
+        let mut stream = TcpStream::connect("127.0.0.1:8080")
+            .await
+            .expect("Failed to connect");
+
+        for byte in pdu_bytes {
+            println!("Sending byte: {:#02x}", byte);
+            stream
+                .write_u8(byte)
+                .await
+                .expect("Failed to write pdu bytes to steam");
+            tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+        }
+
+        println!("Done sending pdu bytes");
+        tokio::time::sleep(tokio::time::Duration::from_secs(10)).await;
     }
 }

@@ -11,7 +11,7 @@ use crate::{
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
-use super::bodies::{bind::Bind, bind_resp::BindResp};
+use super::bodies::{bind::Bind, bind_resp::BindResp, submit_sm::SubmitSm};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PduBody {
@@ -21,6 +21,7 @@ pub enum PduBody {
     BindReceiverResp(BindResp),
     BindTransceiver(Bind),
     BindTransceiverResp(BindResp),
+    SubmitSm(SubmitSm),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -36,6 +37,7 @@ impl PduBody {
             PduBody::BindReceiverResp(_) => CommandId::BindReceiverResp,
             PduBody::BindTransceiver(_) => CommandId::BindTransceiver,
             PduBody::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
+            PduBody::SubmitSm(_) => CommandId::SubmitSm,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -50,6 +52,7 @@ impl IoLength for PduBody {
             PduBody::BindReceiverResp(b) => b.length(),
             PduBody::BindTransceiver(b) => b.length(),
             PduBody::BindTransceiverResp(b) => b.length(),
+            PduBody::SubmitSm(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -65,6 +68,7 @@ impl AsyncIoWrite for PduBody {
             PduBody::BindReceiverResp(b) => b.async_io_write(buf).await,
             PduBody::BindTransceiver(b) => b.async_io_write(buf).await,
             PduBody::BindTransceiverResp(b) => b.async_io_write(buf).await,
+            PduBody::SubmitSm(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -96,6 +100,7 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::BindTransceiverResp => {
                 PduBody::BindTransceiverResp(BindResp::async_io_read(buf, length).await?)
             }
+            CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::async_io_read(buf).await?),
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,

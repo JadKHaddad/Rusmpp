@@ -9,5 +9,4 @@ pub mod registered_delivery;
 pub mod replace_if_present_flag;
 pub mod sequence_number;
 pub mod service_type;
-pub mod sm_default_msg_id;
 pub mod ton;

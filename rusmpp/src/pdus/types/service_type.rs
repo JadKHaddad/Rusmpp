@@ -59,7 +59,8 @@ impl<'a> GenericServiceType<'a> {
 ///
 /// Note: In the case of Cell Broadcast Service replace functionality by service type is not
 /// supported.
-#[derive(Debug, PartialEq, Eq, Clone)]
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ServiceType {
     value: COctetString<6>,
 }

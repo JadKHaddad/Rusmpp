@@ -44,11 +44,13 @@ pub enum IoReadError {
     COctetStringIoReadError(#[source] COctetStringIoReadError),
     #[error("OctetString error: {0}")]
     OctetStringIoReadError(#[source] OctetStringIoReadError),
+    #[error("GreaterThanValue error: {0}")]
+    GreaterThanValue(#[source] GreaterThanValueIoReadError),
     #[error("Unsupported key: {key}")]
     UnsupportedKey { key: u32 },
 }
 
-/// Error when deserializing a COctetString
+/// Error when reading a COctetString
 #[derive(thiserror::Error, Debug)]
 pub enum COctetStringIoReadError {
     #[error("Too few bytes. actual: {actual}, min: 1")]
@@ -59,9 +61,16 @@ pub enum COctetStringIoReadError {
     NotNullTerminated,
 }
 
-/// Error when deserializing a OctetString
+/// Error when reading an OctetString
 #[derive(thiserror::Error, Debug)]
 pub enum OctetStringIoReadError {
     #[error("Too many bytes. actual: {actual}, max: {max}")]
     TooManyBytes { actual: usize, max: usize },
+}
+
+/// Error when reading a GreaterThan<Value>
+#[derive(thiserror::Error, Debug)]
+pub enum GreaterThanValueIoReadError {
+    #[error("Too small value. actual: {actual}, min: {min}")]
+    TooSmall { actual: usize, min: usize },
 }

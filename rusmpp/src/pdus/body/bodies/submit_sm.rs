@@ -208,8 +208,8 @@ impl AsyncIoWrite for SubmitSm {
 }
 
 #[async_trait::async_trait]
-impl AsyncIoRead for SubmitSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
+impl AsyncIoReadWithLength for SubmitSm {
+    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let sm_length = u8::async_io_read(buf).await?;
 
         Ok(Self {

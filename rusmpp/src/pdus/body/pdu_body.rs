@@ -11,7 +11,9 @@ use crate::{
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
-use super::bodies::{bind::Bind, bind_resp::BindResp, submit_sm::SubmitSm};
+use super::bodies::{
+    bind::Bind, bind_resp::BindResp, submit_sm::SubmitSm, submit_sm_resp::SubmitSmResp,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PduBody {
@@ -22,6 +24,7 @@ pub enum PduBody {
     BindTransceiver(Bind),
     BindTransceiverResp(BindResp),
     SubmitSm(SubmitSm),
+    SubmitSmResp(SubmitSmResp),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -38,6 +41,7 @@ impl PduBody {
             PduBody::BindTransceiver(_) => CommandId::BindTransceiver,
             PduBody::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             PduBody::SubmitSm(_) => CommandId::SubmitSm,
+            PduBody::SubmitSmResp(_) => CommandId::SubmitSmResp,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -53,6 +57,7 @@ impl IoLength for PduBody {
             PduBody::BindTransceiver(b) => b.length(),
             PduBody::BindTransceiverResp(b) => b.length(),
             PduBody::SubmitSm(b) => b.length(),
+            PduBody::SubmitSmResp(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -69,6 +74,7 @@ impl AsyncIoWrite for PduBody {
             PduBody::BindTransceiver(b) => b.async_io_write(buf).await,
             PduBody::BindTransceiverResp(b) => b.async_io_write(buf).await,
             PduBody::SubmitSm(b) => b.async_io_write(buf).await,
+            PduBody::SubmitSmResp(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -100,7 +106,10 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::BindTransceiverResp => {
                 PduBody::BindTransceiverResp(BindResp::async_io_read(buf, length).await?)
             }
-            CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::async_io_read(buf).await?),
+            CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::async_io_read(buf, length).await?),
+            CommandId::SubmitSmResp => {
+                PduBody::SubmitSmResp(SubmitSmResp::async_io_read(buf, length).await?)
+            }
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,

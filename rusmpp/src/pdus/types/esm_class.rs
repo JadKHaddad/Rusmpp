@@ -6,7 +6,7 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct EsmClass {
     pub messaging_mode: MessagingMode,
     pub message_type: MessageType,

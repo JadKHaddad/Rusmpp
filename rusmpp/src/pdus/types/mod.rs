@@ -1,6 +1,13 @@
 pub mod command_id;
 pub mod command_status;
+pub mod data_coding;
+pub mod esm_class;
 pub mod interface_version;
 pub mod npi;
+pub mod priority_flag;
+pub mod registered_delivery;
+pub mod replace_if_present_flag;
 pub mod sequence_number;
+pub mod service_type;
+pub mod sm_default_msg_id;
 pub mod ton;

@@ -44,6 +44,8 @@ pub enum Error {
 /// encoded as follows:
 ///
 /// 0x413246354544323738464300
+///
+/// A NULL string “” is encoded as 0x00
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct COctetString<const MAX: usize> {
     bytes: Vec<u8>,

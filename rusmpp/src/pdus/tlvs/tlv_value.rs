@@ -1,10 +1,14 @@
 use crate::{
     io::{
         length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithKey, AsyncIoReadable, IoReadError},
+        read::{
+            AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadWithLength, AsyncIoReadable,
+            IoReadError,
+        },
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::types::interface_version::InterfaceVersion,
+    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
 use super::tlv_tag::TLVTag;
@@ -12,12 +16,17 @@ use super::tlv_tag::TLVTag;
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TLVValue {
     ScInterfaceVersion(InterfaceVersion),
+    Other {
+        tag: TLVTag,
+        value: NoFixedSizeOctetString,
+    },
 }
 
 impl TLVValue {
     pub fn tlv_tag(&self) -> TLVTag {
         match self {
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
+            TLVValue::Other { tag, .. } => *tag,
         }
     }
 }
@@ -26,6 +35,7 @@ impl IoLength for TLVValue {
     fn length(&self) -> usize {
         match self {
             TLVValue::ScInterfaceVersion(v) => v.length(),
+            TLVValue::Other { value, .. } => value.length(),
         }
     }
 }
@@ -35,12 +45,13 @@ impl AsyncIoWrite for TLVValue {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         match self {
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
+            TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoReadWithKey for TLVValue {
+impl AsyncIoReadWithKeyOptional for TLVValue {
     type Key = TLVTag;
 
     async fn async_io_read(
@@ -48,19 +59,15 @@ impl AsyncIoReadWithKey for TLVValue {
         buf: &mut AsyncIoReadable,
         length: usize,
     ) -> Result<Option<Self>, IoReadError> {
-        if !key.has_value() {
-            return Ok(None);
-        }
-
         let read = match key {
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }
-            _ => {
-                return Err(IoReadError::UnknownKey {
-                    key: u32::from(u16::from(key)),
-                })
-            }
+            TLVTag::Other(_) => TLVValue::Other {
+                tag: key,
+                value: NoFixedSizeOctetString::async_io_read(buf, length).await?,
+            },
+            _ => return Err(IoReadError::UnsupportedKey { key: key.into() }),
         };
 
         Ok(Some(read))

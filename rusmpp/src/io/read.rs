@@ -19,11 +19,11 @@ where
 }
 
 #[async_trait::async_trait]
-pub trait AsyncIoReadWithKey
+pub trait AsyncIoReadWithKeyOptional
 where
     Self: Sized + IoLength,
 {
-    type Key;
+    type Key: From<u32> + Into<u32>;
 
     async fn async_io_read(
         key: Self::Key,
@@ -44,8 +44,8 @@ pub enum IoReadError {
     COctetStringIoReadError(#[source] COctetStringIoReadError),
     #[error("OctetString error: {0}")]
     OctetStringIoReadError(#[source] OctetStringIoReadError),
-    #[error("Unknown key: {key}")]
-    UnknownKey { key: u32 },
+    #[error("Unsupported key: {key}")]
+    UnsupportedKey { key: u32 },
 }
 
 /// Error when deserializing a COctetString

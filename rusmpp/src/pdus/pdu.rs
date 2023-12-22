@@ -1,6 +1,6 @@
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithKey, AsyncIoReadable, IoReadError},
+    read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 

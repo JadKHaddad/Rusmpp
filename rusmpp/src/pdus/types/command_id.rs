@@ -73,7 +73,6 @@ impl CommandId {
                 | CommandId::CancelSmResp
                 | CommandId::ReplaceSmResp
                 | CommandId::CancelBroadcastSmResp
-                | CommandId::Other(_)
         )
     }
 }

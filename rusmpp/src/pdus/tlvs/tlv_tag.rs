@@ -79,9 +79,15 @@ pub enum TLVTag {
     Other(u16),
 }
 
-impl TLVTag {
-    pub fn has_value(&self) -> bool {
-        !matches!(self, TLVTag::Other(_))
+impl From<u32> for TLVTag {
+    fn from(v: u32) -> Self {
+        Self::from(v as u16)
+    }
+}
+
+impl From<TLVTag> for u32 {
+    fn from(v: TLVTag) -> Self {
+        v.into()
     }
 }
 

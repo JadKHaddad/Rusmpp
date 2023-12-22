@@ -23,6 +23,9 @@ pub enum Error {
 /// String field. An example of this is the short_message field
 /// of the submit_sm PDU that is Octet String encoded and
 /// the previous message_length field specifies its length.
+///
+/// A NULL Octet-String is not encoded. The explicit length
+/// field that indicates its length should be set to zero.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OctetString<const MAX: usize> {
     bytes: Vec<u8>,
@@ -30,7 +33,7 @@ pub struct OctetString<const MAX: usize> {
 
 impl<const MAX: usize> OctetString<MAX> {
     pub fn empty() -> Self {
-        Self { bytes: vec![0] }
+        Self { bytes: vec![] }
     }
 
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {

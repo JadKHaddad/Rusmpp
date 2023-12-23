@@ -62,6 +62,7 @@ pub enum TLVValue {
     BroadcastRepNum(u16),
     BroadcastServiceGroup(OctetString<1, 255>),
     CallbackNum(OctetString<4, 19>),
+    CallbackNumAtag(OctetString<0, 65>),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -87,6 +88,7 @@ impl TLVValue {
             TLVValue::BroadcastRepNum(_) => TLVTag::BroadcastRepNum,
             TLVValue::BroadcastServiceGroup(_) => TLVTag::BroadcastServiceGroup,
             TLVValue::CallbackNum(_) => TLVTag::CallbackNum,
+            TLVValue::CallbackNumAtag(_) => TLVTag::CallbackNumAtag,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -111,6 +113,7 @@ impl IoLength for TLVValue {
             TLVValue::BroadcastRepNum(v) => v.length(),
             TLVValue::BroadcastServiceGroup(v) => v.length(),
             TLVValue::CallbackNum(v) => v.length(),
+            TLVValue::CallbackNumAtag(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -136,6 +139,7 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::BroadcastRepNum(v) => v.async_io_write(buf).await,
             TLVValue::BroadcastServiceGroup(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNum(v) => v.async_io_write(buf).await,
+            TLVValue::CallbackNumAtag(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -194,6 +198,9 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::CallbackNum => {
                 TLVValue::CallbackNum(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::CallbackNumAtag => {
+                TLVValue::CallbackNumAtag(OctetString::async_io_read(buf, length).await?)
             }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)

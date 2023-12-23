@@ -94,3 +94,31 @@ impl Default for Screening {
         Screening::NotScreened
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn to_u8() {
+        let callback_num_pres_ind = CallbackNumPresInd {
+            presentation: Presentation::PresentationRestricted,
+            screening: Screening::VerivfiedAndFailed,
+        };
+
+        assert_eq!(u8::from(callback_num_pres_ind), 0b00001001);
+    }
+
+    #[test]
+    fn from_u8() {
+        let callback_num_pres_ind = CallbackNumPresInd::from(0b00001001);
+
+        assert_eq!(
+            callback_num_pres_ind,
+            CallbackNumPresInd {
+                presentation: Presentation::PresentationRestricted,
+                screening: Screening::VerivfiedAndFailed,
+            }
+        );
+    }
+}

@@ -30,13 +30,52 @@ pub struct InvalidCommandStatus {
     Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
 )]
 pub enum CommandStatus {
+    ///No Error.
+    ///
+    ///Specified in a response PDU to indicate
+    ///the success of the corresponding request
+    ///PDU.
     EsmeRok = 0x00000000,
+    /// Message Length is invalid.
+    ///
+    /// short_message field or
+    /// message_payload TLV has an invalid
+    /// length (usually too long for the given MC
+    /// or underlying network technology).
     EsmeRinvmsglen = 0x00000001,
+    /// Command Length is invalid.
+    ///
+    /// PDU length is considered invalid, either
+    /// because the value is too short or too
+    /// large for the given PDU.
     EsmeRinvcmdlen = 0x00000002,
+    /// Invalid Command ID.
+    ///
+    /// Command ID is not recognised, either
+    /// because the operation is not supported
+    /// or unknown.
     EsmeRinvcmdid = 0x00000003,
+    /// Incorrect BIND Status for given command.
+    ///
+    /// PDU has been sent in the wrong session
+    /// state. E.g. sending a submit_sm without
+    /// first establishing a Bound_TX session
+    /// state.
     EsmeRinvbndsts = 0x00000004,
+    /// ESME Already in Bound State.
+    ///
+    /// A bind request has been issued within a
+    /// session that is already bound.
     EsmeRalybnd = 0x00000005,
+    /// Invalid Priority Flag.
+    ///
+    /// Priority flag contains an illegal or
+    /// unsupported value.
     EsmeRinvprtflg = 0x00000006,
+    /// Invalid Registered Delivery Flag.
+    ///
+    /// Registered field contains an invalid
+    /// setting.
     EsmeRinvregdlvflg = 0x00000007,
     EsmeRsyserr = 0x00000008,
     EsmeRinvsrcadr = 0x0000000A,

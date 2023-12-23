@@ -132,6 +132,15 @@ pub struct BroadcastContentType {
     pub encoding_content_type: EncodingContentType,
 }
 
+impl BroadcastContentType {
+    pub fn new(type_of_network: TypeOfNetwork, encoding_content_type: EncodingContentType) -> Self {
+        Self {
+            type_of_network,
+            encoding_content_type,
+        }
+    }
+}
+
 impl IoLength for BroadcastContentType {
     fn length(&self) -> usize {
         self.type_of_network.length() + self.encoding_content_type.length()

@@ -35,7 +35,7 @@ impl NoFixedSizeOctetString {
 
 impl std::fmt::Debug for NoFixedSizeOctetString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("RawOctetString")
+        f.debug_struct("NoFixedSizeOctetString")
             .field("bytes", &self.bytes)
             .finish()
     }

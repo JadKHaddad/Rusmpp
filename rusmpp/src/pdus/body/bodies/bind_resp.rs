@@ -14,6 +14,15 @@ pub struct BindResp {
     pub sc_interface_version: Option<TLV>,
 }
 
+impl BindResp {
+    pub fn new(system_id: COctetString<16>, sc_interface_version: Option<TLV>) -> Self {
+        Self {
+            system_id,
+            sc_interface_version,
+        }
+    }
+}
+
 impl IoLength for BindResp {
     fn length(&self) -> usize {
         self.system_id.length() + self.sc_interface_version.length()

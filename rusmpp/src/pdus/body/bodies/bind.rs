@@ -19,6 +19,28 @@ pub struct Bind {
     pub address_range: COctetString<41>,
 }
 
+impl Bind {
+    pub fn new(
+        system_id: COctetString<16>,
+        password: COctetString<9>,
+        system_type: COctetString<13>,
+        interface_version: InterfaceVersion,
+        addr_ton: Ton,
+        addr_npi: Npi,
+        address_range: COctetString<41>,
+    ) -> Self {
+        Self {
+            system_id,
+            password,
+            system_type,
+            interface_version,
+            addr_ton,
+            addr_npi,
+            address_range,
+        }
+    }
+}
+
 impl IoLength for Bind {
     fn length(&self) -> usize {
         self.system_id.length()

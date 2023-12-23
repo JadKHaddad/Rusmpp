@@ -7,7 +7,7 @@ use crate::{
         },
         write::{AsyncIoWritable, AsyncIoWrite},
     },
-    pdus::types::interface_version::InterfaceVersion,
+    pdus::types::{command_status::CommandStatus, interface_version::InterfaceVersion},
     types::{
         c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
         octet_string::OctetString,
@@ -22,6 +22,8 @@ use super::{
         broadcast_area_success::BroadcastAreaSuccess,
         broadcast_channel_indicator::BroadcastChannelIndicator,
         broadcast_content_type::BroadcastContentType,
+        broadcast_frequency_interval::BroadcastFrequencyInterval,
+        broadcast_message_class::BroadcastMessageClass,
     },
 };
 
@@ -54,6 +56,10 @@ pub enum TLVValue {
     ///             “-” Local time is in quarter hours retarded in
     ///             relation to UTC time.
     BroadcastEndTime(OctetString<17>),
+    BroadcastErrorStatus(CommandStatus),
+    BroadcastFrequencyInterval(BroadcastFrequencyInterval),
+    BroadcastMessageClass(BroadcastMessageClass),
+    BroadcastRepNum(u16),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -73,6 +79,10 @@ impl TLVValue {
             TLVValue::BroadcastChannelIndicator(_) => TLVTag::BroadcastChannelIndicator,
             TLVValue::BroadcastContentType(_) => TLVTag::BroadcastContentType,
             TLVValue::BroadcastEndTime(_) => TLVTag::BroadcastEndTime,
+            TLVValue::BroadcastErrorStatus(_) => TLVTag::BroadcastErrorStatus,
+            TLVValue::BroadcastFrequencyInterval(_) => TLVTag::BroadcastFrequencyInterval,
+            TLVValue::BroadcastMessageClass(_) => TLVTag::BroadcastMessageClass,
+            TLVValue::BroadcastRepNum(_) => TLVTag::BroadcastRepNum,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -91,6 +101,10 @@ impl IoLength for TLVValue {
             TLVValue::BroadcastChannelIndicator(v) => v.length(),
             TLVValue::BroadcastContentType(v) => v.length(),
             TLVValue::BroadcastEndTime(v) => v.length(),
+            TLVValue::BroadcastErrorStatus(v) => v.length(),
+            TLVValue::BroadcastFrequencyInterval(v) => v.length(),
+            TLVValue::BroadcastMessageClass(v) => v.length(),
+            TLVValue::BroadcastRepNum(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -110,6 +124,10 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::BroadcastChannelIndicator(v) => v.async_io_write(buf).await,
             TLVValue::BroadcastContentType(v) => v.async_io_write(buf).await,
             TLVValue::BroadcastEndTime(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastErrorStatus(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastFrequencyInterval(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastMessageClass(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastRepNum(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -153,6 +171,16 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::BroadcastEndTime => {
                 TLVValue::BroadcastEndTime(OctetString::async_io_read(buf, length).await?)
             }
+            TLVTag::BroadcastErrorStatus => {
+                TLVValue::BroadcastErrorStatus(CommandStatus::async_io_read(buf).await?)
+            }
+            TLVTag::BroadcastFrequencyInterval => TLVValue::BroadcastFrequencyInterval(
+                BroadcastFrequencyInterval::async_io_read(buf).await?,
+            ),
+            TLVTag::BroadcastMessageClass => {
+                TLVValue::BroadcastMessageClass(BroadcastMessageClass::async_io_read(buf).await?)
+            }
+            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(u16::async_io_read(buf).await?),
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }

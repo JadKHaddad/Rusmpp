@@ -8,13 +8,52 @@ use crate::{
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::types::interface_version::InterfaceVersion,
-    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
+    types::{
+        c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
+        octet_string::OctetString,
+    },
 };
 
-use super::tlv_tag::TLVTag;
+use super::{
+    tlv_tag::TLVTag,
+    tlv_values::{
+        alert_on_message_delivery::AlertOnMessageDelivery,
+        broadcast_area_identifier::BroadcastAreaIdentifier,
+        broadcast_area_success::BroadcastAreaSuccess,
+        broadcast_channel_indicator::BroadcastChannelIndicator,
+        broadcast_content_type::BroadcastContentType,
+    },
+};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TLVValue {
+    AdditionalStatusInfoText(COctetString<256>),
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
+    BillingIdentification(OctetString<1024>),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    BroadcastAreaSuccess(BroadcastAreaSuccess),
+    BroadcastContentTypeInfo(OctetString<255>),
+    BroadcastChannelIndicator(BroadcastChannelIndicator),
+    BroadcastContentType(BroadcastContentType),
+    /// Absolute time is formatted as a 16-character string (encoded as a 17-octet C-octet String)
+    /// “YYMMDDhhmmsstnnp” where:
+    ///
+    /// Digits      Meaning
+    /// ‘YY’        last two digits of the year (00-99)
+    /// ‘MM’        month (01-12)
+    /// ‘DD’        day (01-31)
+    /// ‘hh’        hour (00-23)
+    /// ‘mm’        minute (00-59)
+    /// ‘ss’        second (00-59)
+    /// ‘t’         tenths of second (0-9)
+    /// ‘nn’        Time difference in quarter hours between local
+    ///             time (as expressed in the first 13 octets) and
+    ///             UTC (Universal Time Constant) time (00-48).
+    /// ‘p’         “+” Local time is in quarter hours advanced in
+    ///             relation to UTC time.
+    ///             “-” Local time is in quarter hours retarded in
+    ///             relation to UTC time.
+    BroadcastEndTime(OctetString<17>),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -25,6 +64,15 @@ pub enum TLVValue {
 impl TLVValue {
     pub fn tlv_tag(&self) -> TLVTag {
         match self {
+            TLVValue::AdditionalStatusInfoText(_) => TLVTag::AdditionalStatusInfoText,
+            TLVValue::AlertOnMessageDelivery(_) => TLVTag::AlertOnMessageDelivery,
+            TLVValue::BillingIdentification(_) => TLVTag::BillingIdentification,
+            TLVValue::BroadcastAreaIdentifier(_) => TLVTag::BroadcastAreaIdentifier,
+            TLVValue::BroadcastAreaSuccess(_) => TLVTag::BroadcastAreaSuccess,
+            TLVValue::BroadcastContentTypeInfo(_) => TLVTag::BroadcastContentTypeInfo,
+            TLVValue::BroadcastChannelIndicator(_) => TLVTag::BroadcastChannelIndicator,
+            TLVValue::BroadcastContentType(_) => TLVTag::BroadcastContentType,
+            TLVValue::BroadcastEndTime(_) => TLVTag::BroadcastEndTime,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -34,6 +82,15 @@ impl TLVValue {
 impl IoLength for TLVValue {
     fn length(&self) -> usize {
         match self {
+            TLVValue::AdditionalStatusInfoText(v) => v.length(),
+            TLVValue::AlertOnMessageDelivery(v) => v.length(),
+            TLVValue::BillingIdentification(v) => v.length(),
+            TLVValue::BroadcastAreaIdentifier(v) => v.length(),
+            TLVValue::BroadcastAreaSuccess(v) => v.length(),
+            TLVValue::BroadcastContentTypeInfo(v) => v.length(),
+            TLVValue::BroadcastChannelIndicator(v) => v.length(),
+            TLVValue::BroadcastContentType(v) => v.length(),
+            TLVValue::BroadcastEndTime(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -44,6 +101,15 @@ impl IoLength for TLVValue {
 impl AsyncIoWrite for TLVValue {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         match self {
+            TLVValue::AdditionalStatusInfoText(v) => v.async_io_write(buf).await,
+            TLVValue::AlertOnMessageDelivery(v) => v.async_io_write(buf).await,
+            TLVValue::BillingIdentification(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastAreaIdentifier(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastAreaSuccess(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastContentTypeInfo(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastChannelIndicator(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastContentType(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastEndTime(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -60,6 +126,33 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
         length: usize,
     ) -> Result<Option<Self>, IoReadError> {
         let read = match key {
+            TLVTag::AdditionalStatusInfoText => {
+                TLVValue::AdditionalStatusInfoText(COctetString::async_io_read(buf).await?)
+            }
+            TLVTag::AlertOnMessageDelivery => {
+                TLVValue::AlertOnMessageDelivery(AlertOnMessageDelivery::async_io_read(buf).await?)
+            }
+            TLVTag::BillingIdentification => {
+                TLVValue::BillingIdentification(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::BroadcastAreaIdentifier => TLVValue::BroadcastAreaIdentifier(
+                BroadcastAreaIdentifier::async_io_read(buf, length).await?,
+            ),
+            TLVTag::BroadcastAreaSuccess => {
+                TLVValue::BroadcastAreaSuccess(BroadcastAreaSuccess::async_io_read(buf).await?)
+            }
+            TLVTag::BroadcastContentTypeInfo => {
+                TLVValue::BroadcastContentTypeInfo(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::BroadcastChannelIndicator => TLVValue::BroadcastChannelIndicator(
+                BroadcastChannelIndicator::async_io_read(buf).await?,
+            ),
+            TLVTag::BroadcastContentType => {
+                TLVValue::BroadcastContentType(BroadcastContentType::async_io_read(buf).await?)
+            }
+            TLVTag::BroadcastEndTime => {
+                TLVValue::BroadcastEndTime(OctetString::async_io_read(buf, length).await?)
+            }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }

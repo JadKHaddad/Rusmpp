@@ -83,6 +83,15 @@ impl TLV {
             value: Some(value),
         }
     }
+
+    pub fn new_without_value(tag: TLVTag) -> Self {
+        // TODO: Maybe check the tag!
+        Self {
+            tag,
+            value_length: 0,
+            value: None,
+        }
+    }
 }
 
 impl IoLength for TLV {

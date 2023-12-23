@@ -66,6 +66,8 @@ pub enum COctetStringIoReadError {
 pub enum OctetStringIoReadError {
     #[error("Too many bytes. actual: {actual}, max: {max}")]
     TooManyBytes { actual: usize, max: usize },
+    #[error("Too few bytes. actual: {actual}, min: {min}")]
+    TooFewBytes { actual: usize, min: usize },
 }
 
 /// Error when reading a GreaterThan<Value>

@@ -31,10 +31,10 @@ use super::{
 pub enum TLVValue {
     AdditionalStatusInfoText(COctetString<256>),
     AlertOnMessageDelivery(AlertOnMessageDelivery),
-    BillingIdentification(OctetString<1024>),
+    BillingIdentification(OctetString<0, 1024>),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
     BroadcastAreaSuccess(BroadcastAreaSuccess),
-    BroadcastContentTypeInfo(OctetString<255>),
+    BroadcastContentTypeInfo(OctetString<0, 255>),
     BroadcastChannelIndicator(BroadcastChannelIndicator),
     BroadcastContentType(BroadcastContentType),
     /// Absolute time is formatted as a 16-character string (encoded as a 17-octet C-octet String)
@@ -55,11 +55,13 @@ pub enum TLVValue {
     ///             relation to UTC time.
     ///             “-” Local time is in quarter hours retarded in
     ///             relation to UTC time.
-    BroadcastEndTime(OctetString<17>),
+    BroadcastEndTime(OctetString<0, 17>),
     BroadcastErrorStatus(CommandStatus),
     BroadcastFrequencyInterval(BroadcastFrequencyInterval),
     BroadcastMessageClass(BroadcastMessageClass),
     BroadcastRepNum(u16),
+    BroadcastServiceGroup(OctetString<1, 255>),
+    CallbackNum(OctetString<4, 19>),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -83,6 +85,8 @@ impl TLVValue {
             TLVValue::BroadcastFrequencyInterval(_) => TLVTag::BroadcastFrequencyInterval,
             TLVValue::BroadcastMessageClass(_) => TLVTag::BroadcastMessageClass,
             TLVValue::BroadcastRepNum(_) => TLVTag::BroadcastRepNum,
+            TLVValue::BroadcastServiceGroup(_) => TLVTag::BroadcastServiceGroup,
+            TLVValue::CallbackNum(_) => TLVTag::CallbackNum,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -105,6 +109,8 @@ impl IoLength for TLVValue {
             TLVValue::BroadcastFrequencyInterval(v) => v.length(),
             TLVValue::BroadcastMessageClass(v) => v.length(),
             TLVValue::BroadcastRepNum(v) => v.length(),
+            TLVValue::BroadcastServiceGroup(v) => v.length(),
+            TLVValue::CallbackNum(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -128,6 +134,8 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::BroadcastFrequencyInterval(v) => v.async_io_write(buf).await,
             TLVValue::BroadcastMessageClass(v) => v.async_io_write(buf).await,
             TLVValue::BroadcastRepNum(v) => v.async_io_write(buf).await,
+            TLVValue::BroadcastServiceGroup(v) => v.async_io_write(buf).await,
+            TLVValue::CallbackNum(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -181,6 +189,12 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
                 TLVValue::BroadcastMessageClass(BroadcastMessageClass::async_io_read(buf).await?)
             }
             TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(u16::async_io_read(buf).await?),
+            TLVTag::BroadcastServiceGroup => {
+                TLVValue::BroadcastServiceGroup(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::CallbackNum => {
+                TLVValue::CallbackNum(OctetString::async_io_read(buf, length).await?)
+            }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }

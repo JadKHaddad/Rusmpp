@@ -36,7 +36,7 @@ pub struct SubmitSm {
     /// message.
     sm_default_msg_id: GreaterThanU8<0>,
     sm_length: u8,
-    short_message: OctetString<255>,
+    short_message: OctetString<0, 255>,
     // TODO: message_submission_tlvs: Vec<MessageSubmittionTLV>,
 }
 
@@ -59,7 +59,7 @@ impl SubmitSm {
         replace_if_present_flag: ReplaceIfPresentFlag,
         data_coding: DataCoding,
         sm_default_msg_id: GreaterThanU8<0>,
-        short_message: OctetString<255>,
+        short_message: OctetString<0, 255>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
 
@@ -153,7 +153,7 @@ impl SubmitSm {
         self.sm_length
     }
 
-    pub fn short_message(&self) -> &OctetString<255> {
+    pub fn short_message(&self) -> &OctetString<0, 255> {
         &self.short_message
     }
 }

@@ -51,11 +51,11 @@ impl AsyncIoRead for BroadcastAreaFormat {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,
-    pub area: OctetString<100>,
+    pub area: OctetString<0, 100>,
 }
 
 impl BroadcastAreaIdentifier {
-    pub fn new(format: BroadcastAreaFormat, area: OctetString<100>) -> Self {
+    pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
         Self { format, area }
     }
 }

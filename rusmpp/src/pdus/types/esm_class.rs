@@ -14,6 +14,22 @@ pub struct EsmClass {
     pub gsm_features: GsmFeatures,
 }
 
+impl EsmClass {
+    pub fn new(
+        messaging_mode: MessagingMode,
+        message_type: MessageType,
+        ansi41_specific: Ansi41Specific,
+        gsm_features: GsmFeatures,
+    ) -> Self {
+        Self {
+            messaging_mode,
+            message_type,
+            ansi41_specific,
+            gsm_features,
+        }
+    }
+}
+
 impl From<u8> for EsmClass {
     fn from(value: u8) -> Self {
         Self {

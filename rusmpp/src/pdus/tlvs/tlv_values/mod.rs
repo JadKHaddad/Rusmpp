@@ -5,3 +5,4 @@ pub mod broadcast_channel_indicator;
 pub mod broadcast_content_type;
 pub mod broadcast_frequency_interval;
 pub mod broadcast_message_class;
+pub mod callback_num_pres_ind;

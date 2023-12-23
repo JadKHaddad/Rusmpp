@@ -23,7 +23,7 @@ use super::{
         broadcast_channel_indicator::BroadcastChannelIndicator,
         broadcast_content_type::BroadcastContentType,
         broadcast_frequency_interval::BroadcastFrequencyInterval,
-        broadcast_message_class::BroadcastMessageClass,
+        broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
     },
 };
 
@@ -63,6 +63,7 @@ pub enum TLVValue {
     BroadcastServiceGroup(OctetString<1, 255>),
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
+    CallbackNumPresInd(CallbackNumPresInd),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -89,6 +90,7 @@ impl TLVValue {
             TLVValue::BroadcastServiceGroup(_) => TLVTag::BroadcastServiceGroup,
             TLVValue::CallbackNum(_) => TLVTag::CallbackNum,
             TLVValue::CallbackNumAtag(_) => TLVTag::CallbackNumAtag,
+            TLVValue::CallbackNumPresInd(_) => TLVTag::CallbackNumPresInd,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -114,6 +116,7 @@ impl IoLength for TLVValue {
             TLVValue::BroadcastServiceGroup(v) => v.length(),
             TLVValue::CallbackNum(v) => v.length(),
             TLVValue::CallbackNumAtag(v) => v.length(),
+            TLVValue::CallbackNumPresInd(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -140,6 +143,7 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::BroadcastServiceGroup(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNum(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNumAtag(v) => v.async_io_write(buf).await,
+            TLVValue::CallbackNumPresInd(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -201,6 +205,9 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::CallbackNumAtag => {
                 TLVValue::CallbackNumAtag(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::CallbackNumPresInd => {
+                TLVValue::CallbackNumPresInd(CallbackNumPresInd::async_io_read(buf).await?)
             }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)

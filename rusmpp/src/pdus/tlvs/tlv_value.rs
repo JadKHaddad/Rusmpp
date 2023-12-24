@@ -29,6 +29,7 @@ use super::{
         dest_bearer_type::DestBearerType, dest_network_type::DestNetworkType,
         display_time::DisplayTime, dpf_result::DpfResult, its_reply_type::ItsReplyType,
         its_session_info::ItsSessionInfo, language_indicator::LanguageIndicator,
+        message_state::MessageState, more_messages_to_send::MoreMessagesToSend,
         ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
         subaddress::Subaddress,
     },
@@ -89,6 +90,9 @@ pub enum TLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
+    MessagePayload(NoFixedSizeOctetString),
+    MessageState(MessageState),
+    MoreMessagesToSend(MoreMessagesToSend),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
@@ -136,6 +140,9 @@ impl TLVValue {
             TLVValue::ItsReplyType(_) => TLVTag::ItsReplyType,
             TLVValue::ItsSessionInfo(_) => TLVTag::ItsSessionInfo,
             TLVValue::LanguageIndicator(_) => TLVTag::LanguageIndicator,
+            TLVValue::MessagePayload(_) => TLVTag::MessagePayload,
+            TLVValue::MessageState(_) => TLVTag::MessageState,
+            TLVValue::MoreMessagesToSend(_) => TLVTag::MoreMessagesToSend,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
@@ -182,6 +189,9 @@ impl IoLength for TLVValue {
             TLVValue::ItsReplyType(v) => v.length(),
             TLVValue::ItsSessionInfo(v) => v.length(),
             TLVValue::LanguageIndicator(v) => v.length(),
+            TLVValue::MessagePayload(v) => v.length(),
+            TLVValue::MessageState(v) => v.length(),
+            TLVValue::MoreMessagesToSend(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
@@ -229,6 +239,9 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::ItsReplyType(v) => v.async_io_write(buf).await,
             TLVValue::ItsSessionInfo(v) => v.async_io_write(buf).await,
             TLVValue::LanguageIndicator(v) => v.async_io_write(buf).await,
+            TLVValue::MessagePayload(v) => v.async_io_write(buf).await,
+            TLVValue::MessageState(v) => v.async_io_write(buf).await,
+            TLVValue::MoreMessagesToSend(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
@@ -339,6 +352,13 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::LanguageIndicator => {
                 TLVValue::LanguageIndicator(LanguageIndicator::async_io_read(buf).await?)
+            }
+            TLVTag::MessagePayload => {
+                TLVValue::MessagePayload(NoFixedSizeOctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::MessageState => TLVValue::MessageState(MessageState::async_io_read(buf).await?),
+            TLVTag::MoreMessagesToSend => {
+                TLVValue::MoreMessagesToSend(MoreMessagesToSend::async_io_read(buf).await?)
             }
             TLVTag::MsAvailabilityStatus => {
                 TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)

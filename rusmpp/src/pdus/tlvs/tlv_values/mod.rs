@@ -15,6 +15,7 @@ pub mod dest_network_type;
 pub mod display_time;
 pub mod dpf_result;
 pub mod its_reply_type;
+pub mod its_session_info;
 pub mod ms_availability_status;
 pub mod ms_msg_wait_facilities;
 pub mod subaddress;

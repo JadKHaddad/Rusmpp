@@ -28,8 +28,8 @@ use super::{
         dest_addr_np_resolution::DestAddrNpResolution, dest_addr_subunit::DestAddrSubunit,
         dest_bearer_type::DestBearerType, dest_network_type::DestNetworkType,
         display_time::DisplayTime, dpf_result::DpfResult, its_reply_type::ItsReplyType,
-        ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
-        subaddress::Subaddress,
+        its_session_info::ItsSessionInfo, ms_availability_status::MsAvailabilityStatus,
+        ms_msg_wait_facilities::MsMsgWaitFacilities, subaddress::Subaddress,
     },
 };
 
@@ -86,6 +86,7 @@ pub enum TLVValue {
     DisplayTime(DisplayTime),
     DpfResult(DpfResult),
     ItsReplyType(ItsReplyType),
+    ItsSessionInfo(ItsSessionInfo),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
@@ -131,6 +132,7 @@ impl TLVValue {
             TLVValue::DisplayTime(_) => TLVTag::DisplayTime,
             TLVValue::DpfResult(_) => TLVTag::DpfResult,
             TLVValue::ItsReplyType(_) => TLVTag::ItsReplyType,
+            TLVValue::ItsSessionInfo(_) => TLVTag::ItsSessionInfo,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
@@ -175,6 +177,7 @@ impl IoLength for TLVValue {
             TLVValue::DisplayTime(v) => v.length(),
             TLVValue::DpfResult(v) => v.length(),
             TLVValue::ItsReplyType(v) => v.length(),
+            TLVValue::ItsSessionInfo(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
@@ -220,6 +223,7 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::DisplayTime(v) => v.async_io_write(buf).await,
             TLVValue::DpfResult(v) => v.async_io_write(buf).await,
             TLVValue::ItsReplyType(v) => v.async_io_write(buf).await,
+            TLVValue::ItsSessionInfo(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
@@ -325,6 +329,9 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::DisplayTime => TLVValue::DisplayTime(DisplayTime::async_io_read(buf).await?),
             TLVTag::DpfResult => TLVValue::DpfResult(DpfResult::async_io_read(buf).await?),
             TLVTag::ItsReplyType => TLVValue::ItsReplyType(ItsReplyType::async_io_read(buf).await?),
+            TLVTag::ItsSessionInfo => {
+                TLVValue::ItsSessionInfo(ItsSessionInfo::async_io_read(buf).await?)
+            }
             TLVTag::MsAvailabilityStatus => {
                 TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)
             }

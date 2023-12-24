@@ -142,6 +142,7 @@ impl<const N: usize> AsyncIoRead for EmptyOrFullCOctetString<N> {
             return Err(IoReadError::COctetStringIoReadError(
                 COctetStringIoReadError::TooFewBytes {
                     actual: bytes.len(),
+                    min: N,
                 },
             ));
         }
@@ -327,7 +328,8 @@ mod tests {
             assert!(matches!(
                 error,
                 IoReadError::COctetStringIoReadError(COctetStringIoReadError::TooFewBytes {
-                    actual: 4
+                    actual: 4,
+                    ..
                 },)
             ));
         }

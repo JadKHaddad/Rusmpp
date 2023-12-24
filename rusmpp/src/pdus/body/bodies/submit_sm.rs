@@ -20,10 +20,10 @@ pub struct SubmitSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
     source_addr_npi: Npi,
-    source_addr: COctetString<21>,
+    source_addr: COctetString<1, 21>,
     dest_addr_ton: Ton,
     dest_addr_npi: Npi,
-    destination_addr: COctetString<21>,
+    destination_addr: COctetString<1, 21>,
     esm_class: EsmClass,
     protocol_id: u8,
     priority_flag: PriorityFlag,
@@ -46,10 +46,10 @@ impl SubmitSm {
         serivce_type: ServiceType,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
-        source_addr: COctetString<21>,
+        source_addr: COctetString<1, 21>,
         dest_addr_ton: Ton,
         dest_addr_npi: Npi,
-        destination_addr: COctetString<21>,
+        destination_addr: COctetString<1, 21>,
         esm_class: EsmClass,
         protocol_id: u8,
         priority_flag: PriorityFlag,
@@ -97,7 +97,7 @@ impl SubmitSm {
         &self.source_addr_npi
     }
 
-    pub fn source_addr(&self) -> &COctetString<21> {
+    pub fn source_addr(&self) -> &COctetString<1, 21> {
         &self.source_addr
     }
 
@@ -109,7 +109,7 @@ impl SubmitSm {
         &self.dest_addr_npi
     }
 
-    pub fn destination_addr(&self) -> &COctetString<21> {
+    pub fn destination_addr(&self) -> &COctetString<1, 21> {
         &self.destination_addr
     }
 

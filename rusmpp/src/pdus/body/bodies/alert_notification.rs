@@ -15,10 +15,10 @@ use crate::{
 pub struct AlertNotification {
     pub source_addr_ton: Ton,
     pub source_addr_npi: Npi,
-    pub source_addr: COctetString<65>,
+    pub source_addr: COctetString<1, 65>,
     pub esme_addr_ton: Ton,
     pub esme_addr_npi: Npi,
-    pub esme_addr: COctetString<65>,
+    pub esme_addr: COctetString<1, 65>,
     pub ms_availability_status: Option<TLV>,
 }
 
@@ -26,10 +26,10 @@ impl AlertNotification {
     pub fn new(
         source_addr_ton: Ton,
         source_addr_npi: Npi,
-        source_addr: COctetString<65>,
+        source_addr: COctetString<1, 65>,
         esme_addr_ton: Ton,
         esme_addr_npi: Npi,
-        esme_addr: COctetString<65>,
+        esme_addr: COctetString<1, 65>,
         ms_availability_status: Option<TLV>,
     ) -> Self {
         Self {

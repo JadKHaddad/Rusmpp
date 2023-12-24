@@ -33,7 +33,7 @@ use super::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TLVValue {
-    AdditionalStatusInfoText(COctetString<256>),
+    AdditionalStatusInfoText(COctetString<1, 256>),
     AlertOnMessageDelivery(AlertOnMessageDelivery),
     BillingIdentification(OctetString<0, 1024>),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
@@ -75,6 +75,7 @@ pub enum TLVValue {
     DestAddrNpResolution(DestAddrNpResolution),
     DestAddrSubunit(DestAddrSubunit),
     DestBearerType(DestBearerType),
+    DestNetworkId(COctetString<7, 66>),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
@@ -111,6 +112,7 @@ impl TLVValue {
             TLVValue::DestAddrNpResolution(_) => TLVTag::DestAddrNpResolution,
             TLVValue::DestAddrSubunit(_) => TLVTag::DestAddrSubunit,
             TLVValue::DestBearerType(_) => TLVTag::DestBearerType,
+            TLVValue::DestNetworkId(_) => TLVTag::DestNetworkId,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
@@ -146,6 +148,7 @@ impl IoLength for TLVValue {
             TLVValue::DestAddrNpResolution(v) => v.length(),
             TLVValue::DestAddrSubunit(v) => v.length(),
             TLVValue::DestBearerType(v) => v.length(),
+            TLVValue::DestNetworkId(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
@@ -182,6 +185,7 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::DestAddrNpResolution(v) => v.async_io_write(buf).await,
             TLVValue::DestAddrSubunit(v) => v.async_io_write(buf).await,
             TLVValue::DestBearerType(v) => v.async_io_write(buf).await,
+            TLVValue::DestNetworkId(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
@@ -269,6 +273,9 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::DestBearerType => {
                 TLVValue::DestBearerType(DestBearerType::async_io_read(buf).await?)
+            }
+            TLVTag::DestNetworkId => {
+                TLVValue::DestNetworkId(COctetString::async_io_read(buf).await?)
             }
             TLVTag::MsAvailabilityStatus => {
                 TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)

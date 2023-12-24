@@ -53,8 +53,8 @@ pub enum IoReadError {
 /// Error when reading a COctetString
 #[derive(thiserror::Error, Debug)]
 pub enum COctetStringIoReadError {
-    #[error("Too few bytes. actual: {actual}, min: 1")]
-    TooFewBytes { actual: usize },
+    #[error("Too few bytes. actual: {actual}, min: {min}")]
+    TooFewBytes { actual: usize, min: usize },
     #[error("Not ASCII")]
     NotAscii,
     #[error("Not null terminated")]

@@ -9,12 +9,12 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Outbind {
-    pub system_id: COctetString<16>,
-    pub password: COctetString<9>,
+    pub system_id: COctetString<1, 16>,
+    pub password: COctetString<1, 9>,
 }
 
 impl Outbind {
-    pub fn new(system_id: COctetString<16>, password: COctetString<9>) -> Self {
+    pub fn new(system_id: COctetString<1, 16>, password: COctetString<1, 9>) -> Self {
         Self {
             system_id,
             password,

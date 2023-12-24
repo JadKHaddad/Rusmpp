@@ -10,12 +10,12 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BindResp {
-    pub system_id: COctetString<16>,
+    pub system_id: COctetString<1, 16>,
     pub sc_interface_version: Option<TLV>,
 }
 
 impl BindResp {
-    pub fn new(system_id: COctetString<16>, sc_interface_version: Option<TLV>) -> Self {
+    pub fn new(system_id: COctetString<1, 16>, sc_interface_version: Option<TLV>) -> Self {
         Self {
             system_id,
             sc_interface_version,

@@ -10,24 +10,24 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Bind {
-    pub system_id: COctetString<16>,
-    pub password: COctetString<9>,
-    pub system_type: COctetString<13>,
+    pub system_id: COctetString<1, 16>,
+    pub password: COctetString<1, 9>,
+    pub system_type: COctetString<1, 13>,
     pub interface_version: InterfaceVersion,
     pub addr_ton: Ton,
     pub addr_npi: Npi,
-    pub address_range: COctetString<41>,
+    pub address_range: COctetString<1, 41>,
 }
 
 impl Bind {
     pub fn new(
-        system_id: COctetString<16>,
-        password: COctetString<9>,
-        system_type: COctetString<13>,
+        system_id: COctetString<1, 16>,
+        password: COctetString<1, 9>,
+        system_type: COctetString<1, 13>,
         interface_version: InterfaceVersion,
         addr_ton: Ton,
         addr_npi: Npi,
-        address_range: COctetString<41>,
+        address_range: COctetString<1, 41>,
     ) -> Self {
         Self {
             system_id,

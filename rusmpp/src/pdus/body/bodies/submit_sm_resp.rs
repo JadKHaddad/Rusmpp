@@ -9,7 +9,7 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct SubmitSmResp {
-    pub message_id: COctetString<65>,
+    pub message_id: COctetString<1, 65>,
     // TODO: message_submission_response_tlvs: Vec<MessageSubmittionTLV>,
 }
 

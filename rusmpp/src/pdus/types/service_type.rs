@@ -25,7 +25,7 @@ pub enum GenericServiceType<'a> {
 }
 
 impl<'a> GenericServiceType<'a> {
-    pub fn value(&self) -> Result<COctetString<6>, COctetStringError> {
+    pub fn value(&self) -> Result<COctetString<1, 6>, COctetStringError> {
         match self {
             GenericServiceType::Default => COctetString::from_str(""),
             GenericServiceType::CellularMessaging => COctetString::from_str("CMT"),
@@ -62,7 +62,7 @@ impl<'a> GenericServiceType<'a> {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ServiceType {
-    value: COctetString<6>,
+    value: COctetString<1, 6>,
 }
 
 impl ServiceType {
@@ -72,7 +72,7 @@ impl ServiceType {
         })
     }
 
-    pub fn value(&self) -> &COctetString<6> {
+    pub fn value(&self) -> &COctetString<1, 6> {
         &self.value
     }
 }

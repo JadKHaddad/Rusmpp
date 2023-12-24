@@ -24,7 +24,10 @@ use super::{
         broadcast_content_type::BroadcastContentType,
         broadcast_frequency_interval::BroadcastFrequencyInterval,
         broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
-        ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
+        congestion_state::CongestionState, delivery_failure_reason::DeliveryFailureReason,
+        dest_addr_np_resolution::DestAddrNpResolution, dest_addr_subunit::DestAddrSubunit,
+        dest_bearer_type::DestBearerType, ms_availability_status::MsAvailabilityStatus,
+        ms_msg_wait_facilities::MsMsgWaitFacilities,
     },
 };
 
@@ -65,6 +68,13 @@ pub enum TLVValue {
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
     CallbackNumPresInd(CallbackNumPresInd),
+    CongestionState(CongestionState),
+    DeliveryFailureReason(DeliveryFailureReason),
+    DestAddrNpCountry(OctetString<1, 5>),
+    DestAddrNpInformation(OctetString<0, 10>),
+    DestAddrNpResolution(DestAddrNpResolution),
+    DestAddrSubunit(DestAddrSubunit),
+    DestBearerType(DestBearerType),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
@@ -94,6 +104,13 @@ impl TLVValue {
             TLVValue::CallbackNum(_) => TLVTag::CallbackNum,
             TLVValue::CallbackNumAtag(_) => TLVTag::CallbackNumAtag,
             TLVValue::CallbackNumPresInd(_) => TLVTag::CallbackNumPresInd,
+            TLVValue::CongestionState(_) => TLVTag::CongestionState,
+            TLVValue::DeliveryFailureReason(_) => TLVTag::DeliveryFailureReason,
+            TLVValue::DestAddrNpCountry(_) => TLVTag::DestAddrNpCountry,
+            TLVValue::DestAddrNpInformation(_) => TLVTag::DestAddrNpInformation,
+            TLVValue::DestAddrNpResolution(_) => TLVTag::DestAddrNpResolution,
+            TLVValue::DestAddrSubunit(_) => TLVTag::DestAddrSubunit,
+            TLVValue::DestBearerType(_) => TLVTag::DestBearerType,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
@@ -122,6 +139,13 @@ impl IoLength for TLVValue {
             TLVValue::CallbackNum(v) => v.length(),
             TLVValue::CallbackNumAtag(v) => v.length(),
             TLVValue::CallbackNumPresInd(v) => v.length(),
+            TLVValue::CongestionState(v) => v.length(),
+            TLVValue::DeliveryFailureReason(v) => v.length(),
+            TLVValue::DestAddrNpCountry(v) => v.length(),
+            TLVValue::DestAddrNpInformation(v) => v.length(),
+            TLVValue::DestAddrNpResolution(v) => v.length(),
+            TLVValue::DestAddrSubunit(v) => v.length(),
+            TLVValue::DestBearerType(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
@@ -151,6 +175,13 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::CallbackNum(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNumAtag(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNumPresInd(v) => v.async_io_write(buf).await,
+            TLVValue::CongestionState(v) => v.async_io_write(buf).await,
+            TLVValue::DeliveryFailureReason(v) => v.async_io_write(buf).await,
+            TLVValue::DestAddrNpCountry(v) => v.async_io_write(buf).await,
+            TLVValue::DestAddrNpInformation(v) => v.async_io_write(buf).await,
+            TLVValue::DestAddrNpResolution(v) => v.async_io_write(buf).await,
+            TLVValue::DestAddrSubunit(v) => v.async_io_write(buf).await,
+            TLVValue::DestBearerType(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
@@ -217,6 +248,27 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::CallbackNumPresInd => {
                 TLVValue::CallbackNumPresInd(CallbackNumPresInd::async_io_read(buf).await?)
+            }
+            TLVTag::CongestionState => {
+                TLVValue::CongestionState(CongestionState::async_io_read(buf).await?)
+            }
+            TLVTag::DeliveryFailureReason => {
+                TLVValue::DeliveryFailureReason(DeliveryFailureReason::async_io_read(buf).await?)
+            }
+            TLVTag::DestAddrNpCountry => {
+                TLVValue::DestAddrNpCountry(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::DestAddrNpInformation => {
+                TLVValue::DestAddrNpInformation(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::DestAddrNpResolution => {
+                TLVValue::DestAddrNpResolution(DestAddrNpResolution::async_io_read(buf).await?)
+            }
+            TLVTag::DestAddrSubunit => {
+                TLVValue::DestAddrSubunit(DestAddrSubunit::async_io_read(buf).await?)
+            }
+            TLVTag::DestBearerType => {
+                TLVValue::DestBearerType(DestBearerType::async_io_read(buf).await?)
             }
             TLVTag::MsAvailabilityStatus => {
                 TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)

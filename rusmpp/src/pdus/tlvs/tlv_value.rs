@@ -24,6 +24,7 @@ use super::{
         broadcast_content_type::BroadcastContentType,
         broadcast_frequency_interval::BroadcastFrequencyInterval,
         broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
+        ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
     },
 };
 
@@ -64,6 +65,8 @@ pub enum TLVValue {
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
     CallbackNumPresInd(CallbackNumPresInd),
+    MsAvailabilityStatus(MsAvailabilityStatus),
+    MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -91,6 +94,8 @@ impl TLVValue {
             TLVValue::CallbackNum(_) => TLVTag::CallbackNum,
             TLVValue::CallbackNumAtag(_) => TLVTag::CallbackNumAtag,
             TLVValue::CallbackNumPresInd(_) => TLVTag::CallbackNumPresInd,
+            TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
+            TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -117,6 +122,8 @@ impl IoLength for TLVValue {
             TLVValue::CallbackNum(v) => v.length(),
             TLVValue::CallbackNumAtag(v) => v.length(),
             TLVValue::CallbackNumPresInd(v) => v.length(),
+            TLVValue::MsAvailabilityStatus(v) => v.length(),
+            TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -144,6 +151,8 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::CallbackNum(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNumAtag(v) => v.async_io_write(buf).await,
             TLVValue::CallbackNumPresInd(v) => v.async_io_write(buf).await,
+            TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
+            TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -208,6 +217,12 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::CallbackNumPresInd => {
                 TLVValue::CallbackNumPresInd(CallbackNumPresInd::async_io_read(buf).await?)
+            }
+            TLVTag::MsAvailabilityStatus => {
+                TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)
+            }
+            TLVTag::MsMsgWaitFacilities => {
+                TLVValue::MsMsgWaitFacilities(MsMsgWaitFacilities::async_io_read(buf).await?)
             }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)

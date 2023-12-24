@@ -6,3 +6,5 @@ pub mod broadcast_content_type;
 pub mod broadcast_frequency_interval;
 pub mod broadcast_message_class;
 pub mod callback_num_pres_ind;
+pub mod ms_availability_status;
+pub mod ms_msg_wait_facilities;

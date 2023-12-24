@@ -12,7 +12,8 @@ use crate::{
 };
 
 use super::bodies::{
-    bind::Bind, bind_resp::BindResp, submit_sm::SubmitSm, submit_sm_resp::SubmitSmResp,
+    alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, outbind::Outbind,
+    submit_sm::SubmitSm, submit_sm_resp::SubmitSmResp,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -23,6 +24,8 @@ pub enum PduBody {
     BindReceiverResp(BindResp),
     BindTransceiver(Bind),
     BindTransceiverResp(BindResp),
+    Outbind(Outbind),
+    AlertNotification(AlertNotification),
     SubmitSm(SubmitSm),
     SubmitSmResp(SubmitSmResp),
     Other {
@@ -40,6 +43,8 @@ impl PduBody {
             PduBody::BindReceiverResp(_) => CommandId::BindReceiverResp,
             PduBody::BindTransceiver(_) => CommandId::BindTransceiver,
             PduBody::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
+            PduBody::Outbind(_) => CommandId::Outbind,
+            PduBody::AlertNotification(_) => CommandId::AlertNotification,
             PduBody::SubmitSm(_) => CommandId::SubmitSm,
             PduBody::SubmitSmResp(_) => CommandId::SubmitSmResp,
             PduBody::Other { command_id, .. } => *command_id,
@@ -56,6 +61,8 @@ impl IoLength for PduBody {
             PduBody::BindReceiverResp(b) => b.length(),
             PduBody::BindTransceiver(b) => b.length(),
             PduBody::BindTransceiverResp(b) => b.length(),
+            PduBody::Outbind(b) => b.length(),
+            PduBody::AlertNotification(b) => b.length(),
             PduBody::SubmitSm(b) => b.length(),
             PduBody::SubmitSmResp(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
@@ -73,6 +80,8 @@ impl AsyncIoWrite for PduBody {
             PduBody::BindReceiverResp(b) => b.async_io_write(buf).await,
             PduBody::BindTransceiver(b) => b.async_io_write(buf).await,
             PduBody::BindTransceiverResp(b) => b.async_io_write(buf).await,
+            PduBody::Outbind(b) => b.async_io_write(buf).await,
+            PduBody::AlertNotification(b) => b.async_io_write(buf).await,
             PduBody::SubmitSm(b) => b.async_io_write(buf).await,
             PduBody::SubmitSmResp(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
@@ -105,6 +114,10 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::BindTransceiver => PduBody::BindTransceiver(Bind::async_io_read(buf).await?),
             CommandId::BindTransceiverResp => {
                 PduBody::BindTransceiverResp(BindResp::async_io_read(buf, length).await?)
+            }
+            CommandId::Outbind => PduBody::Outbind(Outbind::async_io_read(buf).await?),
+            CommandId::AlertNotification => {
+                PduBody::AlertNotification(AlertNotification::async_io_read(buf, length).await?)
             }
             CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::async_io_read(buf, length).await?),
             CommandId::SubmitSmResp => {

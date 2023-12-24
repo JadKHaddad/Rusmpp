@@ -27,7 +27,9 @@ use super::{
         congestion_state::CongestionState, delivery_failure_reason::DeliveryFailureReason,
         dest_addr_np_resolution::DestAddrNpResolution, dest_addr_subunit::DestAddrSubunit,
         dest_bearer_type::DestBearerType, dest_network_type::DestNetworkType,
+        display_time::DisplayTime, dpf_result::DpfResult, its_reply_type::ItsReplyType,
         ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
+        subaddress::Subaddress,
     },
 };
 
@@ -78,6 +80,12 @@ pub enum TLVValue {
     DestNetworkId(COctetString<7, 66>),
     DestNetworkType(DestNetworkType),
     DestNodeId(OctetString<6, 6>),
+    DestSubaddress(Subaddress),
+    DestTelematicsId(u16),
+    DestPort(u16),
+    DisplayTime(DisplayTime),
+    DpfResult(DpfResult),
+    ItsReplyType(ItsReplyType),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     ScInterfaceVersion(InterfaceVersion),
@@ -117,6 +125,12 @@ impl TLVValue {
             TLVValue::DestNetworkId(_) => TLVTag::DestNetworkId,
             TLVValue::DestNetworkType(_) => TLVTag::DestNetworkType,
             TLVValue::DestNodeId(_) => TLVTag::DestNodeId,
+            TLVValue::DestSubaddress(_) => TLVTag::DestSubaddress,
+            TLVValue::DestTelematicsId(_) => TLVTag::DestTelematicsId,
+            TLVValue::DestPort(_) => TLVTag::DestPort,
+            TLVValue::DisplayTime(_) => TLVTag::DisplayTime,
+            TLVValue::DpfResult(_) => TLVTag::DpfResult,
+            TLVValue::ItsReplyType(_) => TLVTag::ItsReplyType,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
@@ -155,6 +169,12 @@ impl IoLength for TLVValue {
             TLVValue::DestNetworkId(v) => v.length(),
             TLVValue::DestNetworkType(v) => v.length(),
             TLVValue::DestNodeId(v) => v.length(),
+            TLVValue::DestSubaddress(v) => v.length(),
+            TLVValue::DestTelematicsId(v) => v.length(),
+            TLVValue::DestPort(v) => v.length(),
+            TLVValue::DisplayTime(v) => v.length(),
+            TLVValue::DpfResult(v) => v.length(),
+            TLVValue::ItsReplyType(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
@@ -194,6 +214,12 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::DestNetworkId(v) => v.async_io_write(buf).await,
             TLVValue::DestNetworkType(v) => v.async_io_write(buf).await,
             TLVValue::DestNodeId(v) => v.async_io_write(buf).await,
+            TLVValue::DestSubaddress(v) => v.async_io_write(buf).await,
+            TLVValue::DestTelematicsId(v) => v.async_io_write(buf).await,
+            TLVValue::DestPort(v) => v.async_io_write(buf).await,
+            TLVValue::DisplayTime(v) => v.async_io_write(buf).await,
+            TLVValue::DpfResult(v) => v.async_io_write(buf).await,
+            TLVValue::ItsReplyType(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
@@ -291,6 +317,14 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::DestNodeId => {
                 TLVValue::DestNodeId(OctetString::async_io_read(buf, length).await?)
             }
+            TLVTag::DestSubaddress => {
+                TLVValue::DestSubaddress(Subaddress::async_io_read(buf, length).await?)
+            }
+            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(u16::async_io_read(buf).await?),
+            TLVTag::DestPort => TLVValue::DestPort(u16::async_io_read(buf).await?),
+            TLVTag::DisplayTime => TLVValue::DisplayTime(DisplayTime::async_io_read(buf).await?),
+            TLVTag::DpfResult => TLVValue::DpfResult(DpfResult::async_io_read(buf).await?),
+            TLVTag::ItsReplyType => TLVValue::ItsReplyType(ItsReplyType::async_io_read(buf).await?),
             TLVTag::MsAvailabilityStatus => {
                 TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::async_io_read(buf).await?)
             }

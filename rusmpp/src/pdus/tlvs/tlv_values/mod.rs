@@ -11,5 +11,6 @@ pub mod delivery_failure_reason;
 pub mod dest_addr_np_resolution;
 pub mod dest_addr_subunit;
 pub mod dest_bearer_type;
+pub mod dest_network_type;
 pub mod ms_availability_status;
 pub mod ms_msg_wait_facilities;

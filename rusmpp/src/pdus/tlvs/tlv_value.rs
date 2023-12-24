@@ -31,7 +31,7 @@ use super::{
         its_session_info::ItsSessionInfo, language_indicator::LanguageIndicator,
         message_state::MessageState, more_messages_to_send::MoreMessagesToSend,
         ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
-        subaddress::Subaddress,
+        ms_validity::MsValidity, subaddress::Subaddress,
     },
 };
 
@@ -95,6 +95,7 @@ pub enum TLVValue {
     MoreMessagesToSend(MoreMessagesToSend),
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
+    MsValidity(MsValidity),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -145,6 +146,7 @@ impl TLVValue {
             TLVValue::MoreMessagesToSend(_) => TLVTag::MoreMessagesToSend,
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
+            TLVValue::MsValidity(_) => TLVTag::MsValidity,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -194,6 +196,7 @@ impl IoLength for TLVValue {
             TLVValue::MoreMessagesToSend(v) => v.length(),
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
+            TLVValue::MsValidity(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -244,6 +247,7 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::MoreMessagesToSend(v) => v.async_io_write(buf).await,
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
+            TLVValue::MsValidity(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -365,6 +369,9 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::MsMsgWaitFacilities => {
                 TLVValue::MsMsgWaitFacilities(MsMsgWaitFacilities::async_io_read(buf).await?)
+            }
+            TLVTag::MsValidity => {
+                TLVValue::MsValidity(MsValidity::async_io_read(buf, length).await?)
             }
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)

@@ -10,7 +10,7 @@ use crate::io::{
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
 )]
-pub enum AlertOnMessageDelivery {
+pub enum AlertOnMsgDelivery {
     UseMobileDefaultAlert = 0,
     UseLowPriorityAlert = 1,
     UseMediumPriorityAlert = 2,
@@ -20,27 +20,27 @@ pub enum AlertOnMessageDelivery {
 }
 
 #[allow(clippy::derivable_impls)]
-impl Default for AlertOnMessageDelivery {
+impl Default for AlertOnMsgDelivery {
     fn default() -> Self {
-        AlertOnMessageDelivery::UseMobileDefaultAlert
+        AlertOnMsgDelivery::UseMobileDefaultAlert
     }
 }
 
-impl IoLength for AlertOnMessageDelivery {
+impl IoLength for AlertOnMsgDelivery {
     fn length(&self) -> usize {
         u8::from(*self).length()
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoWrite for AlertOnMessageDelivery {
+impl AsyncIoWrite for AlertOnMsgDelivery {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         u8::from(*self).async_io_write(buf).await
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoRead for AlertOnMessageDelivery {
+impl AsyncIoRead for AlertOnMsgDelivery {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         u8::async_io_read(buf).await.map(Self::from)
     }

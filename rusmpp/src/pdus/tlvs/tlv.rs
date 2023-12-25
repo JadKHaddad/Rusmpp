@@ -5,8 +5,8 @@ use crate::io::{
 };
 
 use super::{
-    tlv_tag::{MessageSubmissionResponseTLVTag, TLVTag},
-    tlv_value::{MessageSubmissionResponseTLVValue, TLVValue},
+    tlv_tag::{MessageSubmissionRequestTLVTag, MessageSubmissionResponseTLVTag, TLVTag},
+    tlv_value::{MessageSubmissionRequestTLVValue, MessageSubmissionResponseTLVValue, TLVValue},
 };
 
 /// A Tagged Length Value Field is a special composite field
@@ -147,6 +147,31 @@ impl AsyncIoRead for TLV {
             value_length,
             value,
         })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageSubmissionRequestTLV {
+    tlv: TLV,
+}
+
+impl MessageSubmissionRequestTLV {
+    pub fn new(value: MessageSubmissionRequestTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: MessageSubmissionRequestTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageSubmissionRequestTLV> for TLV {
+    fn from(tlv: MessageSubmissionRequestTLV) -> Self {
+        tlv.tlv
     }
 }
 

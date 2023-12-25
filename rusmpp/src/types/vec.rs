@@ -38,7 +38,7 @@ where
 
         while remaining_length > 0 {
             let v = T::async_io_read(buf).await?;
-            remaining_length -= v.length();
+            remaining_length = remaining_length.saturating_sub(v.length());
             vec.push(v);
         }
 

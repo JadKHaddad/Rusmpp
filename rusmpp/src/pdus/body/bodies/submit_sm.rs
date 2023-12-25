@@ -4,10 +4,13 @@ use crate::{
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
         write::{AsyncIoWritable, AsyncIoWrite},
     },
-    pdus::types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::ServiceType, ton::Ton,
+    pdus::{
+        tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
+        types::{
+            data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
+            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::ServiceType, ton::Ton,
+        },
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
@@ -37,7 +40,7 @@ pub struct SubmitSm {
     sm_default_msg_id: GreaterThanU8<0>,
     sm_length: u8,
     short_message: OctetString<0, 255>,
-    // TODO: message_submission_tlvs: Vec<MessageSubmittionTLV>,
+    tlvs: Vec<TLV>,
 }
 
 impl SubmitSm {
@@ -60,8 +63,11 @@ impl SubmitSm {
         data_coding: DataCoding,
         sm_default_msg_id: GreaterThanU8<0>,
         short_message: OctetString<0, 255>,
+        tlvs: Vec<MessageSubmissionRequestTLV>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
+        // TODO: do validation for message payload
+        let tlvs = tlvs.into_iter().map(|v| v.into()).collect();
 
         Self {
             serivce_type,
@@ -82,6 +88,7 @@ impl SubmitSm {
             sm_default_msg_id,
             sm_length,
             short_message,
+            tlvs,
         }
     }
 
@@ -156,6 +163,10 @@ impl SubmitSm {
     pub fn short_message(&self) -> &OctetString<0, 255> {
         &self.short_message
     }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
+    }
 }
 
 impl IoLength for SubmitSm {
@@ -202,6 +213,7 @@ impl AsyncIoWrite for SubmitSm {
         self.sm_default_msg_id.async_io_write(buf).await?;
         self.sm_length.async_io_write(buf).await?;
         self.short_message.async_io_write(buf).await?;
+        self.tlvs.async_io_write(buf).await?;
 
         Ok(())
     }
@@ -210,27 +222,67 @@ impl AsyncIoWrite for SubmitSm {
 #[async_trait::async_trait]
 impl AsyncIoReadWithLength for SubmitSm {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
+        let serivce_type = ServiceType::async_io_read(buf).await?;
+        let source_addr_ton = Ton::async_io_read(buf).await?;
+        let source_addr_npi = Npi::async_io_read(buf).await?;
+        let source_addr = COctetString::async_io_read(buf).await?;
+        let dest_addr_ton = Ton::async_io_read(buf).await?;
+        let dest_addr_npi = Npi::async_io_read(buf).await?;
+        let destination_addr = COctetString::async_io_read(buf).await?;
+        let esm_class = EsmClass::async_io_read(buf).await?;
+        let protocol_id = u8::async_io_read(buf).await?;
+        let priority_flag = PriorityFlag::async_io_read(buf).await?;
+        let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
+        let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
+        let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
+        let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
+        let data_coding = DataCoding::async_io_read(buf).await?;
+        let sm_default_msg_id = GreaterThanU8::async_io_read(buf).await?;
         let sm_length = u8::async_io_read(buf).await?;
+        let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
+
+        let tlvs_expected_length = length
+            .saturating_sub(serivce_type.length())
+            .saturating_sub(source_addr_ton.length())
+            .saturating_sub(source_addr_npi.length())
+            .saturating_sub(source_addr.length())
+            .saturating_sub(dest_addr_ton.length())
+            .saturating_sub(dest_addr_npi.length())
+            .saturating_sub(destination_addr.length())
+            .saturating_sub(esm_class.length())
+            .saturating_sub(protocol_id.length())
+            .saturating_sub(priority_flag.length())
+            .saturating_sub(schedule_delivery_time.length())
+            .saturating_sub(validity_period.length())
+            .saturating_sub(registered_delivery.length())
+            .saturating_sub(replace_if_present_flag.length())
+            .saturating_sub(data_coding.length())
+            .saturating_sub(sm_default_msg_id.length())
+            .saturating_sub(sm_length.length())
+            .saturating_sub(short_message.length());
+
+        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_length).await?;
 
         Ok(Self {
-            serivce_type: ServiceType::async_io_read(buf).await?,
-            source_addr_ton: Ton::async_io_read(buf).await?,
-            source_addr_npi: Npi::async_io_read(buf).await?,
-            source_addr: COctetString::async_io_read(buf).await?,
-            dest_addr_ton: Ton::async_io_read(buf).await?,
-            dest_addr_npi: Npi::async_io_read(buf).await?,
-            destination_addr: COctetString::async_io_read(buf).await?,
-            esm_class: EsmClass::async_io_read(buf).await?,
-            protocol_id: u8::async_io_read(buf).await?,
-            priority_flag: PriorityFlag::async_io_read(buf).await?,
-            schedule_delivery_time: EmptyOrFullCOctetString::async_io_read(buf).await?,
-            validity_period: EmptyOrFullCOctetString::async_io_read(buf).await?,
-            registered_delivery: RegisteredDelivery::async_io_read(buf).await?,
-            replace_if_present_flag: ReplaceIfPresentFlag::async_io_read(buf).await?,
-            data_coding: DataCoding::async_io_read(buf).await?,
-            sm_default_msg_id: GreaterThanU8::async_io_read(buf).await?,
+            serivce_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+            esm_class,
+            protocol_id,
+            priority_flag,
+            schedule_delivery_time,
+            validity_period,
+            registered_delivery,
+            replace_if_present_flag,
+            data_coding,
+            sm_default_msg_id,
             sm_length,
-            short_message: OctetString::async_io_read(buf, sm_length as usize).await?,
+            short_message,
+            tlvs,
         })
     }
 }

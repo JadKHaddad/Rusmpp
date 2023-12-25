@@ -1,5 +1,5 @@
 pub mod addr_subunit;
-pub mod alert_on_message_delivery;
+pub mod alert_on_msg_delivery;
 pub mod bearer_type;
 pub mod broadcast_area_identifier;
 pub mod broadcast_area_success;

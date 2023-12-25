@@ -17,7 +17,7 @@ use crate::{
 use super::{
     tlv_tag::TLVTag,
     tlv_values::{
-        addr_subunit::AddrSubunit, alert_on_message_delivery::AlertOnMessageDelivery,
+        addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
         bearer_type::BearerType, broadcast_area_identifier::BroadcastAreaIdentifier,
         broadcast_area_success::BroadcastAreaSuccess,
         broadcast_channel_indicator::BroadcastChannelIndicator,
@@ -40,7 +40,7 @@ use super::{
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TLVValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
-    AlertOnMessageDelivery(AlertOnMessageDelivery),
+    AlertOnMessageDelivery(AlertOnMsgDelivery),
     BillingIdentification(OctetString<0, 1024>),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
     BroadcastAreaSuccess(BroadcastAreaSuccess),
@@ -359,7 +359,7 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
                 TLVValue::AdditionalStatusInfoText(COctetString::async_io_read(buf).await?)
             }
             TLVTag::AlertOnMessageDelivery => {
-                TLVValue::AlertOnMessageDelivery(AlertOnMessageDelivery::async_io_read(buf).await?)
+                TLVValue::AlertOnMessageDelivery(AlertOnMsgDelivery::async_io_read(buf).await?)
             }
             TLVTag::BillingIdentification => {
                 TLVValue::BillingIdentification(OctetString::async_io_read(buf, length).await?)
@@ -522,6 +522,130 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
         };
 
         Ok(Some(read))
+    }
+}
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageSubmissionRequestTLVValue {
+    AlertOnMsgDelivery(AlertOnMsgDelivery),
+    BillingIdentification(OctetString<0, 1024>),
+    CallbackNum(OctetString<4, 19>),
+    CallbackNumAtag(OctetString<0, 65>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrNpCountry(OctetString<1, 5>),
+    DestAddrNpInformation(OctetString<0, 10>),
+    DestAddrNpResolution(DestAddrNpResolution),
+    DestAddrSubunit(AddrSubunit),
+    DestBearerType(BearerType),
+    DestNetworkId(COctetString<7, 66>),
+    DestNetworkType(NetworkType),
+    DestNodeId(OctetString<6, 6>),
+    DestSubaddress(Subaddress),
+    DestTelematicsId(u16),
+    DestPort(u16),
+    DisplayTime(DisplayTime),
+    ItsReplyType(ItsReplyType),
+    ItsSessionInfo(ItsSessionInfo),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(NoFixedSizeOctetString),
+    MoreMessagesToSend(MoreMessagesToSend),
+    MsMsgWaitFacilities(MsMsgWaitFacilities),
+    MsValidity(MsValidity),
+    NumberOfMessages(NumberOfMessages),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    QosTimeToLive(u32),
+    SarMsgRefNum(u16),
+    SarSegmentSeqnum(u8),
+    SarTotalSegments(u8),
+    SetDpf(SetDpf),
+    SmsSignal(u16),
+    SourceAddrSubunit(AddrSubunit),
+    SourceBearerType(BearerType),
+    SourceNetworkId(COctetString<7, 66>),
+    SourceNetworkType(NetworkType),
+    SourceNodeId(OctetString<6, 6>),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    SourceTelematicsId(u16),
+    UserMessageReference(u16),
+    UserResponseCode(u8),
+    UssdServiceOp(UssdServiceOp),
+}
+
+impl From<MessageSubmissionRequestTLVValue> for TLVValue {
+    fn from(v: MessageSubmissionRequestTLVValue) -> Self {
+        match v {
+            MessageSubmissionRequestTLVValue::AlertOnMsgDelivery(v) => {
+                TLVValue::AlertOnMessageDelivery(v)
+            }
+            MessageSubmissionRequestTLVValue::BillingIdentification(v) => {
+                TLVValue::BillingIdentification(v)
+            }
+            MessageSubmissionRequestTLVValue::CallbackNum(v) => TLVValue::CallbackNum(v),
+            MessageSubmissionRequestTLVValue::CallbackNumAtag(v) => TLVValue::CallbackNumAtag(v),
+            MessageSubmissionRequestTLVValue::CallbackNumPresInd(v) => {
+                TLVValue::CallbackNumPresInd(v)
+            }
+            MessageSubmissionRequestTLVValue::DestAddrNpCountry(v) => {
+                TLVValue::DestAddrNpCountry(v)
+            }
+            MessageSubmissionRequestTLVValue::DestAddrNpInformation(v) => {
+                TLVValue::DestAddrNpInformation(v)
+            }
+            MessageSubmissionRequestTLVValue::DestAddrNpResolution(v) => {
+                TLVValue::DestAddrNpResolution(v)
+            }
+            MessageSubmissionRequestTLVValue::DestAddrSubunit(v) => TLVValue::DestAddrSubunit(v),
+            MessageSubmissionRequestTLVValue::DestBearerType(v) => TLVValue::DestBearerType(v),
+            MessageSubmissionRequestTLVValue::DestNetworkId(v) => TLVValue::DestNetworkId(v),
+            MessageSubmissionRequestTLVValue::DestNetworkType(v) => TLVValue::DestNetworkType(v),
+            MessageSubmissionRequestTLVValue::DestNodeId(v) => TLVValue::DestNodeId(v),
+            MessageSubmissionRequestTLVValue::DestSubaddress(v) => TLVValue::DestSubaddress(v),
+            MessageSubmissionRequestTLVValue::DestTelematicsId(v) => TLVValue::DestTelematicsId(v),
+            MessageSubmissionRequestTLVValue::DestPort(v) => TLVValue::DestPort(v),
+            MessageSubmissionRequestTLVValue::DisplayTime(v) => TLVValue::DisplayTime(v),
+            MessageSubmissionRequestTLVValue::ItsReplyType(v) => TLVValue::ItsReplyType(v),
+            MessageSubmissionRequestTLVValue::ItsSessionInfo(v) => TLVValue::ItsSessionInfo(v),
+            MessageSubmissionRequestTLVValue::LanguageIndicator(v) => {
+                TLVValue::LanguageIndicator(v)
+            }
+            MessageSubmissionRequestTLVValue::MessagePayload(v) => TLVValue::MessagePayload(v),
+            MessageSubmissionRequestTLVValue::MoreMessagesToSend(v) => {
+                TLVValue::MoreMessagesToSend(v)
+            }
+            MessageSubmissionRequestTLVValue::MsMsgWaitFacilities(v) => {
+                TLVValue::MsMsgWaitFacilities(v)
+            }
+            MessageSubmissionRequestTLVValue::MsValidity(v) => TLVValue::MsValidity(v),
+            MessageSubmissionRequestTLVValue::NumberOfMessages(v) => TLVValue::NumberOfMessages(v),
+            MessageSubmissionRequestTLVValue::PayloadType(v) => TLVValue::PayloadType(v),
+            MessageSubmissionRequestTLVValue::PrivacyIndicator(v) => TLVValue::PrivacyIndicator(v),
+            MessageSubmissionRequestTLVValue::QosTimeToLive(v) => TLVValue::QosTimeToLive(v),
+            MessageSubmissionRequestTLVValue::SarMsgRefNum(v) => TLVValue::SarMsgRefNum(v),
+            MessageSubmissionRequestTLVValue::SarSegmentSeqnum(v) => TLVValue::SarSegmentSeqnum(v),
+            MessageSubmissionRequestTLVValue::SarTotalSegments(v) => TLVValue::SarTotalSegments(v),
+            MessageSubmissionRequestTLVValue::SetDpf(v) => TLVValue::SetDpf(v),
+            MessageSubmissionRequestTLVValue::SmsSignal(v) => TLVValue::SmsSignal(v),
+            MessageSubmissionRequestTLVValue::SourceAddrSubunit(v) => {
+                TLVValue::SourceAddrSubunit(v)
+            }
+            MessageSubmissionRequestTLVValue::SourceBearerType(v) => TLVValue::SourceBearerType(v),
+            MessageSubmissionRequestTLVValue::SourceNetworkId(v) => TLVValue::SourceNetworkId(v),
+            MessageSubmissionRequestTLVValue::SourceNetworkType(v) => {
+                TLVValue::SourceNetworkType(v)
+            }
+            MessageSubmissionRequestTLVValue::SourceNodeId(v) => TLVValue::SourceNodeId(v),
+            MessageSubmissionRequestTLVValue::SourcePort(v) => TLVValue::SourcePort(v),
+            MessageSubmissionRequestTLVValue::SourceSubaddress(v) => TLVValue::SourceSubaddress(v),
+            MessageSubmissionRequestTLVValue::SourceTelematicsId(v) => {
+                TLVValue::SourceTelematicsId(v)
+            }
+            MessageSubmissionRequestTLVValue::UserMessageReference(v) => {
+                TLVValue::UserMessageReference(v)
+            }
+            MessageSubmissionRequestTLVValue::UserResponseCode(v) => TLVValue::UserResponseCode(v),
+            MessageSubmissionRequestTLVValue::UssdServiceOp(v) => TLVValue::UssdServiceOp(v),
+        }
     }
 }
 

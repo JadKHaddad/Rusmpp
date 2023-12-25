@@ -50,7 +50,8 @@ impl AsyncIoWrite for SubmitSmResp {
 impl AsyncIoReadWithLength for SubmitSmResp {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let message_id = COctetString::async_io_read(buf).await?;
-        let tlvs = Vec::<TLV>::async_io_read(buf, length - message_id.length()).await?;
+        let tlvs =
+            Vec::<TLV>::async_io_read(buf, length.saturating_sub(message_id.length())).await?;
 
         Ok(Self { message_id, tlvs })
     }

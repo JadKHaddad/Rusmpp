@@ -19,6 +19,10 @@ mod tests {
                 pdu_body::PduBody,
             },
             pdu::Pdu,
+            tlvs::{
+                tlv::MessageSubmissionRequestTLV, tlv_value::MessageSubmissionRequestTLVValue,
+                tlv_values::alert_on_msg_delivery::AlertOnMsgDelivery,
+            },
             types::{
                 command_status::CommandStatus,
                 data_coding::DataCoding,
@@ -70,6 +74,16 @@ mod tests {
             DataCoding::default(),
             GreaterThanU8::new(1).unwrap(),
             OctetString::from_str("Hi I am a message").unwrap(),
+            vec![
+                MessageSubmissionRequestTLV::new(
+                    MessageSubmissionRequestTLVValue::AlertOnMsgDelivery(
+                        AlertOnMsgDelivery::UseMobileDefaultAlert,
+                    ),
+                ),
+                MessageSubmissionRequestTLV::new(MessageSubmissionRequestTLVValue::CallbackNum(
+                    OctetString::from_str("0000").unwrap(),
+                )),
+            ],
         )
     }
 
@@ -176,11 +190,9 @@ mod tests {
 
         let pdus = connect_send_recv(vec![bind_transmitter_pdu, submit_pdu]).await;
 
-        println!("BindTransmitterResp: {:#?}", pdus[0]);
         let body = pdus[0].clone().into_body().expect("Expected pdu body");
         assert!(matches!(body, PduBody::BindTransmitterResp(_)));
 
-        println!("SubmitSmResp: {:#?}", pdus[1]);
         let body = pdus[1].clone().into_body().expect("Expected pdu body");
         assert!(matches!(body, PduBody::SubmitSmResp(_)));
     }

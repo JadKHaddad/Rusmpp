@@ -4,7 +4,10 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
-use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
+use super::{
+    tlv_tag::{MessageSubmissionResponseTLVTag, TLVTag},
+    tlv_value::{MessageSubmissionResponseTLVValue, TLVValue},
+};
 
 /// A Tagged Length Value Field is a special composite field
 /// that comprises of three parts:
@@ -92,6 +95,22 @@ impl TLV {
             value: None,
         }
     }
+
+    pub fn tag(&self) -> &TLVTag {
+        &self.tag
+    }
+
+    pub fn value_length(&self) -> u16 {
+        self.value_length
+    }
+
+    pub fn value(&self) -> Option<&TLVValue> {
+        self.value.as_ref()
+    }
+
+    pub fn into_value(self) -> Option<TLVValue> {
+        self.value
+    }
 }
 
 impl IoLength for TLV {
@@ -128,5 +147,30 @@ impl AsyncIoRead for TLV {
             value_length,
             value,
         })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageSubmissionResponseTLV {
+    tlv: TLV,
+}
+
+impl MessageSubmissionResponseTLV {
+    pub fn new(value: MessageSubmissionResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: MessageSubmissionResponseTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageSubmissionResponseTLV> for TLV {
+    fn from(tlv: MessageSubmissionResponseTLV) -> Self {
+        tlv.tlv
     }
 }

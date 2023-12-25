@@ -524,3 +524,26 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
         Ok(Some(read))
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageSubmissionResponseTLVValue {
+    AdditionalStatusInfoText(COctetString<1, 256>),
+    DeliveryFailureReason(DeliveryFailureReason),
+    DpfResult(DpfResult),
+    NetworkErrorCode(NetworkErrorCode),
+}
+
+impl From<MessageSubmissionResponseTLVValue> for TLVValue {
+    fn from(v: MessageSubmissionResponseTLVValue) -> Self {
+        match v {
+            MessageSubmissionResponseTLVValue::AdditionalStatusInfoText(v) => {
+                TLVValue::AdditionalStatusInfoText(v)
+            }
+            MessageSubmissionResponseTLVValue::DeliveryFailureReason(v) => {
+                TLVValue::DeliveryFailureReason(v)
+            }
+            MessageSubmissionResponseTLVValue::DpfResult(v) => TLVValue::DpfResult(v),
+            MessageSubmissionResponseTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
+        }
+    }
+}

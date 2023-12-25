@@ -110,3 +110,24 @@ impl AsyncIoRead for TLVTag {
         u16::async_io_read(buf).await.map(Self::from)
     }
 }
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageSubmissionResponseTLVTag {
+    AdditionalStatusInfoText,
+    DeliveryFailureReason,
+    DpfResult,
+    NetworkErrorCode,
+}
+
+impl From<MessageSubmissionResponseTLVTag> for TLVTag {
+    fn from(v: MessageSubmissionResponseTLVTag) -> Self {
+        match v {
+            MessageSubmissionResponseTLVTag::AdditionalStatusInfoText => {
+                TLVTag::AdditionalStatusInfoText
+            }
+            MessageSubmissionResponseTLVTag::DeliveryFailureReason => TLVTag::DeliveryFailureReason,
+            MessageSubmissionResponseTLVTag::DpfResult => TLVTag::DpfResult,
+            MessageSubmissionResponseTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+        }
+    }
+}

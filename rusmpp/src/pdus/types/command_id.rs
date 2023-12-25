@@ -61,34 +61,6 @@ pub enum CommandId {
     Other(u32),
 }
 
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum NoBodyCommandId {
-    Unbind = 0x00000006,
-    UnbindResp = 0x80000006,
-    EnquireLink = 0x00000015,
-    EnquireLinkResp = 0x80000015,
-    GenericNack = 0x80000000,
-    CancelSmResp = 0x80000008,
-    ReplaceSmResp = 0x80000007,
-    CancelBroadcastSmResp = 0x80000113,
-}
-
-impl From<NoBodyCommandId> for CommandId {
-    fn from(value: NoBodyCommandId) -> Self {
-        match value {
-            NoBodyCommandId::Unbind => CommandId::Unbind,
-            NoBodyCommandId::UnbindResp => CommandId::UnbindResp,
-            NoBodyCommandId::EnquireLink => CommandId::EnquireLink,
-            NoBodyCommandId::EnquireLinkResp => CommandId::EnquireLinkResp,
-            NoBodyCommandId::GenericNack => CommandId::GenericNack,
-            NoBodyCommandId::CancelSmResp => CommandId::CancelSmResp,
-            NoBodyCommandId::ReplaceSmResp => CommandId::ReplaceSmResp,
-            NoBodyCommandId::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
-        }
-    }
-}
-
 impl IoLength for CommandId {
     fn length(&self) -> usize {
         u32::from(*self).length()
@@ -106,6 +78,33 @@ impl AsyncIoWrite for CommandId {
 impl AsyncIoRead for CommandId {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         u32::async_io_read(buf).await.map(Self::from)
+    }
+}
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum NoBodyCommandId {
+    Unbind,
+    UnbindResp,
+    EnquireLink,
+    EnquireLinkResp,
+    GenericNack,
+    CancelSmResp,
+    ReplaceSmResp,
+    CancelBroadcastSmResp,
+}
+
+impl From<NoBodyCommandId> for CommandId {
+    fn from(value: NoBodyCommandId) -> Self {
+        match value {
+            NoBodyCommandId::Unbind => CommandId::Unbind,
+            NoBodyCommandId::UnbindResp => CommandId::UnbindResp,
+            NoBodyCommandId::EnquireLink => CommandId::EnquireLink,
+            NoBodyCommandId::EnquireLinkResp => CommandId::EnquireLinkResp,
+            NoBodyCommandId::GenericNack => CommandId::GenericNack,
+            NoBodyCommandId::CancelSmResp => CommandId::CancelSmResp,
+            NoBodyCommandId::ReplaceSmResp => CommandId::ReplaceSmResp,
+            NoBodyCommandId::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
+        }
     }
 }
 

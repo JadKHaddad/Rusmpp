@@ -176,9 +176,11 @@ mod tests {
 
         let pdus = connect_send_recv(vec![bind_transmitter_pdu, submit_pdu]).await;
 
+        println!("BindTransmitterResp: {:#?}", pdus[0]);
         let body = pdus[0].clone().into_body().expect("Expected pdu body");
         assert!(matches!(body, PduBody::BindTransmitterResp(_)));
 
+        println!("SubmitSmResp: {:#?}", pdus[1]);
         let body = pdus[1].clone().into_body().expect("Expected pdu body");
         assert!(matches!(body, PduBody::SubmitSmResp(_)));
     }

@@ -28,3 +28,4 @@ pub mod u32;
 /// A 1-octet Integer with a value 5, would be encoded in a
 /// single octet with the value 0x05
 pub mod u8;
+pub mod vec;

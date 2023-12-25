@@ -28,3 +28,4 @@ pub mod payload_type;
 pub mod privacy_indicator;
 pub mod set_dpf;
 pub mod subaddress;
+pub mod ussd_service_op;

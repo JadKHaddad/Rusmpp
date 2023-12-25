@@ -33,6 +33,7 @@ use super::{
         network_error_code::NetworkErrorCode, network_type::NetworkType,
         number_of_messages::NumberOfMessages, payload_type::PayloadType,
         privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, subaddress::Subaddress,
+        ussd_service_op::UssdServiceOp,
     },
 };
 
@@ -118,6 +119,9 @@ pub enum TLVValue {
     SourcePort(u16),
     SourceSubaddress(Subaddress),
     SourceTelematicsId(u16),
+    UserMessageReference(u16),
+    UserResponseCode(u8),
+    UssdServiceOp(UssdServiceOp),
     Other {
         tag: TLVTag,
         value: NoFixedSizeOctetString,
@@ -188,6 +192,9 @@ impl TLVValue {
             TLVValue::SourcePort(_) => TLVTag::SourcePort,
             TLVValue::SourceSubaddress(_) => TLVTag::SourceSubaddress,
             TLVValue::SourceTelematicsId(_) => TLVTag::SourceTelematicsId,
+            TLVValue::UserMessageReference(_) => TLVTag::UserMessageReference,
+            TLVValue::UserResponseCode(_) => TLVTag::UserResponseCode,
+            TLVValue::UssdServiceOp(_) => TLVTag::UssdServiceOp,
             TLVValue::Other { tag, .. } => *tag,
         }
     }
@@ -257,6 +264,9 @@ impl IoLength for TLVValue {
             TLVValue::SourcePort(v) => v.length(),
             TLVValue::SourceSubaddress(v) => v.length(),
             TLVValue::SourceTelematicsId(v) => v.length(),
+            TLVValue::UserMessageReference(v) => v.length(),
+            TLVValue::UserResponseCode(v) => v.length(),
+            TLVValue::UssdServiceOp(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
     }
@@ -327,6 +337,9 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::SourcePort(v) => v.async_io_write(buf).await,
             TLVValue::SourceSubaddress(v) => v.async_io_write(buf).await,
             TLVValue::SourceTelematicsId(v) => v.async_io_write(buf).await,
+            TLVValue::UserMessageReference(v) => v.async_io_write(buf).await,
+            TLVValue::UserResponseCode(v) => v.async_io_write(buf).await,
+            TLVValue::UssdServiceOp(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
     }
@@ -495,11 +508,17 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::SourceTelematicsId => {
                 TLVValue::SourceTelematicsId(u16::async_io_read(buf).await?)
             }
+            TLVTag::UserMessageReference => {
+                TLVValue::UserMessageReference(u16::async_io_read(buf).await?)
+            }
+            TLVTag::UserResponseCode => TLVValue::UserResponseCode(u8::async_io_read(buf).await?),
+            TLVTag::UssdServiceOp => {
+                TLVValue::UssdServiceOp(UssdServiceOp::async_io_read(buf).await?)
+            }
             TLVTag::Other(_) => TLVValue::Other {
                 tag: key,
                 value: NoFixedSizeOctetString::async_io_read(buf, length).await?,
             },
-            _ => return Err(IoReadError::UnsupportedKey { key: key.into() }),
         };
 
         Ok(Some(read))

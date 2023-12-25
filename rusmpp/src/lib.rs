@@ -39,7 +39,8 @@ mod tests {
         },
         types::{
             c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-            greater_than_u8::GreaterThanU8, octet_string::OctetString,
+            greater_than_u8::GreaterThanU8, no_fixed_size_octet_string::NoFixedSizeOctetString,
+            octet_string::OctetString,
         },
     };
 
@@ -73,8 +74,14 @@ mod tests {
             ReplaceIfPresentFlag::default(),
             DataCoding::default(),
             GreaterThanU8::new(1).unwrap(),
-            OctetString::from_str("Hi I am a message").unwrap(),
+            OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap(),
             vec![
+                MessageSubmissionRequestTLV::new(MessageSubmissionRequestTLVValue::MessagePayload(
+                    NoFixedSizeOctetString::from_str(
+                        "Hi, I am a very long message that will override the short message :D",
+                    )
+                    .unwrap(),
+                )),
                 MessageSubmissionRequestTLV::new(
                     MessageSubmissionRequestTLVValue::AlertOnMsgDelivery(
                         AlertOnMsgDelivery::UseMobileDefaultAlert,

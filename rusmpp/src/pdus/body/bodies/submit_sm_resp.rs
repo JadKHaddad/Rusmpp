@@ -32,7 +32,7 @@ impl SubmitSmResp {
 
 impl IoLength for SubmitSmResp {
     fn length(&self) -> usize {
-        self.message_id.length()
+        self.message_id.length() + self.tlvs.length()
     }
 }
 

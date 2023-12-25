@@ -5,7 +5,10 @@ use crate::{
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
-        tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
+        tlvs::{
+            tlv::{MessageSubmissionRequestTLV, TLV},
+            tlv_tag::TLVTag,
+        },
         types::{
             data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
             registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
@@ -65,9 +68,18 @@ impl SubmitSm {
         short_message: OctetString<0, 255>,
         tlvs: Vec<MessageSubmissionRequestTLV>,
     ) -> Self {
+        let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
+        let message_payload_exists = tlvs
+            .iter()
+            .any(|v| matches!(v.tag(), TLVTag::MessagePayload));
+
+        let short_message = if message_payload_exists {
+            OctetString::empty()
+        } else {
+            short_message
+        };
+
         let sm_length = short_message.length() as u8;
-        // TODO: do validation for message payload
-        let tlvs = tlvs.into_iter().map(|v| v.into()).collect();
 
         Self {
             serivce_type,
@@ -189,6 +201,7 @@ impl IoLength for SubmitSm {
             + self.sm_default_msg_id.length()
             + self.sm_length.length()
             + self.short_message.length()
+            + self.tlvs.length()
     }
 }
 

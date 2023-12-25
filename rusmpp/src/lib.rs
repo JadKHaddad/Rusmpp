@@ -4,6 +4,7 @@ pub mod types;
 
 #[cfg(test)]
 mod tests {
+    use core::panic;
     use std::str::FromStr;
 
     use tokio::{
@@ -15,7 +16,7 @@ mod tests {
         io::{read::AsyncIoRead, write::AsyncIoWrite},
         pdus::{
             body::{
-                bodies::{bind::Bind, submit_sm::SubmitSm},
+                bodies::{bind::Bind, query_sm::QuerySm, submit_sm::SubmitSm},
                 pdu_body::PduBody,
             },
             pdu::Pdu,
@@ -94,28 +95,35 @@ mod tests {
         )
     }
 
+    async fn write_pdu<'a, T>(pdu: &'a Pdu, stream: &'a mut T)
+    where
+        T: AsyncWriteExt + Send + Unpin + 'static,
+    {
+        println!("sending pdu: {:#?}", pdu);
+
+        let mut pdu_bytes = Vec::new();
+        pdu.async_io_write(&mut pdu_bytes)
+            .await
+            .expect("Failed to write pdu bytes to vec");
+
+        println!("sending pdu bytes: {} bytes", pdu_bytes.len());
+        for byte in pdu_bytes.iter() {
+            print!("{:#02x}, ", byte);
+        }
+        println!();
+
+        pdu.async_io_write(stream)
+            .await
+            .expect("Failed to write pdu bytes to steam");
+    }
+
     async fn connect_send_recv(pdus: Vec<Pdu>) -> Vec<Pdu> {
         let mut stream = TcpStream::connect("34.242.18.250:2775")
             .await
             .expect("Failed to connect");
 
         for pdu in pdus.iter() {
-            println!("sending pdu: {:#?}", pdu);
-
-            let mut pdu_bytes = Vec::new();
-            pdu.async_io_write(&mut pdu_bytes)
-                .await
-                .expect("Failed to write pdu bytes to vec");
-
-            println!("sending pdu bytes: {} bytes", pdu_bytes.len());
-            for byte in pdu_bytes.iter() {
-                print!("{:#02x}, ", byte);
-            }
-            println!();
-
-            pdu.async_io_write(&mut stream)
-                .await
-                .expect("Failed to write pdu bytes to steam");
+            write_pdu(pdu, &mut stream).await;
         }
 
         let mut buf_reader = BufReader::new(stream);
@@ -180,28 +188,88 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn submit_sm() {
+    async fn bind_and_submit_sm_and_query_sm() {
+        let stream = TcpStream::connect("34.242.18.250:2775")
+            .await
+            .expect("Failed to connect");
+
+        let (read, mut write) = stream.into_split();
+        let mut buf_reader = BufReader::new(read);
+
         let bind_transmitter_pdu = Pdu::new(
             CommandStatus::EsmeRok,
             SequenceNumber::new(1),
             PduBody::BindTransmitter(create_default_bind()),
         )
         .unwrap();
+        write_pdu(&bind_transmitter_pdu, &mut write).await;
 
-        let submit_pdu = Pdu::new(
+        match Pdu::async_io_read(&mut buf_reader).await {
+            Ok(pdu) => {
+                println!("BindTransmitterResp pdu: {:#?}", pdu);
+
+                let body = pdu.into_body().expect("Expected pdu body");
+                assert!(matches!(body, PduBody::BindTransmitterResp(_)));
+            }
+            Err(e) => {
+                panic!("error parsing pdu: {}", e)
+            }
+        }
+
+        let submit_sm_body = create_default_submit_sm();
+
+        let source_addr_ton = submit_sm_body.source_addr_ton();
+        let source_addr_npi = submit_sm_body.source_addr_npi();
+        let source_addr = submit_sm_body.source_addr().clone();
+
+        let submit_sm_pdu = Pdu::new(
             CommandStatus::EsmeRok,
-            SequenceNumber::new(1),
-            PduBody::SubmitSm(create_default_submit_sm()),
+            SequenceNumber::new(2),
+            PduBody::SubmitSm(submit_sm_body),
         )
         .unwrap();
+        write_pdu(&submit_sm_pdu, &mut write).await;
 
-        let pdus = connect_send_recv(vec![bind_transmitter_pdu, submit_pdu]).await;
+        let message_id = match Pdu::async_io_read(&mut buf_reader).await {
+            Ok(pdu) => {
+                println!("SubmitSmResp pdu: {:#?}", pdu);
 
-        let body = pdus[0].clone().into_body().expect("Expected pdu body");
-        assert!(matches!(body, PduBody::BindTransmitterResp(_)));
+                let body = pdu.into_body().expect("Expected pdu body");
+                let PduBody::SubmitSmResp(submit_sm_resp) = body else {
+                    panic!("Expected SubmitSmResp");
+                };
 
-        let body = pdus[1].clone().into_body().expect("Expected pdu body");
-        assert!(matches!(body, PduBody::SubmitSmResp(_)));
+                submit_sm_resp.message_id().clone()
+            }
+            Err(e) => {
+                panic!("error parsing pdu: {}", e)
+            }
+        };
+
+        let query_sm_pdu = Pdu::new(
+            CommandStatus::EsmeRok,
+            SequenceNumber::new(3),
+            PduBody::QuerySm(QuerySm {
+                message_id,
+                source_addr_ton,
+                source_addr_npi,
+                source_addr,
+            }),
+        )
+        .unwrap();
+        write_pdu(&query_sm_pdu, &mut write).await;
+
+        match Pdu::async_io_read(&mut buf_reader).await {
+            Ok(pdu) => {
+                println!("QuerySmResp pdu: {:#?}", pdu);
+
+                let body = pdu.into_body().expect("Expected pdu body");
+                assert!(matches!(body, PduBody::QuerySmResp(_)));
+            }
+            Err(e) => {
+                panic!("error parsing pdu: {}", e)
+            }
+        };
     }
 
     #[tokio::test]

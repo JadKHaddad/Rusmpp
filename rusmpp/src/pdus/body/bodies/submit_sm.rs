@@ -108,40 +108,40 @@ impl SubmitSm {
         &self.serivce_type
     }
 
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
+    pub fn source_addr_ton(&self) -> Ton {
+        self.source_addr_ton
     }
 
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
+    pub fn source_addr_npi(&self) -> Npi {
+        self.source_addr_npi
     }
 
     pub fn source_addr(&self) -> &COctetString<1, 21> {
         &self.source_addr
     }
 
-    pub fn dest_addr_ton(&self) -> &Ton {
-        &self.dest_addr_ton
+    pub fn dest_addr_ton(&self) -> Ton {
+        self.dest_addr_ton
     }
 
-    pub fn dest_addr_npi(&self) -> &Npi {
-        &self.dest_addr_npi
+    pub fn dest_addr_npi(&self) -> Npi {
+        self.dest_addr_npi
     }
 
     pub fn destination_addr(&self) -> &COctetString<1, 21> {
         &self.destination_addr
     }
 
-    pub fn esm_class(&self) -> &EsmClass {
-        &self.esm_class
+    pub fn esm_class(&self) -> EsmClass {
+        self.esm_class
     }
 
     pub fn protocol_id(&self) -> u8 {
         self.protocol_id
     }
 
-    pub fn priority_flag(&self) -> &PriorityFlag {
-        &self.priority_flag
+    pub fn priority_flag(&self) -> PriorityFlag {
+        self.priority_flag
     }
 
     pub fn schedule_delivery_time(&self) -> &EmptyOrFullCOctetString<17> {
@@ -152,16 +152,16 @@ impl SubmitSm {
         &self.validity_period
     }
 
-    pub fn registered_delivery(&self) -> &RegisteredDelivery {
-        &self.registered_delivery
+    pub fn registered_delivery(&self) -> RegisteredDelivery {
+        self.registered_delivery
     }
 
-    pub fn replace_if_present_flag(&self) -> &ReplaceIfPresentFlag {
-        &self.replace_if_present_flag
+    pub fn replace_if_present_flag(&self) -> ReplaceIfPresentFlag {
+        self.replace_if_present_flag
     }
 
-    pub fn data_coding(&self) -> &DataCoding {
-        &self.data_coding
+    pub fn data_coding(&self) -> DataCoding {
+        self.data_coding
     }
 
     pub fn sm_default_msg_id(&self) -> GreaterThanU8<0> {

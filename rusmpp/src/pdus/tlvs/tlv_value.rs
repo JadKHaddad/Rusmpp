@@ -17,21 +17,20 @@ use crate::{
 use super::{
     tlv_tag::TLVTag,
     tlv_values::{
-        alert_on_message_delivery::AlertOnMessageDelivery,
-        broadcast_area_identifier::BroadcastAreaIdentifier,
+        addr_subunit::AddrSubunit, alert_on_message_delivery::AlertOnMessageDelivery,
+        bearer_type::BearerType, broadcast_area_identifier::BroadcastAreaIdentifier,
         broadcast_area_success::BroadcastAreaSuccess,
         broadcast_channel_indicator::BroadcastChannelIndicator,
         broadcast_content_type::BroadcastContentType,
         broadcast_frequency_interval::BroadcastFrequencyInterval,
         broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
         congestion_state::CongestionState, delivery_failure_reason::DeliveryFailureReason,
-        dest_addr_np_resolution::DestAddrNpResolution, dest_addr_subunit::DestAddrSubunit,
-        dest_bearer_type::DestBearerType, dest_network_type::DestNetworkType,
-        display_time::DisplayTime, dpf_result::DpfResult, its_reply_type::ItsReplyType,
-        its_session_info::ItsSessionInfo, language_indicator::LanguageIndicator,
-        message_state::MessageState, more_messages_to_send::MoreMessagesToSend,
-        ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
-        ms_validity::MsValidity, network_error_code::NetworkErrorCode,
+        dest_addr_np_resolution::DestAddrNpResolution, display_time::DisplayTime,
+        dpf_result::DpfResult, its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
+        language_indicator::LanguageIndicator, message_state::MessageState,
+        more_messages_to_send::MoreMessagesToSend, ms_availability_status::MsAvailabilityStatus,
+        ms_msg_wait_facilities::MsMsgWaitFacilities, ms_validity::MsValidity,
+        network_error_code::NetworkErrorCode, network_type::NetworkType,
         number_of_messages::NumberOfMessages, payload_type::PayloadType,
         privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, subaddress::Subaddress,
     },
@@ -79,10 +78,10 @@ pub enum TLVValue {
     DestAddrNpCountry(OctetString<1, 5>),
     DestAddrNpInformation(OctetString<0, 10>),
     DestAddrNpResolution(DestAddrNpResolution),
-    DestAddrSubunit(DestAddrSubunit),
-    DestBearerType(DestBearerType),
+    DestAddrSubunit(AddrSubunit),
+    DestBearerType(BearerType),
     DestNetworkId(COctetString<7, 66>),
-    DestNetworkType(DestNetworkType),
+    DestNetworkType(NetworkType),
     DestNodeId(OctetString<6, 6>),
     DestSubaddress(Subaddress),
     DestTelematicsId(u16),
@@ -111,6 +110,14 @@ pub enum TLVValue {
     SetDpf(SetDpf),
     /// Encoded as per [CMT-136]
     SmsSignal(u16),
+    SourceAddrSubunit(AddrSubunit),
+    SourceBearerType(BearerType),
+    SourceNetworkId(COctetString<7, 66>),
+    SourceNetworkType(NetworkType),
+    SourceNodeId(OctetString<6, 6>),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    SourceTelematicsId(u16),
     Other {
         tag: TLVTag,
         value: NoFixedSizeOctetString,
@@ -173,6 +180,14 @@ impl TLVValue {
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::SetDpf(_) => TLVTag::SetDpf,
             TLVValue::SmsSignal(_) => TLVTag::SmsSignal,
+            TLVValue::SourceAddrSubunit(_) => TLVTag::SourceAddrSubunit,
+            TLVValue::SourceBearerType(_) => TLVTag::SourceBearerType,
+            TLVValue::SourceNetworkId(_) => TLVTag::SourceNetworkId,
+            TLVValue::SourceNetworkType(_) => TLVTag::SourceNetworkType,
+            TLVValue::SourceNodeId(_) => TLVTag::SourceNodeId,
+            TLVValue::SourcePort(_) => TLVTag::SourcePort,
+            TLVValue::SourceSubaddress(_) => TLVTag::SourceSubaddress,
+            TLVValue::SourceTelematicsId(_) => TLVTag::SourceTelematicsId,
             TLVValue::Other { tag, .. } => *tag,
         }
     }
@@ -234,6 +249,14 @@ impl IoLength for TLVValue {
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::SetDpf(v) => v.length(),
             TLVValue::SmsSignal(v) => v.length(),
+            TLVValue::SourceAddrSubunit(v) => v.length(),
+            TLVValue::SourceBearerType(v) => v.length(),
+            TLVValue::SourceNetworkId(v) => v.length(),
+            TLVValue::SourceNetworkType(v) => v.length(),
+            TLVValue::SourceNodeId(v) => v.length(),
+            TLVValue::SourcePort(v) => v.length(),
+            TLVValue::SourceSubaddress(v) => v.length(),
+            TLVValue::SourceTelematicsId(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
     }
@@ -296,6 +319,14 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::SetDpf(v) => v.async_io_write(buf).await,
             TLVValue::SmsSignal(v) => v.async_io_write(buf).await,
+            TLVValue::SourceAddrSubunit(v) => v.async_io_write(buf).await,
+            TLVValue::SourceBearerType(v) => v.async_io_write(buf).await,
+            TLVValue::SourceNetworkId(v) => v.async_io_write(buf).await,
+            TLVValue::SourceNetworkType(v) => v.async_io_write(buf).await,
+            TLVValue::SourceNodeId(v) => v.async_io_write(buf).await,
+            TLVValue::SourcePort(v) => v.async_io_write(buf).await,
+            TLVValue::SourceSubaddress(v) => v.async_io_write(buf).await,
+            TLVValue::SourceTelematicsId(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
     }
@@ -376,16 +407,16 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
                 TLVValue::DestAddrNpResolution(DestAddrNpResolution::async_io_read(buf).await?)
             }
             TLVTag::DestAddrSubunit => {
-                TLVValue::DestAddrSubunit(DestAddrSubunit::async_io_read(buf).await?)
+                TLVValue::DestAddrSubunit(AddrSubunit::async_io_read(buf).await?)
             }
             TLVTag::DestBearerType => {
-                TLVValue::DestBearerType(DestBearerType::async_io_read(buf).await?)
+                TLVValue::DestBearerType(BearerType::async_io_read(buf).await?)
             }
             TLVTag::DestNetworkId => {
                 TLVValue::DestNetworkId(COctetString::async_io_read(buf).await?)
             }
             TLVTag::DestNetworkType => {
-                TLVValue::DestNetworkType(DestNetworkType::async_io_read(buf).await?)
+                TLVValue::DestNetworkType(NetworkType::async_io_read(buf).await?)
             }
             TLVTag::DestNodeId => {
                 TLVValue::DestNodeId(OctetString::async_io_read(buf, length).await?)
@@ -442,6 +473,28 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             }
             TLVTag::SetDpf => TLVValue::SetDpf(SetDpf::async_io_read(buf).await?),
             TLVTag::SmsSignal => TLVValue::SmsSignal(u16::async_io_read(buf).await?),
+            TLVTag::SourceAddrSubunit => {
+                TLVValue::SourceAddrSubunit(AddrSubunit::async_io_read(buf).await?)
+            }
+            TLVTag::SourceBearerType => {
+                TLVValue::SourceBearerType(BearerType::async_io_read(buf).await?)
+            }
+            TLVTag::SourceNetworkId => {
+                TLVValue::SourceNetworkId(COctetString::async_io_read(buf).await?)
+            }
+            TLVTag::SourceNetworkType => {
+                TLVValue::SourceNetworkType(NetworkType::async_io_read(buf).await?)
+            }
+            TLVTag::SourceNodeId => {
+                TLVValue::SourceNodeId(OctetString::async_io_read(buf, length).await?)
+            }
+            TLVTag::SourcePort => TLVValue::SourcePort(u16::async_io_read(buf).await?),
+            TLVTag::SourceSubaddress => {
+                TLVValue::SourceSubaddress(Subaddress::async_io_read(buf, length).await?)
+            }
+            TLVTag::SourceTelematicsId => {
+                TLVValue::SourceTelematicsId(u16::async_io_read(buf).await?)
+            }
             TLVTag::Other(_) => TLVValue::Other {
                 tag: key,
                 value: NoFixedSizeOctetString::async_io_read(buf, length).await?,

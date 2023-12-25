@@ -10,7 +10,7 @@ use crate::io::{
 #[derive(
     Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
 )]
-pub enum DestBearerType {
+pub enum BearerType {
     Unknown = 0x00,
     Sms = 0x01,
     Csd = 0x02,
@@ -25,27 +25,27 @@ pub enum DestBearerType {
 }
 
 #[allow(clippy::derivable_impls)]
-impl Default for DestBearerType {
+impl Default for BearerType {
     fn default() -> Self {
-        DestBearerType::Unknown
+        BearerType::Unknown
     }
 }
 
-impl IoLength for DestBearerType {
+impl IoLength for BearerType {
     fn length(&self) -> usize {
         u8::from(*self).length()
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoWrite for DestBearerType {
+impl AsyncIoWrite for BearerType {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         u8::from(*self).async_io_write(buf).await
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoRead for DestBearerType {
+impl AsyncIoRead for BearerType {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         u8::async_io_read(buf).await.map(Self::from)
     }

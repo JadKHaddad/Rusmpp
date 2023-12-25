@@ -22,4 +22,8 @@ pub mod more_messages_to_send;
 pub mod ms_availability_status;
 pub mod ms_msg_wait_facilities;
 pub mod ms_validity;
+pub mod network_error_code;
+pub mod number_of_messages;
+pub mod payload_type;
+pub mod privacy_indicator;
 pub mod subaddress;

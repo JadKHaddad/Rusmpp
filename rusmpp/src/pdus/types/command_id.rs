@@ -61,22 +61,6 @@ pub enum CommandId {
     Other(u32),
 }
 
-impl CommandId {
-    pub fn has_body(&self) -> bool {
-        !matches!(
-            self,
-            CommandId::Unbind
-                | CommandId::UnbindResp
-                | CommandId::EnquireLink
-                | CommandId::EnquireLinkResp
-                | CommandId::GenericNack
-                | CommandId::CancelSmResp
-                | CommandId::ReplaceSmResp
-                | CommandId::CancelBroadcastSmResp
-        )
-    }
-}
-
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum NoBodyCommandId {

@@ -98,10 +98,6 @@ impl AsyncIoReadWithKeyOptional for PduBody {
         buf: &mut AsyncIoReadable,
         length: usize,
     ) -> Result<Option<Self>, IoReadError> {
-        if !key.has_body() {
-            return Ok(None);
-        }
-
         let read = match key {
             CommandId::BindTransmitter => PduBody::BindTransmitter(Bind::async_io_read(buf).await?),
             CommandId::BindTransmitterResp => {
@@ -127,6 +123,14 @@ impl AsyncIoReadWithKeyOptional for PduBody {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,
             },
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
             _ => return Err(IoReadError::UnsupportedKey { key: key.into() }),
         };
 

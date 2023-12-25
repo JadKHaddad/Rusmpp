@@ -31,7 +31,9 @@ use super::{
         its_session_info::ItsSessionInfo, language_indicator::LanguageIndicator,
         message_state::MessageState, more_messages_to_send::MoreMessagesToSend,
         ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
-        ms_validity::MsValidity, subaddress::Subaddress,
+        ms_validity::MsValidity, network_error_code::NetworkErrorCode,
+        number_of_messages::NumberOfMessages, payload_type::PayloadType,
+        privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
     },
 };
 
@@ -96,6 +98,15 @@ pub enum TLVValue {
     MsAvailabilityStatus(MsAvailabilityStatus),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     MsValidity(MsValidity),
+    NetworkErrorCode(NetworkErrorCode),
+    NumberOfMessages(NumberOfMessages),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    QosTimeToLive(u32),
+    ReceiptedMessageId(COctetString<1, 65>),
+    SarMsgRefNum(u16),
+    SarSegmentSeqnum(u8),
+    SarTotalSegments(u8),
     ScInterfaceVersion(InterfaceVersion),
     Other {
         tag: TLVTag,
@@ -147,6 +158,15 @@ impl TLVValue {
             TLVValue::MsAvailabilityStatus(_) => TLVTag::MsAvailabilityStatus,
             TLVValue::MsMsgWaitFacilities(_) => TLVTag::MsMsgWaitFacilities,
             TLVValue::MsValidity(_) => TLVTag::MsValidity,
+            TLVValue::NetworkErrorCode(_) => TLVTag::NetworkErrorCode,
+            TLVValue::NumberOfMessages(_) => TLVTag::NumberOfMessages,
+            TLVValue::PayloadType(_) => TLVTag::PayloadType,
+            TLVValue::PrivacyIndicator(_) => TLVTag::PrivacyIndicator,
+            TLVValue::QosTimeToLive(_) => TLVTag::QosTimeToLive,
+            TLVValue::ReceiptedMessageId(_) => TLVTag::ReceiptedMessageId,
+            TLVValue::SarMsgRefNum(_) => TLVTag::SarMsgRefNum,
+            TLVValue::SarSegmentSeqnum(_) => TLVTag::SarSegmentSeqnum,
+            TLVValue::SarTotalSegments(_) => TLVTag::SarTotalSegments,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
             TLVValue::Other { tag, .. } => *tag,
         }
@@ -197,6 +217,15 @@ impl IoLength for TLVValue {
             TLVValue::MsAvailabilityStatus(v) => v.length(),
             TLVValue::MsMsgWaitFacilities(v) => v.length(),
             TLVValue::MsValidity(v) => v.length(),
+            TLVValue::NetworkErrorCode(v) => v.length(),
+            TLVValue::NumberOfMessages(v) => v.length(),
+            TLVValue::PayloadType(v) => v.length(),
+            TLVValue::PrivacyIndicator(v) => v.length(),
+            TLVValue::QosTimeToLive(v) => v.length(),
+            TLVValue::ReceiptedMessageId(v) => v.length(),
+            TLVValue::SarMsgRefNum(v) => v.length(),
+            TLVValue::SarSegmentSeqnum(v) => v.length(),
+            TLVValue::SarTotalSegments(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
@@ -248,6 +277,15 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::MsAvailabilityStatus(v) => v.async_io_write(buf).await,
             TLVValue::MsMsgWaitFacilities(v) => v.async_io_write(buf).await,
             TLVValue::MsValidity(v) => v.async_io_write(buf).await,
+            TLVValue::NetworkErrorCode(v) => v.async_io_write(buf).await,
+            TLVValue::NumberOfMessages(v) => v.async_io_write(buf).await,
+            TLVValue::PayloadType(v) => v.async_io_write(buf).await,
+            TLVValue::PrivacyIndicator(v) => v.async_io_write(buf).await,
+            TLVValue::QosTimeToLive(v) => v.async_io_write(buf).await,
+            TLVValue::ReceiptedMessageId(v) => v.async_io_write(buf).await,
+            TLVValue::SarMsgRefNum(v) => v.async_io_write(buf).await,
+            TLVValue::SarSegmentSeqnum(v) => v.async_io_write(buf).await,
+            TLVValue::SarTotalSegments(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
@@ -373,6 +411,23 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::MsValidity => {
                 TLVValue::MsValidity(MsValidity::async_io_read(buf, length).await?)
             }
+            TLVTag::NetworkErrorCode => {
+                TLVValue::NetworkErrorCode(NetworkErrorCode::async_io_read(buf).await?)
+            }
+            TLVTag::NumberOfMessages => {
+                TLVValue::NumberOfMessages(NumberOfMessages::async_io_read(buf).await?)
+            }
+            TLVTag::PayloadType => TLVValue::PayloadType(PayloadType::async_io_read(buf).await?),
+            TLVTag::PrivacyIndicator => {
+                TLVValue::PrivacyIndicator(PrivacyIndicator::async_io_read(buf).await?)
+            }
+            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(u32::async_io_read(buf).await?),
+            TLVTag::ReceiptedMessageId => {
+                TLVValue::ReceiptedMessageId(COctetString::async_io_read(buf).await?)
+            }
+            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(u16::async_io_read(buf).await?),
+            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(u8::async_io_read(buf).await?),
+            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(u8::async_io_read(buf).await?),
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }

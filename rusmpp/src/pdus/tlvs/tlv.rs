@@ -5,8 +5,14 @@ use crate::io::{
 };
 
 use super::{
-    tlv_tag::{MessageSubmissionRequestTLVTag, MessageSubmissionResponseTLVTag, TLVTag},
-    tlv_value::{MessageSubmissionRequestTLVValue, MessageSubmissionResponseTLVValue, TLVValue},
+    tlv_tag::{
+        MessageDeliveryRequestTLVTag, MessageDeliveryResponseTLVTag,
+        MessageSubmissionRequestTLVTag, MessageSubmissionResponseTLVTag, TLVTag,
+    },
+    tlv_value::{
+        MessageDeliveryRequestTLVValue, MessageDeliveryResponseTLVValue,
+        MessageSubmissionRequestTLVValue, MessageSubmissionResponseTLVValue, TLVValue,
+    },
 };
 
 /// A Tagged Length Value Field is a special composite field
@@ -196,6 +202,56 @@ impl MessageSubmissionResponseTLV {
 
 impl From<MessageSubmissionResponseTLV> for TLV {
     fn from(tlv: MessageSubmissionResponseTLV) -> Self {
+        tlv.tlv
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryRequestTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryRequestTLV {
+    pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: MessageDeliveryRequestTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryRequestTLV> for TLV {
+    fn from(tlv: MessageDeliveryRequestTLV) -> Self {
+        tlv.tlv
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryResponseTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryResponseTLV {
+    pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: MessageDeliveryResponseTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryResponseTLV> for TLV {
+    fn from(tlv: MessageDeliveryResponseTLV) -> Self {
         tlv.tlv
     }
 }

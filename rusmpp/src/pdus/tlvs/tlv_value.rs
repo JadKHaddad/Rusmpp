@@ -524,6 +524,7 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
         Ok(Some(read))
     }
 }
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageSubmissionRequestTLVValue {
     AlertOnMsgDelivery(AlertOnMsgDelivery),
@@ -668,6 +669,112 @@ impl From<MessageSubmissionResponseTLVValue> for TLVValue {
             }
             MessageSubmissionResponseTLVValue::DpfResult(v) => TLVValue::DpfResult(v),
             MessageSubmissionResponseTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryRequestTLVValue {
+    CallbackNum(OctetString<4, 19>),
+    CallbackNumAtag(OctetString<0, 65>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrNpCountry(OctetString<1, 5>),
+    DestAddrNpInformation(OctetString<0, 10>),
+    DestAddrNpResolution(DestAddrNpResolution),
+    DestAddrSubunit(AddrSubunit),
+    DestNetworkId(COctetString<7, 66>),
+    DestNodeId(OctetString<6, 6>),
+    DestSubaddress(Subaddress),
+    DestPort(u16),
+    DpfResult(DpfResult),
+    ItsReplyType(ItsReplyType),
+    ItsSessionInfo(ItsSessionInfo),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(NoFixedSizeOctetString),
+    MessageState(MessageState),
+    NetworkErrorCode(NetworkErrorCode),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    ReceiptedMessageId(COctetString<1, 65>),
+    SarMsgRefNum(u16),
+    SarSegmentSeqnum(u8),
+    SarTotalSegments(u8),
+    SourceAddrSubunit(AddrSubunit),
+    SourceNetworkId(COctetString<7, 66>),
+    SourceNodeId(OctetString<6, 6>),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    UserMessageReference(u16),
+    UserResponseCode(u8),
+    UssdServiceOp(UssdServiceOp),
+}
+
+impl From<MessageDeliveryRequestTLVValue> for TLVValue {
+    fn from(v: MessageDeliveryRequestTLVValue) -> Self {
+        match v {
+            MessageDeliveryRequestTLVValue::CallbackNum(v) => TLVValue::CallbackNum(v),
+            MessageDeliveryRequestTLVValue::CallbackNumAtag(v) => TLVValue::CallbackNumAtag(v),
+            MessageDeliveryRequestTLVValue::CallbackNumPresInd(v) => {
+                TLVValue::CallbackNumPresInd(v)
+            }
+            MessageDeliveryRequestTLVValue::DestAddrNpCountry(v) => TLVValue::DestAddrNpCountry(v),
+            MessageDeliveryRequestTLVValue::DestAddrNpInformation(v) => {
+                TLVValue::DestAddrNpInformation(v)
+            }
+            MessageDeliveryRequestTLVValue::DestAddrNpResolution(v) => {
+                TLVValue::DestAddrNpResolution(v)
+            }
+            MessageDeliveryRequestTLVValue::DestAddrSubunit(v) => TLVValue::DestAddrSubunit(v),
+            MessageDeliveryRequestTLVValue::DestNetworkId(v) => TLVValue::DestNetworkId(v),
+            MessageDeliveryRequestTLVValue::DestNodeId(v) => TLVValue::DestNodeId(v),
+            MessageDeliveryRequestTLVValue::DestSubaddress(v) => TLVValue::DestSubaddress(v),
+            MessageDeliveryRequestTLVValue::DestPort(v) => TLVValue::DestPort(v),
+            MessageDeliveryRequestTLVValue::DpfResult(v) => TLVValue::DpfResult(v),
+            MessageDeliveryRequestTLVValue::ItsReplyType(v) => TLVValue::ItsReplyType(v),
+            MessageDeliveryRequestTLVValue::ItsSessionInfo(v) => TLVValue::ItsSessionInfo(v),
+            MessageDeliveryRequestTLVValue::LanguageIndicator(v) => TLVValue::LanguageIndicator(v),
+            MessageDeliveryRequestTLVValue::MessagePayload(v) => TLVValue::MessagePayload(v),
+            MessageDeliveryRequestTLVValue::MessageState(v) => TLVValue::MessageState(v),
+            MessageDeliveryRequestTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
+            MessageDeliveryRequestTLVValue::PayloadType(v) => TLVValue::PayloadType(v),
+            MessageDeliveryRequestTLVValue::PrivacyIndicator(v) => TLVValue::PrivacyIndicator(v),
+            MessageDeliveryRequestTLVValue::ReceiptedMessageId(v) => {
+                TLVValue::ReceiptedMessageId(v)
+            }
+            MessageDeliveryRequestTLVValue::SarMsgRefNum(v) => TLVValue::SarMsgRefNum(v),
+            MessageDeliveryRequestTLVValue::SarSegmentSeqnum(v) => TLVValue::SarSegmentSeqnum(v),
+            MessageDeliveryRequestTLVValue::SarTotalSegments(v) => TLVValue::SarTotalSegments(v),
+            MessageDeliveryRequestTLVValue::SourceAddrSubunit(v) => TLVValue::SourceAddrSubunit(v),
+            MessageDeliveryRequestTLVValue::SourceNetworkId(v) => TLVValue::SourceNetworkId(v),
+            MessageDeliveryRequestTLVValue::SourceNodeId(v) => TLVValue::SourceNodeId(v),
+            MessageDeliveryRequestTLVValue::SourcePort(v) => TLVValue::SourcePort(v),
+            MessageDeliveryRequestTLVValue::SourceSubaddress(v) => TLVValue::SourceSubaddress(v),
+            MessageDeliveryRequestTLVValue::UserMessageReference(v) => {
+                TLVValue::UserMessageReference(v)
+            }
+            MessageDeliveryRequestTLVValue::UserResponseCode(v) => TLVValue::UserResponseCode(v),
+            MessageDeliveryRequestTLVValue::UssdServiceOp(v) => TLVValue::UssdServiceOp(v),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryResponseTLVValue {
+    AdditionalStatusInfoText(COctetString<1, 256>),
+    DeliveryFailureReason(DeliveryFailureReason),
+    NetworkErrorCode(NetworkErrorCode),
+}
+
+impl From<MessageDeliveryResponseTLVValue> for TLVValue {
+    fn from(v: MessageDeliveryResponseTLVValue) -> Self {
+        match v {
+            MessageDeliveryResponseTLVValue::AdditionalStatusInfoText(v) => {
+                TLVValue::AdditionalStatusInfoText(v)
+            }
+            MessageDeliveryResponseTLVValue::DeliveryFailureReason(v) => {
+                TLVValue::DeliveryFailureReason(v)
+            }
+            MessageDeliveryResponseTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
         }
     }
 }

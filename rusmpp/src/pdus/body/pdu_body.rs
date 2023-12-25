@@ -12,8 +12,8 @@ use crate::{
 };
 
 use super::bodies::{
-    alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, outbind::Outbind,
-    query_sm::QuerySm, query_sm_resp::QuerySmResp, submit_sm::SubmitSm,
+    alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, deliver_sm::DeliverSm,
+    outbind::Outbind, query_sm::QuerySm, query_sm_resp::QuerySmResp, submit_sm::SubmitSm,
     submit_sm_resp::SubmitSmResp,
 };
 
@@ -31,6 +31,7 @@ pub enum PduBody {
     SubmitSmResp(SubmitSmResp),
     QuerySm(QuerySm),
     QuerySmResp(QuerySmResp),
+    DeliverSm(DeliverSm),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -52,6 +53,7 @@ impl PduBody {
             PduBody::SubmitSmResp(_) => CommandId::SubmitSmResp,
             PduBody::QuerySm(_) => CommandId::QuerySm,
             PduBody::QuerySmResp(_) => CommandId::QuerySmResp,
+            PduBody::DeliverSm(_) => CommandId::DeliverSm,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -72,6 +74,7 @@ impl IoLength for PduBody {
             PduBody::SubmitSmResp(b) => b.length(),
             PduBody::QuerySm(b) => b.length(),
             PduBody::QuerySmResp(b) => b.length(),
+            PduBody::DeliverSm(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -93,6 +96,7 @@ impl AsyncIoWrite for PduBody {
             PduBody::SubmitSmResp(b) => b.async_io_write(buf).await,
             PduBody::QuerySm(b) => b.async_io_write(buf).await,
             PduBody::QuerySmResp(b) => b.async_io_write(buf).await,
+            PduBody::DeliverSm(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -130,6 +134,9 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             }
             CommandId::QuerySm => PduBody::QuerySm(QuerySm::async_io_read(buf).await?),
             CommandId::QuerySmResp => PduBody::QuerySmResp(QuerySmResp::async_io_read(buf).await?),
+            CommandId::DeliverSm => {
+                PduBody::DeliverSm(DeliverSm::async_io_read(buf, length).await?)
+            }
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,

@@ -230,3 +230,97 @@ impl From<MessageSubmissionResponseTLVTag> for TLVTag {
         }
     }
 }
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryRequestTLVTag {
+    CallbackNum,
+    CallbackNumAtag,
+    CallbackNumPresInd,
+    DestAddrNpCountry,
+    DestAddrNpInformation,
+    DestAddrNpResolution,
+    DestAddrSubunit,
+    DestNetworkId,
+    DestNodeId,
+    DestSubaddress,
+    DestPort,
+    DpfResult,
+    ItsReplyType,
+    ItsSessionInfo,
+    LanguageIndicator,
+    MessagePayload,
+    MessageState,
+    NetworkErrorCode,
+    PayloadType,
+    PrivacyIndicator,
+    ReceiptedMessageId,
+    SarMsgRefNum,
+    SarSegmentSeqnum,
+    SarTotalSegments,
+    SourceAddrSubunit,
+    SourceNetworkId,
+    SourceNodeId,
+    SourcePort,
+    SourceSubaddress,
+    UserMessageReference,
+    UserResponseCode,
+    UssdServiceOp,
+}
+
+impl From<MessageDeliveryRequestTLVTag> for TLVTag {
+    fn from(v: MessageDeliveryRequestTLVTag) -> Self {
+        match v {
+            MessageDeliveryRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
+            MessageDeliveryRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
+            MessageDeliveryRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
+            MessageDeliveryRequestTLVTag::DestAddrNpCountry => TLVTag::DestAddrNpCountry,
+            MessageDeliveryRequestTLVTag::DestAddrNpInformation => TLVTag::DestAddrNpInformation,
+            MessageDeliveryRequestTLVTag::DestAddrNpResolution => TLVTag::DestAddrNpResolution,
+            MessageDeliveryRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
+            MessageDeliveryRequestTLVTag::DestNetworkId => TLVTag::DestNetworkId,
+            MessageDeliveryRequestTLVTag::DestNodeId => TLVTag::DestNodeId,
+            MessageDeliveryRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
+            MessageDeliveryRequestTLVTag::DestPort => TLVTag::DestPort,
+            MessageDeliveryRequestTLVTag::DpfResult => TLVTag::DpfResult,
+            MessageDeliveryRequestTLVTag::ItsReplyType => TLVTag::ItsReplyType,
+            MessageDeliveryRequestTLVTag::ItsSessionInfo => TLVTag::ItsSessionInfo,
+            MessageDeliveryRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
+            MessageDeliveryRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
+            MessageDeliveryRequestTLVTag::MessageState => TLVTag::MessageState,
+            MessageDeliveryRequestTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+            MessageDeliveryRequestTLVTag::PayloadType => TLVTag::PayloadType,
+            MessageDeliveryRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
+            MessageDeliveryRequestTLVTag::ReceiptedMessageId => TLVTag::ReceiptedMessageId,
+            MessageDeliveryRequestTLVTag::SarMsgRefNum => TLVTag::SarMsgRefNum,
+            MessageDeliveryRequestTLVTag::SarSegmentSeqnum => TLVTag::SarSegmentSeqnum,
+            MessageDeliveryRequestTLVTag::SarTotalSegments => TLVTag::SarTotalSegments,
+            MessageDeliveryRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
+            MessageDeliveryRequestTLVTag::SourceNetworkId => TLVTag::SourceNetworkId,
+            MessageDeliveryRequestTLVTag::SourceNodeId => TLVTag::SourceNodeId,
+            MessageDeliveryRequestTLVTag::SourcePort => TLVTag::SourcePort,
+            MessageDeliveryRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
+            MessageDeliveryRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+            MessageDeliveryRequestTLVTag::UserResponseCode => TLVTag::UserResponseCode,
+            MessageDeliveryRequestTLVTag::UssdServiceOp => TLVTag::UssdServiceOp,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryResponseTLVTag {
+    AdditionalStatusInfoText,
+    DeliveryFailureReason,
+    NetworkErrorCode,
+}
+
+impl From<MessageDeliveryResponseTLVTag> for TLVTag {
+    fn from(v: MessageDeliveryResponseTLVTag) -> Self {
+        match v {
+            MessageDeliveryResponseTLVTag::AdditionalStatusInfoText => {
+                TLVTag::AdditionalStatusInfoText
+            }
+            MessageDeliveryResponseTLVTag::DeliveryFailureReason => TLVTag::DeliveryFailureReason,
+            MessageDeliveryResponseTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+        }
+    }
+}

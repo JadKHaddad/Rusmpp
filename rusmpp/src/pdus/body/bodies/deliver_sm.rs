@@ -5,7 +5,7 @@ use crate::{
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::tlvs::{
-        tlv::{MessageSubmissionRequestTLV, TLV},
+        tlv::{MessageDeliveryRequestTLV, TLV},
         tlv_tag::TLVTag,
     },
     types::octet_string::OctetString,
@@ -14,14 +14,14 @@ use crate::{
 use super::sm::Sm;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct SubmitSm {
+pub struct DeliverSm {
     sm: Sm,
     tlvs: Vec<TLV>,
 }
 
-impl SubmitSm {
+impl DeliverSm {
     #[allow(clippy::too_many_arguments)]
-    pub fn new(sm: Sm, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+    pub fn new(sm: Sm, tlvs: Vec<MessageDeliveryRequestTLV>) -> Self {
         let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
         let message_payload_exists = tlvs
             .iter()
@@ -53,14 +53,14 @@ impl SubmitSm {
     }
 }
 
-impl IoLength for SubmitSm {
+impl IoLength for DeliverSm {
     fn length(&self) -> usize {
         self.sm.length() + self.tlvs.length()
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoWrite for SubmitSm {
+impl AsyncIoWrite for DeliverSm {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         self.sm.async_io_write(buf).await?;
         self.tlvs.async_io_write(buf).await?;
@@ -70,7 +70,7 @@ impl AsyncIoWrite for SubmitSm {
 }
 
 #[async_trait::async_trait]
-impl AsyncIoReadWithLength for SubmitSm {
+impl AsyncIoReadWithLength for DeliverSm {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let sm = Sm::async_io_read(buf).await?;
 

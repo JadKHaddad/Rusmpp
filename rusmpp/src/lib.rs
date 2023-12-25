@@ -16,7 +16,7 @@ mod tests {
         io::{read::AsyncIoRead, write::AsyncIoWrite},
         pdus::{
             body::{
-                bodies::{bind::Bind, query_sm::QuerySm, submit_sm::SubmitSm},
+                bodies::{bind::Bind, query_sm::QuerySm, sm::Sm, submit_sm::SubmitSm},
                 pdu_body::PduBody,
             },
             pdu::Pdu,
@@ -62,7 +62,7 @@ mod tests {
 
     fn create_default_submit_sm() -> SubmitSm {
         SubmitSm::new(
-            ServiceType::new(GenericServiceType::default()).unwrap(),
+            Sm::new(ServiceType::new(GenericServiceType::default()).unwrap(),
             Ton::Unknown,
             Npi::Unknown,
             COctetString::from_str("SomeSource").unwrap(),
@@ -83,7 +83,7 @@ mod tests {
             ReplaceIfPresentFlag::default(),
             DataCoding::default(),
             GreaterThanU8::new(1).unwrap(),
-            OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap(),
+            OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap()),
             vec![
                 MessageSubmissionRequestTLV::new(MessageSubmissionRequestTLVValue::MessagePayload(
                     NoFixedSizeOctetString::from_str(
@@ -196,7 +196,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn bind_and_submit_sm_and_query_sm() {
+    async fn bind_and_submit_sm_and_query_sm_and_recv_delivery() {
         let stream = TcpStream::connect("34.242.18.250:2775")
             .await
             .expect("Failed to connect");
@@ -204,20 +204,20 @@ mod tests {
         let (read, mut write) = stream.into_split();
         let mut buf_reader = BufReader::new(read);
 
-        let bind_transmitter_pdu = Pdu::new(
+        let bind_transceiver_pdu = Pdu::new(
             CommandStatus::EsmeRok,
             SequenceNumber::new(1),
-            PduBody::BindTransmitter(create_default_bind()),
+            PduBody::BindTransceiver(create_default_bind()),
         )
         .unwrap();
-        write_pdu(&bind_transmitter_pdu, &mut write).await;
+        write_pdu(&bind_transceiver_pdu, &mut write).await;
 
         match Pdu::async_io_read(&mut buf_reader).await {
             Ok(pdu) => {
-                println!("BindTransmitterResp pdu: {:#?}", pdu);
+                println!("BindTransceiverResp pdu: {:#?}", pdu);
 
                 let body = pdu.into_body().expect("Expected pdu body");
-                assert!(matches!(body, PduBody::BindTransmitterResp(_)));
+                assert!(matches!(body, PduBody::BindTransceiverResp(_)));
             }
             Err(e) => {
                 panic!("error parsing pdu: {}", e)
@@ -226,9 +226,9 @@ mod tests {
 
         let submit_sm_body = create_default_submit_sm();
 
-        let source_addr_ton = submit_sm_body.source_addr_ton();
-        let source_addr_npi = submit_sm_body.source_addr_npi();
-        let source_addr = submit_sm_body.source_addr().clone();
+        let source_addr_ton = submit_sm_body.sm().source_addr_ton();
+        let source_addr_npi = submit_sm_body.sm().source_addr_npi();
+        let source_addr = submit_sm_body.sm().source_addr().clone();
 
         let submit_sm_pdu = Pdu::new(
             CommandStatus::EsmeRok,
@@ -238,46 +238,56 @@ mod tests {
         .unwrap();
         write_pdu(&submit_sm_pdu, &mut write).await;
 
-        let message_id = match Pdu::async_io_read(&mut buf_reader).await {
-            Ok(pdu) => {
-                println!("SubmitSmResp pdu: {:#?}", pdu);
-
-                let body = pdu.into_body().expect("Expected pdu body");
-                let PduBody::SubmitSmResp(submit_sm_resp) = body else {
-                    panic!("Expected SubmitSmResp");
-                };
-
-                submit_sm_resp.message_id().clone()
-            }
-            Err(e) => {
-                panic!("error parsing pdu: {}", e)
-            }
-        };
-
-        let query_sm_pdu = Pdu::new(
-            CommandStatus::EsmeRok,
-            SequenceNumber::new(3),
-            PduBody::QuerySm(QuerySm {
-                message_id,
-                source_addr_ton,
-                source_addr_npi,
-                source_addr,
-            }),
-        )
-        .unwrap();
-        write_pdu(&query_sm_pdu, &mut write).await;
-
         match Pdu::async_io_read(&mut buf_reader).await {
             Ok(pdu) => {
-                println!("QuerySmResp pdu: {:#?}", pdu);
+                println!("pdu: {:#?}", pdu);
 
                 let body = pdu.into_body().expect("Expected pdu body");
-                assert!(matches!(body, PduBody::QuerySmResp(_)));
+
+                match body {
+                    PduBody::SubmitSmResp(submit_sm_resp) => {
+                        let message_id = submit_sm_resp.message_id().clone();
+                        let query_sm_pdu = Pdu::new(
+                            CommandStatus::EsmeRok,
+                            SequenceNumber::new(3),
+                            PduBody::QuerySm(QuerySm {
+                                message_id,
+                                source_addr_ton,
+                                source_addr_npi,
+                                source_addr,
+                            }),
+                        )
+                        .unwrap();
+                        write_pdu(&query_sm_pdu, &mut write).await;
+
+                        match Pdu::async_io_read(&mut buf_reader).await {
+                            Ok(pdu) => {
+                                println!("QuerySmResp pdu: {:#?}", pdu);
+
+                                let body = pdu.into_body().expect("Expected pdu body");
+                                match body {
+                                    PduBody::QuerySmResp(_) => {}
+                                    PduBody::DeliverSm(_) => {}
+                                    _ => {
+                                        panic!("Unexpected pdu body");
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                panic!("error parsing pdu: {}", e)
+                            }
+                        };
+                    }
+                    PduBody::DeliverSm(_) => {}
+                    _ => {
+                        panic!("Unexpected pdu body");
+                    }
+                }
             }
             Err(e) => {
                 panic!("error parsing pdu: {}", e)
             }
-        };
+        }
     }
 
     #[tokio::test]

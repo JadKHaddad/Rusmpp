@@ -100,9 +100,9 @@ impl AsyncIoRead for RegisteredDelivery {
 )]
 pub enum MCDeliveryReceipt {
     NoMcDeliveryReceiptRequested = 0b00000000,
-    NoMcDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
-    NoMcDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
-    NoMcDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
     #[num_enum(catch_all)]
     Other(u8),
 }

@@ -33,7 +33,7 @@ use super::{
         ms_availability_status::MsAvailabilityStatus, ms_msg_wait_facilities::MsMsgWaitFacilities,
         ms_validity::MsValidity, network_error_code::NetworkErrorCode,
         number_of_messages::NumberOfMessages, payload_type::PayloadType,
-        privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
+        privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, subaddress::Subaddress,
     },
 };
 
@@ -108,6 +108,9 @@ pub enum TLVValue {
     SarSegmentSeqnum(u8),
     SarTotalSegments(u8),
     ScInterfaceVersion(InterfaceVersion),
+    SetDpf(SetDpf),
+    /// Encoded as per [CMT-136]
+    SmsSignal(u16),
     Other {
         tag: TLVTag,
         value: NoFixedSizeOctetString,
@@ -168,6 +171,8 @@ impl TLVValue {
             TLVValue::SarSegmentSeqnum(_) => TLVTag::SarSegmentSeqnum,
             TLVValue::SarTotalSegments(_) => TLVTag::SarTotalSegments,
             TLVValue::ScInterfaceVersion(_) => TLVTag::ScInterfaceVersion,
+            TLVValue::SetDpf(_) => TLVTag::SetDpf,
+            TLVValue::SmsSignal(_) => TLVTag::SmsSignal,
             TLVValue::Other { tag, .. } => *tag,
         }
     }
@@ -227,6 +232,8 @@ impl IoLength for TLVValue {
             TLVValue::SarSegmentSeqnum(v) => v.length(),
             TLVValue::SarTotalSegments(v) => v.length(),
             TLVValue::ScInterfaceVersion(v) => v.length(),
+            TLVValue::SetDpf(v) => v.length(),
+            TLVValue::SmsSignal(v) => v.length(),
             TLVValue::Other { value, .. } => value.length(),
         }
     }
@@ -287,6 +294,8 @@ impl AsyncIoWrite for TLVValue {
             TLVValue::SarSegmentSeqnum(v) => v.async_io_write(buf).await,
             TLVValue::SarTotalSegments(v) => v.async_io_write(buf).await,
             TLVValue::ScInterfaceVersion(v) => v.async_io_write(buf).await,
+            TLVValue::SetDpf(v) => v.async_io_write(buf).await,
+            TLVValue::SmsSignal(v) => v.async_io_write(buf).await,
             TLVValue::Other { value, .. } => value.async_io_write(buf).await,
         }
     }
@@ -431,6 +440,8 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(InterfaceVersion::async_io_read(buf).await?)
             }
+            TLVTag::SetDpf => TLVValue::SetDpf(SetDpf::async_io_read(buf).await?),
+            TLVTag::SmsSignal => TLVValue::SmsSignal(u16::async_io_read(buf).await?),
             TLVTag::Other(_) => TLVValue::Other {
                 tag: key,
                 value: NoFixedSizeOctetString::async_io_read(buf, length).await?,

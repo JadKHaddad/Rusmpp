@@ -26,4 +26,5 @@ pub mod network_error_code;
 pub mod number_of_messages;
 pub mod payload_type;
 pub mod privacy_indicator;
+pub mod set_dpf;
 pub mod subaddress;

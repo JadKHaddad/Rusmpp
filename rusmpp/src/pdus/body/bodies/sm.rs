@@ -4,10 +4,13 @@ use crate::{
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
         write::{AsyncIoWritable, AsyncIoWrite},
     },
-    pdus::types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::ServiceType, ton::Ton,
+    pdus::{
+        tlvs::{tlv::TLV, tlv_tag::TLVTag},
+        types::{
+            data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
+            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::ServiceType, ton::Ton,
+        },
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
@@ -17,26 +20,26 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Sm {
-    pub(super) serivce_type: ServiceType,
-    pub(super) source_addr_ton: Ton,
-    pub(super) source_addr_npi: Npi,
-    pub(super) source_addr: COctetString<1, 21>,
-    pub(super) dest_addr_ton: Ton,
-    pub(super) dest_addr_npi: Npi,
-    pub(super) destination_addr: COctetString<1, 21>,
-    pub(super) esm_class: EsmClass,
-    pub(super) protocol_id: u8,
-    pub(super) priority_flag: PriorityFlag,
-    pub(super) schedule_delivery_time: EmptyOrFullCOctetString<17>,
-    pub(super) validity_period: EmptyOrFullCOctetString<17>,
-    pub(super) registered_delivery: RegisteredDelivery,
-    pub(super) replace_if_present_flag: ReplaceIfPresentFlag,
-    pub(super) data_coding: DataCoding,
+    serivce_type: ServiceType,
+    source_addr_ton: Ton,
+    source_addr_npi: Npi,
+    source_addr: COctetString<1, 21>,
+    dest_addr_ton: Ton,
+    dest_addr_npi: Npi,
+    destination_addr: COctetString<1, 21>,
+    esm_class: EsmClass,
+    protocol_id: u8,
+    priority_flag: PriorityFlag,
+    schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    validity_period: EmptyOrFullCOctetString<17>,
+    registered_delivery: RegisteredDelivery,
+    replace_if_present_flag: ReplaceIfPresentFlag,
+    data_coding: DataCoding,
     /// The sm_default_msg_id parameter specifies the MC index of a pre-defined (‘canned’)
     /// message.
-    pub(super) sm_default_msg_id: GreaterThanU8<0>,
-    pub(super) sm_length: u8,
-    pub(super) short_message: OctetString<0, 255>,
+    sm_default_msg_id: GreaterThanU8<0>,
+    sm_length: u8,
+    short_message: OctetString<0, 255>,
 }
 
 impl Sm {
@@ -81,6 +84,26 @@ impl Sm {
             sm_default_msg_id,
             sm_length,
             short_message,
+        }
+    }
+
+    pub fn check_for_message_payload_and_update(self, tlvs: &[TLV]) -> Self {
+        let message_payload_exists = tlvs
+            .iter()
+            .any(|v| matches!(v.tag(), TLVTag::MessagePayload));
+
+        let short_message = if message_payload_exists {
+            OctetString::empty()
+        } else {
+            self.short_message
+        };
+
+        let sm_length = short_message.length() as u8;
+
+        Sm {
+            short_message,
+            sm_length,
+            ..self
         }
     }
 

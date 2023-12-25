@@ -4,11 +4,7 @@ use crate::{
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
         write::{AsyncIoWritable, AsyncIoWrite},
     },
-    pdus::tlvs::{
-        tlv::{MessageSubmissionRequestTLV, TLV},
-        tlv_tag::TLVTag,
-    },
-    types::octet_string::OctetString,
+    pdus::tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
 };
 
 use super::sm::Sm;
@@ -23,23 +19,7 @@ impl SubmitSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(sm: Sm, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
         let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
-        let message_payload_exists = tlvs
-            .iter()
-            .any(|v| matches!(v.tag(), TLVTag::MessagePayload));
-
-        let short_message = if message_payload_exists {
-            OctetString::empty()
-        } else {
-            sm.short_message
-        };
-
-        let sm_length = short_message.length() as u8;
-
-        let sm = Sm {
-            short_message,
-            sm_length,
-            ..sm
-        };
+        let sm = Sm::check_for_message_payload_and_update(sm, &tlvs);
 
         Self { sm, tlvs }
     }

@@ -14,7 +14,7 @@ use rusmpp::{
             tlv_values::alert_on_msg_delivery::AlertOnMsgDelivery,
         },
         types::{
-            command_id::{CommandId, NoBodyCommandId},
+            command_id::CommandId,
             command_status::CommandStatus,
             data_coding::DataCoding,
             esm_class::EsmClass,
@@ -185,7 +185,7 @@ async fn main() {
 
         // Ok now we are done, let's unbind
         let unbind_pdu = Pdu::new_without_body(
-            NoBodyCommandId::Unbind,
+            CommandId::Unbind,
             CommandStatus::EsmeRok,
             SequenceNumber::new(UNBIND_SEQUENCE_NUMBER),
         )

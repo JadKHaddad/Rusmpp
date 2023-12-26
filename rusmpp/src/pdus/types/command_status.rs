@@ -77,6 +77,7 @@ pub enum CommandStatus {
     /// Registered field contains an invalid
     /// setting.
     EsmeRinvregdlvflg = 0x00000007,
+    // TODO: Docs
     EsmeRsyserr = 0x00000008,
     EsmeRinvsrcadr = 0x0000000A,
     EsmeRinvdstadr = 0x0000000B,

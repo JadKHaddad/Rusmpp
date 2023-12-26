@@ -7,7 +7,7 @@ use crate::io::{
 use super::{
     body::pdu_body::PduBody,
     types::{
-        command_id::{CommandId, NoBodyCommandId},
+        command_id::CommandId,
         command_status::{CommandStatus, InvalidCommandStatus},
         sequence_number::{InvalidSequenceNumber, SequenceNumber},
     },
@@ -59,11 +59,10 @@ impl Pdu {
     }
 
     pub fn new_without_body(
-        command_id: NoBodyCommandId,
+        command_id: CommandId,
         command_status: CommandStatus,
         sequence_number: SequenceNumber,
     ) -> Result<Self, InvalidPdu> {
-        let command_id: CommandId = command_id.into();
         let command_length = (crate::types::u32::SIZE
             + command_id.length()
             + command_status.length()

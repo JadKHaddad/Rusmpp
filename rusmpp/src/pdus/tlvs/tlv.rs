@@ -94,7 +94,6 @@ impl TLV {
     }
 
     pub fn new_without_value(tag: TLVTag) -> Self {
-        // TODO: Maybe check the tag!
         Self {
             tag,
             value_length: 0,

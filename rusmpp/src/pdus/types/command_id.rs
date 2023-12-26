@@ -81,33 +81,6 @@ impl AsyncIoRead for CommandId {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum NoBodyCommandId {
-    Unbind,
-    UnbindResp,
-    EnquireLink,
-    EnquireLinkResp,
-    GenericNack,
-    CancelSmResp,
-    ReplaceSmResp,
-    CancelBroadcastSmResp,
-}
-
-impl From<NoBodyCommandId> for CommandId {
-    fn from(value: NoBodyCommandId) -> Self {
-        match value {
-            NoBodyCommandId::Unbind => CommandId::Unbind,
-            NoBodyCommandId::UnbindResp => CommandId::UnbindResp,
-            NoBodyCommandId::EnquireLink => CommandId::EnquireLink,
-            NoBodyCommandId::EnquireLinkResp => CommandId::EnquireLinkResp,
-            NoBodyCommandId::GenericNack => CommandId::GenericNack,
-            NoBodyCommandId::CancelSmResp => CommandId::CancelSmResp,
-            NoBodyCommandId::ReplaceSmResp => CommandId::ReplaceSmResp,
-            NoBodyCommandId::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

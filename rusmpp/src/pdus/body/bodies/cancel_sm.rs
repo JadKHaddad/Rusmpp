@@ -10,14 +10,14 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct CancelSm {
-    serivce_type: ServiceType,
-    message_id: COctetString<1, 65>,
-    source_addr_ton: Ton,
-    source_addr_npi: Npi,
-    source_addr: COctetString<1, 21>,
-    dest_addr_ton: Ton,
-    dest_addr_npi: Npi,
-    destination_addr: COctetString<1, 21>,
+    pub serivce_type: ServiceType,
+    pub message_id: COctetString<1, 65>,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
+    pub dest_addr_ton: Ton,
+    pub dest_addr_npi: Npi,
+    pub destination_addr: COctetString<1, 21>,
 }
 
 impl CancelSm {
@@ -42,62 +42,6 @@ impl CancelSm {
             dest_addr_npi,
             destination_addr,
         }
-    }
-
-    pub fn service_type(&self) -> &ServiceType {
-        &self.serivce_type
-    }
-
-    pub fn message_id(&self) -> &COctetString<1, 65> {
-        &self.message_id
-    }
-
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
-    }
-
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
-    }
-
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
-    }
-
-    pub fn dest_addr_ton(&self) -> &Ton {
-        &self.dest_addr_ton
-    }
-
-    pub fn dest_addr_npi(&self) -> &Npi {
-        &self.dest_addr_npi
-    }
-
-    pub fn destination_addr(&self) -> &COctetString<1, 21> {
-        &self.destination_addr
-    }
-
-    pub fn into_parts(
-        self,
-    ) -> (
-        ServiceType,
-        COctetString<1, 65>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-    ) {
-        (
-            self.serivce_type,
-            self.message_id,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.dest_addr_ton,
-            self.dest_addr_npi,
-            self.destination_addr,
-        )
     }
 }
 

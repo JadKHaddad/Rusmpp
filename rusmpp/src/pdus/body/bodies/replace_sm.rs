@@ -34,7 +34,6 @@ pub struct ReplaceSm {
 
 impl ReplaceSm {
     #[allow(clippy::too_many_arguments)]
-    #[allow(clippy::too_many_arguments)]
     pub fn new(
         message_id: COctetString<1, 65>,
         source_addr_ton: Ton,

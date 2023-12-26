@@ -8,6 +8,8 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
+use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Too many bytes. actual: {actual}, max: {max}")]
@@ -36,6 +38,10 @@ pub struct OctetString<const MIN: usize, const MAX: usize> {
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     pub fn empty() -> Self {
         Self { bytes: vec![] }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.bytes.is_empty()
     }
 
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
@@ -97,6 +103,12 @@ impl<const MIN: usize, const MAX: usize> ToString for OctetString<MIN, MAX> {
 impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     fn as_ref(&self) -> &[u8] {
         &self.bytes
+    }
+}
+
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for NoFixedSizeOctetString {
+    fn from(octet_string: OctetString<MIN, MAX>) -> Self {
+        Self::new(octet_string.bytes)
     }
 }
 

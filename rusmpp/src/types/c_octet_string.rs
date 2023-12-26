@@ -58,6 +58,10 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
         Self { bytes: vec![0] }
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.bytes.len() == 1
+    }
+
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 

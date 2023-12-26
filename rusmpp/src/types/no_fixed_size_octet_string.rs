@@ -17,7 +17,11 @@ pub struct NoFixedSizeOctetString {
 
 impl NoFixedSizeOctetString {
     pub fn empty() -> Self {
-        Self { bytes: vec![0] }
+        Self { bytes: vec![] }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.bytes.is_empty()
     }
 
     pub fn new(bytes: impl AsRef<[u8]>) -> Self {

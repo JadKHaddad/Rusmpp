@@ -188,7 +188,7 @@ async fn main() {
         let unbind_pdu = Pdu::new_without_body(
             NoBodyCommandId::Unbind,
             CommandStatus::EsmeRok,
-            SequenceNumber::new(4),
+            SequenceNumber::new(UNBIND_SEQUENCE_NUMBER),
         )
         .unwrap();
 

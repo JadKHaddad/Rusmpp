@@ -19,7 +19,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Sm {
+pub struct SSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
     source_addr_npi: Npi,
@@ -42,7 +42,7 @@ pub struct Sm {
     short_message: OctetString<0, 255>,
 }
 
-impl Sm {
+impl SSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         serivce_type: ServiceType,
@@ -100,7 +100,7 @@ impl Sm {
 
         let sm_length = short_message.length() as u8;
 
-        Sm {
+        Self {
             short_message,
             sm_length,
             ..self
@@ -223,7 +223,7 @@ impl Sm {
     }
 }
 
-impl IoLength for Sm {
+impl IoLength for SSm {
     fn length(&self) -> usize {
         self.serivce_type.length()
             + self.source_addr_ton.length()
@@ -247,7 +247,7 @@ impl IoLength for Sm {
 }
 
 #[async_trait::async_trait]
-impl AsyncIoWrite for Sm {
+impl AsyncIoWrite for SSm {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         self.serivce_type.async_io_write(buf).await?;
         self.source_addr_ton.async_io_write(buf).await?;
@@ -273,7 +273,7 @@ impl AsyncIoWrite for Sm {
 }
 
 #[async_trait::async_trait]
-impl AsyncIoRead for Sm {
+impl AsyncIoRead for SSm {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         let serivce_type = ServiceType::async_io_read(buf).await?;
         let source_addr_ton = Ton::async_io_read(buf).await?;

@@ -778,3 +778,16 @@ impl From<MessageDeliveryResponseTLVValue> for TLVValue {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageReplacementTLVValue {
+    MessagePayload(NoFixedSizeOctetString),
+}
+
+impl From<MessageReplacementTLVValue> for TLVValue {
+    fn from(v: MessageReplacementTLVValue) -> Self {
+        match v {
+            MessageReplacementTLVValue::MessagePayload(v) => TLVValue::MessagePayload(v),
+        }
+    }
+}

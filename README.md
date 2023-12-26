@@ -23,16 +23,16 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] submit_sm_resp
 - [ ] submit_sm_multi
 - [ ] submit_sm_multi_resp
-- [ ] data_sm
-- [ ] data_sm_resp
+- [x] data_sm
+- [x] data_sm_resp
 - [x] deliver_sm
-- [ ] deliver_sm_resp
+- [x] deliver_sm_resp
 - [x] query_sm
 - [x] query_sm_resp
-- [ ] cancel_sm
-- [ ] cancel_sm_resp
-- [ ] replace_sm
-- [ ] replace_sm_resp
+- [x] cancel_sm
+- [x] cancel_sm_resp
+- [x] replace_sm
+- [x] replace_sm_resp
 - [x] enquire_link
 - [x] enquire_link_resp
 - [x] alert_notification

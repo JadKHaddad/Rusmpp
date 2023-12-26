@@ -14,7 +14,7 @@ use rusmpp::{
     io::{read::AsyncIoRead, write::AsyncIoWrite},
     pdus::{
         body::{
-            bodies::{bind::Bind, query_sm::QuerySm, sm::Sm, submit_sm::SubmitSm},
+            bodies::{bind::Bind, query_sm::QuerySm, s_sm::SSm, submit_sm::SubmitSm},
             pdu_body::PduBody,
         },
         pdu::Pdu,
@@ -97,7 +97,7 @@ async fn main() {
         println!();
 
         let submit_sm = SubmitSm::new(
-            Sm::new(ServiceType::new(GenericServiceType::default()).unwrap(),
+            SSm::new(ServiceType::new(GenericServiceType::default()).unwrap(),
             Ton::Unknown,
             Npi::Unknown,
             COctetString::from_str("SomeSource").unwrap(),
@@ -139,9 +139,9 @@ async fn main() {
             ],
         );
 
-        let source_addr_ton = submit_sm.sm().source_addr_ton();
-        let source_addr_npi = submit_sm.sm().source_addr_npi();
-        let source_addr = submit_sm.sm().source_addr().clone();
+        let source_addr_ton = submit_sm.ssm().source_addr_ton();
+        let source_addr_npi = submit_sm.ssm().source_addr_npi();
+        let source_addr = submit_sm.ssm().source_addr().clone();
 
         // Submit the message
         let submit_sm_pdu = Pdu::new(

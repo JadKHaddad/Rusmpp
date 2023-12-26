@@ -15,7 +15,8 @@ use rusmpp::{
     pdus::{
         body::{
             bodies::{
-                bind_resp::BindResp, query_sm_resp::QuerySmResp, submit_sm_resp::SubmitSmResp,
+                bind_resp::BindResp, query_sm_resp::QuerySmResp,
+                submit_or_data_sm_resp::SubmitOrDataSmResp,
             },
             pdu_body::PduBody,
         },
@@ -214,7 +215,7 @@ async fn main() {
                         let submit_sm_resp_pdu = Pdu::new(
                             CommandStatus::EsmeRok,
                             sequence_number,
-                            PduBody::SubmitSmResp(SubmitSmResp::new(message_id, vec![])),
+                            PduBody::SubmitSmResp(SubmitOrDataSmResp::new(message_id, vec![])),
                         )
                         .unwrap();
 

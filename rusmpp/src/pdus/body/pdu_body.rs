@@ -12,9 +12,10 @@ use crate::{
 };
 
 use super::bodies::{
-    alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, deliver_sm::DeliverSm,
-    outbind::Outbind, query_sm::QuerySm, query_sm_resp::QuerySmResp, submit_sm::SubmitSm,
-    submit_sm_resp::SubmitSmResp,
+    alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, cancel_sm::CancelSm,
+    data_sm::DataSm, deliver_sm::DeliverSm, deliver_sm_resp::DeliverSmResp, outbind::Outbind,
+    query_sm::QuerySm, query_sm_resp::QuerySmResp, replace_sm::ReplaceSm,
+    submit_or_data_sm_resp::SubmitOrDataSmResp, submit_sm::SubmitSm,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -28,10 +29,15 @@ pub enum PduBody {
     Outbind(Outbind),
     AlertNotification(AlertNotification),
     SubmitSm(SubmitSm),
-    SubmitSmResp(SubmitSmResp),
+    SubmitSmResp(SubmitOrDataSmResp),
     QuerySm(QuerySm),
     QuerySmResp(QuerySmResp),
     DeliverSm(DeliverSm),
+    DeliverSmResp(DeliverSmResp),
+    DataSm(DataSm),
+    DataSmResp(SubmitOrDataSmResp),
+    CancelSm(CancelSm),
+    ReplaceSm(ReplaceSm),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -54,6 +60,11 @@ impl PduBody {
             PduBody::QuerySm(_) => CommandId::QuerySm,
             PduBody::QuerySmResp(_) => CommandId::QuerySmResp,
             PduBody::DeliverSm(_) => CommandId::DeliverSm,
+            PduBody::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            PduBody::DataSm(_) => CommandId::DataSm,
+            PduBody::DataSmResp(_) => CommandId::DataSmResp,
+            PduBody::CancelSm(_) => CommandId::CancelSm,
+            PduBody::ReplaceSm(_) => CommandId::ReplaceSm,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -75,6 +86,11 @@ impl IoLength for PduBody {
             PduBody::QuerySm(b) => b.length(),
             PduBody::QuerySmResp(b) => b.length(),
             PduBody::DeliverSm(b) => b.length(),
+            PduBody::DeliverSmResp(b) => b.length(),
+            PduBody::DataSm(b) => b.length(),
+            PduBody::DataSmResp(b) => b.length(),
+            PduBody::CancelSm(b) => b.length(),
+            PduBody::ReplaceSm(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -97,6 +113,11 @@ impl AsyncIoWrite for PduBody {
             PduBody::QuerySm(b) => b.async_io_write(buf).await,
             PduBody::QuerySmResp(b) => b.async_io_write(buf).await,
             PduBody::DeliverSm(b) => b.async_io_write(buf).await,
+            PduBody::DeliverSmResp(b) => b.async_io_write(buf).await,
+            PduBody::DataSm(b) => b.async_io_write(buf).await,
+            PduBody::DataSmResp(b) => b.async_io_write(buf).await,
+            PduBody::CancelSm(b) => b.async_io_write(buf).await,
+            PduBody::ReplaceSm(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -130,12 +151,23 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             }
             CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::async_io_read(buf, length).await?),
             CommandId::SubmitSmResp => {
-                PduBody::SubmitSmResp(SubmitSmResp::async_io_read(buf, length).await?)
+                PduBody::SubmitSmResp(SubmitOrDataSmResp::async_io_read(buf, length).await?)
             }
             CommandId::QuerySm => PduBody::QuerySm(QuerySm::async_io_read(buf).await?),
             CommandId::QuerySmResp => PduBody::QuerySmResp(QuerySmResp::async_io_read(buf).await?),
             CommandId::DeliverSm => {
                 PduBody::DeliverSm(DeliverSm::async_io_read(buf, length).await?)
+            }
+            CommandId::DeliverSmResp => {
+                PduBody::DeliverSmResp(DeliverSmResp::async_io_read(buf, length).await?)
+            }
+            CommandId::DataSm => PduBody::DataSm(DataSm::async_io_read(buf, length).await?),
+            CommandId::DataSmResp => {
+                PduBody::DataSmResp(SubmitOrDataSmResp::async_io_read(buf, length).await?)
+            }
+            CommandId::CancelSm => PduBody::CancelSm(CancelSm::async_io_read(buf).await?),
+            CommandId::ReplaceSm => {
+                PduBody::ReplaceSm(ReplaceSm::async_io_read(buf, length).await?)
             }
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,

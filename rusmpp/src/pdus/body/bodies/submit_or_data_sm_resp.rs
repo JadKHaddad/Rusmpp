@@ -9,12 +9,12 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct SubmitSmResp {
+pub struct SubmitOrDataSmResp {
     message_id: COctetString<1, 65>,
     tlvs: Vec<TLV>,
 }
 
-impl SubmitSmResp {
+impl SubmitOrDataSmResp {
     pub fn new(message_id: COctetString<1, 65>, tlvs: Vec<MessageSubmissionResponseTLV>) -> Self {
         let tlvs = tlvs.into_iter().map(|v| v.into()).collect();
 
@@ -34,14 +34,14 @@ impl SubmitSmResp {
     }
 }
 
-impl IoLength for SubmitSmResp {
+impl IoLength for SubmitOrDataSmResp {
     fn length(&self) -> usize {
         self.message_id.length() + self.tlvs.length()
     }
 }
 
 #[async_trait::async_trait]
-impl AsyncIoWrite for SubmitSmResp {
+impl AsyncIoWrite for SubmitOrDataSmResp {
     async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
         self.message_id.async_io_write(buf).await?;
         self.tlvs.async_io_write(buf).await?;
@@ -51,7 +51,7 @@ impl AsyncIoWrite for SubmitSmResp {
 }
 
 #[async_trait::async_trait]
-impl AsyncIoReadWithLength for SubmitSmResp {
+impl AsyncIoReadWithLength for SubmitOrDataSmResp {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let message_id = COctetString::async_io_read(buf).await?;
         let tlvs =

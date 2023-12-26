@@ -37,3 +37,7 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] enquire_link_resp
 - [x] alert_notification
 - [x] generic_nack
+
+## Releases
+
+`vec![]`

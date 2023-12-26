@@ -1,6 +1,5 @@
 pub mod c_octet_string;
 pub mod empty_or_full_c_octet_string;
-pub mod greater_than_u8;
 pub mod no_fixed_size_octet_string;
 pub mod octet_string;
 pub mod option;

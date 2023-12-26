@@ -33,8 +33,7 @@ use rusmpp::{
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        greater_than_u8::GreaterThanU8, no_fixed_size_octet_string::NoFixedSizeOctetString,
-        octet_string::OctetString,
+        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
     },
 };
 use tokio::{
@@ -109,7 +108,7 @@ async fn main() {
             ),
             ReplaceIfPresentFlag::default(),
             DataCoding::default(),
-            GreaterThanU8::new(1).unwrap(),
+            0,
             OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap()),
             // Optional TLVs
             vec![

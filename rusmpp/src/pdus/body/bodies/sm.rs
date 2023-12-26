@@ -14,7 +14,7 @@ use crate::{
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        greater_than_u8::GreaterThanU8, octet_string::OctetString,
+        octet_string::OctetString,
     },
 };
 
@@ -37,7 +37,7 @@ pub struct Sm {
     data_coding: DataCoding,
     /// The sm_default_msg_id parameter specifies the MC index of a pre-defined (‘canned’)
     /// message.
-    sm_default_msg_id: GreaterThanU8<0>,
+    sm_default_msg_id: u8,
     sm_length: u8,
     short_message: OctetString<0, 255>,
 }
@@ -60,7 +60,7 @@ impl Sm {
         registered_delivery: RegisteredDelivery,
         replace_if_present_flag: ReplaceIfPresentFlag,
         data_coding: DataCoding,
-        sm_default_msg_id: GreaterThanU8<0>,
+        sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
@@ -167,7 +167,7 @@ impl Sm {
         self.data_coding
     }
 
-    pub fn sm_default_msg_id(&self) -> GreaterThanU8<0> {
+    pub fn sm_default_msg_id(&self) -> u8 {
         self.sm_default_msg_id
     }
 
@@ -247,7 +247,7 @@ impl AsyncIoRead for Sm {
         let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
         let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
         let data_coding = DataCoding::async_io_read(buf).await?;
-        let sm_default_msg_id = GreaterThanU8::async_io_read(buf).await?;
+        let sm_default_msg_id = u8::async_io_read(buf).await?;
         let sm_length = u8::async_io_read(buf).await?;
         let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
 

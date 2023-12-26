@@ -155,16 +155,15 @@ impl AsyncIoRead for Pdu {
                 + sequence_number.length(),
         );
 
-        let (body, byte_overflow) = if body_expected_len > 0 {
-            let body = PduBody::async_io_read(command_id, buf, body_expected_len).await?;
-
-            let mut byte_overflow = vec![0; body_expected_len.saturating_sub(body.length())];
-            buf.read_exact(&mut byte_overflow).await?;
-
-            (body, byte_overflow)
+        let body = if body_expected_len > 0 {
+            PduBody::async_io_read(command_id, buf, body_expected_len).await?
         } else {
-            (None, vec![])
+            None
         };
+
+        let overflow_len = body_expected_len.saturating_sub(body.length());
+        let mut byte_overflow = vec![0; overflow_len];
+        buf.read_exact(&mut byte_overflow).await?;
 
         Ok(Self {
             command_length,

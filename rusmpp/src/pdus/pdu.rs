@@ -1,3 +1,5 @@
+use tokio::io::AsyncReadExt;
+
 use crate::io::{
     length::IoLength,
     read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
@@ -28,6 +30,7 @@ pub struct Pdu {
     command_status: CommandStatus,
     sequence_number: SequenceNumber,
     body: Option<PduBody>,
+    byte_overflow: Vec<u8>,
 }
 
 impl Pdu {
@@ -51,6 +54,7 @@ impl Pdu {
             command_status,
             sequence_number,
             body: Some(body),
+            byte_overflow: vec![],
         };
 
         pdu.validate()?;
@@ -74,6 +78,7 @@ impl Pdu {
             command_status,
             sequence_number,
             body: None,
+            byte_overflow: vec![],
         };
 
         pdu.validate()?;
@@ -150,10 +155,15 @@ impl AsyncIoRead for Pdu {
                 + sequence_number.length(),
         );
 
-        let body = if body_expected_len > 0 {
-            PduBody::async_io_read(command_id, buf, body_expected_len).await?
+        let (body, byte_overflow) = if body_expected_len > 0 {
+            let body = PduBody::async_io_read(command_id, buf, body_expected_len).await?;
+
+            let mut byte_overflow = vec![0; body_expected_len.saturating_sub(body.length())];
+            buf.read_exact(&mut byte_overflow).await?;
+
+            (body, byte_overflow)
         } else {
-            None
+            (None, vec![])
         };
 
         Ok(Self {
@@ -162,6 +172,7 @@ impl AsyncIoRead for Pdu {
             command_status,
             sequence_number,
             body,
+            byte_overflow,
         })
     }
 }

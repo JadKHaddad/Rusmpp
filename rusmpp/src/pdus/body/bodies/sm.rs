@@ -178,6 +178,49 @@ impl Sm {
     pub fn short_message(&self) -> &OctetString<0, 255> {
         &self.short_message
     }
+
+    #[allow(clippy::type_complexity)]
+    pub fn into_parts(
+        self,
+    ) -> (
+        ServiceType,
+        Ton,
+        Npi,
+        COctetString<1, 21>,
+        Ton,
+        Npi,
+        COctetString<1, 21>,
+        EsmClass,
+        u8,
+        PriorityFlag,
+        EmptyOrFullCOctetString<17>,
+        EmptyOrFullCOctetString<17>,
+        RegisteredDelivery,
+        ReplaceIfPresentFlag,
+        DataCoding,
+        u8,
+        OctetString<0, 255>,
+    ) {
+        (
+            self.serivce_type,
+            self.source_addr_ton,
+            self.source_addr_npi,
+            self.source_addr,
+            self.dest_addr_ton,
+            self.dest_addr_npi,
+            self.destination_addr,
+            self.esm_class,
+            self.protocol_id,
+            self.priority_flag,
+            self.schedule_delivery_time,
+            self.validity_period,
+            self.registered_delivery,
+            self.replace_if_present_flag,
+            self.data_coding,
+            self.sm_default_msg_id,
+            self.short_message,
+        )
+    }
 }
 
 impl IoLength for Sm {

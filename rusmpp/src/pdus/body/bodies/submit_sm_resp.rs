@@ -28,6 +28,10 @@ impl SubmitSmResp {
     pub fn tlvs(&self) -> &[TLV] {
         &self.tlvs
     }
+
+    pub fn into_parts(self) -> (COctetString<1, 65>, Vec<TLV>) {
+        (self.message_id, self.tlvs)
+    }
 }
 
 impl IoLength for SubmitSmResp {

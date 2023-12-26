@@ -77,6 +77,14 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
+
+    pub fn bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.bytes
+    }
 }
 
 impl<const N: usize> std::fmt::Debug for EmptyOrFullCOctetString<N> {

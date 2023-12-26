@@ -116,6 +116,19 @@ impl Pdu {
     pub fn into_body(self) -> Option<PduBody> {
         self.body
     }
+
+    pub fn byte_overflow(&self) -> &[u8] {
+        &self.byte_overflow
+    }
+
+    pub fn into_parts(self) -> (CommandId, CommandStatus, SequenceNumber, Option<PduBody>) {
+        (
+            self.command_id,
+            self.command_status,
+            self.sequence_number,
+            self.body,
+        )
+    }
 }
 
 impl IoLength for Pdu {

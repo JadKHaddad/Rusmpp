@@ -31,6 +31,10 @@ impl SubmitSm {
     pub fn tlvs(&self) -> &[TLV] {
         &self.tlvs
     }
+
+    pub fn into_parts(self) -> (Sm, Vec<TLV>) {
+        (self.sm, self.tlvs)
+    }
 }
 
 impl IoLength for SubmitSm {

@@ -35,6 +35,14 @@ impl NoFixedSizeOctetString {
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes)
     }
+
+    pub fn bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+
+    pub fn into_bytes(self) -> Vec<u8> {
+        self.bytes
+    }
 }
 
 impl std::fmt::Debug for NoFixedSizeOctetString {

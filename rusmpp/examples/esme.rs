@@ -1,3 +1,13 @@
+/*
+A fake ESME that shows how to use rusmpp.
+*/
+
+//! Run with
+//!
+//! ```not_rust
+//! cargo run --example esme
+//! ```
+
 use std::{str::FromStr, sync::Arc};
 
 use rusmpp::{

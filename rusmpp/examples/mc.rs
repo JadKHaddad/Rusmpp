@@ -1,3 +1,13 @@
+/*
+A fake MC that shows how to use rusmpp.
+*/
+
+//! Run with
+//!
+//! ```not_rust
+//! cargo run --example mc
+//! ```
+
 use std::str::FromStr;
 
 use rusmpp::{
@@ -43,6 +53,10 @@ enum BindMode {
     Trx,
 }
 
+struct SentMessage {
+    message_id: COctetString<1, 65>,
+}
+
 #[tokio::main]
 async fn main() {
     let listener = TcpListener::bind("0.0.0.0:8080")
@@ -61,19 +75,18 @@ async fn main() {
             let mut buf_reader = BufReader::new(read);
 
             let mut bind_mode: Option<BindMode> = None;
+            let mut sent_messages: Vec<SentMessage> = Vec::new();
             while let Ok(pdu) = Pdu::async_io_read(&mut buf_reader).await {
                 let mut bytes = Vec::new();
                 pdu.async_io_write(&mut bytes).await.unwrap();
 
                 println!("pdu: {:?}", pdu);
-                println!("pdu length: {}", pdu.length());
+                println!("length: {}", pdu.length());
                 println!();
                 print!("bytes: ");
                 for byte in bytes.iter() {
                     print!("{:02x} ", byte);
                 }
-                println!();
-                println!("bytes length: {}", bytes.len());
                 println!();
 
                 let sequence_number = pdu.sequence_number();
@@ -191,9 +204,13 @@ async fn main() {
                             }
                         }
 
-                        // fake it until you make it :v
-                        let message_id =
-                            COctetString::from_str("d482c07ab005d1e290891aff750b51aeae0e").unwrap();
+                        let message_id = uuid::Uuid::new_v4().to_string();
+                        let message_id = COctetString::from_str(&message_id).unwrap();
+
+                        sent_messages.push(SentMessage {
+                            message_id: message_id.clone(),
+                        });
+
                         let submit_sm_resp_pdu = Pdu::new(
                             CommandStatus::EsmeRok,
                             sequence_number,
@@ -204,19 +221,29 @@ async fn main() {
                         submit_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
                     }
                     Some(PduBody::QuerySm(body)) => {
-                        // fake it until you make it. again :v
-                        let message_id = body.message_id.clone();
-                        let query_sm_resp_pdu = Pdu::new(
-                            CommandStatus::EsmeRok,
-                            sequence_number,
-                            PduBody::QuerySmResp(QuerySmResp::new(
-                                message_id,
-                                EmptyOrFullCOctetString::empty(),
-                                MessageState::Enroute,
-                                0,
-                            )),
-                        )
-                        .unwrap();
+                        let message_id = &body.message_id;
+
+                        let query_sm_resp_pdu =
+                            if sent_messages.iter().any(|m| m.message_id == *message_id) {
+                                Pdu::new(
+                                    CommandStatus::EsmeRok,
+                                    sequence_number,
+                                    PduBody::QuerySmResp(QuerySmResp::new(
+                                        message_id.clone(),
+                                        EmptyOrFullCOctetString::empty(),
+                                        MessageState::Enroute,
+                                        0,
+                                    )),
+                                )
+                                .unwrap()
+                            } else {
+                                Pdu::new_without_body(
+                                    CommandId::QuerySmResp,
+                                    CommandStatus::EsmeRqueryfail,
+                                    sequence_number,
+                                )
+                                .unwrap()
+                            };
 
                         query_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
                     }

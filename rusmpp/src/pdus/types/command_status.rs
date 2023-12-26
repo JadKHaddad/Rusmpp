@@ -77,25 +77,131 @@ pub enum CommandStatus {
     /// Registered field contains an invalid
     /// setting.
     EsmeRinvregdlvflg = 0x00000007,
-    // TODO: Docs
+    /// System Error.
+    ///
+    /// MC system error indicating that all or part
+    /// of the MC is currently unavailable. This
+    /// can be returned in any response PDU.
     EsmeRsyserr = 0x00000008,
+    /// Invalid Source Address.
+    ///
+    /// Source address of message is
+    /// considered invalid. Usually this is
+    /// because the field is either too long or
+    /// contains invalid characters.
     EsmeRinvsrcadr = 0x0000000A,
+    /// Invalid Destination Address.
+    ///
+    /// Destination address of message is
+    /// considered invalid. Usually this is
+    /// because the field is either zero length,
+    /// too long or contains invalid characters.
     EsmeRinvdstadr = 0x0000000B,
+    /// Message ID is invalid.
+    ///
+    /// Message ID specified in cancel_sm,
+    /// query_sm or other operations is invalid.
     EsmeRinvmsgid = 0x0000000C,
+    /// Bind Failed.
+    ///
+    /// A generic failure scenario for a bind
+    /// attempt. This may be due to a
+    /// provisioning error, incorrect password or
+    /// other reason. A MC will typically return
+    /// this error for an invalid system_id,
+    /// system_type, password or other attribute
+    /// that may cause a bind failure.
     EsmeRbindfail = 0x0000000D,
+    /// Invalid Password.
+    ///
+    /// Password field in bind PDU is invalid.
+    /// This is usually returned when the length
+    /// is too short or too long. It is not supposed
+    /// to be returned when the ESME has
+    /// specified the incorrect password.
     EsmeRinvpaswd = 0x0000000E,
+    /// Invalid System ID.
+    ///
+    /// The System ID field in bind PDU is
+    /// invalid. This is usually returned when the
+    /// length is too short or too long. It is not
+    /// supposed to be returned when the ESME
+    /// has specified the incorrect system id.
     EsmeRinvsysid = 0x0000000F,
+    /// Cancel SM Failed.
+    ///
+    /// Generic failure error for cancel_sm
+    /// operation.
     EsmeRcancelfail = 0x00000011,
+    /// Replace SM Failed.
+    ///
+    /// Generic failure for replace_sm operation.
     EsmeRreplacefail = 0x00000013,
+    /// Message Queue Full.
+    ///
+    /// Used to indicate a resource error within
+    /// the MC. This may be interpreted as the
+    /// maximum number of messages
+    /// addressed to a single destination or a
+    /// global maximum of undelivered
+    /// messages within the MC.
     EsmeRmsgqful = 0x00000014,
+    /// Invalid Service Type.
+    ///
+    /// Service type is rejected either because it
+    /// is not recognised by the MC or because
+    /// its length is not within the defined range.
     EsmeRinvsertyp = 0x00000015,
+    /// Invalid number of destinations.
+    ///
+    /// The number_of_dests field in the
+    /// submit_multi PDU is invalid.
     EsmeRinvnumdests = 0x00000033,
+    /// Invalid Distribution List name.
+    ///
+    /// The dl_name field specified in the
+    /// submit_multi PDU is either invalid, or
+    /// non-existent.
     EsmeRinvdlname = 0x00000034,
+    /// Destination flag is invalid (submit_multi).
+    ///
+    /// The dest_flag field in the submit_multi
+    /// PDU has been encoded with an invalid
+    /// setting.
     EsmeRinvdestflag = 0x00000040,
+    /// Submit w/replace functionality has been
+    /// requested where it is either unsupported
+    /// or inappropriate for the particular MC.
+    /// This can typically occur with submit_multi
+    /// where the context of “replace if present”
+    /// is often a best effort operation and MCs
+    /// may not support the feature in
+    /// submit_multi.
+    ///
+    /// Another reason for returning this error
+    /// would be where the feature has been
+    /// denied to an ESME.
     EsmeRinvsubrep = 0x00000042,
+    /// Invalid esm_class field data.
+    ///
+    /// The esm_class field has an unsupported
+    /// setting.
     EsmeRinvesmclass = 0x00000043,
+    /// Cannot Submit to Distribution List.
+    ///
+    /// Distribution lists are not supported, are
+    /// denied or unavailable.
     EsmeRcntsubdl = 0x00000044,
+    /// submit_sm, data_sm or submit_multi
+    /// failed.
+    ///
+    /// Generic failure error for submission
+    /// operations.
     EsmeRsubmitfail = 0x00000045,
+    /// Invalid Source address TON.
+    ///
+    /// The source TON of the message is either
+    /// invalid or unsupported.
     EsmeRinvsrcton = 0x00000048,
     EsmeRinvsrcnpi = 0x00000049,
     EsmeRinvdstton = 0x00000050,

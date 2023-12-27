@@ -309,3 +309,73 @@ impl From<MessageDeliveryResponseTLVTag> for TLVTag {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastRequestTLVTag {
+    AlertOnMsgDelivery,
+    BroadcastChannelIndicator,
+    BroadcastContentTypeInfo,
+    BroadcastMessageClass,
+    BroadcastServiceGroup,
+    CallbackNum,
+    CallbackNumAtag,
+    CallbackNumPresInd,
+    DestAddrSubunit,
+    DestSubaddress,
+    DestPort,
+    DisplayTime,
+    LanguageIndicator,
+    MessagePayload,
+    MsValidity,
+    PayloadType,
+    PrivacyIndicator,
+    SmsSignal,
+    SourceAddrSubunit,
+    SourcePort,
+    SourceSubaddress,
+    UserMessageReference,
+}
+
+impl From<BroadcastRequestTLVTag> for TLVTag {
+    fn from(v: BroadcastRequestTLVTag) -> Self {
+        match v {
+            BroadcastRequestTLVTag::AlertOnMsgDelivery => TLVTag::AlertOnMessageDelivery,
+            BroadcastRequestTLVTag::BroadcastChannelIndicator => TLVTag::BroadcastChannelIndicator,
+            BroadcastRequestTLVTag::BroadcastContentTypeInfo => TLVTag::BroadcastContentTypeInfo,
+            BroadcastRequestTLVTag::BroadcastMessageClass => TLVTag::BroadcastMessageClass,
+            BroadcastRequestTLVTag::BroadcastServiceGroup => TLVTag::BroadcastServiceGroup,
+            BroadcastRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
+            BroadcastRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
+            BroadcastRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
+            BroadcastRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
+            BroadcastRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
+            BroadcastRequestTLVTag::DestPort => TLVTag::DestPort,
+            BroadcastRequestTLVTag::DisplayTime => TLVTag::DisplayTime,
+            BroadcastRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
+            BroadcastRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
+            BroadcastRequestTLVTag::MsValidity => TLVTag::MsValidity,
+            BroadcastRequestTLVTag::PayloadType => TLVTag::PayloadType,
+            BroadcastRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
+            BroadcastRequestTLVTag::SmsSignal => TLVTag::SmsSignal,
+            BroadcastRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
+            BroadcastRequestTLVTag::SourcePort => TLVTag::SourcePort,
+            BroadcastRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
+            BroadcastRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastResponseTLVTag {
+    BroadcastErrorStatus,
+    BroadcastAreaIdentifier,
+}
+
+impl From<BroadcastResponseTLVTag> for TLVTag {
+    fn from(v: BroadcastResponseTLVTag) -> Self {
+        match v {
+            BroadcastResponseTLVTag::BroadcastErrorStatus => TLVTag::BroadcastErrorStatus,
+            BroadcastResponseTLVTag::BroadcastAreaIdentifier => TLVTag::BroadcastAreaIdentifier,
+        }
+    }
+}

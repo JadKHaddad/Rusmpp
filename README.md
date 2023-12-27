@@ -37,8 +37,8 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] enquire_link_resp
 - [x] alert_notification
 - [x] generic_nack
-- [ ] broadcast_sm
-- [ ] broadcast_sm_resp
+- [x] broadcast_sm
+- [x] broadcast_sm_resp
 - [ ] query_broadcast_sm
 - [ ] query_broadcast_sm_resp
 - [ ] cancel_broadcast_sm

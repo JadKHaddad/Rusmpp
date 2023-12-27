@@ -1,6 +1,8 @@
 pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
+pub mod broadcast_sm;
+pub mod broadcast_sm_resp;
 pub mod cancel_sm;
 pub mod data_sm;
 pub mod deliver_sm;

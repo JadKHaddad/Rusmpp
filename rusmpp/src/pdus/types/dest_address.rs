@@ -140,7 +140,7 @@ impl AsyncIoRead for SmeAddress {
         // flag is already read
         let dest_addr_ton = Ton::async_io_read(buf).await?;
         let dest_addr_npi = Npi::async_io_read(buf).await?;
-        let destination_addr = COctetString::<1, 21>::async_io_read(buf).await?;
+        let destination_addr = COctetString::async_io_read(buf).await?;
 
         Ok(Self::new(dest_addr_ton, dest_addr_npi, destination_addr))
     }
@@ -173,7 +173,7 @@ impl DistributionListName {
 impl AsyncIoRead for DistributionListName {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         // flag is already read
-        let dl_name = COctetString::<1, 21>::async_io_read(buf).await?;
+        let dl_name = COctetString::async_io_read(buf).await?;
 
         Ok(Self::new(dl_name))
     }

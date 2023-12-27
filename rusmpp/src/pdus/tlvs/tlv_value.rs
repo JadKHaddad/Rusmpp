@@ -778,3 +778,83 @@ impl From<MessageDeliveryResponseTLVValue> for TLVValue {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastRequestTLVValue {
+    AlertOnMsgDelivery(AlertOnMsgDelivery),
+    BroadcastChannelIndicator(BroadcastChannelIndicator),
+    BroadcastContentTypeInfo(OctetString<0, 255>),
+    BroadcastMessageClass(BroadcastMessageClass),
+    BroadcastServiceGroup(OctetString<1, 255>),
+    CallbackNum(OctetString<4, 19>),
+    CallbackNumAtag(OctetString<0, 65>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrSubunit(AddrSubunit),
+    DestSubaddress(Subaddress),
+    DestPort(u16),
+    DisplayTime(DisplayTime),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(NoFixedSizeOctetString),
+    MsValidity(MsValidity),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    SmsSignal(u16),
+    SourceAddrSubunit(AddrSubunit),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    UserMessageReference(u16),
+}
+
+impl From<BroadcastRequestTLVValue> for TLVValue {
+    fn from(v: BroadcastRequestTLVValue) -> Self {
+        match v {
+            BroadcastRequestTLVValue::AlertOnMsgDelivery(v) => TLVValue::AlertOnMessageDelivery(v),
+            BroadcastRequestTLVValue::BroadcastChannelIndicator(v) => {
+                TLVValue::BroadcastChannelIndicator(v)
+            }
+            BroadcastRequestTLVValue::BroadcastContentTypeInfo(v) => {
+                TLVValue::BroadcastContentTypeInfo(v)
+            }
+            BroadcastRequestTLVValue::BroadcastMessageClass(v) => {
+                TLVValue::BroadcastMessageClass(v)
+            }
+            BroadcastRequestTLVValue::BroadcastServiceGroup(v) => {
+                TLVValue::BroadcastServiceGroup(v)
+            }
+            BroadcastRequestTLVValue::CallbackNum(v) => TLVValue::CallbackNum(v),
+            BroadcastRequestTLVValue::CallbackNumAtag(v) => TLVValue::CallbackNumAtag(v),
+            BroadcastRequestTLVValue::CallbackNumPresInd(v) => TLVValue::CallbackNumPresInd(v),
+            BroadcastRequestTLVValue::DestAddrSubunit(v) => TLVValue::DestAddrSubunit(v),
+            BroadcastRequestTLVValue::DestSubaddress(v) => TLVValue::DestSubaddress(v),
+            BroadcastRequestTLVValue::DestPort(v) => TLVValue::DestPort(v),
+            BroadcastRequestTLVValue::DisplayTime(v) => TLVValue::DisplayTime(v),
+            BroadcastRequestTLVValue::LanguageIndicator(v) => TLVValue::LanguageIndicator(v),
+            BroadcastRequestTLVValue::MessagePayload(v) => TLVValue::MessagePayload(v),
+            BroadcastRequestTLVValue::MsValidity(v) => TLVValue::MsValidity(v),
+            BroadcastRequestTLVValue::PayloadType(v) => TLVValue::PayloadType(v),
+            BroadcastRequestTLVValue::PrivacyIndicator(v) => TLVValue::PrivacyIndicator(v),
+            BroadcastRequestTLVValue::SmsSignal(v) => TLVValue::SmsSignal(v),
+            BroadcastRequestTLVValue::SourceAddrSubunit(v) => TLVValue::SourceAddrSubunit(v),
+            BroadcastRequestTLVValue::SourcePort(v) => TLVValue::SourcePort(v),
+            BroadcastRequestTLVValue::SourceSubaddress(v) => TLVValue::SourceSubaddress(v),
+            BroadcastRequestTLVValue::UserMessageReference(v) => TLVValue::UserMessageReference(v),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastResponseTLVValue {
+    BroadcastErrorStatus(CommandStatus),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+}
+
+impl From<BroadcastResponseTLVValue> for TLVValue {
+    fn from(v: BroadcastResponseTLVValue) -> Self {
+        match v {
+            BroadcastResponseTLVValue::BroadcastErrorStatus(v) => TLVValue::BroadcastErrorStatus(v),
+            BroadcastResponseTLVValue::BroadcastAreaIdentifier(v) => {
+                TLVValue::BroadcastAreaIdentifier(v)
+            }
+        }
+    }
+}

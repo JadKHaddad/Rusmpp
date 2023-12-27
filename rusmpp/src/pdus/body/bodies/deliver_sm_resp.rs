@@ -1,14 +1,15 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::tlvs::tlv::{MessageDeliveryResponseTLV, TLV},
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct DeliverSmResp {
     message_id: COctetString<1, 65>,
     tlvs: Vec<TLV>,
@@ -31,22 +32,6 @@ impl DeliverSmResp {
 
     pub fn into_parts(self) -> (COctetString<1, 65>, Vec<TLV>) {
         (self.message_id, self.tlvs)
-    }
-}
-
-impl IoLength for DeliverSmResp {
-    fn length(&self) -> usize {
-        self.message_id.length() + self.tlvs.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for DeliverSmResp {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.message_id.async_io_write(buf).await?;
-        self.tlvs.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

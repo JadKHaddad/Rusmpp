@@ -1,4 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIo;
 
 use crate::io::{
     length::IoLength,
@@ -6,7 +7,7 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
 pub struct MsValidity {
     pub validity_behaviour: MsValidityBehaviour,
     pub validity_information: Option<MsValidityInformation>,
@@ -21,22 +22,6 @@ impl MsValidity {
             validity_behaviour,
             validity_information,
         }
-    }
-}
-
-impl IoLength for MsValidity {
-    fn length(&self) -> usize {
-        self.validity_behaviour.length() + self.validity_information.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for MsValidity {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.validity_behaviour.async_io_write(buf).await?;
-        self.validity_information.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

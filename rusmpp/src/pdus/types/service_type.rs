@@ -1,13 +1,9 @@
 use std::str::FromStr;
 
-use crate::io::length::IoLength;
-use crate::io::read::AsyncIoRead;
-use crate::io::read::AsyncIoReadable;
-use crate::io::read::IoReadError;
-use crate::io::write::AsyncIoWritable;
-use crate::io::write::AsyncIoWrite;
-use crate::types::c_octet_string::COctetString;
-use crate::types::c_octet_string::Error as COctetStringError;
+use rusmpp_macros::RusmppIo;
+
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use crate::types::c_octet_string::{COctetString, Error as COctetStringError};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum GenericServiceType<'a> {
@@ -60,7 +56,7 @@ impl<'a> GenericServiceType<'a> {
 /// Note: In the case of Cell Broadcast Service replace functionality by service type is not
 /// supported.
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct ServiceType {
     value: COctetString<1, 6>,
 }
@@ -74,19 +70,6 @@ impl ServiceType {
 
     pub fn value(&self) -> &COctetString<1, 6> {
         &self.value
-    }
-}
-
-impl IoLength for ServiceType {
-    fn length(&self) -> usize {
-        self.value.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for ServiceType {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.value.async_io_write(buf).await
     }
 }
 

@@ -1,8 +1,6 @@
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use rusmpp_macros::RusmppIo;
+
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 use super::command_id::CommandId;
 
@@ -20,7 +18,7 @@ pub struct InvalidSequenceNumber {
 /// value 0x00000000 is recommended for use when issuing a generic_nack where the original
 /// PDU was deemed completely invalid and its PDU header, was not used to derive a
 /// sequence_number for the response PDU
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct SequenceNumber {
     pub value: u32,
 }
@@ -39,19 +37,6 @@ impl SequenceNumber {
         }
 
         Ok(())
-    }
-}
-
-impl IoLength for SequenceNumber {
-    fn length(&self) -> usize {
-        self.value.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for SequenceNumber {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.value.async_io_write(buf).await
     }
 }
 

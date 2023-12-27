@@ -1,4 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIo;
 
 use crate::{
     io::{
@@ -9,7 +10,7 @@ use crate::{
     types::octet_string::OctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
 pub struct Subaddress {
     pub tag: SubaddressTag,
     pub addr: OctetString<1, 22>,
@@ -18,20 +19,6 @@ pub struct Subaddress {
 impl Subaddress {
     pub fn new(tag: SubaddressTag, addr: OctetString<1, 22>) -> Self {
         Self { tag, addr }
-    }
-}
-
-impl IoLength for Subaddress {
-    fn length(&self) -> usize {
-        self.tag.length() + self.addr.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for Subaddress {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.tag.async_io_write(buf).await?;
-        self.addr.async_io_write(buf).await
     }
 }
 

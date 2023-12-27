@@ -1,9 +1,9 @@
+use rusmpp_macros::RusmppIo;
 use tokio::io::AsyncReadExt;
 
 use crate::io::{
     length::IoLength,
     read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
 };
 
 use super::{
@@ -23,13 +23,14 @@ pub enum InvalidPdu {
     InvalidSequenceNumber(#[from] InvalidSequenceNumber),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct Pdu {
     command_length: u32,
     command_id: CommandId,
     command_status: CommandStatus,
     sequence_number: SequenceNumber,
     body: Option<PduBody>,
+    #[rusmpp_io(skip_length, skip_write)]
     byte_overflow: Vec<u8>,
 }
 
@@ -128,28 +129,6 @@ impl Pdu {
             self.sequence_number,
             self.body,
         )
-    }
-}
-
-impl IoLength for Pdu {
-    fn length(&self) -> usize {
-        self.command_length.length()
-            + self.command_id.length()
-            + self.command_status.length()
-            + self.sequence_number.length()
-            + self.body.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for Pdu {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.command_length.async_io_write(buf).await?;
-        self.command_id.async_io_write(buf).await?;
-        self.command_status.async_io_write(buf).await?;
-        self.sequence_number.async_io_write(buf).await?;
-        self.body.async_io_write(buf).await?;
-        Ok(())
     }
 }
 

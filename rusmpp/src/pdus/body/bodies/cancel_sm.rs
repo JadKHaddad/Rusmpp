@@ -1,14 +1,12 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
-    },
+    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     pdus::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct CancelSm {
     pub serivce_type: ServiceType,
     pub message_id: COctetString<1, 65>,
@@ -42,35 +40,6 @@ impl CancelSm {
             dest_addr_npi,
             destination_addr,
         }
-    }
-}
-
-impl IoLength for CancelSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for CancelSm {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.serivce_type.async_io_write(buf).await?;
-        self.message_id.async_io_write(buf).await?;
-        self.source_addr_ton.async_io_write(buf).await?;
-        self.source_addr_npi.async_io_write(buf).await?;
-        self.source_addr.async_io_write(buf).await?;
-        self.dest_addr_ton.async_io_write(buf).await?;
-        self.dest_addr_npi.async_io_write(buf).await?;
-        self.destination_addr.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

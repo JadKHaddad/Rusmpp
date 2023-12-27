@@ -1,8 +1,9 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
         tlvs::{tlv::TLV, tlv_tag::TLVTag},
@@ -18,7 +19,7 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct SSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -220,55 +221,6 @@ impl SSm {
             self.sm_default_msg_id,
             self.short_message,
         )
-    }
-}
-
-impl IoLength for SSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-            + self.esm_class.length()
-            + self.protocol_id.length()
-            + self.priority_flag.length()
-            + self.schedule_delivery_time.length()
-            + self.validity_period.length()
-            + self.registered_delivery.length()
-            + self.replace_if_present_flag.length()
-            + self.data_coding.length()
-            + self.sm_default_msg_id.length()
-            + self.sm_length.length()
-            + self.short_message.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for SSm {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.serivce_type.async_io_write(buf).await?;
-        self.source_addr_ton.async_io_write(buf).await?;
-        self.source_addr_npi.async_io_write(buf).await?;
-        self.source_addr.async_io_write(buf).await?;
-        self.dest_addr_ton.async_io_write(buf).await?;
-        self.dest_addr_npi.async_io_write(buf).await?;
-        self.destination_addr.async_io_write(buf).await?;
-        self.esm_class.async_io_write(buf).await?;
-        self.protocol_id.async_io_write(buf).await?;
-        self.priority_flag.async_io_write(buf).await?;
-        self.schedule_delivery_time.async_io_write(buf).await?;
-        self.validity_period.async_io_write(buf).await?;
-        self.registered_delivery.async_io_write(buf).await?;
-        self.replace_if_present_flag.async_io_write(buf).await?;
-        self.data_coding.async_io_write(buf).await?;
-        self.sm_default_msg_id.async_io_write(buf).await?;
-        self.sm_length.async_io_write(buf).await?;
-        self.short_message.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

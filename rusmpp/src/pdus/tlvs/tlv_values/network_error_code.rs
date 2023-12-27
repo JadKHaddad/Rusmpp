@@ -1,4 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIo;
 
 use crate::io::{
     length::IoLength,
@@ -6,7 +7,7 @@ use crate::io::{
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct NetworkErrorCode {
     pub network_type: ErrorCodeNetworkType,
     pub error_code: u16,
@@ -18,22 +19,6 @@ impl NetworkErrorCode {
             network_type,
             error_code,
         }
-    }
-}
-
-impl IoLength for NetworkErrorCode {
-    fn length(&self) -> usize {
-        self.network_type.length() + self.error_code.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for NetworkErrorCode {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.network_type.async_io_write(buf).await?;
-        self.error_code.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

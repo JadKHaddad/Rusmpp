@@ -1,15 +1,16 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
 };
 
 use super::s_sm::SSm;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct SubmitSm {
     ssm: SSm,
     tlvs: Vec<TLV>,
@@ -33,22 +34,6 @@ impl SubmitSm {
 
     pub fn into_parts(self) -> (SSm, Vec<TLV>) {
         (self.ssm, self.tlvs)
-    }
-}
-
-impl IoLength for SubmitSm {
-    fn length(&self) -> usize {
-        self.ssm.length() + self.tlvs.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for SubmitSm {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.ssm.async_io_write(buf).await?;
-        self.tlvs.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

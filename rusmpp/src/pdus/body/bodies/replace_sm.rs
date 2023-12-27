@@ -1,8 +1,9 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
@@ -14,7 +15,7 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct ReplaceSm {
     message_id: COctetString<1, 65>,
     source_addr_ton: Ton,
@@ -141,41 +142,6 @@ impl ReplaceSm {
             self.short_message,
             self.message_payload,
         )
-    }
-}
-
-impl IoLength for ReplaceSm {
-    fn length(&self) -> usize {
-        self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.schedule_delivery_time.length()
-            + self.validity_period.length()
-            + self.registered_delivery.length()
-            + self.sm_default_msg_id.length()
-            + self.sm_length.length()
-            + self.short_message.length()
-            + self.message_payload.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for ReplaceSm {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.message_id.async_io_write(buf).await?;
-        self.source_addr_ton.async_io_write(buf).await?;
-        self.source_addr_npi.async_io_write(buf).await?;
-        self.source_addr.async_io_write(buf).await?;
-        self.schedule_delivery_time.async_io_write(buf).await?;
-        self.validity_period.async_io_write(buf).await?;
-        self.registered_delivery.async_io_write(buf).await?;
-        self.sm_default_msg_id.async_io_write(buf).await?;
-        self.sm_length.async_io_write(buf).await?;
-        self.short_message.async_io_write(buf).await?;
-        self.message_payload.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

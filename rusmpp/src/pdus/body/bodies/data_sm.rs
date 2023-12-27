@@ -1,8 +1,9 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
         tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
@@ -14,7 +15,7 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct DataSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -133,41 +134,6 @@ impl DataSm {
             self.data_coding,
             self.tlvs,
         )
-    }
-}
-
-impl IoLength for DataSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-            + self.esm_class.length()
-            + self.registered_delivery.length()
-            + self.data_coding.length()
-            + self.tlvs.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for DataSm {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.serivce_type.async_io_write(buf).await?;
-        self.source_addr_ton.async_io_write(buf).await?;
-        self.source_addr_npi.async_io_write(buf).await?;
-        self.source_addr.async_io_write(buf).await?;
-        self.dest_addr_ton.async_io_write(buf).await?;
-        self.dest_addr_npi.async_io_write(buf).await?;
-        self.destination_addr.async_io_write(buf).await?;
-        self.esm_class.async_io_write(buf).await?;
-        self.registered_delivery.async_io_write(buf).await?;
-        self.data_coding.async_io_write(buf).await?;
-        self.tlvs.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

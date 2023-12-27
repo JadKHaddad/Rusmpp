@@ -1,7 +1,8 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::io::{
     length::IoLength,
     read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
 };
 
 use super::{
@@ -74,7 +75,7 @@ use super::{
 /// If the TLV itself is not required, then it is not encoded at
 /// all. The very absence of the TLV from the PDU is the
 /// means by which we set the values to NULL.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct TLV {
     tag: TLVTag,
     value_length: u16,
@@ -115,23 +116,6 @@ impl TLV {
 
     pub fn into_value(self) -> Option<TLVValue> {
         self.value
-    }
-}
-
-impl IoLength for TLV {
-    fn length(&self) -> usize {
-        self.tag.length() + self.value_length.length() + self.value.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for TLV {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.tag.async_io_write(buf).await?;
-        self.value_length.async_io_write(buf).await?;
-        self.value.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

@@ -1,4 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIo;
 
 use crate::{
     io::{
@@ -48,7 +49,7 @@ impl AsyncIoRead for BroadcastAreaFormat {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,
     pub area: OctetString<0, 100>,
@@ -57,22 +58,6 @@ pub struct BroadcastAreaIdentifier {
 impl BroadcastAreaIdentifier {
     pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
         Self { format, area }
-    }
-}
-
-impl IoLength for BroadcastAreaIdentifier {
-    fn length(&self) -> usize {
-        self.format.length() + self.area.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for BroadcastAreaIdentifier {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.format.async_io_write(buf).await?;
-        self.area.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

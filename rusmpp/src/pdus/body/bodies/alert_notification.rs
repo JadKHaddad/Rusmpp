@@ -1,8 +1,9 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
         tlvs::tlv::TLV,
@@ -11,7 +12,7 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct AlertNotification {
     pub source_addr_ton: Ton,
     pub source_addr_npi: Npi,
@@ -41,33 +42,6 @@ impl AlertNotification {
             esme_addr,
             ms_availability_status,
         }
-    }
-}
-
-impl IoLength for AlertNotification {
-    fn length(&self) -> usize {
-        self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.esme_addr_ton.length()
-            + self.esme_addr_npi.length()
-            + self.esme_addr.length()
-            + self.ms_availability_status.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for AlertNotification {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.source_addr_ton.async_io_write(buf).await?;
-        self.source_addr_npi.async_io_write(buf).await?;
-        self.source_addr.async_io_write(buf).await?;
-        self.esme_addr_ton.async_io_write(buf).await?;
-        self.esme_addr_npi.async_io_write(buf).await?;
-        self.esme_addr.async_io_write(buf).await?;
-        self.ms_availability_status.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

@@ -1,8 +1,9 @@
+use rusmpp_macros::RusmppIo;
+
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
@@ -11,7 +12,7 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct BindResp {
     pub system_id: COctetString<1, 16>,
     pub sc_interface_version: Option<TLV>,
@@ -27,22 +28,6 @@ impl BindResp {
             sc_interface_version: sc_interface_version
                 .map(|v| TLV::new(TLVValue::ScInterfaceVersion(v))),
         }
-    }
-}
-
-impl IoLength for BindResp {
-    fn length(&self) -> usize {
-        self.system_id.length() + self.sc_interface_version.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for BindResp {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.system_id.async_io_write(buf).await?;
-        self.sc_interface_version.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

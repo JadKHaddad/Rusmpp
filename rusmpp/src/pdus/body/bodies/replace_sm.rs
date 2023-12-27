@@ -11,7 +11,7 @@ use crate::{
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
+        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString, option,
     },
 };
 
@@ -171,11 +171,7 @@ impl AsyncIoReadWithLength for ReplaceSm {
             .saturating_sub(sm_length.length())
             .saturating_sub(short_message.length());
 
-        let message_payload = if message_payload_expected_len > 0 {
-            Some(TLV::async_io_read(buf).await?)
-        } else {
-            None
-        };
+        let message_payload = option::async_io_read(buf, message_payload_expected_len).await?;
 
         Ok(Self {
             message_id,

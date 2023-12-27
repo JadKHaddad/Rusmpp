@@ -1,8 +1,11 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
+use crate::{
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
+    },
+    types::option,
 };
 
 use super::{
@@ -125,11 +128,8 @@ impl AsyncIoRead for TLV {
         let tag = TLVTag::async_io_read(buf).await?;
         let value_length = u16::async_io_read(buf).await?;
 
-        let value = if value_length > 0 {
-            TLVValue::async_io_read(tag, buf, value_length as usize).await?
-        } else {
-            None
-        };
+        let value =
+            option::async_io_read_with_key_optional(tag, buf, value_length as usize).await?;
 
         Ok(Self {
             tag,

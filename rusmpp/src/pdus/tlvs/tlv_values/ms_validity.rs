@@ -1,9 +1,12 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
+use crate::{
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
+    },
+    types::option,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
@@ -29,13 +32,10 @@ impl AsyncIoReadWithLength for MsValidity {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let validity_behaviour = MsValidityBehaviour::async_io_read(buf).await?;
 
-        let validity_information_expected_length =
-            length.saturating_sub(validity_behaviour.length());
-        let validity_information = if validity_information_expected_length > 0 {
-            Some(MsValidityInformation::async_io_read(buf).await?)
-        } else {
-            None
-        };
+        let validity_information_expected_len = length.saturating_sub(validity_behaviour.length());
+
+        let validity_information =
+            option::async_io_read(buf, validity_information_expected_len).await?;
 
         Ok(Self {
             validity_behaviour,

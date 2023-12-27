@@ -1,5 +1,6 @@
 use crate::io::{
     length::IoLength,
+    read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
 
@@ -26,4 +27,33 @@ where
             None => Ok(()),
         }
     }
+}
+
+pub async fn async_io_read_with_key_optional<T, K>(
+    key: K,
+    buf: &mut AsyncIoReadable,
+    length: usize,
+) -> Result<Option<T>, IoReadError>
+where
+    T: AsyncIoReadWithKeyOptional<Key = K> + Send + Sync,
+{
+    if length == 0 {
+        return Ok(None);
+    }
+
+    T::async_io_read(key, buf, length).await
+}
+
+pub async fn async_io_read<T>(
+    buf: &mut AsyncIoReadable,
+    length: usize,
+) -> Result<Option<T>, IoReadError>
+where
+    T: AsyncIoRead + Send + Sync,
+{
+    if length == 0 {
+        return Ok(None);
+    }
+
+    Ok(Some(T::async_io_read(buf).await?))
 }

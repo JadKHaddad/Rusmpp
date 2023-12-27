@@ -1,9 +1,12 @@
 use rusmpp_macros::RusmppIo;
 use tokio::io::AsyncReadExt;
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
+use crate::{
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
+    },
+    types::option,
 };
 
 use super::{
@@ -147,11 +150,8 @@ impl AsyncIoRead for Pdu {
                 + sequence_number.length(),
         );
 
-        let body = if body_expected_len > 0 {
-            PduBody::async_io_read(command_id, buf, body_expected_len).await?
-        } else {
-            None
-        };
+        let body =
+            option::async_io_read_with_key_optional(command_id, buf, body_expected_len).await?;
 
         let overflow_len = body_expected_len.saturating_sub(body.length());
         let mut byte_overflow = vec![0; overflow_len];

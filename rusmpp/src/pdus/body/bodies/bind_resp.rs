@@ -9,7 +9,7 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::interface_version::InterfaceVersion,
     },
-    types::c_octet_string::COctetString,
+    types::{c_octet_string::COctetString, option},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
@@ -37,11 +37,9 @@ impl AsyncIoReadWithLength for BindResp {
         let system_id = COctetString::async_io_read(buf).await?;
 
         let sc_interface_version_expected_len = length.saturating_sub(system_id.length());
-        let sc_interface_version = if sc_interface_version_expected_len > 0 {
-            Some(TLV::async_io_read(buf).await?)
-        } else {
-            None
-        };
+
+        let sc_interface_version =
+            option::async_io_read(buf, sc_interface_version_expected_len).await?;
 
         Ok(Self {
             system_id,

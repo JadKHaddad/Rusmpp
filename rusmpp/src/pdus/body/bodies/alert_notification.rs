@@ -9,7 +9,7 @@ use crate::{
         tlvs::tlv::TLV,
         types::{npi::Npi, ton::Ton},
     },
-    types::c_octet_string::COctetString,
+    types::{c_octet_string::COctetString, option},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
@@ -63,11 +63,9 @@ impl AsyncIoReadWithLength for AlertNotification {
                 + esme_addr_npi.length()
                 + esme_addr.length(),
         );
-        let ms_availability_status = if ms_availability_status_expected_len > 0 {
-            Some(TLV::async_io_read(buf).await?)
-        } else {
-            None
-        };
+
+        let ms_availability_status =
+            option::async_io_read(buf, ms_availability_status_expected_len).await?;
 
         Ok(Self {
             source_addr_ton,

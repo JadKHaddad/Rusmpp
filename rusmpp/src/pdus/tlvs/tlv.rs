@@ -10,14 +10,16 @@ use crate::{
 
 use super::{
     tlv_tag::{
-        BroadcastRequestTLVTag, BroadcastResponseTLVTag, MessageDeliveryRequestTLVTag,
-        MessageDeliveryResponseTLVTag, MessageSubmissionRequestTLVTag,
-        MessageSubmissionResponseTLVTag, QueryBroadcastResponseTLVTag, TLVTag,
+        BroadcastRequestTLVTag, BroadcastResponseTLVTag, CancelBroadcastTLVTag,
+        MessageDeliveryRequestTLVTag, MessageDeliveryResponseTLVTag,
+        MessageSubmissionRequestTLVTag, MessageSubmissionResponseTLVTag,
+        QueryBroadcastResponseTLVTag, TLVTag,
     },
     tlv_value::{
-        BroadcastRequestTLVValue, BroadcastResponseTLVValue, MessageDeliveryRequestTLVValue,
-        MessageDeliveryResponseTLVValue, MessageSubmissionRequestTLVValue,
-        MessageSubmissionResponseTLVValue, QueryBroadcastResponseTLVValue, TLVValue,
+        BroadcastRequestTLVValue, BroadcastResponseTLVValue, CancelBroadcastTLVValue,
+        MessageDeliveryRequestTLVValue, MessageDeliveryResponseTLVValue,
+        MessageSubmissionRequestTLVValue, MessageSubmissionResponseTLVValue,
+        QueryBroadcastResponseTLVValue, TLVValue,
     },
 };
 
@@ -312,6 +314,31 @@ impl QueryBroadcastResponseTLV {
 
 impl From<QueryBroadcastResponseTLV> for TLV {
     fn from(tlv: QueryBroadcastResponseTLV) -> Self {
+        tlv.tlv
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct CancelBroadcastTLV {
+    tlv: TLV,
+}
+
+impl CancelBroadcastTLV {
+    pub fn new(value: CancelBroadcastTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: CancelBroadcastTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<CancelBroadcastTLV> for TLV {
+    fn from(tlv: CancelBroadcastTLV) -> Self {
         tlv.tlv
     }
 }

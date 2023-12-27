@@ -13,8 +13,9 @@ use crate::{
 
 use super::bodies::{
     alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp,
-    broadcast_sm::BroadcastSm, broadcast_sm_resp::BroadcastSmResp, cancel_sm::CancelSm,
-    data_sm::DataSm, deliver_sm::DeliverSm, deliver_sm_resp::DeliverSmResp, outbind::Outbind,
+    broadcast_sm::BroadcastSm, broadcast_sm_resp::BroadcastSmResp,
+    cancel_broadcast_sm::CancelBroadcastSm, cancel_sm::CancelSm, data_sm::DataSm,
+    deliver_sm::DeliverSm, deliver_sm_resp::DeliverSmResp, outbind::Outbind,
     query_broadcast_sm::QueryBroadcastSm, query_broadcast_sm_resp::QueryBroadcastSmResp,
     query_sm::QuerySm, query_sm_resp::QuerySmResp, replace_sm::ReplaceSm,
     submit_multi::SubmitMulti, submit_or_data_sm_resp::SubmitOrDataSmResp, submit_sm::SubmitSm,
@@ -46,6 +47,7 @@ pub enum PduBody {
     BroadcastSmResp(BroadcastSmResp),
     QueryBroadcastSm(QueryBroadcastSm),
     QueryBroadcastSmResp(QueryBroadcastSmResp),
+    CancelBroadcastSm(CancelBroadcastSm),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -79,6 +81,7 @@ impl PduBody {
             PduBody::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             PduBody::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
             PduBody::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            PduBody::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -111,6 +114,7 @@ impl IoLength for PduBody {
             PduBody::BroadcastSmResp(b) => b.length(),
             PduBody::QueryBroadcastSm(b) => b.length(),
             PduBody::QueryBroadcastSmResp(b) => b.length(),
+            PduBody::CancelBroadcastSm(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -144,6 +148,7 @@ impl AsyncIoWrite for PduBody {
             PduBody::BroadcastSmResp(b) => b.async_io_write(buf).await,
             PduBody::QueryBroadcastSm(b) => b.async_io_write(buf).await,
             PduBody::QueryBroadcastSmResp(b) => b.async_io_write(buf).await,
+            PduBody::CancelBroadcastSm(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -213,6 +218,9 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::QueryBroadcastSmResp => PduBody::QueryBroadcastSmResp(
                 QueryBroadcastSmResp::async_io_read(buf, length).await?,
             ),
+            CommandId::CancelBroadcastSm => {
+                PduBody::CancelBroadcastSm(CancelBroadcastSm::async_io_read(buf, length).await?)
+            }
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,
@@ -225,7 +233,6 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             | CommandId::CancelSmResp
             | CommandId::ReplaceSmResp
             | CommandId::CancelBroadcastSmResp => return Ok(None),
-            _ => return Err(IoReadError::UnsupportedKey { key: key.into() }),
         };
 
         Ok(Some(read))

@@ -394,3 +394,18 @@ impl From<QueryBroadcastResponseTLVTag> for TLVTag {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum CancelBroadcastTLVTag {
+    BroadcastContentType,
+    UserMessageReference,
+}
+
+impl From<CancelBroadcastTLVTag> for TLVTag {
+    fn from(v: CancelBroadcastTLVTag) -> Self {
+        match v {
+            CancelBroadcastTLVTag::BroadcastContentType => TLVTag::BroadcastContentType,
+            CancelBroadcastTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+        }
+    }
+}

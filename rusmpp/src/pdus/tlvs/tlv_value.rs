@@ -875,3 +875,18 @@ impl From<QueryBroadcastResponseTLVValue> for TLVValue {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum CancelBroadcastTLVValue {
+    BroadcastContentType(BroadcastContentType),
+    UserMessageReference(u16),
+}
+
+impl From<CancelBroadcastTLVValue> for TLVValue {
+    fn from(v: CancelBroadcastTLVValue) -> Self {
+        match v {
+            CancelBroadcastTLVValue::BroadcastContentType(v) => TLVValue::BroadcastContentType(v),
+            CancelBroadcastTLVValue::UserMessageReference(v) => TLVValue::UserMessageReference(v),
+        }
+    }
+}

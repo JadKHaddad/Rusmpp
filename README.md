@@ -41,8 +41,10 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] broadcast_sm_resp
 - [x] query_broadcast_sm
 - [x] query_broadcast_sm_resp
-- [ ] cancel_broadcast_sm
-- [ ] cancel_broadcast_sm_resp
+- [x] cancel_broadcast_sm
+- [x] cancel_broadcast_sm_resp
+
+All operations are supported.
 
 ## Supported TLVs
 

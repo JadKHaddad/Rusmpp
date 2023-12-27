@@ -1,10 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use rusmpp_macros::RusmppIoU32;
 
 /// The command_id identifies the SMPP operation e.g. submit_sm, bind_transmitter etc. The
 /// command_id is encoded as a 4-octet integer value.
@@ -21,7 +16,17 @@ use crate::io::{
 /// a command_id = 0x80000007.
 #[repr(u32)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU32,
 )]
 pub enum CommandId {
     BindReceiver = 0x00000001,
@@ -59,26 +64,6 @@ pub enum CommandId {
     CancelBroadcastSmResp = 0x80000113,
     #[num_enum(catch_all)]
     Other(u32),
-}
-
-impl IoLength for CommandId {
-    fn length(&self) -> usize {
-        u32::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for CommandId {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u32::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for CommandId {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u32::async_io_read(buf).await.map(Self::from)
-    }
 }
 
 #[cfg(test)]

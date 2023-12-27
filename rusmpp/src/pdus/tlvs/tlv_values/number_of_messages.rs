@@ -1,11 +1,7 @@
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use rusmpp_macros::RusmppIoU8;
 
 #[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoU8)]
 pub enum NumberOfMessages {
     Allowed(u8),
     Other(u8),
@@ -26,25 +22,5 @@ impl From<NumberOfMessages> for u8 {
             NumberOfMessages::Allowed(value) => value,
             NumberOfMessages::Other(value) => value,
         }
-    }
-}
-
-impl IoLength for NumberOfMessages {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for NumberOfMessages {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for NumberOfMessages {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }

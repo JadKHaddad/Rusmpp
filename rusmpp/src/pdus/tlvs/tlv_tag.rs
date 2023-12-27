@@ -1,14 +1,19 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use rusmpp_macros::RusmppIoU16;
 
 #[repr(u16)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU16,
 )]
 pub enum TLVTag {
     DestAddrSubunit = 0x0005,
@@ -88,26 +93,6 @@ impl From<u32> for TLVTag {
 impl From<TLVTag> for u32 {
     fn from(v: TLVTag) -> Self {
         v.into()
-    }
-}
-
-impl IoLength for TLVTag {
-    fn length(&self) -> usize {
-        u16::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for TLVTag {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u16::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for TLVTag {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u16::async_io_read(buf).await.map(Self::from)
     }
 }
 

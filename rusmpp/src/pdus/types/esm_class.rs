@@ -1,12 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIoU8;
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIoU8)]
 pub struct EsmClass {
     pub messaging_mode: MessagingMode,
     pub message_type: MessageType,
@@ -47,26 +42,6 @@ impl From<EsmClass> for u8 {
             | u8::from(value.message_type)
             | u8::from(value.ansi41_specific)
             | u8::from(value.gsm_features)
-    }
-}
-
-impl IoLength for EsmClass {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for EsmClass {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for EsmClass {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }
 

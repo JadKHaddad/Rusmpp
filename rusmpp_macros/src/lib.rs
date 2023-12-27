@@ -9,7 +9,7 @@ struct Skip {
 }
 
 #[proc_macro_derive(RusmppIo, attributes(rusmpp_io))]
-pub fn derive(input: TokenStream) -> TokenStream {
+pub fn derive_rusmpp_io(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let struct_name = &input.ident;
 
@@ -46,7 +46,6 @@ pub fn derive(input: TokenStream) -> TokenStream {
                             }
                         };
                     }
-                   
                 };
             }
 
@@ -97,6 +96,117 @@ pub fn derive(input: TokenStream) -> TokenStream {
                 #(#io_wirte_fields)*;
 
                 Ok(())
+            }
+        }
+    };
+
+    expanded.into()
+}
+
+#[proc_macro_derive(RusmppIoU8)]
+pub fn derive_rusmpp_io_u8(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match input.data {
+        syn::Data::Enum(_) => {}
+        syn::Data::Struct(_) => {}
+        _ => panic!("Only enums and structs are supported"),
+    }
+
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl crate::io::length::IoLength for #name {
+            fn length(&self) -> usize {
+                u8::from(*self).length()
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::write::AsyncIoWrite for #name {
+            async fn async_io_write(&self, buf: &mut crate::io::write::AsyncIoWritable) -> std::io::Result<()> {
+                u8::from(*self).async_io_write(buf).await
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::read::AsyncIoRead for #name {
+            async fn async_io_read(buf: &mut crate::io::read::AsyncIoReadable) -> Result<Self, crate::io::read::IoReadError> {
+                u8::async_io_read(buf).await.map(Self::from)
+            }
+        }
+    };
+
+    expanded.into()
+}
+
+#[proc_macro_derive(RusmppIoU16)]
+pub fn derive_rusmpp_io_u16(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match input.data {
+        syn::Data::Enum(_) => {}
+        syn::Data::Struct(_) => {}
+        _ => panic!("Only enums and structs are supported"),
+    }
+
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl crate::io::length::IoLength for #name {
+            fn length(&self) -> usize {
+                u16::from(*self).length()
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::write::AsyncIoWrite for #name {
+            async fn async_io_write(&self, buf: &mut crate::io::write::AsyncIoWritable) -> std::io::Result<()> {
+                u16::from(*self).async_io_write(buf).await
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::read::AsyncIoRead for #name {
+            async fn async_io_read(buf: &mut crate::io::read::AsyncIoReadable) -> Result<Self, crate::io::read::IoReadError> {
+                u16::async_io_read(buf).await.map(Self::from)
+            }
+        }
+    };
+
+    expanded.into()
+}
+
+#[proc_macro_derive(RusmppIoU32)]
+pub fn derive_rusmpp_io_u32(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match input.data {
+        syn::Data::Enum(_) => {}
+        syn::Data::Struct(_) => {}
+        _ => panic!("Only enums and structs are supported"),
+    }
+
+    let name = &input.ident;
+
+    let expanded = quote! {
+        impl crate::io::length::IoLength for #name {
+            fn length(&self) -> usize {
+                u32::from(*self).length()
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::write::AsyncIoWrite for #name {
+            async fn async_io_write(&self, buf: &mut crate::io::write::AsyncIoWritable) -> std::io::Result<()> {
+                u32::from(*self).async_io_write(buf).await
+            }
+        }
+
+        #[async_trait::async_trait]
+        impl crate::io::read::AsyncIoRead for #name {
+            async fn async_io_read(buf: &mut crate::io::read::AsyncIoReadable) -> Result<Self, crate::io::read::IoReadError> {
+                u32::async_io_read(buf).await.map(Self::from)
             }
         }
     };

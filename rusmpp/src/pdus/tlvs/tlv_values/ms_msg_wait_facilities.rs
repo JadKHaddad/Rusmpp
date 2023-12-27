@@ -1,12 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIoU8;
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIoU8)]
 pub struct MsMsgWaitFacilities {
     pub indicator: Indicator,
     pub type_of_message: TypeOfMessage,
@@ -33,26 +28,6 @@ impl From<u8> for MsMsgWaitFacilities {
 impl From<MsMsgWaitFacilities> for u8 {
     fn from(value: MsMsgWaitFacilities) -> Self {
         u8::from(value.indicator) | u8::from(value.type_of_message)
-    }
-}
-
-impl IoLength for MsMsgWaitFacilities {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for MsMsgWaitFacilities {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for MsMsgWaitFacilities {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }
 

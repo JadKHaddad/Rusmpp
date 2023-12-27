@@ -1,10 +1,9 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
 use crate::io::{
     length::IoLength,
     read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
@@ -45,7 +44,7 @@ impl AsyncIoReadWithLength for MsValidity {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
 pub struct MsValidityInformation {
     pub units_of_time: UnitsOfTime,
     pub number_of_time_units: u16,
@@ -57,22 +56,6 @@ impl MsValidityInformation {
             units_of_time,
             number_of_time_units,
         }
-    }
-}
-
-impl IoLength for MsValidityInformation {
-    fn length(&self) -> usize {
-        self.units_of_time.length() + self.number_of_time_units.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for MsValidityInformation {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.units_of_time.async_io_write(buf).await?;
-        self.number_of_time_units.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 
@@ -88,7 +71,17 @@ impl AsyncIoRead for MsValidityInformation {
 
 #[repr(u8)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU8,
 )]
 pub enum MsValidityBehaviour {
     StoreIndefinitely = 0,
@@ -107,29 +100,19 @@ impl Default for MsValidityBehaviour {
     }
 }
 
-impl IoLength for MsValidityBehaviour {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for MsValidityBehaviour {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for MsValidityBehaviour {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
-    }
-}
-
 #[repr(u8)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU8,
 )]
 pub enum UnitsOfTime {
     Seconds = 0b00000000,
@@ -147,25 +130,5 @@ pub enum UnitsOfTime {
 impl Default for UnitsOfTime {
     fn default() -> Self {
         UnitsOfTime::Seconds
-    }
-}
-
-impl IoLength for UnitsOfTime {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for UnitsOfTime {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for UnitsOfTime {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }

@@ -1,14 +1,21 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 #[repr(u8)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU8,
 )]
 pub enum UnitOfTime {
     AsFrquentlyAsPossible = 0x00,
@@ -30,27 +37,7 @@ impl Default for UnitOfTime {
     }
 }
 
-impl IoLength for UnitOfTime {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for UnitOfTime {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for UnitOfTime {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct BroadcastFrequencyInterval {
     pub unit: UnitOfTime,
     pub value: u16,
@@ -59,22 +46,6 @@ pub struct BroadcastFrequencyInterval {
 impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
-    }
-}
-
-impl IoLength for BroadcastFrequencyInterval {
-    fn length(&self) -> usize {
-        self.unit.length() + self.value.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for BroadcastFrequencyInterval {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.unit.async_io_write(buf).await?;
-        self.value.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

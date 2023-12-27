@@ -1,18 +1,27 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
 use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-        write::{AsyncIoWritable, AsyncIoWrite},
     },
     types::octet_string::OctetString,
 };
 
 #[repr(u8)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU8,
 )]
 pub enum BroadcastAreaFormat {
     AliasName = 0x00,
@@ -26,26 +35,6 @@ pub enum BroadcastAreaFormat {
 impl Default for BroadcastAreaFormat {
     fn default() -> Self {
         BroadcastAreaFormat::AliasName
-    }
-}
-
-impl IoLength for BroadcastAreaFormat {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for BroadcastAreaFormat {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for BroadcastAreaFormat {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }
 

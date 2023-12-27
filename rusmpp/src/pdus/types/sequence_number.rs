@@ -43,18 +43,8 @@ impl SequenceNumber {
 #[async_trait::async_trait]
 impl AsyncIoRead for SequenceNumber {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u32::async_io_read(buf).await.map(Self::from)
-    }
-}
-
-impl From<u32> for SequenceNumber {
-    fn from(value: u32) -> Self {
-        Self { value }
-    }
-}
-
-impl From<SequenceNumber> for u32 {
-    fn from(value: SequenceNumber) -> Self {
-        value.value
+        Ok(Self {
+            value: u32::async_io_read(buf).await?,
+        })
     }
 }

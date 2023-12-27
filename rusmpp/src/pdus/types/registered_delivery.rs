@@ -1,12 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::RusmppIoU8;
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIoU8)]
 pub struct RegisteredDelivery {
     mc_delivery_receipt: MCDeliveryReceipt,
     sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
@@ -71,26 +66,6 @@ impl From<RegisteredDelivery> for u8 {
             | u8::from(value.sme_originated_acknowledgement)
             | u8::from(value.intermediate_notification)
             | value.other
-    }
-}
-
-impl IoLength for RegisteredDelivery {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for RegisteredDelivery {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for RegisteredDelivery {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
     }
 }
 

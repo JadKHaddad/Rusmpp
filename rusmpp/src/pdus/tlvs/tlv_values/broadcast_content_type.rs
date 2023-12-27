@@ -1,14 +1,21 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_macros::{RusmppIo, RusmppIoU16, RusmppIoU8};
 
-use crate::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
-};
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 #[repr(u8)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU8,
 )]
 pub enum TypeOfNetwork {
     Generic = 0,
@@ -26,29 +33,19 @@ impl Default for TypeOfNetwork {
     }
 }
 
-impl IoLength for TypeOfNetwork {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for TypeOfNetwork {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u8::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for TypeOfNetwork {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u8::async_io_read(buf).await.map(Self::from)
-    }
-}
-
 #[repr(u16)]
 #[derive(
-    Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, IntoPrimitive, FromPrimitive,
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    IntoPrimitive,
+    FromPrimitive,
+    RusmppIoU16,
 )]
 pub enum EncodingContentType {
     Index = 0x0000,
@@ -106,27 +103,7 @@ impl Default for EncodingContentType {
     }
 }
 
-impl IoLength for EncodingContentType {
-    fn length(&self) -> usize {
-        u16::from(*self).length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for EncodingContentType {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        u16::from(*self).async_io_write(buf).await
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for EncodingContentType {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        u16::async_io_read(buf).await.map(Self::from)
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,
     pub encoding_content_type: EncodingContentType,
@@ -138,22 +115,6 @@ impl BroadcastContentType {
             type_of_network,
             encoding_content_type,
         }
-    }
-}
-
-impl IoLength for BroadcastContentType {
-    fn length(&self) -> usize {
-        self.type_of_network.length() + self.encoding_content_type.length()
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoWrite for BroadcastContentType {
-    async fn async_io_write(&self, buf: &mut AsyncIoWritable) -> std::io::Result<()> {
-        self.type_of_network.async_io_write(buf).await?;
-        self.encoding_content_type.async_io_write(buf).await?;
-
-        Ok(())
     }
 }
 

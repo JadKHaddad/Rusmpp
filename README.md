@@ -39,8 +39,8 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] generic_nack
 - [x] broadcast_sm
 - [x] broadcast_sm_resp
-- [ ] query_broadcast_sm
-- [ ] query_broadcast_sm_resp
+- [x] query_broadcast_sm
+- [x] query_broadcast_sm_resp
 - [ ] cancel_broadcast_sm
 - [ ] cancel_broadcast_sm_resp
 

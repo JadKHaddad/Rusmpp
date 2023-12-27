@@ -206,11 +206,11 @@ impl AsyncIoReadWithLength for BroadcastSm {
         let serivce_type = ServiceType::async_io_read(buf).await?;
         let source_addr_ton = Ton::async_io_read(buf).await?;
         let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::<1, 21>::async_io_read(buf).await?;
-        let message_id = COctetString::<1, 65>::async_io_read(buf).await?;
+        let source_addr = COctetString::async_io_read(buf).await?;
+        let message_id = COctetString::async_io_read(buf).await?;
         let priority_flag = PriorityFlag::async_io_read(buf).await?;
-        let schedule_delivery_time = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
-        let validity_period = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
+        let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
+        let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
         let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
         let data_coding = DataCoding::async_io_read(buf).await?;
         let sm_default_msg_id = u8::async_io_read(buf).await?;

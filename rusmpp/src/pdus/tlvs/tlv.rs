@@ -12,12 +12,12 @@ use super::{
     tlv_tag::{
         BroadcastRequestTLVTag, BroadcastResponseTLVTag, MessageDeliveryRequestTLVTag,
         MessageDeliveryResponseTLVTag, MessageSubmissionRequestTLVTag,
-        MessageSubmissionResponseTLVTag, TLVTag,
+        MessageSubmissionResponseTLVTag, QueryBroadcastResponseTLVTag, TLVTag,
     },
     tlv_value::{
         BroadcastRequestTLVValue, BroadcastResponseTLVValue, MessageDeliveryRequestTLVValue,
         MessageDeliveryResponseTLVValue, MessageSubmissionRequestTLVValue,
-        MessageSubmissionResponseTLVValue, TLVValue,
+        MessageSubmissionResponseTLVValue, QueryBroadcastResponseTLVValue, TLVValue,
     },
 };
 
@@ -287,6 +287,31 @@ impl BroadcastResponseTLV {
 
 impl From<BroadcastResponseTLV> for TLV {
     fn from(tlv: BroadcastResponseTLV) -> Self {
+        tlv.tlv
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct QueryBroadcastResponseTLV {
+    tlv: TLV,
+}
+
+impl QueryBroadcastResponseTLV {
+    pub fn new(value: QueryBroadcastResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn new_without_value(tag: QueryBroadcastResponseTLVTag) -> Self {
+        let tlv = TLV::new_without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<QueryBroadcastResponseTLV> for TLV {
+    fn from(tlv: QueryBroadcastResponseTLV) -> Self {
         tlv.tlv
     }
 }

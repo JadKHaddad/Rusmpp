@@ -148,10 +148,10 @@ impl ReplaceSm {
 #[async_trait::async_trait]
 impl AsyncIoReadWithLength for ReplaceSm {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::<1, 65>::async_io_read(buf).await?;
+        let message_id = COctetString::async_io_read(buf).await?;
         let source_addr_ton = Ton::async_io_read(buf).await?;
         let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::<1, 21>::async_io_read(buf).await?;
+        let source_addr = COctetString::async_io_read(buf).await?;
         let schedule_delivery_time = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
         let validity_period = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
         let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;

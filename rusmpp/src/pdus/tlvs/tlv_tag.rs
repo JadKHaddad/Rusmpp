@@ -379,3 +379,18 @@ impl From<BroadcastResponseTLVTag> for TLVTag {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum QueryBroadcastResponseTLVTag {
+    BroadcastEndTime,
+    UserMessageReference,
+}
+
+impl From<QueryBroadcastResponseTLVTag> for TLVTag {
+    fn from(v: QueryBroadcastResponseTLVTag) -> Self {
+        match v {
+            QueryBroadcastResponseTLVTag::BroadcastEndTime => TLVTag::BroadcastEndTime,
+            QueryBroadcastResponseTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+        }
+    }
+}

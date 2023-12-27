@@ -8,6 +8,8 @@ pub mod data_sm;
 pub mod deliver_sm;
 pub mod deliver_sm_resp;
 pub mod outbind;
+pub mod query_broadcast_sm;
+pub mod query_broadcast_sm_resp;
 pub mod query_sm;
 pub mod query_sm_resp;
 pub mod replace_sm;

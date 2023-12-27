@@ -858,3 +858,20 @@ impl From<BroadcastResponseTLVValue> for TLVValue {
         }
     }
 }
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum QueryBroadcastResponseTLVValue {
+    BroadcastEndTime(OctetString<0, 17>),
+    UserMessageReference(u16),
+}
+
+impl From<QueryBroadcastResponseTLVValue> for TLVValue {
+    fn from(v: QueryBroadcastResponseTLVValue) -> Self {
+        match v {
+            QueryBroadcastResponseTLVValue::BroadcastEndTime(v) => TLVValue::BroadcastEndTime(v),
+            QueryBroadcastResponseTLVValue::UserMessageReference(v) => {
+                TLVValue::UserMessageReference(v)
+            }
+        }
+    }
+}

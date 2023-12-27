@@ -4,7 +4,10 @@ use crate::{
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
         write::{AsyncIoWritable, AsyncIoWrite},
     },
-    pdus::tlvs::tlv::TLV,
+    pdus::{
+        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        types::interface_version::InterfaceVersion,
+    },
     types::c_octet_string::COctetString,
 };
 
@@ -15,10 +18,14 @@ pub struct BindResp {
 }
 
 impl BindResp {
-    pub fn new(system_id: COctetString<1, 16>, sc_interface_version: Option<TLV>) -> Self {
+    pub fn new(
+        system_id: COctetString<1, 16>,
+        sc_interface_version: Option<InterfaceVersion>,
+    ) -> Self {
         Self {
             system_id,
-            sc_interface_version,
+            sc_interface_version: sc_interface_version
+                .map(|v| TLV::new(TLVValue::ScInterfaceVersion(v))),
         }
     }
 }

@@ -6,13 +6,12 @@ use crate::io::{
 
 use super::{
     tlv_tag::{
-        MessageDeliveryRequestTLVTag, MessageDeliveryResponseTLVTag, MessageReplacementTLVTag,
+        MessageDeliveryRequestTLVTag, MessageDeliveryResponseTLVTag,
         MessageSubmissionRequestTLVTag, MessageSubmissionResponseTLVTag, TLVTag,
     },
     tlv_value::{
         MessageDeliveryRequestTLVValue, MessageDeliveryResponseTLVValue,
-        MessageReplacementTLVValue, MessageSubmissionRequestTLVValue,
-        MessageSubmissionResponseTLVValue, TLVValue,
+        MessageSubmissionRequestTLVValue, MessageSubmissionResponseTLVValue, TLVValue,
     },
 };
 
@@ -252,31 +251,6 @@ impl MessageDeliveryResponseTLV {
 
 impl From<MessageDeliveryResponseTLV> for TLV {
     fn from(tlv: MessageDeliveryResponseTLV) -> Self {
-        tlv.tlv
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageReplacementTLV {
-    tlv: TLV,
-}
-
-impl MessageReplacementTLV {
-    pub fn new(value: MessageReplacementTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
-
-        Self { tlv }
-    }
-
-    pub fn new_without_value(tag: MessageReplacementTLVTag) -> Self {
-        let tlv = TLV::new_without_value(tag.into());
-
-        Self { tlv }
-    }
-}
-
-impl From<MessageReplacementTLV> for TLV {
-    fn from(tlv: MessageReplacementTLV) -> Self {
         tlv.tlv
     }
 }

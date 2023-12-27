@@ -21,7 +21,7 @@ use rusmpp::{
             pdu_body::PduBody,
         },
         pdu::Pdu,
-        tlvs::{tlv::TLV, tlv_value::TLVValue, tlv_values::message_state::MessageState},
+        tlvs::tlv_values::message_state::MessageState,
         types::{
             command_id::CommandId, command_status::CommandStatus,
             interface_version::InterfaceVersion, sequence_number::SequenceNumber,
@@ -34,9 +34,7 @@ use tokio::{io::BufReader, net::TcpListener};
 fn bind_resp() -> BindResp {
     BindResp::new(
         COctetString::from_str("Rusmpp").unwrap(),
-        Some(TLV::new(TLVValue::ScInterfaceVersion(
-            InterfaceVersion::Smpp5_0,
-        ))),
+        Some(InterfaceVersion::Smpp5_0),
     )
 }
 
@@ -221,6 +219,39 @@ async fn main() {
 
                         submit_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
                     }
+                    Some(PduBody::DataSm(_)) => {
+                        match bind_mode {
+                            Some(BindMode::Tx) | Some(BindMode::Trx) => {}
+                            _ => {
+                                let incorret_bind_status_pdu = incorret_bind_status_pdu(
+                                    CommandId::DataSmResp,
+                                    sequence_number,
+                                );
+                                incorret_bind_status_pdu
+                                    .async_io_write(&mut write)
+                                    .await
+                                    .unwrap();
+
+                                continue;
+                            }
+                        }
+
+                        let message_id = uuid::Uuid::new_v4().to_string();
+                        let message_id = COctetString::from_str(&message_id).unwrap();
+
+                        sent_messages.push(SentMessage {
+                            message_id: message_id.clone(),
+                        });
+
+                        let data_sm_resp_pdu = Pdu::new(
+                            CommandStatus::EsmeRok,
+                            sequence_number,
+                            PduBody::DataSmResp(SubmitOrDataSmResp::new(message_id, vec![])),
+                        )
+                        .unwrap();
+
+                        data_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
+                    }
                     Some(PduBody::QuerySm(body)) => {
                         let message_id = &body.message_id;
 
@@ -240,6 +271,7 @@ async fn main() {
                             } else {
                                 Pdu::new_without_body(
                                     CommandId::QuerySmResp,
+                                    // Query failed
                                     CommandStatus::EsmeRqueryfail,
                                     sequence_number,
                                 )
@@ -247,6 +279,42 @@ async fn main() {
                             };
 
                         query_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
+                    }
+                    Some(PduBody::CancelSm(body)) => {
+                        let message_id = &body.message_id;
+
+                        let cancel_sm_resp_pdu =
+                            if sent_messages.iter().any(|m| m.message_id == *message_id) {
+                                Pdu::new_without_body(
+                                    CommandId::CancelSmResp,
+                                    CommandStatus::EsmeRok,
+                                    sequence_number,
+                                )
+                                .unwrap()
+                            } else {
+                                Pdu::new_without_body(
+                                    CommandId::CancelSmResp,
+                                    // Invalid message id
+                                    CommandStatus::EsmeRinvmsgid,
+                                    sequence_number,
+                                )
+                                .unwrap()
+                            };
+
+                        cancel_sm_resp_pdu.async_io_write(&mut write).await.unwrap();
+                    }
+                    Some(PduBody::ReplaceSm(_)) => {
+                        let replace_sm_resp_pdu = Pdu::new_without_body(
+                            CommandId::ReplaceSmResp,
+                            CommandStatus::EsmeRok,
+                            sequence_number,
+                        )
+                        .unwrap();
+
+                        replace_sm_resp_pdu
+                            .async_io_write(&mut write)
+                            .await
+                            .unwrap();
                     }
                     _ => {}
                 }

@@ -87,7 +87,7 @@ impl SSm {
         }
     }
 
-    pub fn check_for_message_payload_and_update(self, tlvs: &[TLV]) -> Self {
+    pub(crate) fn check_for_message_payload_and_update(self, tlvs: &[TLV]) -> Self {
         let message_payload_exists = tlvs
             .iter()
             .any(|v| matches!(v.tag(), TLVTag::MessagePayload));

@@ -5,15 +5,12 @@ use crate::{
         write::{AsyncIoWritable, AsyncIoWrite},
     },
     pdus::{
-        tlvs::{
-            tlv::{MessageReplacementTLV, TLV},
-            tlv_tag::TLVTag,
-        },
+        tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        octet_string::OctetString,
+        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
     },
 };
 
@@ -29,7 +26,7 @@ pub struct ReplaceSm {
     sm_default_msg_id: u8,
     sm_length: u8,
     short_message: OctetString<0, 255>,
-    tlvs: Vec<TLV>,
+    message_payload: Option<TLV>,
 }
 
 impl ReplaceSm {
@@ -44,11 +41,19 @@ impl ReplaceSm {
         registered_delivery: RegisteredDelivery,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<MessageReplacementTLV>,
+        message_payload: Option<NoFixedSizeOctetString>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(|v| v.into()).collect();
+        let message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
 
-        let replace_sm = Self {
+        let short_message = if message_payload.is_some() {
+            OctetString::empty()
+        } else {
+            short_message
+        };
+
+        let sm_length = short_message.length() as u8;
+
+        Self {
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -57,32 +62,9 @@ impl ReplaceSm {
             validity_period,
             registered_delivery,
             sm_default_msg_id,
-            sm_length: 0,
-            short_message,
-            tlvs,
-        };
-
-        Self::check_for_message_payload_and_update(replace_sm)
-    }
-
-    pub fn check_for_message_payload_and_update(self) -> Self {
-        let message_payload_exists = self
-            .tlvs
-            .iter()
-            .any(|v| matches!(v.tag(), TLVTag::MessagePayload));
-
-        let short_message = if message_payload_exists {
-            OctetString::empty()
-        } else {
-            self.short_message
-        };
-
-        let sm_length = short_message.length() as u8;
-
-        Self {
-            short_message,
             sm_length,
-            ..self
+            short_message,
+            message_payload,
         }
     }
 
@@ -126,8 +108,8 @@ impl ReplaceSm {
         &self.short_message
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
-        &self.tlvs
+    pub fn message_payload(&self) -> Option<&TLV> {
+        self.message_payload.as_ref()
     }
 
     #[allow(clippy::type_complexity)]
@@ -144,7 +126,7 @@ impl ReplaceSm {
         u8,
         u8,
         OctetString<0, 255>,
-        Vec<TLV>,
+        Option<TLV>,
     ) {
         (
             self.message_id,
@@ -157,7 +139,7 @@ impl ReplaceSm {
             self.sm_default_msg_id,
             self.sm_length,
             self.short_message,
-            self.tlvs,
+            self.message_payload,
         )
     }
 }
@@ -174,7 +156,7 @@ impl IoLength for ReplaceSm {
             + self.sm_default_msg_id.length()
             + self.sm_length.length()
             + self.short_message.length()
-            + self.tlvs.length()
+            + self.message_payload.length()
     }
 }
 
@@ -191,7 +173,7 @@ impl AsyncIoWrite for ReplaceSm {
         self.sm_default_msg_id.async_io_write(buf).await?;
         self.sm_length.async_io_write(buf).await?;
         self.short_message.async_io_write(buf).await?;
-        self.tlvs.async_io_write(buf).await?;
+        self.message_payload.async_io_write(buf).await?;
 
         Ok(())
     }
@@ -211,7 +193,7 @@ impl AsyncIoReadWithLength for ReplaceSm {
         let sm_length = u8::async_io_read(buf).await?;
         let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
 
-        let tlvs_expected_length = length
+        let message_payload_expected_len = length
             .saturating_sub(message_id.length())
             .saturating_sub(source_addr_ton.length())
             .saturating_sub(source_addr_npi.length())
@@ -223,7 +205,11 @@ impl AsyncIoReadWithLength for ReplaceSm {
             .saturating_sub(sm_length.length())
             .saturating_sub(short_message.length());
 
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_length).await?;
+        let message_payload = if message_payload_expected_len > 0 {
+            Some(TLV::async_io_read(buf).await?)
+        } else {
+            None
+        };
 
         Ok(Self {
             message_id,
@@ -236,7 +222,7 @@ impl AsyncIoReadWithLength for ReplaceSm {
             sm_default_msg_id,
             sm_length,
             short_message,
-            tlvs,
+            message_payload,
         })
     }
 }

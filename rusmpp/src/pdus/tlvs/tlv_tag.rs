@@ -324,16 +324,3 @@ impl From<MessageDeliveryResponseTLVTag> for TLVTag {
         }
     }
 }
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageReplacementTLVTag {
-    MessagePayload,
-}
-
-impl From<MessageReplacementTLVTag> for TLVTag {
-    fn from(v: MessageReplacementTLVTag) -> Self {
-        match v {
-            MessageReplacementTLVTag::MessagePayload => TLVTag::MessagePayload,
-        }
-    }
-}

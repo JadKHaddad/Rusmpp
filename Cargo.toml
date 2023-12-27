@@ -1,3 +1,6 @@
 [workspace]
 members = ["rusmpp", "rusmpp_macros"]
 resolver = "2"
+
+[profile.dev.package.rusmpp_macros]
+opt-level = 3

@@ -2,8 +2,12 @@
 name = "rusmpp_macros"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "Rust SMPP macros. This crate is not intended to be used by users directly."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+workspace = "../"
+readme = "../README.md"
 
 [lib]
 proc-macro = true

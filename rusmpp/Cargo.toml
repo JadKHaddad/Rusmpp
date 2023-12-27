@@ -2,8 +2,13 @@
 name = "rusmpp"
 version = "0.1.0"
 edition = "2021"
+description = "A Rust SMPP library."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+workspace = "../"
+readme = "../README.md"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dev-dependencies]
 tokio = { version = "1.35.0", features = ["full"] }
 uuid = { version = "1.6.1", features = ["v4"] }

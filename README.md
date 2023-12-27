@@ -21,8 +21,8 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 - [x] unbind_resp
 - [x] submit_sm
 - [x] submit_sm_resp
-- [ ] submit_sm_multi
-- [ ] submit_sm_multi_resp
+- [x] submit_sm_multi
+- [x] submit_sm_multi_resp
 - [x] data_sm
 - [x] data_sm_resp
 - [x] deliver_sm

@@ -44,7 +44,6 @@ pub enum IoReadError {
     COctetStringIoReadError(#[source] COctetStringIoReadError),
     #[error("OctetString error: {0}")]
     OctetStringIoReadError(#[source] OctetStringIoReadError),
-    // TODO: Remove after matching all command ids
     #[error("Unsupported key: {key}")]
     UnsupportedKey { key: u32 },
 }

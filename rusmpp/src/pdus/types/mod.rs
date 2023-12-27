@@ -1,6 +1,7 @@
 pub mod command_id;
 pub mod command_status;
 pub mod data_coding;
+pub mod dest_address;
 pub mod esm_class;
 pub mod interface_version;
 pub mod npi;
@@ -10,3 +11,4 @@ pub mod replace_if_present_flag;
 pub mod sequence_number;
 pub mod service_type;
 pub mod ton;
+pub mod unsuccess_sme;

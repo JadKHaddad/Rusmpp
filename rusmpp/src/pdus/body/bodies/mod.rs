@@ -10,5 +10,7 @@ pub mod query_sm;
 pub mod query_sm_resp;
 pub mod replace_sm;
 pub mod s_sm;
+pub mod submit_multi;
+pub mod submit_multi_resp;
 pub mod submit_or_data_sm_resp;
 pub mod submit_sm;

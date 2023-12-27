@@ -151,7 +151,7 @@ impl AsyncIoReadWithLength for DataSm {
         let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
         let data_coding = DataCoding::async_io_read(buf).await?;
 
-        let tlvs_expected_length = length
+        let tlvs_expected_len = length
             .saturating_sub(serivce_type.length())
             .saturating_sub(source_addr_ton.length())
             .saturating_sub(source_addr_npi.length())
@@ -163,7 +163,7 @@ impl AsyncIoReadWithLength for DataSm {
             .saturating_sub(registered_delivery.length())
             .saturating_sub(data_coding.length());
 
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_length).await?;
+        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
 
         Ok(Self {
             serivce_type,

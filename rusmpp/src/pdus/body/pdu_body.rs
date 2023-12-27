@@ -15,7 +15,7 @@ use super::bodies::{
     alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp, cancel_sm::CancelSm,
     data_sm::DataSm, deliver_sm::DeliverSm, deliver_sm_resp::DeliverSmResp, outbind::Outbind,
     query_sm::QuerySm, query_sm_resp::QuerySmResp, replace_sm::ReplaceSm,
-    submit_or_data_sm_resp::SubmitOrDataSmResp, submit_sm::SubmitSm,
+    submit_multi::SubmitMulti, submit_or_data_sm_resp::SubmitOrDataSmResp, submit_sm::SubmitSm,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -38,6 +38,8 @@ pub enum PduBody {
     DataSmResp(SubmitOrDataSmResp),
     CancelSm(CancelSm),
     ReplaceSm(ReplaceSm),
+    SubmitMulti(SubmitMulti),
+    SubmitMultiResp(SubmitOrDataSmResp),
     Other {
         command_id: CommandId,
         body: NoFixedSizeOctetString,
@@ -65,6 +67,8 @@ impl PduBody {
             PduBody::DataSmResp(_) => CommandId::DataSmResp,
             PduBody::CancelSm(_) => CommandId::CancelSm,
             PduBody::ReplaceSm(_) => CommandId::ReplaceSm,
+            PduBody::SubmitMulti(_) => CommandId::SubmitMulti,
+            PduBody::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             PduBody::Other { command_id, .. } => *command_id,
         }
     }
@@ -91,6 +95,8 @@ impl IoLength for PduBody {
             PduBody::DataSmResp(b) => b.length(),
             PduBody::CancelSm(b) => b.length(),
             PduBody::ReplaceSm(b) => b.length(),
+            PduBody::SubmitMulti(b) => b.length(),
+            PduBody::SubmitMultiResp(b) => b.length(),
             PduBody::Other { body, .. } => body.length(),
         }
     }
@@ -118,6 +124,8 @@ impl AsyncIoWrite for PduBody {
             PduBody::DataSmResp(b) => b.async_io_write(buf).await,
             PduBody::CancelSm(b) => b.async_io_write(buf).await,
             PduBody::ReplaceSm(b) => b.async_io_write(buf).await,
+            PduBody::SubmitMulti(b) => b.async_io_write(buf).await,
+            PduBody::SubmitMultiResp(b) => b.async_io_write(buf).await,
             PduBody::Other { body, .. } => body.async_io_write(buf).await,
         }
     }
@@ -168,6 +176,12 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::CancelSm => PduBody::CancelSm(CancelSm::async_io_read(buf).await?),
             CommandId::ReplaceSm => {
                 PduBody::ReplaceSm(ReplaceSm::async_io_read(buf, length).await?)
+            }
+            CommandId::SubmitMulti => {
+                PduBody::SubmitMulti(SubmitMulti::async_io_read(buf, length).await?)
+            }
+            CommandId::SubmitMultiResp => {
+                PduBody::SubmitMultiResp(SubmitOrDataSmResp::async_io_read(buf, length).await?)
             }
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,

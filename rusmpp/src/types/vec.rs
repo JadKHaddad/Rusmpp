@@ -45,3 +45,17 @@ where
         Ok(vec)
     }
 }
+
+pub async fn read_counted<T>(buf: &mut AsyncIoReadable, count: usize) -> Result<Vec<T>, IoReadError>
+where
+    T: AsyncIoRead + Send + Sync,
+{
+    let mut vec = Vec::new();
+
+    for _ in 0..count {
+        let v = T::async_io_read(buf).await?;
+        vec.push(v);
+    }
+
+    Ok(vec)
+}

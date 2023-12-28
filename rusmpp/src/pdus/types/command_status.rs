@@ -305,15 +305,15 @@ pub enum CommandStatus {
     /// Decoding of TLVs (Optional Parameters)
     /// has resulted in one of the following
     /// scenarios:
-    ///     • PDU decoding completed with 1-
-    ///       3 octets of data remaining,
-    ///       indicating a corrupt PDU.
+    ///  • PDU decoding completed with 1-
+    ///    3 octets of data remaining,
+    ///    indicating a corrupt PDU.
     ///
-    ///     • A TLV indicated a length that
-    ///       was not present in the remaining
-    ///       PDU data (e.g. a TLV specifying
-    ///       a length of 10 where only 6
-    ///       octets of PDU data remain).
+    ///  • A TLV indicated a length that
+    ///    was not present in the remaining
+    ///    PDU data (e.g. a TLV specifying
+    ///    a length of 10 where only 6
+    ///    octets of PDU data remain).
     EsmeRinvtlvstream = 0x000000C0,
     /// TLV not allowed.
     ///

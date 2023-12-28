@@ -208,16 +208,69 @@ pub enum CommandStatus {
     /// The source TON of the message is either
     /// invalid or unsupported.
     EsmeRinvsrcton = 0x00000048,
+    /// Invalid Source address NPI.
+    ///
+    /// The source NPI of the message is either
+    /// invalid or unsupported.
     EsmeRinvsrcnpi = 0x00000049,
+    /// Invalid Destination address TON.
+    ///
+    /// The destination TON of the message is
+    /// either invalid or unsupported.
     EsmeRinvdstton = 0x00000050,
+    /// Invalid Destination address NPI.
+    ///
+    /// The destination NPI of the message is
+    /// either invalid or unsupported.
     EsmeRinvdstnpi = 0x00000051,
+    /// Invalid system_type field.
+    ///
+    /// The System type of bind PDU has an
+    /// incorrect length or contains illegal
+    /// characters.
     EsmeRinvsystyp = 0x00000053,
+    /// Invalid replace_if_present flag.
+    ///
+    /// The replace_if_present flag has been
+    /// encoded with an invalid or unsupported
+    /// setting.
     EsmeRinvrepflag = 0x00000054,
+    /// Invalid number of messages.
     EsmeRinvnummsgs = 0x00000055,
+    /// Throttling error (ESME has exceeded
+    /// allowed message limits).
+    ///
+    /// This type of error is usually returned
+    /// where an ESME has exceeded a
+    /// predefined messaging rate restriction
+    /// applied by the operator.
     EsmeRthrottled = 0x00000058,
+    /// Invalid Scheduled Delivery Time.
+    ///
+    /// Scheduled delivery time is either the
+    /// incorrect length or is invalid.
     EsmeRinvsched = 0x00000061,
+    /// Invalid message validity period (Expiry
+    /// time).
+    ///
+    /// Expiry time is either the incorrect length
+    /// or is invalid.
     EsmeRinvexpiry = 0x00000062,
+    /// Predefined Message ID is Invalid or
+    /// specified predefined message was not
+    /// found.
+    ///
+    /// The default (pre-defined) message id is
+    /// either invalid or refers to a non-existent
+    /// pre-defined message.
     EsmeRinvdftmsgid = 0x00000063,
+    /// ESME Receiver Temporary App Error
+    /// Code.
+    ///
+    /// Rx or Trx ESME is unable to process a
+    /// delivery due to a temporary problem and
+    /// is requesting that the message be retried
+    /// at some future point.
     EsmeRxTAppn = 0x00000064,
     EsmeRxPAppn = 0x00000065,
     EsmeRxRAppn = 0x00000066,

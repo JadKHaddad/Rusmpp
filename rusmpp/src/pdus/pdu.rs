@@ -1,12 +1,11 @@
 use rusmpp_macros::RusmppIo;
-use tokio::io::AsyncReadExt;
 
 use crate::{
     io::{
         length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
+        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     },
-    types::option,
+    types::{no_fixed_size_octet_string::NoFixedSizeOctetString, option},
 };
 
 use super::{
@@ -34,7 +33,7 @@ pub struct Pdu {
     sequence_number: SequenceNumber,
     body: Option<PduBody>,
     #[rusmpp_io(skip_length, skip_write)]
-    byte_overflow: Vec<u8>,
+    byte_overflow: NoFixedSizeOctetString,
 }
 
 impl Pdu {
@@ -58,7 +57,7 @@ impl Pdu {
             command_status,
             sequence_number,
             body: Some(body),
-            byte_overflow: vec![],
+            byte_overflow: NoFixedSizeOctetString::empty(),
         };
 
         pdu.validate()?;
@@ -82,7 +81,7 @@ impl Pdu {
             command_status,
             sequence_number,
             body: None,
-            byte_overflow: vec![],
+            byte_overflow: NoFixedSizeOctetString::empty(),
         };
 
         pdu.validate()?;
@@ -121,7 +120,7 @@ impl Pdu {
         self.body
     }
 
-    pub fn byte_overflow(&self) -> &[u8] {
+    pub fn byte_overflow(&self) -> &NoFixedSizeOctetString {
         &self.byte_overflow
     }
 
@@ -154,8 +153,7 @@ impl AsyncIoRead for Pdu {
             option::async_io_read_with_key_optional(command_id, buf, body_expected_len).await?;
 
         let overflow_len = body_expected_len.saturating_sub(body.length());
-        let mut byte_overflow = vec![0; overflow_len];
-        buf.read_exact(&mut byte_overflow).await?;
+        let byte_overflow = NoFixedSizeOctetString::async_io_read(buf, overflow_len).await?;
 
         Ok(Self {
             command_length,

@@ -272,34 +272,164 @@ pub enum CommandStatus {
     /// is requesting that the message be retried
     /// at some future point.
     EsmeRxTAppn = 0x00000064,
+    /// ESME Receiver Permanent App Error
+    /// Code.
+    ///
+    /// Rx or Trx ESME is unable to process a
+    /// delivery due to a permanent problem
+    /// relating to the given destination address
+    /// and is requesting that the message and
+    /// all other messages queued to the same
+    /// destination should NOT be retried any
+    /// further.
     EsmeRxPAppn = 0x00000065,
+    /// ESME Receiver Reject Message Error
+    /// Code.
+    ///
+    /// Rx or Trx ESME is unable to process a
+    /// delivery due to a problem relating to the
+    /// given message and is requesting that the
+    /// message is rejected and not retried. This
+    /// does not affect other messages queued
+    /// for the same ESME or destination
+    /// address.
     EsmeRxRAppn = 0x00000066,
+    /// query_sm request failed.
+    ///
+    /// Generic failure scenario for a query
+    /// request.
     EsmeRqueryfail = 0x00000067,
+    /// Error in the optional part of the PDU
+    /// Body.
+    ///
+    /// Decoding of TLVs (Optional Parameters)
+    /// has resulted in one of the following
+    /// scenarios:
+    ///     • PDU decoding completed with 1-
+    ///       3 octets of data remaining,
+    ///       indicating a corrupt PDU.
+    ///
+    ///     • A TLV indicated a length that
+    ///       was not present in the remaining
+    ///       PDU data (e.g. a TLV specifying
+    ///       a length of 10 where only 6
+    ///       octets of PDU data remain).
     EsmeRinvtlvstream = 0x000000C0,
+    /// TLV not allowed.
+    ///
+    /// A TLV has been used in an invalid
+    /// context, either inappropriate or
+    /// deliberately rejected by the operator.
     EsmeRtlvnotallwd = 0x000000C1,
+    /// Invalid Parameter Length.
+    ///
+    /// A TLV has specified a length that is
+    /// considered invalid
     EsmeRinvtlvlen = 0x000000C2,
+    /// Expected TLV missing.
+    ///
+    /// A mandatory TLV such as the
+    /// message_payload TLV within a data_sm
+    /// PDU is missing.
     EsmeRmissingtlv = 0x000000C3,
+    /// Invalid TLV Value.
+    ///
+    /// The data content of a TLV is invalid and
+    /// cannot be decoded.
     EsmeRinvtlvval = 0x000000C4,
+    /// Transaction Delivery Failure.
+    ///
+    /// A data_sm or submit_sm operation
+    /// issued in transaction mode has resulted
+    /// in a failed delivery.
     EsmeRdeliveryfailure = 0x000000FE,
+    /// Unknown Error.
+    ///
+    /// Some unexpected error has occurred.
     EsmeRunknownerr = 0x000000FF,
+    /// ESME Not authorised to use specified
+    /// service_type.
+    ///
+    /// Specific service_type has been denied
+    /// for use by the given ESME.
     EsmeRsertypunauth = 0x00000100,
+    /// ESME Prohibited from using specified
+    /// operation.
+    ///  
+    /// The PDU request was recognised but is
+    /// denied to the ESME.
     EsmeRprohibited = 0x00000101,
+    /// Specified service_type is unavailable.
+    ///
+    /// Due to a service outage within the MC, a
+    /// service is unavailable.
     EsmeRsertypunavail = 0x00000102,
+    /// Specified service_type is denied.
+    ///
+    /// Due to inappropriate message content
+    /// wrt. the selected service_type.
     EsmeRsertypdenied = 0x00000103,
+    /// Invalid Data Coding Scheme.
+    ///
+    /// Specified DCS is invalid or MC does not
+    /// support it.
     EsmeRinvdcs = 0x00000104,
+    /// Source Address Sub unit is Invalid.
     EsmeRinvsrcaddrsubunit = 0x00000105,
+    /// Destination Address Sub unit is Invalid.
     EsmeRinvdstaddrsubunit = 0x00000106,
+    /// Broadcast Frequency Interval is invalid.
+    ///
+    /// Specified value is either invalid or not
+    /// supported.
     EsmeRinvbcastfreqint = 0x00000107,
+    /// Broadcast Alias Name is invalid.
+    ///
+    /// Specified value has an incorrect length
+    /// or contains invalid/unsupported
+    /// characters.
     EsmeRinvbcastaliasName = 0x00000108,
+    /// Broadcast Area Format is invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastareafmt = 0x00000109,
+    /// Number of Broadcast Areas is invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvnumbcastAreas = 0x0000010A,
+    /// Broadcast Content Type is invalid.
+    ///  
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastcnttype = 0x0000010B,
+    /// Broadcast Message Class is invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastmsgclass = 0x0000010C,
+    /// broadcast_sm operation failed.
     EsmeRbcastfail = 0x0000010D,
+    /// query_broadcast_sm operation failed.
     EsmeRbcastqueryfail = 0x0000010E,
+    /// cancel_broadcast_sm operation failed.
     EsmeRbcastcancelfail = 0x0000010F,
+    /// Number of Repeated Broadcasts is
+    /// invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastRep = 0x00000110,
+    /// Broadcast Service Group is invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastsrvgrp = 0x00000111,
+    /// Broadcast Channel Indicator is invalid.
+    ///
+    /// Specified value violates protocol or is
+    /// unsupported.
     EsmeRinvbcastchanind = 0x00000112,
     #[num_enum(catch_all)]
     Other(u32),

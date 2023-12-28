@@ -275,10 +275,20 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "num_enum",
+ "rusmpp_io",
  "rusmpp_macros",
  "thiserror",
  "tokio",
  "uuid",
+]
+
+[[package]]
+name = "rusmpp_io"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]

@@ -1,10 +1,11 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    pdus::tlvs::tlv_values::message_state::MessageState,
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
+
+use crate::pdus::tlvs::tlv_values::message_state::MessageState;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct QuerySmResp {

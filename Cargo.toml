@@ -1,5 +1,5 @@
 [workspace]
-members = ["rusmpp", "rusmpp_macros"]
+members = ["rusmpp", "rusmpp_io", "rusmpp_macros"]
 resolver = "2"
 
 [profile.dev.package.rusmpp_macros]

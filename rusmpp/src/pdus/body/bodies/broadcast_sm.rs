@@ -1,24 +1,25 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use crate::pdus::{
+    tlvs::{
+        tlv::{BroadcastRequestTLV, TLV},
+        tlv_value::TLVValue,
+        tlv_values::{
+            broadcast_area_identifier::BroadcastAreaIdentifier,
+            broadcast_content_type::BroadcastContentType,
+            broadcast_frequency_interval::BroadcastFrequencyInterval,
+        },
+    },
+    types::{
+        data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
+        replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
+    },
+};
+
+use rusmpp_io::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
-    pdus::{
-        tlvs::{
-            tlv::{BroadcastRequestTLV, TLV},
-            tlv_value::TLVValue,
-            tlv_values::{
-                broadcast_area_identifier::BroadcastAreaIdentifier,
-                broadcast_content_type::BroadcastContentType,
-                broadcast_frequency_interval::BroadcastFrequencyInterval,
-            },
-        },
-        types::{
-            data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
-            replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-        },
     },
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };

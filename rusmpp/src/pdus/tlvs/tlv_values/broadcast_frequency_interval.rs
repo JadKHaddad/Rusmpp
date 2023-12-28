@@ -1,7 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use rusmpp_io::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 #[repr(u8)]
 #[derive(

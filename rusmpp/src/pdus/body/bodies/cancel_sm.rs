@@ -1,10 +1,11 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    pdus::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     types::c_octet_string::COctetString,
 };
+
+use crate::pdus::types::{npi::Npi, service_type::ServiceType, ton::Ton};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct CancelSm {

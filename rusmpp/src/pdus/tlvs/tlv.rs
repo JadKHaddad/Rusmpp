@@ -1,6 +1,6 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadable, IoReadError},

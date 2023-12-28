@@ -1,6 +1,6 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
@@ -45,7 +45,7 @@ impl Pdu {
         let command_id = body.command_id();
 
         // crate::types::u32::SIZE = 4 is the size of command_length itself as a field
-        let command_length = (crate::types::u32::SIZE
+        let command_length = (rusmpp_io::types::u32::SIZE
             + command_id.length()
             + command_status.length()
             + sequence_number.length()
@@ -70,7 +70,7 @@ impl Pdu {
         command_status: CommandStatus,
         sequence_number: SequenceNumber,
     ) -> Result<Self, InvalidPdu> {
-        let command_length = (crate::types::u32::SIZE
+        let command_length = (rusmpp_io::types::u32::SIZE
             + command_id.length()
             + command_status.length()
             + sequence_number.length()) as u32;

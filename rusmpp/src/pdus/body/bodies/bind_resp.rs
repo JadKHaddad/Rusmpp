@@ -1,15 +1,16 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     },
-    pdus::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
-        types::interface_version::InterfaceVersion,
-    },
     types::{c_octet_string::COctetString, option},
+};
+
+use crate::pdus::{
+    tlvs::{tlv::TLV, tlv_value::TLVValue},
+    types::interface_version::InterfaceVersion,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]

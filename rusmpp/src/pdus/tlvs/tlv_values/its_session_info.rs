@@ -1,6 +1,6 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use rusmpp_io::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct ItsSessionInfo {

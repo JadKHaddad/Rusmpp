@@ -1,28 +1,27 @@
-pub mod io;
 pub mod pdus;
-pub mod types;
+pub use rusmpp_io::io;
+pub use rusmpp_io::types;
 
 #[cfg(test)]
 mod tests {
     use core::panic;
     use std::str::FromStr;
 
+    use crate::pdus::{
+        body::{bodies::bind::Bind, pdu_body::PduBody},
+        pdu::Pdu,
+        types::{
+            command_status::CommandStatus, interface_version::InterfaceVersion, npi::Npi,
+            sequence_number::SequenceNumber, ton::Ton,
+        },
+    };
+    use rusmpp_io::{
+        io::{read::AsyncIoRead, write::AsyncIoWrite},
+        types::c_octet_string::COctetString,
+    };
     use tokio::{
         io::{AsyncWriteExt, BufReader},
         net::TcpStream,
-    };
-
-    use crate::{
-        io::{read::AsyncIoRead, write::AsyncIoWrite},
-        pdus::{
-            body::{bodies::bind::Bind, pdu_body::PduBody},
-            pdu::Pdu,
-            types::{
-                command_status::CommandStatus, interface_version::InterfaceVersion, npi::Npi,
-                sequence_number::SequenceNumber, ton::Ton,
-            },
-        },
-        types::c_octet_string::COctetString,
     };
 
     fn create_default_bind() -> Bind {

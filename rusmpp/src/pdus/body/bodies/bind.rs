@@ -1,10 +1,11 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::{
+use rusmpp_io::{
     io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    pdus::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     types::c_octet_string::COctetString,
 };
+
+use crate::pdus::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct Bind {

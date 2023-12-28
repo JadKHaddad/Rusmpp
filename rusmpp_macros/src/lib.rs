@@ -23,7 +23,6 @@ pub fn derive_rusmpp_io(input: TokenStream) -> TokenStream {
         panic!("Only structs with named fields are supported");
     };
 
-    let fields: Vec<&Field> = fields.iter().collect();
     let fileds_with_skip: Vec<(&Field, Skip)> = fields
         .into_iter()
         .map(|field| {

@@ -474,17 +474,49 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
 
     // println!("{:#?}", fileds_with_options);
     let io_read_fields = fileds_with_options.iter().map(|options| {
-        let field_name = &options.name_ident;
-        let field_type = &options.ty;
+        let field_name_ident = &options.name_ident;
+        let field_ty_ident = &options.ty_ident;
 
-        println!("field_name: {:?}", field_name);
-        println!("field_type: {:?},", field_type);
+        match &options.ty {
+            TY::Normal => quote! {
+                let #field_name_ident = #field_ty_ident::async_io_read(buf).await?;
+            },
+            TY::NormalWithLength { length_op } => todo!(),
+            TY::Option { length_op } => todo!(),
+            TY::OptionWithKey {
+                length_op,
+                key_ident,
+            } => {
+                let len = match length_op {
+                    LengthOperation::Absolute { token } => {
+                        match token {
+                            LengthToken::Incoming => quote! {
+                                length
+                            },
+                            LengthToken::AllBefore => todo!(),
+                            LengthToken::Field { ident } => quote! {ident},
+                        }
+                    },
+                    LengthOperation::Subtraction { token_1, token_2 } => todo!(),
+                };
+                quote!{
+                    let #field_name_ident = rusmmp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #len).await?;
+                }
+            },
+            TY::VecWithLength { length_op } => todo!(),
+            TY::VecWithCount { count_ident } => todo!(),
+        }
+        // let field_name = &options.name_ident;
+        // let field_type = &options.ty;
+
+        // println!("field_name: {:?}", field_name);
+        // println!("field_type: {:?},", field_type);
 
         // quote! {
         //     let #field_name = #field_type::async_io_read(buf).await?;
         // }
 
-        quote! {}
+        // quote! {}
     });
 
     let field_names = fileds_with_options.iter().map(|options| options.name_ident);

@@ -1,11 +1,10 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
+use crate::{
     io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
+    pdus::types::{npi::Npi, ton::Ton},
     types::c_octet_string::COctetString,
 };
-
-use crate::pdus::types::{npi::Npi, ton::Ton};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct QuerySm {

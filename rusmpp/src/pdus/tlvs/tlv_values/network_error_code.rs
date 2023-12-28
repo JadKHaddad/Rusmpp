@@ -1,7 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
-use rusmpp_io::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct NetworkErrorCode {

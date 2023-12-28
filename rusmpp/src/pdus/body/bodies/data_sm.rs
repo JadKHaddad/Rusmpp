@@ -1,19 +1,18 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
+use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     },
-    types::c_octet_string::COctetString,
-};
-
-use crate::pdus::{
-    tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
-    types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
-        registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
+    pdus::{
+        tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
+        types::{
+            data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
+            registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
+        },
     },
+    types::c_octet_string::COctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]

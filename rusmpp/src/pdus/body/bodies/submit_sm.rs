@@ -1,10 +1,11 @@
 use rusmpp_macros::RusmppIo;
 
-use crate::pdus::tlvs::tlv::{MessageSubmissionRequestTLV, TLV};
-
-use rusmpp_io::io::{
-    length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
+use crate::{
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
+    },
+    pdus::tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
 };
 
 use super::s_sm::SSm;

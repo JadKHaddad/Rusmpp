@@ -1,6 +1,6 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
+use crate::{
     io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     types::c_octet_string::COctetString,
 };

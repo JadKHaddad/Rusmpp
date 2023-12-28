@@ -1,7 +1,7 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIo, RusmppIoU8};
 
-use rusmpp_io::{
+use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadable, IoReadError},

@@ -1,6 +1,6 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 
 use super::command_id::CommandId;
 

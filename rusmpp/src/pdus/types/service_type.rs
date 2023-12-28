@@ -2,10 +2,8 @@ use std::str::FromStr;
 
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
-    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    types::c_octet_string::{COctetString, Error as COctetStringError},
-};
+use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use crate::types::c_octet_string::{COctetString, Error as COctetStringError};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum GenericServiceType<'a> {

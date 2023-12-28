@@ -1,22 +1,21 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
+use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     },
+    pdus::{
+        tlvs::{tlv::TLV, tlv_tag::TLVTag},
+        types::{
+            data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
+            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::ServiceType, ton::Ton,
+        },
+    },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString,
-    },
-};
-
-use crate::pdus::{
-    tlvs::{tlv::TLV, tlv_tag::TLVTag},
-    types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::ServiceType, ton::Ton,
     },
 };
 

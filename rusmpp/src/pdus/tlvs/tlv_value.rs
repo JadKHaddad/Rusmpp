@@ -1,5 +1,4 @@
-use crate::pdus::types::{command_status::CommandStatus, interface_version::InterfaceVersion};
-use rusmpp_io::{
+use crate::{
     io::{
         length::IoLength,
         read::{
@@ -8,6 +7,7 @@ use rusmpp_io::{
         },
         write::{AsyncIoWritable, AsyncIoWrite},
     },
+    pdus::types::{command_status::CommandStatus, interface_version::InterfaceVersion},
     types::{
         c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
         octet_string::OctetString,

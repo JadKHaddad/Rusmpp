@@ -1,14 +1,13 @@
 use rusmpp_macros::RusmppIo;
 
-use rusmpp_io::{
+use crate::{
     io::{
         length::IoLength,
         read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     },
+    pdus::tlvs::tlv::{MessageSubmissionResponseTLV, TLV},
     types::c_octet_string::COctetString,
 };
-
-use crate::pdus::tlvs::tlv::{MessageSubmissionResponseTLV, TLV};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
 pub struct SubmitOrDataSmResp {

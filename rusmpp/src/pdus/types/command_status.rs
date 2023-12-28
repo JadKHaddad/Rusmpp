@@ -4,7 +4,7 @@ use rusmpp_macros::RusmppIoU32;
 use super::command_id::CommandId;
 
 #[derive(thiserror::Error, Debug)]
-#[error("Invalid command status. command status should not be 0 when command id is GenericNack. command_status: {status:?}             ,          command_id: {command_id:?}")]
+#[error("Invalid command status. command status should not be 0 when command id is GenericNack. command_status: {status:?}, command_id: {command_id:?}")]
 pub struct InvalidCommandStatus {
     status: CommandStatus,
     command_id: CommandId,

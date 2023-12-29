@@ -417,7 +417,14 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                     let #field_name_ident = #field_ty_ident::async_io_read(buf, #length_ident).await?;
                 }
             },
-            TY::Option { length_op } => quote! {},
+            TY::Option { length_op } => {
+                let length_ident = create_length_ident(field_name_ident);
+                let set_length = set_length(&length_ident, length_op, &field_name_idents);
+                quote!{
+                    #set_length
+                    let #field_name_ident = rusmmp_io::types::option::async_io_read(buf, #length_ident).await?;
+                }
+            },
             TY::OptionWithKey {
                 length_op,
                 key_ident,

@@ -1,6 +1,4 @@
 use core::panic;
-use std::path::Path;
-
 use proc_macro::TokenStream;
 use proc_macro2::TokenTree;
 use quote::quote;
@@ -60,20 +58,9 @@ enum TY {
 
 #[derive(Debug)]
 enum LengthOperation {
-    Absolute {
-        token: LengthToken,
-    },
-    Subtraction {
-        token_1: LengthToken,
-        token_2: LengthToken,
-    },
-}
-
-#[derive(Debug)]
-enum LengthToken {
-    Incoming,
-    AllBefore,
-    Field { ident: proc_macro2::Ident },
+    Ident { ident: proc_macro2::Ident },
+    IdentMinusAllBeforeLengths { ident: proc_macro2::Ident },
+    IdentMinusIdentLength { ident: proc_macro2::Ident, ident2: proc_macro2::Ident },
 }
 
 #[proc_macro_derive(RusmppIoX, attributes(rusmpp_io_x))]
@@ -218,105 +205,45 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                                     let mut length_iter = length_tokens.into_iter();
                                     while let Some(length_token) = length_iter.next() {
                                         if let TokenTree::Ident(length_ident) = length_token {
-
-                                            if length_ident == "incoming" {
-                                                if matches!(derive_type, DeriveType::Normal) {
-                                                    panic!("incoming cannot be used for normal derive: {name_ident}");
-                                                }
-                                                match length_iter.next() {
-                                                    None => {
-                                                        // this is incomig
-                                                        length_op = Some(LengthOperation::Absolute {
-                                                            token: LengthToken::Incoming,
-                                                        });
-
-                                                        break;
-                                                    },
-                                                    Some(TokenTree::Punct(punct)) => {
-                                                        if punct.as_char() != '-' {
-                                                            panic!("Only '-' is supported for incoming: {name_ident}");
-                                                        }
-
-                                                        if let TokenTree::Ident(value) = length_iter
-                                                                .next()
-                                                                .unwrap_or_else(|| panic!("No value found for incoming: {name_ident}"))
-                                                            {
-                                                                // the value would be here all_before or field
-                                                                if value == "incoming" {
-                                                                    panic!("{length_ident} - incoming makes no sense: {name_ident}");                                                               
-                                                                }
-
-                                                                if value == "all_before" {
-                                                                   // this is incomig - all_before      
-                                                                   length_op = Some(LengthOperation::Subtraction {
-                                                                    token_1: LengthToken::Incoming,
-                                                                    token_2: LengthToken::AllBefore
-                                                                    });
-
-                                                                    break;
-                                                                }
-
-                                                                // this is incomig - field     
-                                                                length_op = Some(LengthOperation::Subtraction {
-                                                                    token_1: LengthToken::Incoming,
-                                                                    token_2: LengthToken::Field { ident: value }
-                                                                });
-
-                                                                break;
-
-                                                            } else {
-                                                                panic!("Only Ident is supported for incoming value: {name_ident}");
-                                                            };
-                                                    },
-                                                    _ => {
-                                                        panic!("Only Punct is supported for incoming: {name_ident}");
-                                                    }
-                                                }
-                                            }
-
                                             if length_ident == "all_before" {
-                                                panic!("all_before cannot be used for alone: {name_ident}");
+                                                panic!("all_before must be subtracted from another value: {name_ident}");
                                             }
-
                                             match length_iter.next() {
                                                 None => {
                                                     // this is field
-                                                    length_op = Some(LengthOperation::Absolute {
-                                                        token: LengthToken::Field { ident: length_ident },
+                                                    length_op = Some(LengthOperation::Ident {
+                                                        ident: length_ident.clone(),
                                                     });
                                                 },
+
                                                 Some(TokenTree::Punct(punct)) => {
                                                     if punct.as_char() != '-' {
-                                                        panic!("Only '-' is supported for a field: {name_ident}");
+                                                        panic!("Only '-' is supported for a field length: {name_ident}");
                                                     }
 
                                                     if let TokenTree::Ident(value) = length_iter
                                                             .next()
-                                                            .unwrap_or_else(|| panic!("No value found for a field: {name_ident}"))
+                                                            .unwrap_or_else(|| panic!("No value found for a field length: {name_ident}"))
                                                         {
-                                                            // the value would be here all_before or field
-                                                            if value == "incoming" {
-                                                                panic!("{length_ident} - incoming makes no sense: {name_ident}");                                                               
-                                                            }
-
                                                             if value == "all_before" {
-                                                               // this is field - all_before
-                                                               length_op = Some(LengthOperation::Subtraction {
-                                                                token_1: LengthToken::Field { ident: length_ident.clone() },
-                                                                token_2: LengthToken::AllBefore
+                                                                // this is field - all_before
+                                                                length_op = Some(LengthOperation::IdentMinusAllBeforeLengths {
+                                                                    ident: length_ident.clone(),});
+ 
+                                                                 break;
+                                                             }else {
+                                                                // this is field - field
+                                                                length_op = Some(LengthOperation::IdentMinusIdentLength {
+                                                                    ident: length_ident.clone(),
+                                                                    ident2: proc_macro2::Ident::new(
+                                                                        &value.to_string(),
+                                                                        proc_macro2::Span::call_site(),
+                                                                    ),
                                                                 });
+                                                             }
 
-                                                                break;
-                                                            }
-                                                            // this is field - field    
-                                                            length_op = Some(LengthOperation::Subtraction {
-                                                                token_1: LengthToken::Field { ident: length_ident.clone() },
-                                                                token_2: LengthToken::Field { ident: value }
-                                                            });
-
-                                                            break;
                                                         } else {
-                                                            panic!("Only Ident is supported for incoming value: {name_ident}");
+                                                            panic!("Only Ident is supported for length value: {name_ident}");
                                                         };
                                                 },
                                                 _ => {
@@ -473,53 +400,55 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
     });
 
     // println!("{:#?}", fileds_with_options);
+    let mut field_name_idents = Vec::new();
     let io_read_fields = fileds_with_options.iter().map(|options| {
         let field_name_ident = &options.name_ident;
         let field_ty_ident = &options.ty_ident;
 
-        match &options.ty {
+        let token_stream = match &options.ty {
             TY::Normal => quote! {
                 let #field_name_ident = #field_ty_ident::async_io_read(buf).await?;
             },
-            TY::NormalWithLength { length_op } => todo!(),
-            TY::Option { length_op } => todo!(),
+            TY::NormalWithLength { length_op } => {
+                let length_ident = create_length_ident(field_name_ident);
+                let set_length = set_length(&length_ident, length_op, &field_name_idents);
+                quote!{
+                    #set_length
+                    let #field_name_ident = #field_ty_ident::async_io_read(buf, #length_ident).await?;
+                }
+            },
+            TY::Option { length_op } => quote! {},
             TY::OptionWithKey {
                 length_op,
                 key_ident,
             } => {
-                let len = match length_op {
-                    LengthOperation::Absolute { token } => {
-                        match token {
-                            LengthToken::Incoming => quote! {
-                                length
-                            },
-                            LengthToken::AllBefore => todo!(),
-                            LengthToken::Field { ident } => quote! {ident},
-                        }
-                    },
-                    LengthOperation::Subtraction { token_1, token_2 } => todo!(),
-                };
+                let length_ident = create_length_ident(field_name_ident);
+                let set_length = set_length(&length_ident, length_op, &field_name_idents);
                 quote!{
-                    let #field_name_ident = rusmmp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #len).await?;
+                    #set_length
+                    let #field_name_ident = rusmmp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #length_ident).await?;
                 }
             },
-            TY::VecWithLength { length_op } => todo!(),
-            TY::VecWithCount { count_ident } => todo!(),
-        }
-        // let field_name = &options.name_ident;
-        // let field_type = &options.ty;
+            TY::VecWithLength { length_op } => {
+                let length_ident = create_length_ident(field_name_ident);
+                let set_length = set_length(&length_ident, length_op, &field_name_idents);
+                quote!{
+                    #set_length
+                    let #field_name_ident = Vec::<#field_ty_ident>::async_io_read(buf, #length_ident).await?;
+                }
+            }
+            TY::VecWithCount { count_ident } => quote! {
+                let dest_address = rusmmp_io::types::vec::read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
+            },
+        };
 
-        // println!("field_name: {:?}", field_name);
-        // println!("field_type: {:?},", field_type);
+        field_name_idents.push(field_name_ident);
 
-        // quote! {
-        //     let #field_name = #field_type::async_io_read(buf).await?;
-        // }
-
-        // quote! {}
+        token_stream
     });
 
-    let field_names = fileds_with_options.iter().map(|options| options.name_ident);
+
+    let (read_trait, read_function_signature) = io_read_decide_trait_and_function_signature(derive_type);
 
     let expanded = quote! {
         impl rusmpp_io::io::length::IoLength for #struct_name {
@@ -537,21 +466,59 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
             }
         }
 
-        // #[async_trait::async_trait]
-        // impl rusmpp_io::io::read::AsyncIoRead for #struct_name {
-        //     async fn async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
-        //         #(#io_read_fields)*;
+        #[async_trait::async_trait]
+        impl #read_trait for #struct_name {
+            async fn #read_function_signature -> Result<Self, rusmpp_io::io::read::IoReadError> {
+                #(#io_read_fields)*;
 
-        //         Ok(Self {
-        //             #(#field_names),*
-        //         })
-        //     }
-        // }
+                Ok(Self {
+                    #(#field_name_idents),*
+                })
+            }
+        }
     };
 
     expanded.into()
 }
 
+fn io_read_decide_trait_and_function_signature(derive_type: DeriveType) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    match derive_type {
+        DeriveType::Normal => (quote! {rusmpp_io::io::read::AsyncIoRead}, quote! {async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable)}),
+        DeriveType::WithLength => (quote! {rusmpp_io::io::read::AsyncIoReadWithLength}, quote! {async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable, length: usize)}),
+        DeriveType::WithKey => panic!("WithKey is not supported"),
+    }
+}
+
+fn create_length_ident(field_name_ident: &syn::Ident) -> proc_macro2::Ident {
+    proc_macro2::Ident::new(
+        &format!("{}_len", field_name_ident),
+        proc_macro2::Span::call_site(),
+    )
+}
+
+fn set_length(length_ident: &syn::Ident, length_op: &LengthOperation, prev_field_name_idents: &[&syn::Ident]) -> proc_macro2::TokenStream {
+    match length_op {
+        LengthOperation::Ident { ident } => quote! {
+           let #length_ident: usize = #ident.into();
+        },
+        LengthOperation::IdentMinusIdentLength { ident, ident2 } => {
+            quote! {
+                let #length_ident: usize = #ident.into().saturating_sub(#ident2.length());
+            }
+        },
+        LengthOperation::IdentMinusAllBeforeLengths { ident } => {
+            let field_name_idents_saturating_sub = prev_field_name_idents.iter().map(|field_name_ident| {
+                quote! {
+                    .saturating_sub(#field_name_ident.length())
+                }
+            });
+
+            quote! {
+                let #length_ident: usize = #ident.into() #(#field_name_idents_saturating_sub)*;
+            }
+        },
+    }
+}
 #[proc_macro_derive(RusmppIo, attributes(rusmpp_io))]
 pub fn derive_rusmpp_io(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

@@ -20,25 +20,32 @@ pub fn collect_skip_options_from_named_fields<'a>(
                 }
 
                 let mut token_stream = attr.tokens.clone().into_iter();
-                if let proc_macro2::TokenTree::Group(group) =
-                    token_stream.next().expect("No group found: {name}")
+                if let proc_macro2::TokenTree::Group(group) = token_stream
+                    .next()
+                    .unwrap_or_else(|| panic!("Expected parenthesis for attribute group: {attr_group}, field: {name_ident}"))
                 {
                     let tokens = group.stream();
-                    let iter = tokens.into_iter();
-                    for token in iter {
-                        if let proc_macro2::TokenTree::Ident(ident) = token {
-                            if ident != "skip" {
-                                panic!("Unknown attribute: {ident} for field: {name_ident}")
-                            }
-
-                            skip = true;
-
-                            break;
-                        } else {
-                            panic!("Unknown attribute: {token} for field: {name_ident}")
+                    let mut iter = tokens.into_iter();
+                    let token = iter.next().unwrap_or_else(|| panic!("Expected one attribute 'skip' for attribute group : {attr_group}, field: {name_ident}"));
+                    
+                    if let proc_macro2::TokenTree::Ident(ident) = token {
+                        if ident != "skip" {
+                            panic!("Unknown attribute: {ident}, field: {name_ident}")
                         }
+
+                        skip = true;
+
+                    } else {
+                        panic!("Unknown attribute: {token}, field: {name_ident}")
                     }
-                };
+
+                    if iter.next().is_some() {
+                        panic!("Expected only one attribute 'skip' for attribute group: {attr_group}, field: {name_ident}")
+                    }
+
+                } else {
+                    panic!("Expected parenthesis for attribute group: {attr_group}, field: {name_ident}")
+                }
             }
 
             StructSkipOptions { name_ident, skip }

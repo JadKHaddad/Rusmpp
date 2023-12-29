@@ -4,6 +4,79 @@ use proc_macro2::TokenTree;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput, Field};
 
+mod read;
+mod write;
+mod length;
+mod primitive;
+mod utils;
+
+#[proc_macro_derive(RusmppIoLength, attributes(rusmpp_io_length))]
+pub fn derive_rusmpp_io_length(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    
+    match input.data {
+        syn::Data::Enum(_) => length::derive_rusmpp_io_length_enum(input),
+        syn::Data::Struct(_) => length::derive_rusmpp_io_length_struct(input),
+        _ => panic!("Only enums and structs are supported"),
+    }
+}
+
+#[proc_macro_derive(RusmppIoWrite, attributes(rusmpp_io_write))]
+pub fn derive_rusmpp_io_write(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    
+    match input.data {
+        syn::Data::Enum(_) => write::derive_rusmpp_io_write_enum(input),
+        syn::Data::Struct(_) => write::derive_rusmpp_io_write_struct(input),
+        _ => panic!("Only enums and structs are supported"),
+    }
+
+}
+
+#[proc_macro_derive(RusmppIoRead, attributes(rusmpp_io_read))]
+pub fn derive_rusmpp_io_read(input: TokenStream) -> TokenStream {
+    let _input = parse_macro_input!(input as DeriveInput);
+
+    todo!()
+}
+
+#[proc_macro_derive(RusmppIoU8)]
+pub fn derive_rusmpp_io_u8(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    utils::panic_if_not_enum_or_struct(&input);
+
+    let name = &input.ident;
+    let primitive = primitive::PrimitiveType::U8;
+    primitive::derive_rusmpp_io_primitive(name, primitive)
+}
+
+#[proc_macro_derive(RusmppIoU16)]
+pub fn derive_rusmpp_io_u16(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    utils::panic_if_not_enum_or_struct(&input);
+
+    let name = &input.ident;
+    let primitive = primitive::PrimitiveType::U16;
+    primitive::derive_rusmpp_io_primitive(name, primitive)
+}
+
+#[proc_macro_derive(RusmppIoU32)]
+pub fn derive_rusmpp_io_u32(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    utils::panic_if_not_enum_or_struct(&input);
+
+    let name = &input.ident;
+    let primitive = primitive::PrimitiveType::U32;
+    primitive::derive_rusmpp_io_primitive(name, primitive)
+}
+
+
+
+// ------------
+
 struct FiledOptions {
     skip_length: bool,
     skip_write: bool,
@@ -286,9 +359,9 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                 };
             }
 
-            let (ty, is_option, is_vec) = match extract_type_from_option_if_exists(&field.ty) {
+            let (ty, is_option, is_vec) = match utils::extract_type_from_option_if_exists(&field.ty) {
                 Some(ty) => (ty, true, false),
-                None => match extract_type_from_vec_if_exists(&field.ty) {
+                None => match utils::extract_type_from_vec_if_exists(&field.ty) {
                     Some(ty) => (ty, false, true),
                     None => (&field.ty, false, false),
                 },
@@ -525,6 +598,7 @@ fn set_length(length_ident: &syn::Ident, length_op: &LengthOperation, prev_field
         },
     }
 }
+
 #[proc_macro_derive(RusmppIo, attributes(rusmpp_io))]
 pub fn derive_rusmpp_io(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -617,141 +691,4 @@ pub fn derive_rusmpp_io(input: TokenStream) -> TokenStream {
     };
 
     expanded.into()
-}
-
-fn panic_if_not_enum_or_struct(input: &DeriveInput) {
-    match input.data {
-        syn::Data::Enum(_) => {}
-        syn::Data::Struct(_) => {}
-        _ => panic!("Only enums and structs are supported"),
-    }
-}
-
-enum Primitive {
-    U8,
-    U16,
-    U32,
-}
-
-impl quote::ToTokens for Primitive {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        match self {
-            Primitive::U8 => quote! { u8 },
-            Primitive::U16 => quote! { u16 },
-            Primitive::U32 => quote! { u32 },
-        }
-        .to_tokens(tokens)
-    }
-}
-
-fn derive_rusmpp_io_primitive(name: &proc_macro2::Ident, primitive: Primitive) -> TokenStream {
-    let expanded = quote! {
-        impl rusmpp_io::io::length::IoLength for #name {
-            fn length(&self) -> usize {
-                #primitive::from(*self).length()
-            }
-        }
-
-        #[async_trait::async_trait]
-        impl rusmpp_io::io::write::AsyncIoWrite for #name {
-            async fn async_io_write(&self, buf: &mut rusmpp_io::io::write::AsyncIoWritable) -> std::io::Result<()> {
-                #primitive::from(*self).async_io_write(buf).await
-            }
-        }
-
-        #[async_trait::async_trait]
-        impl rusmpp_io::io::read::AsyncIoRead for #name {
-            async fn async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
-                #primitive::async_io_read(buf).await.map(Self::from)
-            }
-        }
-    };
-
-    expanded.into()
-}
-
-#[proc_macro_derive(RusmppIoU8)]
-pub fn derive_rusmpp_io_u8(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    panic_if_not_enum_or_struct(&input);
-
-    let name = &input.ident;
-    let primitive = Primitive::U8;
-    derive_rusmpp_io_primitive(name, primitive)
-}
-
-#[proc_macro_derive(RusmppIoU16)]
-pub fn derive_rusmpp_io_u16(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    panic_if_not_enum_or_struct(&input);
-
-    let name = &input.ident;
-    let primitive = Primitive::U16;
-    derive_rusmpp_io_primitive(name, primitive)
-}
-
-#[proc_macro_derive(RusmppIoU32)]
-pub fn derive_rusmpp_io_u32(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    panic_if_not_enum_or_struct(&input);
-
-    let name = &input.ident;
-    let primitive = Primitive::U32;
-    derive_rusmpp_io_primitive(name, primitive)
-}
-
-/// Checks if the type is a wrapper type like Option or Vec
-/// and returns the inner type.
-/// If the type is not a wrapper type, it returns None.
-/// For Option: ["Option", "std:option:Option", "core:option:Option"].
-/// For Vec: ["Vec", "std:vec:Vec", "core:vec:Vec"].
-fn extract_type_if_exists<'a>(ty: &'a syn::Type, types: &[&str]) -> Option<&'a syn::Type> {
-    if let syn::Type::Path(syn::TypePath { qself: None, path }) = ty {
-        let segments_str = &path
-            .segments
-            .iter()
-            .map(|segment| segment.ident.to_string())
-            .collect::<Vec<_>>()
-            .join(":");
-
-        let wrapper_segment = types
-            .iter()
-            .find(|s| segments_str == *s)
-            .and_then(|_| path.segments.last());
-
-        let inner_type = wrapper_segment
-            .and_then(|path_seg| match &path_seg.arguments {
-                syn::PathArguments::AngleBracketed(syn::AngleBracketedGenericArguments {
-                    args,
-                    ..
-                }) => args.first(),
-                _ => None,
-            })
-            .and_then(|generic_arg| match generic_arg {
-                syn::GenericArgument::Type(ty) => Some(ty),
-                _ => None,
-            });
-        return inner_type;
-    }
-    None
-}
-
-fn extract_type_from_option_if_exists(ty: &syn::Type) -> Option<&syn::Type> {
-    extract_type_if_exists(ty, &["Option", "std:option:Option", "core:option:Option"])
-}
-
-fn extract_type_from_vec_if_exists(ty: &syn::Type) -> Option<&syn::Type> {
-    extract_type_if_exists(
-        ty,
-        &[
-            "Vec",
-            "std:vec:Vec",
-            "core:vec:Vec",
-            "std:vec:vec",
-            "core:vec:vec",
-        ],
-    )
 }

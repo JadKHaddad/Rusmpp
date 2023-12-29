@@ -1,9 +1,4 @@
-use rusmpp_macros::RusmppIoX;
-
-use crate::{
-    io::{length::IoLength, read::AsyncIoReadWithLength},
-    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
-};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 use super::{
     body::pdu_body::PduBody,
@@ -12,6 +7,10 @@ use super::{
         command_status::{CommandStatus, InvalidCommandStatus},
         sequence_number::{InvalidSequenceNumber, SequenceNumber},
     },
+};
+use crate::{
+    io::length::IoLength, io::read::AsyncIoReadWithLength,
+    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -22,15 +21,19 @@ pub enum InvalidPdu {
     InvalidSequenceNumber(#[from] InvalidSequenceNumber),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct Pdu {
     command_length: u32,
     command_id: CommandId,
     command_status: CommandStatus,
     sequence_number: SequenceNumber,
-    #[rusmpp_io_x(key=command_id, length=(command_length - all_before))]
+    #[rusmpp_io_read(key=command_id, length=(command_length - all_before))]
     body: Option<PduBody>,
-    #[rusmpp_io_x(skip_length, skip_write, length=(body_len - body))]
+    #[rusmpp_io_length(skip)]
+    #[rusmpp_io_write(skip)]
+    #[rusmpp_io_read(length=(body_len - body))]
     byte_overflow: NoFixedSizeOctetString,
 }
 

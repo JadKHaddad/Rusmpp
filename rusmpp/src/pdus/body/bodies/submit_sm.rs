@@ -1,4 +1,4 @@
-use rusmpp_macros::RusmppIoX;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
     io::{length::IoLength, read::AsyncIoRead},
@@ -7,11 +7,21 @@ use crate::{
 
 use super::s_sm::SSm;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
-#[rusmpp_io_x(derive = length)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct SubmitSm {
     ssm: SSm,
-    #[rusmpp_io_x(length=(length - all_before))]
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 

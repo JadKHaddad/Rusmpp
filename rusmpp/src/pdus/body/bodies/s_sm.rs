@@ -1,4 +1,4 @@
-use rusmpp_macros::RusmppIoX;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 use crate::{
     io::{length::IoLength, read::AsyncIoReadWithLength},
@@ -16,7 +16,9 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct SSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -37,7 +39,7 @@ pub struct SSm {
     /// message.
     sm_default_msg_id: u8,
     sm_length: u8,
-    #[rusmpp_io_x(length=(sm_length))]
+    #[rusmpp_io_read(length=(sm_length))]
     short_message: OctetString<0, 255>,
 }
 

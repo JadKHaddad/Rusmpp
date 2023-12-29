@@ -1,11 +1,8 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::RusmppIoX;
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
-    types::{no_fixed_size_octet_string::NoFixedSizeOctetString, option},
+    io::{length::IoLength, read::AsyncIoReadWithLength},
+    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
 use super::{
@@ -25,14 +22,15 @@ pub enum InvalidPdu {
     InvalidSequenceNumber(#[from] InvalidSequenceNumber),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
 pub struct Pdu {
     command_length: u32,
     command_id: CommandId,
     command_status: CommandStatus,
     sequence_number: SequenceNumber,
+    #[rusmpp_io_x(key=command_id, length=(command_length - all_before))]
     body: Option<PduBody>,
-    #[rusmpp_io(skip_length, skip_write)]
+    #[rusmpp_io_x(skip_length, skip_write, length=(body_len - body))]
     byte_overflow: NoFixedSizeOctetString,
 }
 
@@ -134,34 +132,34 @@ impl Pdu {
     }
 }
 
-#[async_trait::async_trait]
-impl AsyncIoRead for Pdu {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        let command_length = u32::async_io_read(buf).await?;
-        let command_id = CommandId::async_io_read(buf).await?;
-        let command_status = CommandStatus::async_io_read(buf).await?;
-        let sequence_number = SequenceNumber::async_io_read(buf).await?;
+// #[async_trait::async_trait]
+// impl AsyncIoRead for Pdu {
+//     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
+//         let command_length = u32::async_io_read(buf).await?;
+//         let command_id = CommandId::async_io_read(buf).await?;
+//         let command_status = CommandStatus::async_io_read(buf).await?;
+//         let sequence_number = SequenceNumber::async_io_read(buf).await?;
 
-        let body_expected_len = (command_length as usize).saturating_sub(
-            command_length.length()
-                + command_id.length()
-                + command_status.length()
-                + sequence_number.length(),
-        );
+//         let body_expected_len = (command_length as usize).saturating_sub(
+//             command_length.length()
+//                 + command_id.length()
+//                 + command_status.length()
+//                 + sequence_number.length(),
+//         );
 
-        let body =
-            option::async_io_read_with_key_optional(command_id, buf, body_expected_len).await?;
+//         let body =
+//             option::async_io_read_with_key_optional(command_id, buf, body_expected_len).await?;
 
-        let overflow_len = body_expected_len.saturating_sub(body.length());
-        let byte_overflow = NoFixedSizeOctetString::async_io_read(buf, overflow_len).await?;
+//         let overflow_len = body_expected_len.saturating_sub(body.length());
+//         let byte_overflow = NoFixedSizeOctetString::async_io_read(buf, overflow_len).await?;
 
-        Ok(Self {
-            command_length,
-            command_id,
-            command_status,
-            sequence_number,
-            body,
-            byte_overflow,
-        })
-    }
-}
+//         Ok(Self {
+//             command_length,
+//             command_id,
+//             command_status,
+//             sequence_number,
+//             body,
+//             byte_overflow,
+//         })
+//     }
+// }

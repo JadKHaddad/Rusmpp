@@ -399,7 +399,6 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
         }
     });
 
-    // println!("{:#?}", fileds_with_options);
     let mut field_name_idents = Vec::new();
     let io_read_fields = fileds_with_options.iter().map(|options| {
         let field_name_ident = &options.name_ident;
@@ -422,7 +421,7 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                 let set_length = set_length(&length_ident, length_op, &field_name_idents);
                 quote!{
                     #set_length
-                    let #field_name_ident = rusmmp_io::types::option::async_io_read(buf, #length_ident).await?;
+                    let #field_name_ident = rusmpp_io::types::option::async_io_read(buf, #length_ident).await?;
                 }
             },
             TY::OptionWithKey {
@@ -433,7 +432,7 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                 let set_length = set_length(&length_ident, length_op, &field_name_idents);
                 quote!{
                     #set_length
-                    let #field_name_ident = rusmmp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #length_ident).await?;
+                    let #field_name_ident = rusmpp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #length_ident).await?;
                 }
             },
             TY::VecWithLength { length_op } => {
@@ -445,7 +444,7 @@ pub fn derive_rusmpp_io_x(input: TokenStream) -> TokenStream {
                 }
             }
             TY::VecWithCount { count_ident } => quote! {
-                let dest_address = rusmmp_io::types::vec::read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
+                let dest_address = rusmpp_io::types::vec::read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
             },
         };
 
@@ -506,11 +505,11 @@ fn create_length_ident(field_name_ident: &syn::Ident) -> proc_macro2::Ident {
 fn set_length(length_ident: &syn::Ident, length_op: &LengthOperation, prev_field_name_idents: &[&syn::Ident]) -> proc_macro2::TokenStream {
     match length_op {
         LengthOperation::Ident { ident } => quote! {
-           let #length_ident: usize = #ident.into();
+           let #length_ident: usize =  (#ident as usize); 
         },
         LengthOperation::IdentMinusIdentLength { ident, ident2 } => {
             quote! {
-                let #length_ident: usize = #ident.into().saturating_sub(#ident2.length());
+                let #length_ident: usize =  (#ident as usize).saturating_sub(#ident2.length());
             }
         },
         LengthOperation::IdentMinusAllBeforeLengths { ident } => {
@@ -521,7 +520,7 @@ fn set_length(length_ident: &syn::Ident, length_op: &LengthOperation, prev_field
             });
 
             quote! {
-                let #length_ident: usize = #ident.into() #(#field_name_idents_saturating_sub)*;
+                let #length_ident: usize = (#ident as usize)#(#field_name_idents_saturating_sub)*;
             }
         },
     }

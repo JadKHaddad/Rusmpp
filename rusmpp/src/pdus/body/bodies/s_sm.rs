@@ -1,10 +1,7 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::RusmppIoX;
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoReadWithLength},
     pdus::{
         tlvs::{tlv::TLV, tlv_tag::TLVTag},
         types::{
@@ -19,7 +16,7 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
 pub struct SSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -40,6 +37,7 @@ pub struct SSm {
     /// message.
     sm_default_msg_id: u8,
     sm_length: u8,
+    #[rusmpp_io_x(length=(sm_length))]
     short_message: OctetString<0, 255>,
 }
 
@@ -224,47 +222,47 @@ impl SSm {
     }
 }
 
-#[async_trait::async_trait]
-impl AsyncIoRead for SSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        let serivce_type = ServiceType::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::async_io_read(buf).await?;
-        let dest_addr_ton = Ton::async_io_read(buf).await?;
-        let dest_addr_npi = Npi::async_io_read(buf).await?;
-        let destination_addr = COctetString::async_io_read(buf).await?;
-        let esm_class = EsmClass::async_io_read(buf).await?;
-        let protocol_id = u8::async_io_read(buf).await?;
-        let priority_flag = PriorityFlag::async_io_read(buf).await?;
-        let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
-        let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
-        let data_coding = DataCoding::async_io_read(buf).await?;
-        let sm_default_msg_id = u8::async_io_read(buf).await?;
-        let sm_length = u8::async_io_read(buf).await?;
-        let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
+// #[async_trait::async_trait]
+// impl AsyncIoRead for SSm {
+//     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
+//         let serivce_type = ServiceType::async_io_read(buf).await?;
+//         let source_addr_ton = Ton::async_io_read(buf).await?;
+//         let source_addr_npi = Npi::async_io_read(buf).await?;
+//         let source_addr = COctetString::async_io_read(buf).await?;
+//         let dest_addr_ton = Ton::async_io_read(buf).await?;
+//         let dest_addr_npi = Npi::async_io_read(buf).await?;
+//         let destination_addr = COctetString::async_io_read(buf).await?;
+//         let esm_class = EsmClass::async_io_read(buf).await?;
+//         let protocol_id = u8::async_io_read(buf).await?;
+//         let priority_flag = PriorityFlag::async_io_read(buf).await?;
+//         let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
+//         let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
+//         let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
+//         let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
+//         let data_coding = DataCoding::async_io_read(buf).await?;
+//         let sm_default_msg_id = u8::async_io_read(buf).await?;
+//         let sm_length = u8::async_io_read(buf).await?;
+//         let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
 
-        Ok(Self {
-            serivce_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-            esm_class,
-            protocol_id,
-            priority_flag,
-            schedule_delivery_time,
-            validity_period,
-            registered_delivery,
-            replace_if_present_flag,
-            data_coding,
-            sm_default_msg_id,
-            sm_length,
-            short_message,
-        })
-    }
-}
+//         Ok(Self {
+//             serivce_type,
+//             source_addr_ton,
+//             source_addr_npi,
+//             source_addr,
+//             dest_addr_ton,
+//             dest_addr_npi,
+//             destination_addr,
+//             esm_class,
+//             protocol_id,
+//             priority_flag,
+//             schedule_delivery_time,
+//             validity_period,
+//             registered_delivery,
+//             replace_if_present_flag,
+//             data_coding,
+//             sm_default_msg_id,
+//             sm_length,
+//             short_message,
+//         })
+//     }
+// }

@@ -1,18 +1,17 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::RusmppIoX;
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
 };
 
 use super::s_sm::SSm;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoX)]
+#[rusmpp_io_x(derive = length)]
 pub struct SubmitSm {
     ssm: SSm,
+    #[rusmpp_io_x(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -37,15 +36,15 @@ impl SubmitSm {
     }
 }
 
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for SubmitSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let ssm = SSm::async_io_read(buf).await?;
+// #[async_trait::async_trait]
+// impl AsyncIoReadWithLength for SubmitSm {
+//     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
+//         let ssm = SSm::async_io_read(buf).await?;
 
-        let tlvs_expected_len = length.saturating_sub(ssm.length());
+//         let tlvs_expected_len = length.saturating_sub(ssm.length());
 
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
+//         let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
 
-        Ok(Self { ssm, tlvs })
-    }
-}
+//         Ok(Self { ssm, tlvs })
+//     }
+// }

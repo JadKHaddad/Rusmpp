@@ -45,16 +45,3 @@ impl SubmitSm {
         (self.ssm, self.tlvs)
     }
 }
-
-// #[async_trait::async_trait]
-// impl AsyncIoReadWithLength for SubmitSm {
-//     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-//         let ssm = SSm::async_io_read(buf).await?;
-
-//         let tlvs_expected_len = length.saturating_sub(ssm.length());
-
-//         let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-//         Ok(Self { ssm, tlvs })
-//     }
-// }

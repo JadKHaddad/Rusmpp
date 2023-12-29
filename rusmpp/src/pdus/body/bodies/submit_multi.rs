@@ -1,10 +1,7 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::{
             tlv::{MessageSubmissionRequestTLV, TLV},
@@ -18,17 +15,29 @@ use crate::{
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        octet_string::OctetString, vec,
+        octet_string::OctetString,
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct SubmitMulti {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
     source_addr_npi: Npi,
     source_addr: COctetString<1, 21>,
     number_of_dests: u8,
+    #[rusmpp_io_read(count=number_of_dests)]
     dest_address: Vec<DestAddress>,
     esm_class: EsmClass,
     protocol_id: u8,
@@ -40,7 +49,9 @@ pub struct SubmitMulti {
     data_coding: DataCoding,
     sm_default_msg_id: u8,
     sm_length: u8,
+    #[rusmpp_io_read(length=(sm_length))]
     short_message: OctetString<0, 255>,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -216,70 +227,5 @@ impl SubmitMulti {
             self.short_message,
             self.tlvs,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for SubmitMulti {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let serivce_type = ServiceType::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::async_io_read(buf).await?;
-        let number_of_dests = u8::async_io_read(buf).await?;
-        let dest_address = vec::read_counted::<DestAddress>(buf, number_of_dests as usize).await?;
-        let esm_class = EsmClass::async_io_read(buf).await?;
-        let protocol_id = u8::async_io_read(buf).await?;
-        let priority_flag = PriorityFlag::async_io_read(buf).await?;
-        let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
-        let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
-        let data_coding = DataCoding::async_io_read(buf).await?;
-        let sm_default_msg_id = u8::async_io_read(buf).await?;
-        let sm_length = u8::async_io_read(buf).await?;
-        let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
-
-        let tlvs_expected_len = length
-            .saturating_sub(serivce_type.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length())
-            .saturating_sub(number_of_dests.length())
-            .saturating_sub(dest_address.length())
-            .saturating_sub(esm_class.length())
-            .saturating_sub(protocol_id.length())
-            .saturating_sub(priority_flag.length())
-            .saturating_sub(schedule_delivery_time.length())
-            .saturating_sub(validity_period.length())
-            .saturating_sub(registered_delivery.length())
-            .saturating_sub(replace_if_present_flag.length())
-            .saturating_sub(data_coding.length())
-            .saturating_sub(sm_default_msg_id.length())
-            .saturating_sub(sm_length.length())
-            .saturating_sub(short_message.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-        Ok(Self {
-            serivce_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            number_of_dests,
-            dest_address,
-            esm_class,
-            protocol_id,
-            priority_flag,
-            schedule_delivery_time,
-            validity_period,
-            registered_delivery,
-            replace_if_present_flag,
-            data_coding,
-            sm_default_msg_id,
-            sm_length,
-            short_message,
-            tlvs,
-        })
     }
 }

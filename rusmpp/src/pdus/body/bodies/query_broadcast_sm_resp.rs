@@ -1,10 +1,7 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::tlvs::{
         tlv::{QueryBroadcastResponseTLV, TLV},
         tlv_value::TLVValue,
@@ -16,12 +13,24 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct QueryBroadcastSmResp {
     message_id: COctetString<1, 65>,
     message_state: TLV,
     broadcast_area_identifier: TLV,
     broadcast_area_success: TLV,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -78,31 +87,5 @@ impl QueryBroadcastSmResp {
             self.broadcast_area_success,
             self.tlvs,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for QueryBroadcastSmResp {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::async_io_read(buf).await?;
-        let message_state = TLV::async_io_read(buf).await?;
-        let broadcast_area_identifier = TLV::async_io_read(buf).await?;
-        let broadcast_area_success = TLV::async_io_read(buf).await?;
-
-        let tlvs_expected_len = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(message_state.length())
-            .saturating_sub(broadcast_area_identifier.length())
-            .saturating_sub(broadcast_area_success.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-        Ok(Self {
-            message_id,
-            message_state,
-            broadcast_area_identifier,
-            broadcast_area_success,
-            tlvs,
-        })
     }
 }

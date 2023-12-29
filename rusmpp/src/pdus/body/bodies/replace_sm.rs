@@ -1,21 +1,29 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString, option,
+        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
     },
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct ReplaceSm {
     message_id: COctetString<1, 65>,
     source_addr_ton: Ton,
@@ -26,7 +34,9 @@ pub struct ReplaceSm {
     registered_delivery: RegisteredDelivery,
     sm_default_msg_id: u8,
     sm_length: u8,
+    #[rusmpp_io_read(length=(sm_length))]
     short_message: OctetString<0, 255>,
+    #[rusmpp_io_read(length=(length - all_before))]
     message_payload: Option<TLV>,
 }
 
@@ -142,49 +152,5 @@ impl ReplaceSm {
             self.short_message,
             self.message_payload,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for ReplaceSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::async_io_read(buf).await?;
-        let schedule_delivery_time = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
-        let validity_period = EmptyOrFullCOctetString::<17>::async_io_read(buf).await?;
-        let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
-        let sm_default_msg_id = u8::async_io_read(buf).await?;
-        let sm_length = u8::async_io_read(buf).await?;
-        let short_message = OctetString::async_io_read(buf, sm_length as usize).await?;
-
-        let message_payload_expected_len = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length())
-            .saturating_sub(schedule_delivery_time.length())
-            .saturating_sub(validity_period.length())
-            .saturating_sub(registered_delivery.length())
-            .saturating_sub(sm_default_msg_id.length())
-            .saturating_sub(sm_length.length())
-            .saturating_sub(short_message.length());
-
-        let message_payload = option::async_io_read(buf, message_payload_expected_len).await?;
-
-        Ok(Self {
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            schedule_delivery_time,
-            validity_period,
-            registered_delivery,
-            sm_default_msg_id,
-            sm_length,
-            short_message,
-            message_payload,
-        })
     }
 }

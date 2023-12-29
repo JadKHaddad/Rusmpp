@@ -1,10 +1,7 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::{
             tlv::{BroadcastRequestTLV, TLV},
@@ -23,7 +20,18 @@ use crate::{
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct BroadcastSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -40,6 +48,7 @@ pub struct BroadcastSm {
     broadcast_content_type: TLV,
     broadcast_rep_num: TLV,
     broadcast_frequency_interval: TLV,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -197,64 +206,5 @@ impl BroadcastSm {
             self.broadcast_frequency_interval,
             self.tlvs,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for BroadcastSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let serivce_type = ServiceType::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::async_io_read(buf).await?;
-        let message_id = COctetString::async_io_read(buf).await?;
-        let priority_flag = PriorityFlag::async_io_read(buf).await?;
-        let schedule_delivery_time = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let validity_period = EmptyOrFullCOctetString::async_io_read(buf).await?;
-        let replace_if_present_flag = ReplaceIfPresentFlag::async_io_read(buf).await?;
-        let data_coding = DataCoding::async_io_read(buf).await?;
-        let sm_default_msg_id = u8::async_io_read(buf).await?;
-        let broadcast_area_identifier = TLV::async_io_read(buf).await?;
-        let broadcast_content_type = TLV::async_io_read(buf).await?;
-        let broadcast_rep_num = TLV::async_io_read(buf).await?;
-        let broadcast_frequency_interval = TLV::async_io_read(buf).await?;
-
-        let tlvs_expected_len = length
-            .saturating_sub(serivce_type.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length())
-            .saturating_sub(message_id.length())
-            .saturating_sub(priority_flag.length())
-            .saturating_sub(schedule_delivery_time.length())
-            .saturating_sub(validity_period.length())
-            .saturating_sub(replace_if_present_flag.length())
-            .saturating_sub(data_coding.length())
-            .saturating_sub(sm_default_msg_id.length())
-            .saturating_sub(broadcast_area_identifier.length())
-            .saturating_sub(broadcast_content_type.length())
-            .saturating_sub(broadcast_rep_num.length())
-            .saturating_sub(broadcast_frequency_interval.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-        Ok(Self {
-            serivce_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            message_id,
-            priority_flag,
-            schedule_delivery_time,
-            validity_period,
-            replace_if_present_flag,
-            data_coding,
-            sm_default_msg_id,
-            broadcast_area_identifier,
-            broadcast_content_type,
-            broadcast_rep_num,
-            broadcast_frequency_interval,
-            tlvs,
-        })
     }
 }

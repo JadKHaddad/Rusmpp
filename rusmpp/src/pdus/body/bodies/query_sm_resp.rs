@@ -1,12 +1,13 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 use crate::{
-    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     pdus::tlvs::tlv_values::message_state::MessageState,
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct QuerySmResp {
     pub message_id: COctetString<1, 65>,
     pub final_date: EmptyOrFullCOctetString<17>,
@@ -27,17 +28,5 @@ impl QuerySmResp {
             message_state,
             error_code,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for QuerySmResp {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            message_id: COctetString::async_io_read(buf).await?,
-            final_date: EmptyOrFullCOctetString::async_io_read(buf).await?,
-            message_state: MessageState::async_io_read(buf).await?,
-            error_code: u8::async_io_read(buf).await?,
-        })
     }
 }

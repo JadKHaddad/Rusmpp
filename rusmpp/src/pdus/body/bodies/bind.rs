@@ -1,12 +1,13 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 use crate::{
-    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     pdus::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct Bind {
     pub system_id: COctetString<1, 16>,
     pub password: COctetString<1, 9>,
@@ -36,20 +37,5 @@ impl Bind {
             addr_npi,
             address_range,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for Bind {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            system_id: COctetString::async_io_read(buf).await?,
-            password: COctetString::async_io_read(buf).await?,
-            system_type: COctetString::async_io_read(buf).await?,
-            interface_version: InterfaceVersion::async_io_read(buf).await?,
-            addr_ton: Ton::async_io_read(buf).await?,
-            addr_npi: Npi::async_io_read(buf).await?,
-            address_range: COctetString::async_io_read(buf).await?,
-        })
     }
 }

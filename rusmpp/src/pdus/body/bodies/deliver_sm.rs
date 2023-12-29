@@ -1,18 +1,27 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::tlvs::tlv::{MessageDeliveryRequestTLV, TLV},
 };
 
 use super::s_sm::SSm;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct DeliverSm {
     ssm: SSm,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -35,18 +44,5 @@ impl DeliverSm {
 
     pub fn into_parts(self) -> (SSm, Vec<TLV>) {
         (self.ssm, self.tlvs)
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for DeliverSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let ssm = SSm::async_io_read(buf).await?;
-
-        let tlvs_expected_length = length.saturating_sub(ssm.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_length).await?;
-
-        Ok(Self { ssm, tlvs })
     }
 }

@@ -1,10 +1,7 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
         types::{
@@ -15,7 +12,18 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct DataSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -27,6 +35,7 @@ pub struct DataSm {
     esm_class: EsmClass,
     registered_delivery: RegisteredDelivery,
     data_coding: DataCoding,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -134,49 +143,5 @@ impl DataSm {
             self.data_coding,
             self.tlvs,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for DataSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let serivce_type = ServiceType::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::<1, 21>::async_io_read(buf).await?;
-        let dest_addr_ton = Ton::async_io_read(buf).await?;
-        let dest_addr_npi = Npi::async_io_read(buf).await?;
-        let destination_addr = COctetString::<1, 21>::async_io_read(buf).await?;
-        let esm_class = EsmClass::async_io_read(buf).await?;
-        let registered_delivery = RegisteredDelivery::async_io_read(buf).await?;
-        let data_coding = DataCoding::async_io_read(buf).await?;
-
-        let tlvs_expected_len = length
-            .saturating_sub(serivce_type.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length())
-            .saturating_sub(dest_addr_ton.length())
-            .saturating_sub(dest_addr_npi.length())
-            .saturating_sub(destination_addr.length())
-            .saturating_sub(esm_class.length())
-            .saturating_sub(registered_delivery.length())
-            .saturating_sub(data_coding.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-        Ok(Self {
-            serivce_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-            esm_class,
-            registered_delivery,
-            data_coding,
-            tlvs,
-        })
     }
 }

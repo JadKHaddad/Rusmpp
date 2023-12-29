@@ -1,11 +1,10 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
-use crate::{
-    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    types::c_octet_string::COctetString,
-};
+use crate::types::c_octet_string::COctetString;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct Outbind {
     pub system_id: COctetString<1, 16>,
     pub password: COctetString<1, 9>,
@@ -17,15 +16,5 @@ impl Outbind {
             system_id,
             password,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for Outbind {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            system_id: COctetString::async_io_read(buf).await?,
-            password: COctetString::async_io_read(buf).await?,
-        })
     }
 }

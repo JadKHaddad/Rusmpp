@@ -1,12 +1,6 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
-use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    },
-    types::option,
-};
+use crate::io::length::IoLength;
 
 use super::{
     tlv_tag::{
@@ -82,10 +76,13 @@ use super::{
 /// If the TLV itself is not required, then it is not encoded at
 /// all. The very absence of the TLV from the PDU is the
 /// means by which we set the values to NULL.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct TLV {
     tag: TLVTag,
     value_length: u16,
+    #[rusmpp_io_read(key=tag, length=(value_length))]
     value: Option<TLVValue>,
 }
 
@@ -123,23 +120,6 @@ impl TLV {
 
     pub fn into_value(self) -> Option<TLVValue> {
         self.value
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for TLV {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        let tag = TLVTag::async_io_read(buf).await?;
-        let value_length = u16::async_io_read(buf).await?;
-
-        let value =
-            option::async_io_read_with_key_optional(tag, buf, value_length as usize).await?;
-
-        Ok(Self {
-            tag,
-            value_length,
-            value,
-        })
     }
 }
 

@@ -1,17 +1,26 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::tlvs::tlv::{MessageDeliveryResponseTLV, TLV},
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct DeliverSmResp {
     message_id: COctetString<1, 65>,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -32,16 +41,5 @@ impl DeliverSmResp {
 
     pub fn into_parts(self) -> (COctetString<1, 65>, Vec<TLV>) {
         (self.message_id, self.tlvs)
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for DeliverSmResp {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::async_io_read(buf).await?;
-        let tlvs =
-            Vec::<TLV>::async_io_read(buf, length.saturating_sub(message_id.length())).await?;
-
-        Ok(Self { message_id, tlvs })
     }
 }

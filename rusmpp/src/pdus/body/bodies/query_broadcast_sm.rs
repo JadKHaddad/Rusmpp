@@ -1,23 +1,32 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, ton::Ton},
     },
-    types::{c_octet_string::COctetString, option},
+    types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct QueryBroadcastSm {
     message_id: COctetString<1, 65>,
     source_addr_ton: Ton,
     source_addr_npi: Npi,
     source_addr: COctetString<1, 21>,
+    #[rusmpp_io_read(length=(length - all_before))]
     user_message_reference: Option<TLV>,
 }
 
@@ -77,32 +86,5 @@ impl QueryBroadcastSm {
             self.source_addr,
             self.user_message_reference,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for QueryBroadcastSm {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::async_io_read(buf).await?;
-        let source_addr_ton = Ton::async_io_read(buf).await?;
-        let source_addr_npi = Npi::async_io_read(buf).await?;
-        let source_addr = COctetString::async_io_read(buf).await?;
-
-        let user_message_reference_expected_len = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length());
-
-        let user_message_reference =
-            option::async_io_read(buf, user_message_reference_expected_len).await?;
-
-        Ok(Self {
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            user_message_reference,
-        })
     }
 }

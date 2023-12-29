@@ -134,35 +134,3 @@ impl Pdu {
         )
     }
 }
-
-// #[async_trait::async_trait]
-// impl AsyncIoRead for Pdu {
-//     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-//         let command_length = u32::async_io_read(buf).await?;
-//         let command_id = CommandId::async_io_read(buf).await?;
-//         let command_status = CommandStatus::async_io_read(buf).await?;
-//         let sequence_number = SequenceNumber::async_io_read(buf).await?;
-
-//         let body_expected_len = (command_length as usize).saturating_sub(
-//             command_length.length()
-//                 + command_id.length()
-//                 + command_status.length()
-//                 + sequence_number.length(),
-//         );
-
-//         let body =
-//             option::async_io_read_with_key_optional(command_id, buf, body_expected_len).await?;
-
-//         let overflow_len = body_expected_len.saturating_sub(body.length());
-//         let byte_overflow = NoFixedSizeOctetString::async_io_read(buf, overflow_len).await?;
-
-//         Ok(Self {
-//             command_length,
-//             command_id,
-//             command_status,
-//             sequence_number,
-//             body,
-//             byte_overflow,
-//         })
-//     }
-// }

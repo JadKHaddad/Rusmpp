@@ -1,22 +1,32 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     pdus::{
         tlvs::tlv::{MessageSubmissionRequestTLV, TLV},
         types::unsuccess_sme::UnsuccessSme,
     },
-    types::{c_octet_string::COctetString, vec},
+    types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct SubmitMultiResp {
     message_id: COctetString<1, 65>,
     no_unsuccess: u8,
+    #[rusmpp_io_read(count=no_unsuccess)]
     unsuccess_sme: Vec<UnsuccessSme>,
+    #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
 }
 
@@ -59,28 +69,5 @@ impl SubmitMultiResp {
             self.unsuccess_sme,
             self.tlvs,
         )
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for SubmitMultiResp {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let message_id = COctetString::async_io_read(buf).await?;
-        let no_unsuccess = u8::async_io_read(buf).await?;
-        let unsuccess_sme = vec::read_counted::<UnsuccessSme>(buf, no_unsuccess as usize).await?;
-
-        let tlvs_expected_len = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(no_unsuccess.length())
-            .saturating_sub(unsuccess_sme.length());
-
-        let tlvs = Vec::<TLV>::async_io_read(buf, tlvs_expected_len).await?;
-
-        Ok(Self {
-            message_id,
-            no_unsuccess,
-            unsuccess_sme,
-            tlvs,
-        })
     }
 }

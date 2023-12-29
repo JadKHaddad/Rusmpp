@@ -35,10 +35,34 @@ pub fn derive_rusmpp_io_write(input: TokenStream) -> TokenStream {
 
 #[proc_macro_derive(RusmppIoRead, attributes(rusmpp_io_read))]
 pub fn derive_rusmpp_io_read(input: TokenStream) -> TokenStream {
-    let _input = parse_macro_input!(input as DeriveInput);
+    let input = parse_macro_input!(input as DeriveInput);
 
-    todo!()
+    match input.data {
+        syn::Data::Struct(_) => read::derive_rusmpp_io_read(input),
+        _ => panic!("Only structs are supported"),
+    }
 }
+
+#[proc_macro_derive(RusmppIoReadLength, attributes(rusmpp_io_read))]
+pub fn derive_rusmpp_io_read_with_length(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    match input.data {
+        syn::Data::Struct(_) => read::derive_rusmpp_io_read_with_length(input),
+        _ => panic!("Only structs are supported"),
+    }
+}
+
+#[proc_macro_derive(RusmppIoReadKey, attributes(rusmpp_io_read))]
+pub fn derive_rusmpp_io_read_with_key(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+    
+    match input.data {
+        syn::Data::Enum(_) => read::derive_rusmpp_io_read_with_key(input),
+        _ => panic!("Only enums are supported"),
+    }
+}
+
 
 #[proc_macro_derive(RusmppIoU8)]
 pub fn derive_rusmpp_io_u8(input: TokenStream) -> TokenStream {

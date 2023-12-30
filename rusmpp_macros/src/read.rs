@@ -428,7 +428,7 @@ fn map_options_to_token_stream(options: &StructReadOptions, prev_field_name_iden
             }
         }
         TY::VecWithCount { count_ident } => quote::quote! {
-            let #field_name_ident = rusmpp_io::types::vec::read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
+            let #field_name_ident = rusmpp_io::types::vec::async_read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
         },
     }
 }

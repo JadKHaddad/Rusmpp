@@ -1,7 +1,10 @@
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
+    read::{
+        AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadable, IoRead, IoReadError,
+        IoReadWithKeyOptional, IoReadable,
+    },
+    write::{AsyncIoWritable, AsyncIoWrite, IoWritable, IoWrite},
 };
 
 impl<T> IoLength for Option<T>
@@ -29,6 +32,18 @@ where
     }
 }
 
+impl<T> IoWrite for Option<T>
+where
+    T: IoWrite + Send + Sync,
+{
+    fn io_write(&self, buf: &mut IoWritable) -> std::io::Result<()> {
+        match self {
+            Some(v) => v.io_write(buf),
+            None => Ok(()),
+        }
+    }
+}
+
 pub async fn async_io_read_with_key_optional<T, K>(
     key: K,
     buf: &mut AsyncIoReadable,
@@ -44,6 +59,21 @@ where
     T::async_io_read(key, buf, length).await
 }
 
+pub fn io_read_with_key_optional<T, K>(
+    key: K,
+    buf: &mut IoReadable,
+    length: usize,
+) -> Result<Option<T>, IoReadError>
+where
+    T: IoReadWithKeyOptional<Key = K> + Send + Sync,
+{
+    if length == 0 {
+        return Ok(None);
+    }
+
+    T::io_read(key, buf, length)
+}
+
 pub async fn async_io_read<T>(
     buf: &mut AsyncIoReadable,
     length: usize,
@@ -56,4 +86,15 @@ where
     }
 
     Ok(Some(T::async_io_read(buf).await?))
+}
+
+pub fn io_read<T>(buf: &mut IoReadable, length: usize) -> Result<Option<T>, IoReadError>
+where
+    T: IoRead + Send + Sync,
+{
+    if length == 0 {
+        return Ok(None);
+    }
+
+    Ok(Some(T::io_read(buf)?))
 }

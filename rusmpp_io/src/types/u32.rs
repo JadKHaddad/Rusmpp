@@ -1,10 +1,9 @@
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
 use crate::io::{
     length::IoLength,
     read::{AsyncIoRead, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 pub const SIZE: usize = 4;
 

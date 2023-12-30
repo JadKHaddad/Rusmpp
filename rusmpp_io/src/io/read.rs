@@ -1,6 +1,7 @@
 use super::length::IoLength;
 
 pub type AsyncIoReadable = dyn tokio::io::AsyncBufRead + Send + Unpin;
+pub type IoReadable = dyn std::io::BufRead + Send;
 
 #[async_trait::async_trait]
 pub trait AsyncIoRead
@@ -28,6 +29,33 @@ where
     async fn async_io_read(
         key: Self::Key,
         buf: &mut AsyncIoReadable,
+        length: usize,
+    ) -> Result<Option<Self>, IoReadError>;
+}
+
+pub trait IoRead
+where
+    Self: Sized + IoLength,
+{
+    fn io_read(buf: &mut IoReadable) -> Result<Self, IoReadError>;
+}
+
+pub trait IoReadWithLength
+where
+    Self: Sized + IoLength,
+{
+    fn io_read(buf: &mut IoReadable, length: usize) -> Result<Self, IoReadError>;
+}
+
+pub trait IoReadWithKeyOptional
+where
+    Self: Sized + IoLength,
+{
+    type Key: From<u32> + Into<u32>;
+
+    fn io_read(
+        key: Self::Key,
+        buf: &mut IoReadable,
         length: usize,
     ) -> Result<Option<Self>, IoReadError>;
 }

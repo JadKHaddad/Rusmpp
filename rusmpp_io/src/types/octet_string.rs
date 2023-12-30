@@ -1,14 +1,11 @@
-use std::str::FromStr;
-
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
+use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
 use crate::io::{
     length::IoLength,
     read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError, OctetStringIoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
-
-use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
+use std::str::FromStr;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {

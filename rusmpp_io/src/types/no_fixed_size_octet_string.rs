@@ -1,12 +1,11 @@
-use std::{convert::Infallible, str::FromStr};
-
-use tokio::io::{AsyncReadExt, AsyncWriteExt};
-
 use crate::io::{
     length::IoLength,
     read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
     write::{AsyncIoWritable, AsyncIoWrite},
 };
+use std::{convert::Infallible, str::FromStr};
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
+
 /// No fixed size OctetString
 ///
 /// See [`OctetString`](struct@crate::types::octet_string::OctetString)

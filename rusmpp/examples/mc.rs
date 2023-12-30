@@ -81,10 +81,9 @@ async fn main() {
 
                 println!("pdu: {:?}", pdu);
                 println!("length: {}", pdu.length());
-                println!();
                 print!("bytes: ");
                 for byte in bytes.iter() {
-                    print!("{:02x} ", byte);
+                    print!("0x{:02x}, ", byte);
                 }
                 println!();
 

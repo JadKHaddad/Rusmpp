@@ -1,5 +1,3 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
-
 use super::{
     body::pdu_body::PduBody,
     types::{
@@ -12,6 +10,7 @@ use crate::{
     io::length::IoLength, io::read::AsyncIoReadWithLength,
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[derive(thiserror::Error, Debug)]
 pub enum InvalidPdu {

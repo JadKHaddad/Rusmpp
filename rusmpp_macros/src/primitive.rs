@@ -36,10 +36,22 @@ pub fn derive_rusmpp_io_primitive(
             }
         }
 
+        impl rusmpp_io::io::write::IoWrite for #name {
+            fn io_write(&self, buf: &mut rusmpp_io::io::write::IoWritable) -> std::io::Result<()> {
+                #primitive_type::from(*self).io_write(buf)
+            }
+        }
+
         #[async_trait::async_trait]
         impl rusmpp_io::io::read::AsyncIoRead for #name {
             async fn async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
                 #primitive_type::async_io_read(buf).await.map(Self::from)
+            }
+        }
+
+        impl rusmpp_io::io::read::IoRead for #name {
+            fn io_read(buf: &mut rusmpp_io::io::read::IoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
+                #primitive_type::io_read(buf).map(Self::from)
             }
         }
     };

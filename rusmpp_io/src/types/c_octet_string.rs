@@ -1,9 +1,14 @@
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoRead, AsyncIoReadable, COctetStringIoReadError, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
+    read::{
+        AsyncIoRead, AsyncIoReadable, COctetStringIoReadError, IoRead, IoReadError, IoReadable,
+    },
+    write::{AsyncIoWritable, AsyncIoWrite, IoWritable, IoWrite},
 };
-use std::str::FromStr;
+use std::{
+    io::{BufRead, Read},
+    str::FromStr,
+};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt};
 
 #[derive(thiserror::Error, Debug)]
@@ -158,11 +163,49 @@ impl<const MIN: usize, const MAX: usize> AsyncIoWrite for COctetString<MIN, MAX>
     }
 }
 
+// TODO: Duplicated
+impl<const MIN: usize, const MAX: usize> IoWrite for COctetString<MIN, MAX> {
+    fn io_write(&self, buf: &mut IoWritable) -> std::io::Result<()> {
+        buf.write_all(&self.bytes)
+    }
+}
+
 #[async_trait::async_trait]
 impl<const MIN: usize, const MAX: usize> AsyncIoRead for COctetString<MIN, MAX> {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         let mut bytes = Vec::with_capacity(MAX);
         let _ = buf.take(MAX as u64).read_until(0x00, &mut bytes).await?;
+
+        if bytes.last() != Some(&0x00) {
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotNullTerminated,
+            ));
+        }
+
+        if bytes.len() < MIN {
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::TooFewBytes {
+                    actual: bytes.len(),
+                    min: MIN,
+                },
+            ));
+        }
+
+        if !bytes.is_ascii() {
+            return Err(IoReadError::COctetStringIoReadError(
+                COctetStringIoReadError::NotAscii,
+            ));
+        }
+
+        Ok(Self { bytes })
+    }
+}
+
+// TODO: Duplicated
+impl<const MIN: usize, const MAX: usize> IoRead for COctetString<MIN, MAX> {
+    fn io_read(buf: &mut IoReadable) -> Result<Self, IoReadError> {
+        let mut bytes = Vec::with_capacity(MAX);
+        let _ = buf.take(MAX as u64).read_until(0x00, &mut bytes)?;
 
         if bytes.last() != Some(&0x00) {
             return Err(IoReadError::COctetStringIoReadError(

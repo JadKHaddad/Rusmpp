@@ -1,8 +1,11 @@
 use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError, OctetStringIoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
+    read::{
+        AsyncIoReadWithLength, AsyncIoReadable, IoReadError, IoReadWithLength, IoReadable,
+        OctetStringIoReadError,
+    },
+    write::{AsyncIoWritable, AsyncIoWrite, IoWritable, IoWrite},
 };
 use std::str::FromStr;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -130,6 +133,13 @@ impl<const MIN: usize, const MAX: usize> AsyncIoWrite for OctetString<MIN, MAX> 
     }
 }
 
+// TODO: Duplicated
+impl<const MIN: usize, const MAX: usize> IoWrite for OctetString<MIN, MAX> {
+    fn io_write(&self, buf: &mut IoWritable) -> std::io::Result<()> {
+        buf.write_all(&self.bytes)
+    }
+}
+
 #[async_trait::async_trait]
 impl<const MIN: usize, const MAX: usize> AsyncIoReadWithLength for OctetString<MIN, MAX> {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
@@ -153,6 +163,34 @@ impl<const MIN: usize, const MAX: usize> AsyncIoReadWithLength for OctetString<M
 
         let mut bytes = vec![0; length];
         buf.read_exact(&mut bytes).await?;
+
+        Ok(Self { bytes })
+    }
+}
+
+// TODO: Duplicated
+impl<const MIN: usize, const MAX: usize> IoReadWithLength for OctetString<MIN, MAX> {
+    fn io_read(buf: &mut IoReadable, length: usize) -> Result<Self, IoReadError> {
+        if length > MAX {
+            return Err(IoReadError::OctetStringIoReadError(
+                OctetStringIoReadError::TooManyBytes {
+                    actual: length,
+                    max: MAX,
+                },
+            ));
+        }
+
+        if length < MIN {
+            return Err(IoReadError::OctetStringIoReadError(
+                OctetStringIoReadError::TooFewBytes {
+                    actual: length,
+                    min: MIN,
+                },
+            ));
+        }
+
+        let mut bytes = vec![0; length];
+        buf.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })
     }

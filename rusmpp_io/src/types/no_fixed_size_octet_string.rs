@@ -1,7 +1,7 @@
 use crate::io::{
     length::IoLength,
-    read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    write::{AsyncIoWritable, AsyncIoWrite},
+    read::{AsyncIoReadWithLength, AsyncIoReadable, IoReadError, IoReadWithLength, IoReadable},
+    write::{AsyncIoWritable, AsyncIoWrite, IoWritable, IoWrite},
 };
 use std::{convert::Infallible, str::FromStr};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
@@ -92,11 +92,28 @@ impl AsyncIoWrite for NoFixedSizeOctetString {
     }
 }
 
+// TODO: Duplicated
+impl IoWrite for NoFixedSizeOctetString {
+    fn io_write(&self, buf: &mut IoWritable) -> std::io::Result<()> {
+        buf.write_all(&self.bytes)
+    }
+}
+
 #[async_trait::async_trait]
 impl AsyncIoReadWithLength for NoFixedSizeOctetString {
     async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
         let mut bytes = vec![0; length];
         buf.read_exact(&mut bytes).await?;
+
+        Ok(Self { bytes })
+    }
+}
+
+// TODO: Duplicated
+impl IoReadWithLength for NoFixedSizeOctetString {
+    fn io_read(buf: &mut IoReadable, length: usize) -> Result<Self, IoReadError> {
+        let mut bytes = vec![0; length];
+        buf.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })
     }

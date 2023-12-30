@@ -1,8 +1,5 @@
-use rusmpp_macros::RusmppIo;
-
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
-
 use super::command_id::CommandId;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[derive(thiserror::Error, Debug)]
 #[error("Invalid sequence number. sequence number should not be 0 when command id is not GenericNack. sequence_number: {value:?}, command_id: {command_id:?}")]
@@ -18,7 +15,19 @@ pub struct InvalidSequenceNumber {
 /// value 0x00000000 is recommended for use when issuing a generic_nack where the original
 /// PDU was deemed completely invalid and its PDU header, was not used to derive a
 /// sequence_number for the response PDU
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
+)]
 pub struct SequenceNumber {
     pub value: u32,
 }
@@ -37,14 +46,5 @@ impl SequenceNumber {
         }
 
         Ok(())
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for SequenceNumber {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            value: u32::async_io_read(buf).await?,
-        })
     }
 }

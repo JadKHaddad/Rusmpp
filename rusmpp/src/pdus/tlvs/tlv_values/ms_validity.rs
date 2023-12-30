@@ -1,17 +1,24 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoReadLength, RusmppIoU8, RusmppIoWrite};
 
-use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
-    types::option,
-};
+use crate::io::{length::IoLength, read::AsyncIoRead};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Default,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct MsValidity {
     pub validity_behaviour: MsValidityBehaviour,
+    #[rusmpp_io_read(length=(length - all_before))]
     pub validity_information: Option<MsValidityInformation>,
 }
 
@@ -27,24 +34,19 @@ impl MsValidity {
     }
 }
 
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for MsValidity {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let validity_behaviour = MsValidityBehaviour::async_io_read(buf).await?;
-
-        let validity_information_expected_len = length.saturating_sub(validity_behaviour.length());
-
-        let validity_information =
-            option::async_io_read(buf, validity_information_expected_len).await?;
-
-        Ok(Self {
-            validity_behaviour,
-            validity_information,
-        })
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Default,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
+)]
 pub struct MsValidityInformation {
     pub units_of_time: UnitsOfTime,
     pub number_of_time_units: u16,
@@ -56,16 +58,6 @@ impl MsValidityInformation {
             units_of_time,
             number_of_time_units,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for MsValidityInformation {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            units_of_time: UnitsOfTime::async_io_read(buf).await?,
-            number_of_time_units: u16::async_io_read(buf).await?,
-        })
     }
 }
 

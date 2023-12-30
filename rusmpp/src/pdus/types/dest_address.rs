@@ -1,5 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
+use rusmpp_macros::{RusmppIoLength, RusmppIoU8, RusmppIoWrite};
 
 use crate::{
     io::{
@@ -91,7 +91,8 @@ impl AsyncIoRead for DestAddress {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+// IoRead is manually implemented because we need to read the flag first
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite)]
 pub struct SmeAddress {
     dest_flag: DestFlag,
     dest_addr_ton: Ton,
@@ -146,7 +147,8 @@ impl AsyncIoRead for SmeAddress {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+// IoRead is manually implemented because we need to read the flag first
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite)]
 pub struct DistributionListName {
     dest_flag: DestFlag,
     dl_name: COctetString<1, 21>,

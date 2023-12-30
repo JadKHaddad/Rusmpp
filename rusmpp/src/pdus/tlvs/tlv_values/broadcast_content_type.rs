@@ -1,7 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU16, RusmppIoU8};
-
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoU16, RusmppIoU8, RusmppIoWrite};
 
 #[repr(u8)]
 #[derive(
@@ -103,7 +101,9 @@ impl Default for EncodingContentType {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,
     pub encoding_content_type: EncodingContentType,
@@ -115,15 +115,5 @@ impl BroadcastContentType {
             type_of_network,
             encoding_content_type,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for BroadcastContentType {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            type_of_network: TypeOfNetwork::async_io_read(buf).await?,
-            encoding_content_type: EncodingContentType::async_io_read(buf).await?,
-        })
     }
 }

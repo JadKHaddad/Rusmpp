@@ -1,8 +1,7 @@
 use std::str::FromStr;
 
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
 use crate::types::c_octet_string::{COctetString, Error as COctetStringError};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -56,7 +55,9 @@ impl<'a> GenericServiceType<'a> {
 /// Note: In the case of Cell Broadcast Service replace functionality by service type is not
 /// supported.
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct ServiceType {
     value: COctetString<1, 6>,
 }
@@ -70,14 +71,5 @@ impl ServiceType {
 
     pub fn value(&self) -> &COctetString<1, 6> {
         &self.value
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for ServiceType {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            value: COctetString::async_io_read(buf).await?,
-        })
     }
 }

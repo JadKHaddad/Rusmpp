@@ -1,9 +1,9 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoU8, RusmppIoWrite};
 
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct NetworkErrorCode {
     pub network_type: ErrorCodeNetworkType,
     pub error_code: u16,
@@ -15,16 +15,6 @@ impl NetworkErrorCode {
             network_type,
             error_code,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for NetworkErrorCode {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            network_type: ErrorCodeNetworkType::async_io_read(buf).await?,
-            error_code: u16::async_io_read(buf).await?,
-        })
     }
 }
 

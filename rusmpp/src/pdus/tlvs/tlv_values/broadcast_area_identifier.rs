@@ -1,11 +1,8 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoU8, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     types::octet_string::OctetString,
 };
 
@@ -38,24 +35,26 @@ impl Default for BroadcastAreaFormat {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,
+    #[rusmpp_io_read(length=(length - all_before))]
     pub area: OctetString<0, 100>,
 }
 
 impl BroadcastAreaIdentifier {
     pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
         Self { format, area }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for BroadcastAreaIdentifier {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let format = BroadcastAreaFormat::async_io_read(buf).await?;
-        let area = OctetString::async_io_read(buf, length - format.length() as usize).await?;
-
-        Ok(Self { format, area })
     }
 }

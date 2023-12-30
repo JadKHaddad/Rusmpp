@@ -1,13 +1,12 @@
-use rusmpp_macros::RusmppIo;
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
-use crate::{
-    io::read::{AsyncIoRead, AsyncIoReadable, IoReadError},
-    types::c_octet_string::COctetString,
-};
+use crate::types::c_octet_string::COctetString;
 
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct UnsuccessSme {
     pub dest_addr_ton: Ton,
     pub dest_addr_npi: Npi,
@@ -28,17 +27,5 @@ impl UnsuccessSme {
             destination_addr,
             error_status_code,
         }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for UnsuccessSme {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        Ok(Self {
-            dest_addr_ton: Ton::async_io_read(buf).await?,
-            dest_addr_npi: Npi::async_io_read(buf).await?,
-            destination_addr: COctetString::async_io_read(buf).await?,
-            error_status_code: CommandStatus::async_io_read(buf).await?,
-        })
     }
 }

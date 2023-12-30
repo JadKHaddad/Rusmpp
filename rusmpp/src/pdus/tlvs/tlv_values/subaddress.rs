@@ -1,33 +1,33 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoU8, RusmppIoWrite};
 
 use crate::{
-    io::{
-        length::IoLength,
-        read::{AsyncIoRead, AsyncIoReadWithLength, AsyncIoReadable, IoReadError},
-    },
+    io::{length::IoLength, read::AsyncIoRead},
     types::octet_string::OctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, RusmppIo)]
+#[derive(
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    Default,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoReadLength,
+)]
 pub struct Subaddress {
     pub tag: SubaddressTag,
+    #[rusmpp_io_read(length=(length - all_before))]
     pub addr: OctetString<1, 22>,
 }
 
 impl Subaddress {
     pub fn new(tag: SubaddressTag, addr: OctetString<1, 22>) -> Self {
         Self { tag, addr }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoReadWithLength for Subaddress {
-    async fn async_io_read(buf: &mut AsyncIoReadable, length: usize) -> Result<Self, IoReadError> {
-        let tag = SubaddressTag::async_io_read(buf).await?;
-        let addr = OctetString::async_io_read(buf, length - tag.length() as usize).await?;
-
-        Ok(Self { tag, addr })
     }
 }
 

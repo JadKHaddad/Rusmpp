@@ -1,7 +1,5 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
-use rusmpp_macros::{RusmppIo, RusmppIoU8};
-
-use crate::io::read::{AsyncIoRead, AsyncIoReadable, IoReadError};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoU8, RusmppIoWrite};
 
 #[repr(u8)]
 #[derive(
@@ -37,7 +35,9 @@ impl Default for UnitOfTime {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIo)]
+#[derive(
+    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+)]
 pub struct BroadcastFrequencyInterval {
     pub unit: UnitOfTime,
     pub value: u16,
@@ -46,15 +46,5 @@ pub struct BroadcastFrequencyInterval {
 impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
-    }
-}
-
-#[async_trait::async_trait]
-impl AsyncIoRead for BroadcastFrequencyInterval {
-    async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
-        let unit = UnitOfTime::async_io_read(buf).await?;
-        let value = u16::async_io_read(buf).await?;
-
-        Ok(Self { unit, value })
     }
 }

@@ -13,8 +13,8 @@ use super::{
 use crate::pdus::types::command_id::CommandId;
 use rusmpp_io::{
     io::read::{
-        AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadWithLength, AsyncIoReadable,
-        IoReadError,
+        AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadWithLength, AsyncIoReadable, IoRead,
+        IoReadError, IoReadWithKeyOptional, IoReadWithLength, IoReadable,
     },
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
@@ -89,6 +89,80 @@ impl AsyncIoReadWithKeyOptional for PduBody {
             CommandId::Other(_) => PduBody::Other {
                 command_id: key,
                 body: NoFixedSizeOctetString::async_io_read(buf, length).await?,
+            },
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
+        };
+
+        Ok(Some(read))
+    }
+}
+
+impl IoReadWithKeyOptional for PduBody {
+    type Key = CommandId;
+
+    fn io_read(
+        key: Self::Key,
+        buf: &mut IoReadable,
+        length: usize,
+    ) -> Result<Option<Self>, IoReadError> {
+        let read = match key {
+            CommandId::BindTransmitter => PduBody::BindTransmitter(Bind::io_read(buf)?),
+            CommandId::BindTransmitterResp => {
+                PduBody::BindTransmitterResp(BindResp::io_read(buf, length)?)
+            }
+            CommandId::BindReceiver => PduBody::BindReceiver(Bind::io_read(buf)?),
+            CommandId::BindReceiverResp => {
+                PduBody::BindReceiverResp(BindResp::io_read(buf, length)?)
+            }
+            CommandId::BindTransceiver => PduBody::BindTransceiver(Bind::io_read(buf)?),
+            CommandId::BindTransceiverResp => {
+                PduBody::BindTransceiverResp(BindResp::io_read(buf, length)?)
+            }
+            CommandId::Outbind => PduBody::Outbind(Outbind::io_read(buf)?),
+            CommandId::AlertNotification => {
+                PduBody::AlertNotification(AlertNotification::io_read(buf, length)?)
+            }
+            CommandId::SubmitSm => PduBody::SubmitSm(SubmitSm::io_read(buf, length)?),
+            CommandId::SubmitSmResp => {
+                PduBody::SubmitSmResp(SubmitOrDataSmResp::io_read(buf, length)?)
+            }
+            CommandId::QuerySm => PduBody::QuerySm(QuerySm::io_read(buf)?),
+            CommandId::QuerySmResp => PduBody::QuerySmResp(QuerySmResp::io_read(buf)?),
+            CommandId::DeliverSm => PduBody::DeliverSm(DeliverSm::io_read(buf, length)?),
+            CommandId::DeliverSmResp => {
+                PduBody::DeliverSmResp(DeliverSmResp::io_read(buf, length)?)
+            }
+            CommandId::DataSm => PduBody::DataSm(DataSm::io_read(buf, length)?),
+            CommandId::DataSmResp => PduBody::DataSmResp(SubmitOrDataSmResp::io_read(buf, length)?),
+            CommandId::CancelSm => PduBody::CancelSm(CancelSm::io_read(buf)?),
+            CommandId::ReplaceSm => PduBody::ReplaceSm(ReplaceSm::io_read(buf, length)?),
+            CommandId::SubmitMulti => PduBody::SubmitMulti(SubmitMulti::io_read(buf, length)?),
+            CommandId::SubmitMultiResp => {
+                PduBody::SubmitMultiResp(SubmitOrDataSmResp::io_read(buf, length)?)
+            }
+            CommandId::BroadcastSm => PduBody::BroadcastSm(BroadcastSm::io_read(buf, length)?),
+            CommandId::BroadcastSmResp => {
+                PduBody::BroadcastSmResp(BroadcastSmResp::io_read(buf, length)?)
+            }
+            CommandId::QueryBroadcastSm => {
+                PduBody::QueryBroadcastSm(QueryBroadcastSm::io_read(buf, length)?)
+            }
+            CommandId::QueryBroadcastSmResp => {
+                PduBody::QueryBroadcastSmResp(QueryBroadcastSmResp::io_read(buf, length)?)
+            }
+            CommandId::CancelBroadcastSm => {
+                PduBody::CancelBroadcastSm(CancelBroadcastSm::io_read(buf, length)?)
+            }
+            CommandId::Other(_) => PduBody::Other {
+                command_id: key,
+                body: NoFixedSizeOctetString::io_read(buf, length)?,
             },
             CommandId::Unbind
             | CommandId::UnbindResp

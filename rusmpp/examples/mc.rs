@@ -8,8 +8,6 @@ A fake MC that shows how to use rusmpp.
 //! cargo run --example mc
 //! ```
 
-use std::str::FromStr;
-
 use rusmpp::{
     io::{length::IoLength, read::AsyncIoRead, write::AsyncIoWrite},
     pdus::{
@@ -29,6 +27,7 @@ use rusmpp::{
     },
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
+use std::str::FromStr;
 use tokio::{io::BufReader, net::TcpListener};
 
 fn bind_resp() -> BindResp {

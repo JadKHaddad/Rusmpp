@@ -42,15 +42,26 @@ enum LengthOperation {
     },
 }
 
-
 pub fn derive_rusmpp_io_read(input: syn::DeriveInput) -> proc_macro::TokenStream {
     let struct_name = &input.ident;
-    let (field_name_idents, read_fields) = extract_field_name_idents_and_read_fields_from_data(&input.data);
+    let (field_name_idents, async_read_fields) =
+        extract_field_name_idents_and_read_fields_from_data(&input.data, true);
+    let (_, read_fields) = extract_field_name_idents_and_read_fields_from_data(&input.data, false);
 
     let expanded = quote::quote! {
         #[async_trait::async_trait]
         impl rusmpp_io::io::read::AsyncIoRead for #struct_name {
             async fn async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
+                #(#async_read_fields)*;
+
+                Ok(Self {
+                    #(#field_name_idents),*
+                })
+            }
+        }
+
+        impl rusmpp_io::io::read::IoRead for #struct_name {
+            fn io_read(buf: &mut rusmpp_io::io::read::IoReadable) -> Result<Self, rusmpp_io::io::read::IoReadError> {
                 #(#read_fields)*;
 
                 Ok(Self {
@@ -65,12 +76,24 @@ pub fn derive_rusmpp_io_read(input: syn::DeriveInput) -> proc_macro::TokenStream
 
 pub fn derive_rusmpp_io_read_with_length(input: syn::DeriveInput) -> proc_macro::TokenStream {
     let struct_name = &input.ident;
-    let (field_name_idents, read_fields) = extract_field_name_idents_and_read_fields_from_data(&input.data);
+    let (field_name_idents, async_read_fields) =
+        extract_field_name_idents_and_read_fields_from_data(&input.data, true);
+    let (_, read_fields) = extract_field_name_idents_and_read_fields_from_data(&input.data, false);
 
     let expanded = quote::quote! {
         #[async_trait::async_trait]
         impl rusmpp_io::io::read::AsyncIoReadWithLength for #struct_name {
             async fn async_io_read(buf: &mut rusmpp_io::io::read::AsyncIoReadable, length: usize) -> Result<Self, rusmpp_io::io::read::IoReadError> {
+                #(#async_read_fields)*;
+
+                Ok(Self {
+                    #(#field_name_idents),*
+                })
+            }
+        }
+
+        impl rusmpp_io::io::read::IoReadWithLength for #struct_name {
+            fn io_read(buf: &mut rusmpp_io::io::read::IoReadable, length: usize) -> Result<Self, rusmpp_io::io::read::IoReadError> {
                 #(#read_fields)*;
 
                 Ok(Self {
@@ -100,21 +123,30 @@ fn is_ty_option_or_vec(field_ty: &syn::Type) -> (&syn::Type, bool, bool) {
 fn extract_ty_ident_from_type<'a>(ty: &'a syn::Type, name_ident: &syn::Ident) -> &'a syn::Ident {
     match ty {
         syn::Type::Path(syn::TypePath { qself: None, path }) => {
-            &path.segments.last().unwrap_or_else(|| panic!("No last segment, field: {name_ident}")).ident
+            &path
+                .segments
+                .last()
+                .unwrap_or_else(|| panic!("No last segment, field: {name_ident}"))
+                .ident
         }
         _ => panic!("Only path types are supported, field: {name_ident}"),
     }
 }
 
-fn decide_ty(name_ident: &syn::Ident, is_option: bool, is_vec: bool, length_op: Option<LengthOperation>, key_ident: Option<syn::Ident>, count_ident: Option<syn::Ident>) -> TY{
+fn decide_ty(
+    name_ident: &syn::Ident,
+    is_option: bool,
+    is_vec: bool,
+    length_op: Option<LengthOperation>,
+    key_ident: Option<syn::Ident>,
+    count_ident: Option<syn::Ident>,
+) -> TY {
     match (is_option, is_vec) {
         (true, false) => {
             let ty = match length_op {
                 None => panic!("Option field must have length, field: {name_ident}"),
                 Some(length_op) => match key_ident {
-                    None => TY::Option {
-                        length_op,
-                    },
+                    None => TY::Option { length_op },
                     Some(key_ident) => TY::OptionWithKey {
                         length_op,
                         key_ident,
@@ -132,13 +164,9 @@ fn decide_ty(name_ident: &syn::Ident, is_option: bool, is_vec: bool, length_op: 
             let ty = match length_op {
                 None => match count_ident {
                     None => panic!("Vec field must have length or count, field: {name_ident}"),
-                    Some(count_ident) => TY::VecWithCount {
-                        count_ident,
-                    },
+                    Some(count_ident) => TY::VecWithCount { count_ident },
                 },
-                Some(length_op) => TY::VecWithLength {
-                    length_op,
-                },
+                Some(length_op) => TY::VecWithLength { length_op },
             };
 
             if key_ident.is_some() {
@@ -151,9 +179,7 @@ fn decide_ty(name_ident: &syn::Ident, is_option: bool, is_vec: bool, length_op: 
         (false, false) => {
             let ty = match length_op {
                 None => TY::Normal,
-                Some(length_op) => TY::NormalWithLength {
-                    length_op,
-                },
+                Some(length_op) => TY::NormalWithLength { length_op },
             };
 
             if key_ident.is_some() {
@@ -182,7 +208,6 @@ fn collect_read_options_from_named_fields(
             let mut key_ident = None;
             let mut length_op = None;
             let mut count_ident = None;
-            
             for attr in field.attrs.iter() {
                 if attr.path.segments[0].ident != ATTR_GROUP {
                     continue;
@@ -198,7 +223,7 @@ fn collect_read_options_from_named_fields(
                         if let proc_macro2::TokenTree::Ident(ident) = token {
                             if !["key", "length", "count"]
                                 .contains(&&*ident.to_string())
-                            {   
+                            {
                                 panic!("Unknown attribute: {ident}. Only key=<value>, length=<value> and count=<value> are supported, field: {name_ident}");
                             }
                             if ident == "key" {
@@ -249,7 +274,6 @@ fn collect_read_options_from_named_fields(
                                 } else {
                                     panic!("Unsupported value for count attribute, field: {name_ident}");
                                 };
-                            
                             }
 
                             if ident == "length" {
@@ -267,7 +291,6 @@ fn collect_read_options_from_named_fields(
                                 if let proc_macro2::TokenTree::Group(length_group) = iter
                                     .next()
                                     .unwrap_or_else(|| panic!("Expected parenthesis for length attribute, field: {name_ident}"))
-                                    
                                 {
                                     let length_tokens = length_group.stream();
                                     let mut length_iter = length_tokens.into_iter();
@@ -297,7 +320,6 @@ fn collect_read_options_from_named_fields(
                                                                 // this is field - all_before
                                                                 length_op = Some(LengthOperation::IdentMinusAllBeforeLengths {
                                                                     ident: length_ident.clone(),});
- 
                                                                  break;
                                                              }else {
                                                                 // this is field - field
@@ -344,13 +366,10 @@ fn collect_read_options_from_named_fields(
         .collect()
 }
 
-fn collect_read_options_from_data(
-    data: &syn::Data,
-) -> Vec<StructReadOptions> {
+fn collect_read_options_from_data(data: &syn::Data) -> Vec<StructReadOptions> {
     let named_fields = crate::utils::extract_struct_named_fields_from_data(data);
     collect_read_options_from_named_fields(named_fields)
 }
-
 
 fn create_length_ident(field_name_ident: &syn::Ident) -> proc_macro2::Ident {
     proc_macro2::Ident::new(
@@ -359,91 +378,147 @@ fn create_length_ident(field_name_ident: &syn::Ident) -> proc_macro2::Ident {
     )
 }
 
-fn set_length(length_ident: &syn::Ident, length_op: &LengthOperation, prev_field_name_idents: &[&syn::Ident]) -> proc_macro2::TokenStream {
+fn set_length(
+    length_ident: &syn::Ident,
+    length_op: &LengthOperation,
+    prev_field_name_idents: &[&syn::Ident],
+) -> proc_macro2::TokenStream {
     match length_op {
         LengthOperation::Ident { ident } => quote::quote! {
-           let #length_ident: usize =  (#ident as usize); 
+           let #length_ident: usize =  (#ident as usize);
         },
         LengthOperation::IdentMinusIdentLength { ident, ident2 } => {
             quote::quote! {
                 let #length_ident: usize =  (#ident as usize).saturating_sub(#ident2.length());
             }
-        },
+        }
         LengthOperation::IdentMinusAllBeforeLengths { ident } => {
-            let field_name_idents_saturating_sub = prev_field_name_idents.iter().map(|field_name_ident| {
-                quote::quote! {
-                    .saturating_sub(#field_name_ident.length())
-                }
-            });
+            let field_name_idents_saturating_sub =
+                prev_field_name_idents.iter().map(|field_name_ident| {
+                    quote::quote! {
+                        .saturating_sub(#field_name_ident.length())
+                    }
+                });
 
             quote::quote! {
                 let #length_ident: usize = (#ident as usize)#(#field_name_idents_saturating_sub)*;
             }
-        },
+        }
     }
 }
 
-
-fn map_options_to_token_stream(options: &StructReadOptions, prev_field_name_idents: &[&syn::Ident]) -> proc_macro2::TokenStream {
+fn map_options_to_token_stream(
+    options: &StructReadOptions,
+    prev_field_name_idents: &[&syn::Ident],
+    is_async: bool,
+) -> proc_macro2::TokenStream {
     let field_name_ident = &options.name_ident;
     let field_ty_ident = &options.ty_ident;
 
     match &options.ty {
-        TY::Normal => quote::quote! {
-            let #field_name_ident = #field_ty_ident::async_io_read(buf).await?;
-        },
+        TY::Normal => {
+            if is_async {
+                quote::quote! {
+                    let #field_name_ident = #field_ty_ident::async_io_read(buf).await?;
+                }
+            } else {
+                quote::quote! {
+                    let #field_name_ident = #field_ty_ident::io_read(buf)?;
+                }
+            }
+        }
         TY::NormalWithLength { length_op } => {
             let length_ident = create_length_ident(field_name_ident);
             let set_length = set_length(&length_ident, length_op, prev_field_name_idents);
-            quote::quote!{
-                #set_length
-                let #field_name_ident = #field_ty_ident::async_io_read(buf, #length_ident).await?;
+            if is_async {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = #field_ty_ident::async_io_read(buf, #length_ident).await?;
+                }
+            } else {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = #field_ty_ident::io_read(buf, #length_ident)?;
+                }
             }
-        },
+        }
         TY::Option { length_op } => {
             let length_ident = create_length_ident(field_name_ident);
             let set_length = set_length(&length_ident, length_op, prev_field_name_idents);
-            quote::quote!{
-                #set_length
-                let #field_name_ident = rusmpp_io::types::option::async_io_read(buf, #length_ident).await?;
+            if is_async {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = rusmpp_io::types::option::async_io_read(buf, #length_ident).await?;
+                }
+            } else {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = rusmpp_io::types::option::io_read(buf, #length_ident)?;
+                }
             }
-        },
+        }
         TY::OptionWithKey {
             length_op,
             key_ident,
         } => {
             let length_ident = create_length_ident(field_name_ident);
             let set_length = set_length(&length_ident, length_op, prev_field_name_idents);
-            quote::quote!{
-                #set_length
-                let #field_name_ident = rusmpp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #length_ident).await?;
+            if is_async {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = rusmpp_io::types::option::async_io_read_with_key_optional(#key_ident, buf, #length_ident).await?;
+                }
+            } else {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = rusmpp_io::types::option::io_read_with_key_optional(#key_ident, buf, #length_ident)?;
+                }
             }
-        },
+        }
         TY::VecWithLength { length_op } => {
             let length_ident = create_length_ident(field_name_ident);
             let set_length = set_length(&length_ident, length_op, prev_field_name_idents);
-            quote::quote!{
-                #set_length
-                let #field_name_ident = Vec::<#field_ty_ident>::async_io_read(buf, #length_ident).await?;
+            if is_async {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = Vec::<#field_ty_ident>::async_io_read(buf, #length_ident).await?;
+                }
+            } else {
+                quote::quote! {
+                    #set_length
+                    let #field_name_ident = Vec::<#field_ty_ident>::io_read(buf, #length_ident)?;
+                }
             }
         }
-        TY::VecWithCount { count_ident } => quote::quote! {
-            let #field_name_ident = rusmpp_io::types::vec::async_read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
-        },
+        TY::VecWithCount { count_ident } => {
+            if is_async {
+                quote::quote! {
+                    let #field_name_ident = rusmpp_io::types::vec::async_read_counted::<#field_ty_ident>(buf, #count_ident.into()).await?;
+                }
+            } else {
+                quote::quote! {
+                    let #field_name_ident = rusmpp_io::types::vec::read_counted::<#field_ty_ident>(buf, #count_ident.into())?;
+                }
+            }
+        }
     }
 }
 
 fn extract_field_name_idents_and_read_fields_from_data(
     data: &syn::Data,
+    is_async: bool,
 ) -> (Vec<&syn::Ident>, Vec<proc_macro2::TokenStream>) {
     let fields_with_options = collect_read_options_from_data(data);
     let mut field_name_idents: Vec<&proc_macro2::Ident> = Vec::new();
-    let read_fields: Vec<proc_macro2::TokenStream> = fields_with_options.iter().map(|options| {
-        let field_name_ident = &options.name_ident;
-        let token_stream = map_options_to_token_stream(options, &field_name_idents);
-        field_name_idents.push(field_name_ident);
-        token_stream
-    }).collect();
+    let read_fields: Vec<proc_macro2::TokenStream> = fields_with_options
+        .iter()
+        .map(|options| {
+            let field_name_ident = &options.name_ident;
+            let token_stream = map_options_to_token_stream(options, &field_name_idents, is_async);
+            field_name_idents.push(field_name_ident);
+            token_stream
+        })
+        .collect();
 
     (field_name_idents, read_fields)
 }

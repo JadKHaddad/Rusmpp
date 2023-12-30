@@ -1,7 +1,10 @@
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
-    io::{length::IoLength, read::AsyncIoRead},
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, IoRead},
+    },
     pdus::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::interface_version::InterfaceVersion,

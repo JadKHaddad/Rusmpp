@@ -7,7 +7,8 @@ use super::{
     },
 };
 use crate::{
-    io::length::IoLength, io::read::AsyncIoReadWithLength,
+    io::length::IoLength,
+    io::read::{AsyncIoReadWithLength, IoReadWithLength},
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};

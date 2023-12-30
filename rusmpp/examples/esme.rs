@@ -8,8 +8,6 @@ A fake ESME that shows how to use rusmpp.
 //! cargo run --example esme
 //! ```
 
-use std::{str::FromStr, sync::Arc};
-
 use rusmpp::{
     io::{read::AsyncIoRead, write::AsyncIoWrite},
     pdus::{
@@ -46,6 +44,7 @@ use rusmpp::{
         no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
     },
 };
+use std::{str::FromStr, sync::Arc};
 use tokio::{
     io::BufReader,
     net::TcpStream,

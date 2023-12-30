@@ -2,7 +2,10 @@ use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoU8, RusmppIoWrite};
 
 use crate::{
-    io::{length::IoLength, read::AsyncIoRead},
+    io::{
+        length::IoLength,
+        read::{AsyncIoRead, IoRead},
+    },
     types::octet_string::OctetString,
 };
 

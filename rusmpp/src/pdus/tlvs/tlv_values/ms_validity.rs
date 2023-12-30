@@ -1,7 +1,10 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoReadLength, RusmppIoU8, RusmppIoWrite};
 
-use crate::io::{length::IoLength, read::AsyncIoRead};
+use crate::io::{
+    length::IoLength,
+    read::{AsyncIoRead, IoRead},
+};
 
 #[derive(
     Debug,

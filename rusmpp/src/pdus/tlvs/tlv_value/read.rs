@@ -26,8 +26,8 @@ use crate::pdus::{
 };
 use rusmpp_io::{
     io::read::{
-        AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadWithLength, AsyncIoReadable,
-        IoReadError,
+        AsyncIoRead, AsyncIoReadWithKeyOptional, AsyncIoReadWithLength, AsyncIoReadable, IoRead,
+        IoReadError, IoReadWithKeyOptional, IoReadWithLength, IoReadable,
     },
     types::{
         c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
@@ -208,6 +208,141 @@ impl AsyncIoReadWithKeyOptional for TLVValue {
             TLVTag::Other(_) => TLVValue::Other {
                 tag: key,
                 value: NoFixedSizeOctetString::async_io_read(buf, length).await?,
+            },
+        };
+
+        Ok(Some(read))
+    }
+}
+
+impl IoReadWithKeyOptional for TLVValue {
+    type Key = TLVTag;
+
+    fn io_read(
+        key: Self::Key,
+        buf: &mut IoReadable,
+        length: usize,
+    ) -> Result<Option<Self>, IoReadError> {
+        let read = match key {
+            TLVTag::AdditionalStatusInfoText => {
+                TLVValue::AdditionalStatusInfoText(COctetString::io_read(buf)?)
+            }
+            TLVTag::AlertOnMessageDelivery => {
+                TLVValue::AlertOnMessageDelivery(AlertOnMsgDelivery::io_read(buf)?)
+            }
+            TLVTag::BillingIdentification => {
+                TLVValue::BillingIdentification(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::BroadcastAreaIdentifier => {
+                TLVValue::BroadcastAreaIdentifier(BroadcastAreaIdentifier::io_read(buf, length)?)
+            }
+            TLVTag::BroadcastAreaSuccess => {
+                TLVValue::BroadcastAreaSuccess(BroadcastAreaSuccess::io_read(buf)?)
+            }
+            TLVTag::BroadcastContentTypeInfo => {
+                TLVValue::BroadcastContentTypeInfo(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::BroadcastChannelIndicator => {
+                TLVValue::BroadcastChannelIndicator(BroadcastChannelIndicator::io_read(buf)?)
+            }
+            TLVTag::BroadcastContentType => {
+                TLVValue::BroadcastContentType(BroadcastContentType::io_read(buf)?)
+            }
+            TLVTag::BroadcastEndTime => {
+                TLVValue::BroadcastEndTime(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::BroadcastErrorStatus => {
+                TLVValue::BroadcastErrorStatus(CommandStatus::io_read(buf)?)
+            }
+            TLVTag::BroadcastFrequencyInterval => {
+                TLVValue::BroadcastFrequencyInterval(BroadcastFrequencyInterval::io_read(buf)?)
+            }
+            TLVTag::BroadcastMessageClass => {
+                TLVValue::BroadcastMessageClass(BroadcastMessageClass::io_read(buf)?)
+            }
+            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(u16::io_read(buf)?),
+            TLVTag::BroadcastServiceGroup => {
+                TLVValue::BroadcastServiceGroup(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::CallbackNum => TLVValue::CallbackNum(OctetString::io_read(buf, length)?),
+            TLVTag::CallbackNumAtag => {
+                TLVValue::CallbackNumAtag(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::CallbackNumPresInd => {
+                TLVValue::CallbackNumPresInd(CallbackNumPresInd::io_read(buf)?)
+            }
+            TLVTag::CongestionState => TLVValue::CongestionState(CongestionState::io_read(buf)?),
+            TLVTag::DeliveryFailureReason => {
+                TLVValue::DeliveryFailureReason(DeliveryFailureReason::io_read(buf)?)
+            }
+            TLVTag::DestAddrNpCountry => {
+                TLVValue::DestAddrNpCountry(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::DestAddrNpInformation => {
+                TLVValue::DestAddrNpInformation(OctetString::io_read(buf, length)?)
+            }
+            TLVTag::DestAddrNpResolution => {
+                TLVValue::DestAddrNpResolution(DestAddrNpResolution::io_read(buf)?)
+            }
+            TLVTag::DestAddrSubunit => TLVValue::DestAddrSubunit(AddrSubunit::io_read(buf)?),
+            TLVTag::DestBearerType => TLVValue::DestBearerType(BearerType::io_read(buf)?),
+            TLVTag::DestNetworkId => TLVValue::DestNetworkId(COctetString::io_read(buf)?),
+            TLVTag::DestNetworkType => TLVValue::DestNetworkType(NetworkType::io_read(buf)?),
+            TLVTag::DestNodeId => TLVValue::DestNodeId(OctetString::io_read(buf, length)?),
+            TLVTag::DestSubaddress => TLVValue::DestSubaddress(Subaddress::io_read(buf, length)?),
+            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(u16::io_read(buf)?),
+            TLVTag::DestPort => TLVValue::DestPort(u16::io_read(buf)?),
+            TLVTag::DisplayTime => TLVValue::DisplayTime(DisplayTime::io_read(buf)?),
+            TLVTag::DpfResult => TLVValue::DpfResult(DpfResult::io_read(buf)?),
+            TLVTag::ItsReplyType => TLVValue::ItsReplyType(ItsReplyType::io_read(buf)?),
+            TLVTag::ItsSessionInfo => TLVValue::ItsSessionInfo(ItsSessionInfo::io_read(buf)?),
+            TLVTag::LanguageIndicator => {
+                TLVValue::LanguageIndicator(LanguageIndicator::io_read(buf)?)
+            }
+            TLVTag::MessagePayload => {
+                TLVValue::MessagePayload(NoFixedSizeOctetString::io_read(buf, length)?)
+            }
+            TLVTag::MessageState => TLVValue::MessageState(MessageState::io_read(buf)?),
+            TLVTag::MoreMessagesToSend => {
+                TLVValue::MoreMessagesToSend(MoreMessagesToSend::io_read(buf)?)
+            }
+            TLVTag::MsAvailabilityStatus => {
+                TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::io_read(buf)?)
+            }
+            TLVTag::MsMsgWaitFacilities => {
+                TLVValue::MsMsgWaitFacilities(MsMsgWaitFacilities::io_read(buf)?)
+            }
+            TLVTag::MsValidity => TLVValue::MsValidity(MsValidity::io_read(buf, length)?),
+            TLVTag::NetworkErrorCode => TLVValue::NetworkErrorCode(NetworkErrorCode::io_read(buf)?),
+            TLVTag::NumberOfMessages => TLVValue::NumberOfMessages(NumberOfMessages::io_read(buf)?),
+            TLVTag::PayloadType => TLVValue::PayloadType(PayloadType::io_read(buf)?),
+            TLVTag::PrivacyIndicator => TLVValue::PrivacyIndicator(PrivacyIndicator::io_read(buf)?),
+            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(u32::io_read(buf)?),
+            TLVTag::ReceiptedMessageId => TLVValue::ReceiptedMessageId(COctetString::io_read(buf)?),
+            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(u16::io_read(buf)?),
+            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(u8::io_read(buf)?),
+            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(u8::io_read(buf)?),
+            TLVTag::ScInterfaceVersion => {
+                TLVValue::ScInterfaceVersion(InterfaceVersion::io_read(buf)?)
+            }
+            TLVTag::SetDpf => TLVValue::SetDpf(SetDpf::io_read(buf)?),
+            TLVTag::SmsSignal => TLVValue::SmsSignal(u16::io_read(buf)?),
+            TLVTag::SourceAddrSubunit => TLVValue::SourceAddrSubunit(AddrSubunit::io_read(buf)?),
+            TLVTag::SourceBearerType => TLVValue::SourceBearerType(BearerType::io_read(buf)?),
+            TLVTag::SourceNetworkId => TLVValue::SourceNetworkId(COctetString::io_read(buf)?),
+            TLVTag::SourceNetworkType => TLVValue::SourceNetworkType(NetworkType::io_read(buf)?),
+            TLVTag::SourceNodeId => TLVValue::SourceNodeId(OctetString::io_read(buf, length)?),
+            TLVTag::SourcePort => TLVValue::SourcePort(u16::io_read(buf)?),
+            TLVTag::SourceSubaddress => {
+                TLVValue::SourceSubaddress(Subaddress::io_read(buf, length)?)
+            }
+            TLVTag::SourceTelematicsId => TLVValue::SourceTelematicsId(u16::io_read(buf)?),
+            TLVTag::UserMessageReference => TLVValue::UserMessageReference(u16::io_read(buf)?),
+            TLVTag::UserResponseCode => TLVValue::UserResponseCode(u8::io_read(buf)?),
+            TLVTag::UssdServiceOp => TLVValue::UssdServiceOp(UssdServiceOp::io_read(buf)?),
+            TLVTag::Other(_) => TLVValue::Other {
+                tag: key,
+                value: NoFixedSizeOctetString::io_read(buf, length)?,
             },
         };
 

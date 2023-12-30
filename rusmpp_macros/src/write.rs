@@ -14,7 +14,7 @@ pub fn derive_rusmpp_io_write_struct(input: syn::DeriveInput) -> proc_macro::Tok
         }
     });
 
-    let _wirte_fields = fields_with_skip_options.iter().map(|options| {
+    let wirte_fields = fields_with_skip_options.iter().map(|options| {
         let field_name = &options.name_ident;
         if options.skip {
             return quote::quote! {};
@@ -35,14 +35,13 @@ pub fn derive_rusmpp_io_write_struct(input: syn::DeriveInput) -> proc_macro::Tok
             }
         }
 
-        // TODO: Implement IoWrite for body and tlv values before uncommenting this
-        // impl rusmpp_io::io::write::IoWrite for #struct_name {
-        //     fn io_write(&self, buf: &mut rusmpp_io::io::write::IoWritable) -> std::io::Result<()> {
-        //         #(#wirte_fields)*;
+        impl rusmpp_io::io::write::IoWrite for #struct_name {
+            fn io_write(&self, buf: &mut rusmpp_io::io::write::IoWritable) -> std::io::Result<()> {
+                #(#wirte_fields)*;
 
-        //         Ok(())
-        //     }
-        // }
+                Ok(())
+            }
+        }
     };
 
     expanded.into()

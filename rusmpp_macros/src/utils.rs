@@ -27,7 +27,6 @@ pub fn collect_skip_options_from_named_fields<'a>(
                     let tokens = group.stream();
                     let mut iter = tokens.into_iter();
                     let token = iter.next().unwrap_or_else(|| panic!("Expected one attribute 'skip' for attribute group : {attr_group}, field: {name_ident}"));
-                    
                     if let proc_macro2::TokenTree::Ident(ident) = token {
                         if ident != "skip" {
                             panic!("Unknown attribute: {ident}, field: {name_ident}")

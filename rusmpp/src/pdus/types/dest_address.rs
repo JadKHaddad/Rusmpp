@@ -1,4 +1,8 @@
 use num_enum::{FromPrimitive, IntoPrimitive};
+use rusmpp_io::io::{
+    read::{IoRead, IoReadable},
+    write::{IoWritable, IoWrite},
+};
 use rusmpp_macros::{RusmppIoLength, RusmppIoU8, RusmppIoWrite};
 
 use crate::{
@@ -70,6 +74,16 @@ impl AsyncIoWrite for DestAddress {
     }
 }
 
+// TODO: Duplicated
+impl IoWrite for DestAddress {
+    fn io_write(&self, buf: &mut IoWritable) -> std::io::Result<()> {
+        match self {
+            Self::SmeAddress(sa) => sa.io_write(buf),
+            Self::DistributionListName(dlm) => dlm.io_write(buf),
+        }
+    }
+}
+
 #[async_trait::async_trait]
 impl AsyncIoRead for DestAddress {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
@@ -83,6 +97,27 @@ impl AsyncIoRead for DestAddress {
             }
             DestFlag::DistributionListName => {
                 let dlm = DistributionListName::async_io_read(buf).await?;
+
+                Ok(Self::DistributionListName(dlm))
+            }
+            DestFlag::Other(flag) => Err(IoReadError::UnsupportedKey { key: flag.into() }),
+        }
+    }
+}
+
+// TODO: Duplicated
+impl IoRead for DestAddress {
+    fn io_read(buf: &mut IoReadable) -> Result<Self, IoReadError> {
+        let flag = DestFlag::io_read(buf)?;
+
+        match flag {
+            DestFlag::SmeAddress => {
+                let sa = SmeAddress::io_read(buf)?;
+
+                Ok(Self::SmeAddress(sa))
+            }
+            DestFlag::DistributionListName => {
+                let dlm = DistributionListName::io_read(buf)?;
 
                 Ok(Self::DistributionListName(dlm))
             }
@@ -147,6 +182,18 @@ impl AsyncIoRead for SmeAddress {
     }
 }
 
+// TODO: Duplicated
+impl IoRead for SmeAddress {
+    fn io_read(buf: &mut IoReadable) -> Result<Self, IoReadError> {
+        // flag is already read
+        let dest_addr_ton = Ton::io_read(buf)?;
+        let dest_addr_npi = Npi::io_read(buf)?;
+        let destination_addr = COctetString::io_read(buf)?;
+
+        Ok(Self::new(dest_addr_ton, dest_addr_npi, destination_addr))
+    }
+}
+
 // IoRead is manually implemented because we need to read the flag first
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite)]
 pub struct DistributionListName {
@@ -176,6 +223,16 @@ impl AsyncIoRead for DistributionListName {
     async fn async_io_read(buf: &mut AsyncIoReadable) -> Result<Self, IoReadError> {
         // flag is already read
         let dl_name = COctetString::async_io_read(buf).await?;
+
+        Ok(Self::new(dl_name))
+    }
+}
+
+// TODO: Duplicated
+impl IoRead for DistributionListName {
+    fn io_read(buf: &mut IoReadable) -> Result<Self, IoReadError> {
+        // flag is already read
+        let dl_name = COctetString::io_read(buf)?;
 
         Ok(Self::new(dl_name))
     }

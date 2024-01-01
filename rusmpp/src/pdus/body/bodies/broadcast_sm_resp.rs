@@ -46,3 +46,54 @@ impl BroadcastSmResp {
         (self.message_id, self.tlvs)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::pdus::{
+        tlvs::{
+            tlv_value::BroadcastResponseTLVValue,
+            tlv_values::broadcast_area_identifier::{BroadcastAreaFormat, BroadcastAreaIdentifier},
+        },
+        types::command_status::CommandStatus,
+    };
+    use rusmpp_io::{
+        io::{read::AsyncIoReadWithLength, write::AsyncIoWrite},
+        types::octet_string::OctetString,
+    };
+    use std::{io::Cursor, str::FromStr};
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        let broadcast_sm_resp = BroadcastSmResp::new(
+            COctetString::from_str("message_id").unwrap(),
+            vec![
+                BroadcastResponseTLV::new(BroadcastResponseTLVValue::BroadcastErrorStatus(
+                    CommandStatus::EsmeRalybnd,
+                )),
+                BroadcastResponseTLV::new(BroadcastResponseTLVValue::BroadcastAreaIdentifier(
+                    BroadcastAreaIdentifier {
+                        format: BroadcastAreaFormat::AliasName,
+                        area: OctetString::from_str("an area!").unwrap(),
+                    },
+                )),
+            ],
+        );
+
+        let mut curser = Cursor::new(Vec::new());
+
+        broadcast_sm_resp
+            .async_io_write(&mut curser)
+            .await
+            .expect("Failed to write bytes");
+
+        curser.set_position(0);
+
+        let broadcast_sm_resp_read =
+            BroadcastSmResp::async_io_read(&mut curser, broadcast_sm_resp.length())
+                .await
+                .expect("Failed to read bytes");
+
+        assert_eq!(broadcast_sm_resp, broadcast_sm_resp_read);
+    }
+}

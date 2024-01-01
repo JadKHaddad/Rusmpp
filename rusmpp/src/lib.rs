@@ -4,6 +4,9 @@ pub use rusmpp_io::io;
 pub use rusmpp_io::types;
 
 #[cfg(test)]
+mod integration;
+
+#[cfg(test)]
 mod tests {
     use core::panic;
     use std::str::FromStr;

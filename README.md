@@ -2,7 +2,7 @@
 
 ![Tests](https://github.com/JadKHaddad/Rusmpp/actions/workflows/tests.yml/badge.svg?branch=main)
 
-Low level SMPP library in pure rust. This is not a Client/Server implementation, but a library to build one. Baisc operations like `bind`, `unbind`, `submit_sm` and `deliver_sm` should not be difficult to implement. See examples for more details. Baisc knowledge of SMPP protocol is required.
+Low level SMPP library in pure rust. This is not a Client/Server implementation, but a library to build one. Baisc operations like `bind`, `unbind`, `submit_sm` and `deliver_sm` should not be difficult to implement. See examples for more details. Basic knowledge of SMPP protocol is required.
 
 ## Semantics
 

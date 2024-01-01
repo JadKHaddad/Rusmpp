@@ -12,6 +12,7 @@ readme = "../README.md"
 [dev-dependencies]
 tokio = { version = "1.35.0", features = ["full"] }
 uuid = { version = "1.6.1", features = ["v4"] }
+dotenv = "0.15.0"
 
 [dependencies]
 rusmpp_io = { path = "../rusmpp_io" }

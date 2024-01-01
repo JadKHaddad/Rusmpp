@@ -12,45 +12,61 @@ Low level SMPP library in pure rust. This is not a Client/Server implementation,
 
 ## Supported Operations
 
-- [x] bind_transmitter
-- [x] bind_transmitter_resp
-- [x] bind_receiver
-- [x] bind_receiver_resp
-- [x] bind_transceiver
-- [x] bind_transceiver_resp
-- [x] outbind
-- [x] unbind
-- [x] unbind_resp
-- [x] submit_sm
-- [x] submit_sm_resp
-- [x] submit_sm_multi
-- [x] submit_sm_multi_resp
-- [x] data_sm
-- [x] data_sm_resp
-- [x] deliver_sm
-- [x] deliver_sm_resp
-- [x] query_sm
-- [x] query_sm_resp
-- [x] cancel_sm
-- [x] cancel_sm_resp
-- [x] replace_sm
-- [x] replace_sm_resp
-- [x] enquire_link
-- [x] enquire_link_resp
-- [x] alert_notification
-- [x] generic_nack
-- [x] broadcast_sm
-- [x] broadcast_sm_resp
-- [x] query_broadcast_sm
-- [x] query_broadcast_sm_resp
-- [x] cancel_broadcast_sm
-- [x] cancel_broadcast_sm_resp
-
 All operations are supported.
 
 ## Supported TLVs
 
 All TLVs are supported.
+
+## Example
+
+```rust
+use rusmpp::{pdus::body::bodies::bind::Bind, prelude::*};
+use rusmpp_io::types::c_octet_string::COctetString;
+use std::str::FromStr;
+use tokio::{io::BufReader, net::TcpStream};
+
+#[tokio::main]
+async fn main() {
+    let stream = TcpStream::connect("34.242.18.250:2775")
+        .await
+        .expect("Failed to connect");
+
+    let (reader, mut writer) = stream.into_split();
+
+    let mut reader = BufReader::new(reader);
+
+    // BindTransceiver
+    let pdu = Pdu::new(
+        CommandStatus::EsmeRok,
+        SequenceNumber::new(1),
+        PduBody::BindTransceiver(Bind {
+            system_id: COctetString::from_str("system_id").unwrap(),
+            password: COctetString::from_str("pass").unwrap(),
+            system_type: COctetString::from_str("a_type").unwrap(),
+            interface_version: InterfaceVersion::Smpp5_0,
+            addr_ton: Ton::Unknown,
+            addr_npi: Npi::Unknown,
+            address_range: COctetString::empty(),
+        }),
+    )
+    .unwrap();
+
+    pdu.async_io_write(&mut writer)
+        .await
+        .expect("Failed to write pdu bytes");
+
+    while let Ok(pdu) = Pdu::async_io_read(&mut reader).await {
+        println!("pdu: {:?}", pdu);
+        if let CommandId::BindTransceiverResp = pdu.command_id() {
+            println!("BindTransceiverResp received");
+            break;
+        }
+    }
+}
+```
+
+See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/rusmpp/examples) directory for more details.
 
 ## Releases
 

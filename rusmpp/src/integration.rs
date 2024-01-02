@@ -1,6 +1,9 @@
 use crate::{
     pdus::{
-        body::bodies::{bind::Bind, query_sm::QuerySm, s_sm::SSm, submit_sm::SubmitSm},
+        body::bodies::{
+            bind::Bind, cancel_sm::CancelSm, query_sm::QuerySm, replace_sm::ReplaceSm, s_sm::SSm,
+            submit_sm::SubmitSm,
+        },
         types::{
             data_coding::DataCoding,
             esm_class::EsmClass,
@@ -220,6 +223,63 @@ async fn enquire_link(
     }
 }
 
+async fn submit_sm_short_message(
+    sequence_number: SequenceNumber,
+    source_addr: &str,
+    destination_addr: &str,
+    buf_reader: &mut BufReader<OwnedReadHalf>,
+    write: &mut OwnedWriteHalf,
+) -> COctetString<1, 65> {
+    let short_message = OctetString::from_str("Hi, I am a short message.").unwrap();
+
+    let submit_sm = SubmitSm::new(
+        SSm::new(
+            ServiceType::new(GenericServiceType::default()).unwrap(),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str(source_addr).unwrap(),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str(destination_addr).unwrap(),
+            EsmClass::default(),
+            0,
+            PriorityFlag::default(),
+            EmptyOrFullCOctetString::empty(),
+            EmptyOrFullCOctetString::empty(),
+            RegisteredDelivery::default(),
+            ReplaceIfPresentFlag::default(),
+            DataCoding::default(),
+            0,
+            short_message.clone(),
+        ),
+        vec![],
+    );
+
+    let submit_sm_pdu = Pdu::new(
+        CommandStatus::EsmeRok,
+        sequence_number,
+        PduBody::SubmitSm(submit_sm),
+    )
+    .unwrap();
+
+    submit_sm_pdu
+        .async_io_write(write)
+        .await
+        .expect("Failed to write pdu bytes");
+
+    while let Ok(pdu) = Pdu::async_io_read(buf_reader).await {
+        println!("{pdu:?}\n");
+        assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
+        if let Some(PduBody::SubmitSmResp(submit_sm_resp)) = pdu.body() {
+            if pdu.sequence_number() == sequence_number {
+                return submit_sm_resp.message_id().clone();
+            }
+        }
+    }
+
+    COctetString::<1, 65>::empty()
+}
+
 async fn submit_sm_short_message_deliver_sm_receive_delivery(
     sequence_number: SequenceNumber,
     addr: &str,
@@ -360,6 +420,45 @@ async fn query_sm(
     }
 }
 
+async fn cancel_sm(
+    sequence_number: SequenceNumber,
+    message_id: COctetString<1, 65>,
+    addr: &str,
+    buf_reader: &mut BufReader<OwnedReadHalf>,
+    write: &mut OwnedWriteHalf,
+) {
+    let query_sm_pdu = Pdu::new(
+        CommandStatus::EsmeRok,
+        sequence_number,
+        PduBody::CancelSm(CancelSm {
+            serivce_type: ServiceType::new(GenericServiceType::default()).unwrap(),
+            message_id,
+            source_addr_ton: Ton::Unknown,
+            source_addr_npi: Npi::Unknown,
+            source_addr: COctetString::from_str(addr).unwrap(),
+            dest_addr_ton: Ton::Unknown,
+            dest_addr_npi: Npi::Unknown,
+            destination_addr: COctetString::from_str(addr).unwrap(),
+        }),
+    )
+    .unwrap();
+
+    query_sm_pdu
+        .async_io_write(write)
+        .await
+        .expect("Failed to write pdu bytes");
+
+    while let Ok(pdu) = Pdu::async_io_read(buf_reader).await {
+        println!("{pdu:?}\n");
+        if let CommandId::CancelSmResp = pdu.command_id() {
+            if pdu.sequence_number() == sequence_number {
+                assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
+                break;
+            }
+        }
+    }
+}
+
 #[tokio::test]
 #[ignore]
 async fn integration() {
@@ -433,6 +532,26 @@ async fn integration() {
 
     let sequence_number = SequenceNumber::new(4);
     query_sm(
+        sequence_number,
+        message_id,
+        &system_id,
+        &mut buf_reader,
+        &mut write,
+    )
+    .await;
+
+    let sequence_number = SequenceNumber::new(5);
+    let message_id = submit_sm_short_message(
+        sequence_number,
+        &system_id,
+        "SomeOtherAddress",
+        &mut buf_reader,
+        &mut write,
+    )
+    .await;
+
+    let sequence_number = SequenceNumber::new(6);
+    cancel_sm(
         sequence_number,
         message_id,
         &system_id,

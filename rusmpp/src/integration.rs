@@ -28,6 +28,8 @@ use tokio::{
     },
 };
 
+const EXPECTED_INTERFACE_VERSION: InterfaceVersion = InterfaceVersion::Smpp3_4;
+
 async fn connect(host: &str, port: u16) -> TcpStream {
     TcpStream::connect(format!("{}:{}", host, port))
         .await
@@ -66,6 +68,20 @@ async fn bind_tranmitter(
         if let CommandId::BindTransmitterResp = pdu.command_id() {
             if pdu.sequence_number() == sequence_number {
                 assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
+
+                let Some(body) = pdu.into_body() else {
+                    panic!("No body found");
+                };
+
+                let PduBody::BindTransmitterResp(resp) = body else {
+                    panic!("Unexpected body: {body:?}");
+                };
+
+                assert!(matches!(
+                    resp.sc_interface_version.unwrap().value(),
+                    Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
+                ));
+
                 break;
             }
         }
@@ -104,6 +120,20 @@ async fn bind_receiver(
         if let CommandId::BindReceiverResp = pdu.command_id() {
             if pdu.sequence_number() == sequence_number {
                 assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
+
+                let Some(body) = pdu.into_body() else {
+                    panic!("No body found");
+                };
+
+                let PduBody::BindReceiverResp(resp) = body else {
+                    panic!("Unexpected body: {body:?}");
+                };
+
+                assert!(matches!(
+                    resp.sc_interface_version.unwrap().value(),
+                    Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
+                ));
+
                 break;
             }
         }
@@ -142,6 +172,20 @@ async fn bind_transceiver(
         if let CommandId::BindTransceiverResp = pdu.command_id() {
             if pdu.sequence_number() == sequence_number {
                 assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
+
+                let Some(body) = pdu.into_body() else {
+                    panic!("No body found");
+                };
+
+                let PduBody::BindTransceiverResp(resp) = body else {
+                    panic!("Unexpected body: {body:?}");
+                };
+
+                assert!(matches!(
+                    resp.sc_interface_version.unwrap().value(),
+                    Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
+                ));
+
                 break;
             }
         }
@@ -176,7 +220,7 @@ async fn enquire_link(
     }
 }
 
-async fn submit_sm_deliver_sm_receive_delivery(
+async fn submit_sm_short_message_deliver_sm_receive_delivery(
     sequence_number: SequenceNumber,
     addr: &str,
     buf_reader: &mut BufReader<OwnedReadHalf>,
@@ -270,6 +314,15 @@ async fn submit_sm_deliver_sm_receive_delivery(
     }
 
     message_id
+}
+
+async fn submit_sm_message_payload_deliver_sm(
+    sequence_number: SequenceNumber,
+    addr: &str,
+    buf_reader: &mut BufReader<OwnedReadHalf>,
+    write: &mut OwnedWriteHalf,
+) {
+    todo!()
 }
 
 async fn query_sm(
@@ -370,7 +423,7 @@ async fn integration() {
     enquire_link(sequence_number, &mut buf_reader, &mut write).await;
 
     let sequence_number = SequenceNumber::new(3);
-    let message_id = submit_sm_deliver_sm_receive_delivery(
+    let message_id = submit_sm_short_message_deliver_sm_receive_delivery(
         sequence_number,
         &system_id,
         &mut buf_reader,

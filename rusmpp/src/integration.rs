@@ -459,6 +459,20 @@ async fn cancel_sm(
     }
 }
 
+async fn submit_data() {
+    todo!()
+}
+
+async fn generic_nack() {
+    todo!()
+}
+
+async fn unbind() {
+    todo!()
+}
+
+// Other pdus are not supported by the simulator
+
 #[tokio::test]
 #[ignore]
 async fn integration() {

@@ -1,0 +1,24 @@
+[package]
+name = "rusmpp_fuzz"
+version = "0.0.0"
+publish = false
+edition = "2018"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+rusmpp = { path = "../rusmpp" }
+
+[workspace]
+members = ["."]
+
+[profile.release]
+debug = 1
+
+[[bin]]
+name = "io_read"
+path = "fuzz_targets/io_read.rs"
+test = false
+doc = false

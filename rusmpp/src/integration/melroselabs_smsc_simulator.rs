@@ -1,8 +1,9 @@
+// https://melroselabs.com/services/smsc-simulator
+
 use crate::{
     pdus::{
         body::bodies::{
-            bind::Bind, cancel_sm::CancelSm, query_sm::QuerySm, replace_sm::ReplaceSm, s_sm::SSm,
-            submit_sm::SubmitSm,
+            bind::Bind, cancel_sm::CancelSm, query_sm::QuerySm, s_sm::SSm, submit_sm::SubmitSm,
         },
         types::{
             data_coding::DataCoding,

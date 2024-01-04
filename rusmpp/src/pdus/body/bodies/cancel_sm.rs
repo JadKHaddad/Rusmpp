@@ -6,7 +6,17 @@ use crate::{
 };
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
 pub struct CancelSm {
     pub serivce_type: ServiceType,
@@ -41,5 +51,16 @@ impl CancelSm {
             dest_addr_npi,
             destination_addr,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_compare::<CancelSm>().await;
     }
 }

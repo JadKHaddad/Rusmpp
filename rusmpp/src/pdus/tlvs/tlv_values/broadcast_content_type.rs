@@ -102,7 +102,17 @@ impl Default for EncodingContentType {
 }
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,

@@ -13,6 +13,7 @@ use crate::{
 };
 
 #[derive(
+    Default,
     Debug,
     Clone,
     PartialEq,
@@ -60,35 +61,10 @@ impl AlertNotification {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rusmpp_io::io::{read::AsyncIoReadWithLength, write::AsyncIoWrite};
-    use std::{io::Cursor, str::FromStr};
+    use crate::test_utils::defaut_write_read_with_length_compare;
 
     #[tokio::test]
     async fn write_read_compare() {
-        let alert_notification = AlertNotification::new(
-            Ton::International,
-            Npi::Isdn,
-            COctetString::from_str("source_addr").unwrap(),
-            Ton::International,
-            Npi::Isdn,
-            COctetString::from_str("esme_addr").unwrap(),
-            None,
-        );
-
-        let mut curser = Cursor::new(Vec::new());
-
-        alert_notification
-            .async_io_write(&mut curser)
-            .await
-            .expect("Failed to write bytes");
-
-        curser.set_position(0);
-
-        let alert_notification_read =
-            AlertNotification::async_io_read(&mut curser, alert_notification.length())
-                .await
-                .expect("Failed to read bytes");
-
-        assert_eq!(alert_notification, alert_notification_read);
+        defaut_write_read_with_length_compare::<AlertNotification>().await;
     }
 }

@@ -13,6 +13,7 @@ use crate::{
 };
 
 #[derive(
+    Default,
     Debug,
     Clone,
     PartialEq,
@@ -97,5 +98,16 @@ impl CancelBroadcastSm {
             self.source_addr,
             self.tlvs,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<CancelBroadcastSm>().await;
     }
 }

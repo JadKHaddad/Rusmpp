@@ -36,7 +36,17 @@ impl Default for UnitOfTime {
 }
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
 pub struct BroadcastFrequencyInterval {
     pub unit: UnitOfTime,

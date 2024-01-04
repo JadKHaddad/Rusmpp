@@ -121,6 +121,12 @@ impl TLV {
     }
 }
 
+impl From<TLVValue> for TLV {
+    fn from(value: TLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct MessageSubmissionRequestTLV {
     tlv: TLV,

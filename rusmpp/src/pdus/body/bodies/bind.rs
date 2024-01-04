@@ -6,7 +6,17 @@ use crate::{
 };
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
 pub struct Bind {
     pub system_id: COctetString<1, 16>,
@@ -43,33 +53,10 @@ impl Bind {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rusmpp_io::io::{read::AsyncIoRead, write::AsyncIoWrite};
-    use std::{io::Cursor, str::FromStr};
+    use crate::test_utils::defaut_write_read_compare;
 
     #[tokio::test]
     async fn write_read_compare() {
-        let bind = Bind::new(
-            COctetString::from_str("system_id").unwrap(),
-            COctetString::from_str("password").unwrap(),
-            COctetString::from_str("system_type").unwrap(),
-            InterfaceVersion::Smpp5_0,
-            Ton::International,
-            Npi::Isdn,
-            COctetString::from_str("address_range").unwrap(),
-        );
-
-        let mut curser = Cursor::new(Vec::new());
-
-        bind.async_io_write(&mut curser)
-            .await
-            .expect("Failed to write bytes");
-
-        curser.set_position(0);
-
-        let bind_read = Bind::async_io_read(&mut curser)
-            .await
-            .expect("Failed to read bytes");
-
-        assert_eq!(bind, bind_read);
+        defaut_write_read_compare::<Bind>().await;
     }
 }

@@ -39,6 +39,7 @@ impl Default for BroadcastAreaFormat {
 }
 
 #[derive(
+    Default,
     Debug,
     Clone,
     PartialEq,

@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
@@ -24,6 +25,7 @@ use crate::{
 };
 
 #[derive(
+    Derivative,
     Debug,
     Clone,
     PartialEq,
@@ -35,6 +37,7 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[derivative(Default)]
 pub struct BroadcastSm {
     serivce_type: ServiceType,
     source_addr_ton: Ton,
@@ -47,9 +50,13 @@ pub struct BroadcastSm {
     replace_if_present_flag: ReplaceIfPresentFlag,
     data_coding: DataCoding,
     sm_default_msg_id: u8,
+    #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
+    #[derivative(Default(value = "TLVValue::BroadcastContentType(Default::default()).into()"))]
     broadcast_content_type: TLV,
+    #[derivative(Default(value = "TLVValue::BroadcastRepNum(Default::default()).into()"))]
     broadcast_rep_num: TLV,
+    #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_frequency_interval: TLV,
     #[rusmpp_io_read(length=(length - all_before))]
     tlvs: Vec<TLV>,
@@ -209,5 +216,16 @@ impl BroadcastSm {
             self.broadcast_frequency_interval,
             self.tlvs,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<BroadcastSm>().await;
     }
 }

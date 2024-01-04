@@ -13,6 +13,7 @@ use crate::{
 };
 
 #[derive(
+    Default,
     Debug,
     Clone,
     PartialEq,
@@ -46,29 +47,10 @@ impl BindResp {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use rusmpp_io::io::{read::AsyncIoReadWithLength, write::AsyncIoWrite};
-    use std::{io::Cursor, str::FromStr};
+    use crate::test_utils::defaut_write_read_with_length_compare;
 
     #[tokio::test]
     async fn write_read_compare() {
-        let bind_resp = BindResp::new(
-            COctetString::from_str("system_id").unwrap(),
-            Some(InterfaceVersion::Smpp5_0),
-        );
-
-        let mut curser = Cursor::new(Vec::new());
-
-        bind_resp
-            .async_io_write(&mut curser)
-            .await
-            .expect("Failed to write bytes");
-
-        curser.set_position(0);
-
-        let bind_resp_read = BindResp::async_io_read(&mut curser, bind_resp.length())
-            .await
-            .expect("Failed to read bytes");
-
-        assert_eq!(bind_resp, bind_resp_read);
+        defaut_write_read_with_length_compare::<BindResp>().await;
     }
 }

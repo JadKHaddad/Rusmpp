@@ -26,9 +26,9 @@ use crate::{
     RusmppIoReadLength,
 )]
 pub struct BindResp {
-    pub system_id: COctetString<1, 16>,
+    system_id: COctetString<1, 16>,
     #[rusmpp_io_read(length=(length - all_before))]
-    pub sc_interface_version: Option<TLV>,
+    sc_interface_version: Option<TLV>,
 }
 
 impl BindResp {
@@ -41,6 +41,14 @@ impl BindResp {
             sc_interface_version: sc_interface_version
                 .map(|v| TLV::new(TLVValue::ScInterfaceVersion(v))),
         }
+    }
+
+    pub fn system_id(&self) -> &COctetString<1, 16> {
+        &self.system_id
+    }
+
+    pub fn sc_interface_version(&self) -> Option<&TLV> {
+        self.sc_interface_version.as_ref()
     }
 }
 

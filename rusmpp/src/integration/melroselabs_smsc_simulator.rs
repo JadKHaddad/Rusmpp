@@ -82,7 +82,7 @@ async fn bind_tranmitter(
                 };
 
                 assert!(matches!(
-                    resp.sc_interface_version.unwrap().value(),
+                    resp.sc_interface_version().unwrap().value(),
                     Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
                 ));
 
@@ -134,7 +134,7 @@ async fn bind_receiver(
                 };
 
                 assert!(matches!(
-                    resp.sc_interface_version.unwrap().value(),
+                    resp.sc_interface_version().unwrap().value(),
                     Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
                 ));
 
@@ -186,7 +186,7 @@ async fn bind_transceiver(
                 };
 
                 assert!(matches!(
-                    resp.sc_interface_version.unwrap().value(),
+                    resp.sc_interface_version().unwrap().value(),
                     Some(TLVValue::ScInterfaceVersion(EXPECTED_INTERFACE_VERSION))
                 ));
 

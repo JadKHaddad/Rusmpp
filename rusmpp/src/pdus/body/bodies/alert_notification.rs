@@ -6,9 +6,10 @@ use crate::{
         read::{AsyncIoRead, IoRead},
     },
     pdus::{
-        tlvs::tlv::TLV,
+        tlvs::{tlv::TLV, tlv_values::ms_availability_status::MsAvailabilityStatus},
         types::{npi::Npi, ton::Ton},
     },
+    prelude::TLVValue,
     types::c_octet_string::COctetString,
 };
 
@@ -26,14 +27,14 @@ use crate::{
     RusmppIoReadLength,
 )]
 pub struct AlertNotification {
-    pub source_addr_ton: Ton,
-    pub source_addr_npi: Npi,
-    pub source_addr: COctetString<1, 65>,
-    pub esme_addr_ton: Ton,
-    pub esme_addr_npi: Npi,
-    pub esme_addr: COctetString<1, 65>,
+    source_addr_ton: Ton,
+    source_addr_npi: Npi,
+    source_addr: COctetString<1, 65>,
+    esme_addr_ton: Ton,
+    esme_addr_npi: Npi,
+    esme_addr: COctetString<1, 65>,
     #[rusmpp_io_read(length=(length - all_before))]
-    pub ms_availability_status: Option<TLV>,
+    ms_availability_status: Option<TLV>,
 }
 
 impl AlertNotification {
@@ -44,7 +45,7 @@ impl AlertNotification {
         esme_addr_ton: Ton,
         esme_addr_npi: Npi,
         esme_addr: COctetString<1, 65>,
-        ms_availability_status: Option<TLV>,
+        ms_availability_status: Option<MsAvailabilityStatus>,
     ) -> Self {
         Self {
             source_addr_ton,
@@ -53,8 +54,37 @@ impl AlertNotification {
             esme_addr_ton,
             esme_addr_npi,
             esme_addr,
-            ms_availability_status,
+            ms_availability_status: ms_availability_status
+                .map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v))),
         }
+    }
+
+    pub fn source_addr_ton(&self) -> &Ton {
+        &self.source_addr_ton
+    }
+
+    pub fn source_addr_npi(&self) -> &Npi {
+        &self.source_addr_npi
+    }
+
+    pub fn source_addr(&self) -> &COctetString<1, 65> {
+        &self.source_addr
+    }
+
+    pub fn esme_addr_ton(&self) -> &Ton {
+        &self.esme_addr_ton
+    }
+
+    pub fn esme_addr_npi(&self) -> &Npi {
+        &self.esme_addr_npi
+    }
+
+    pub fn esme_addr(&self) -> &COctetString<1, 65> {
+        &self.esme_addr
+    }
+
+    pub fn ms_availability_status(&self) -> Option<&TLV> {
+        self.ms_availability_status.as_ref()
     }
 }
 

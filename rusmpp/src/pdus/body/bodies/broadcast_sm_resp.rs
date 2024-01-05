@@ -32,7 +32,7 @@ pub struct BroadcastSmResp {
     message_id: COctetString<1, 65>,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
-    #[builder(private, setter(name = "_tlvs"))]
+    #[builder(setter(custom))]
     tlvs: Vec<TLV>,
 }
 

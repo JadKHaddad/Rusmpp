@@ -74,11 +74,11 @@ pub struct SSm {
     #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
     #[getset(get_copy = "pub")]
-    #[builder(private, setter(name = "_sm_length"))]
+    #[builder(setter(custom))]
     sm_length: u8,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(sm_length))]
-    #[builder(private, setter(name = "_short_message"))]
+    #[builder(setter(custom))]
     short_message: OctetString<0, 255>,
 }
 

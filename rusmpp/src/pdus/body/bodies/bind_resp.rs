@@ -35,7 +35,7 @@ pub struct BindResp {
     system_id: COctetString<1, 16>,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
-    #[builder(private, setter(name = "_sc_interface_version"))]
+    #[builder(setter(custom))]
     sc_interface_version: Option<TLV>,
 }
 

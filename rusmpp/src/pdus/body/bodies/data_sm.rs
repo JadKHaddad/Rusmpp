@@ -57,7 +57,7 @@ pub struct DataSm {
     data_coding: DataCoding,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
-    #[builder(private, setter(name = "_tlvs"))]
+    #[builder(setter(custom))]
     tlvs: Vec<TLV>,
 }
 

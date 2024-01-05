@@ -16,6 +16,7 @@ pub struct InvalidSequenceNumber {
 /// PDU was deemed completely invalid and its PDU header, was not used to derive a
 /// sequence_number for the response PDU
 #[derive(
+    Default,
     Debug,
     Copy,
     Clone,

@@ -50,7 +50,7 @@ pub struct AlertNotification {
     esme_addr: COctetString<1, 65>,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
-    #[builder(private, setter(name = "_ms_availability_status"))]
+    #[builder(setter(custom))]
     ms_availability_status: Option<TLV>,
 }
 

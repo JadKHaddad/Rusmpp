@@ -66,21 +66,21 @@ pub struct BroadcastSm {
     data_coding: DataCoding,
     #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
-    #[builder(private, setter(name = "_broadcast_area_identifier"))]
+    #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
-    #[builder(private, setter(name = "_broadcast_content_type"))]
+    #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastContentType(Default::default()).into()"))]
     broadcast_content_type: TLV,
-    #[builder(private, setter(name = "_broadcast_rep_num"))]
+    #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastRepNum(Default::default()).into()"))]
     broadcast_rep_num: TLV,
-    #[builder(private, setter(name = "_broadcast_frequency_interval"))]
+    #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_frequency_interval: TLV,
     #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
-    #[builder(private, setter(name = "_tlvs"))]
+    #[builder(setter(custom))]
     tlvs: Vec<TLV>,
 }
 

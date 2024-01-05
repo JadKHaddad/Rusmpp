@@ -1,5 +1,3 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -14,8 +12,16 @@ use crate::{
     },
     types::c_octet_string::COctetString,
 };
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
+    Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -27,18 +33,31 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[builder(default)]
 pub struct DataSm {
+    #[getset(get = "pub", set = "pub")]
     serivce_type: ServiceType,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 21>,
+    #[getset(get_copy = "pub", set = "pub")]
     dest_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     dest_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     destination_addr: COctetString<1, 21>,
+    #[getset(get_copy = "pub", set = "pub")]
     esm_class: EsmClass,
+    #[getset(get_copy = "pub", set = "pub")]
     registered_delivery: RegisteredDelivery,
+    #[getset(get_copy = "pub", set = "pub")]
     data_coding: DataCoding,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
+    #[builder(private, setter(name = "_tlvs"))]
     tlvs: Vec<TLV>,
 }
 
@@ -73,78 +92,34 @@ impl DataSm {
         }
     }
 
-    pub fn service_type(&self) -> &ServiceType {
-        &self.serivce_type
+    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
+        self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
     }
 
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
+    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
+        self.tlvs.push(tlv.into());
+    }
+}
+
+impl DataSmBuilder {
+    pub fn tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> &mut Self {
+        self.tlvs = Some(tlvs.into_iter().map(|v| v.into()).collect());
+        self
     }
 
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
+    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) -> &mut Self {
+        self.tlvs.get_or_insert_with(Vec::new).push(tlv.into());
+        self
     }
+}
 
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
-    }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
 
-    pub fn dest_addr_ton(&self) -> &Ton {
-        &self.dest_addr_ton
-    }
-
-    pub fn dest_addr_npi(&self) -> &Npi {
-        &self.dest_addr_npi
-    }
-
-    pub fn destination_addr(&self) -> &COctetString<1, 21> {
-        &self.destination_addr
-    }
-
-    pub fn esm_class(&self) -> &EsmClass {
-        &self.esm_class
-    }
-
-    pub fn registered_delivery(&self) -> &RegisteredDelivery {
-        &self.registered_delivery
-    }
-
-    pub fn data_coding(&self) -> &DataCoding {
-        &self.data_coding
-    }
-
-    pub fn tlvs(&self) -> &[TLV] {
-        &self.tlvs
-    }
-
-    #[allow(clippy::type_complexity)]
-    pub fn into_parts(
-        self,
-    ) -> (
-        ServiceType,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        EsmClass,
-        RegisteredDelivery,
-        DataCoding,
-        Vec<TLV>,
-    ) {
-        (
-            self.serivce_type,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.dest_addr_ton,
-            self.dest_addr_npi,
-            self.destination_addr,
-            self.esm_class,
-            self.registered_delivery,
-            self.data_coding,
-            self.tlvs,
-        )
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<DataSm>().await;
     }
 }

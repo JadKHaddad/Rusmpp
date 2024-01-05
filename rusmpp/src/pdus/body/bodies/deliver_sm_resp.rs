@@ -1,5 +1,3 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -8,8 +6,15 @@ use crate::{
     pdus::tlvs::tlv::{MessageDeliveryResponseTLV, TLV},
     types::c_octet_string::COctetString,
 };
+use derive_builder::Builder;
+use getset::{Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
+    Default,
+    Getters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -21,9 +26,13 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[builder(default)]
 pub struct DeliverSmResp {
+    #[getset(get = "pub", set = "pub")]
     message_id: COctetString<1, 65>,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
+    #[builder(private, setter(name = "_tlvs"))]
     tlvs: Vec<TLV>,
 }
 
@@ -34,15 +43,34 @@ impl DeliverSmResp {
         Self { message_id, tlvs }
     }
 
-    pub fn message_id(&self) -> &COctetString<1, 65> {
-        &self.message_id
+    pub fn set_tlvs(&mut self, tlvs: Vec<MessageDeliveryResponseTLV>) {
+        self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
-        &self.tlvs
+    pub fn push_tlv(&mut self, tlv: MessageDeliveryResponseTLV) {
+        self.tlvs.push(tlv.into());
+    }
+}
+
+impl DeliverSmRespBuilder {
+    pub fn tlvs(&mut self, tlvs: Vec<MessageDeliveryResponseTLV>) -> &mut Self {
+        self.tlvs = Some(tlvs.into_iter().map(|v| v.into()).collect());
+        self
     }
 
-    pub fn into_parts(self) -> (COctetString<1, 65>, Vec<TLV>) {
-        (self.message_id, self.tlvs)
+    pub fn push_tlv(&mut self, tlv: MessageDeliveryResponseTLV) -> &mut Self {
+        self.tlvs.get_or_insert_with(Vec::new).push(tlv.into());
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<DeliverSmResp>().await;
     }
 }

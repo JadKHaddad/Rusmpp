@@ -16,32 +16,69 @@ use crate::{
         octet_string::OctetString,
     },
 };
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
+#[builder(default)]
 pub struct SSm {
+    #[getset(get = "pub", set = "pub")]
     serivce_type: ServiceType,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 21>,
+    #[getset(get_copy = "pub", set = "pub")]
     dest_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     dest_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     destination_addr: COctetString<1, 21>,
+    #[getset(get_copy = "pub", set = "pub")]
     esm_class: EsmClass,
+    #[getset(get_copy = "pub", set = "pub")]
     protocol_id: u8,
+    #[getset(get_copy = "pub", set = "pub")]
     priority_flag: PriorityFlag,
+    #[getset(get = "pub", set = "pub")]
     schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    #[getset(get = "pub", set = "pub")]
     validity_period: EmptyOrFullCOctetString<17>,
+    #[getset(get_copy = "pub", set = "pub")]
     registered_delivery: RegisteredDelivery,
+    #[getset(get_copy = "pub", set = "pub")]
     replace_if_present_flag: ReplaceIfPresentFlag,
+    #[getset(get_copy = "pub", set = "pub")]
     data_coding: DataCoding,
     /// The sm_default_msg_id parameter specifies the MC index of a pre-defined (‘canned’)
     /// message.
+    #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
+    #[getset(get_copy = "pub")]
+    #[builder(private, setter(name = "_sm_length"))]
     sm_length: u8,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(sm_length))]
+    #[builder(private, setter(name = "_short_message"))]
     short_message: OctetString<0, 255>,
 }
 
@@ -110,118 +147,47 @@ impl SSm {
         }
     }
 
-    pub fn service_type(&self) -> &ServiceType {
-        &self.serivce_type
+    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) {
+        self.sm_length = short_message.length() as u8;
+        self.short_message = short_message;
+    }
+}
+
+impl SSmBuilder {
+    pub fn short_message(&mut self, short_message: OctetString<0, 255>) -> &mut Self {
+        self.sm_length = Some(short_message.length() as u8);
+        self.short_message = Some(short_message);
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use super::*;
+    use crate::test_utils::defaut_write_read_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_compare::<SSm>().await;
     }
 
-    pub fn source_addr_ton(&self) -> Ton {
-        self.source_addr_ton
-    }
+    #[test]
+    fn builder() {
+        let s_sm = SSmBuilder::default().build().unwrap();
+        assert_eq!(s_sm.sm_length(), 0);
+        assert_eq!(s_sm.short_message(), &OctetString::empty());
 
-    pub fn source_addr_npi(&self) -> Npi {
-        self.source_addr_npi
-    }
+        let s_sm = SSmBuilder::default()
+            .short_message(OctetString::from_str("hello").unwrap())
+            .build()
+            .unwrap();
 
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
-    }
-
-    pub fn dest_addr_ton(&self) -> Ton {
-        self.dest_addr_ton
-    }
-
-    pub fn dest_addr_npi(&self) -> Npi {
-        self.dest_addr_npi
-    }
-
-    pub fn destination_addr(&self) -> &COctetString<1, 21> {
-        &self.destination_addr
-    }
-
-    pub fn esm_class(&self) -> EsmClass {
-        self.esm_class
-    }
-
-    pub fn protocol_id(&self) -> u8 {
-        self.protocol_id
-    }
-
-    pub fn priority_flag(&self) -> PriorityFlag {
-        self.priority_flag
-    }
-
-    pub fn schedule_delivery_time(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.schedule_delivery_time
-    }
-
-    pub fn validity_period(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.validity_period
-    }
-
-    pub fn registered_delivery(&self) -> RegisteredDelivery {
-        self.registered_delivery
-    }
-
-    pub fn replace_if_present_flag(&self) -> ReplaceIfPresentFlag {
-        self.replace_if_present_flag
-    }
-
-    pub fn data_coding(&self) -> DataCoding {
-        self.data_coding
-    }
-
-    pub fn sm_default_msg_id(&self) -> u8 {
-        self.sm_default_msg_id
-    }
-
-    pub fn sm_length(self) -> u8 {
-        self.sm_length
-    }
-
-    pub fn short_message(&self) -> &OctetString<0, 255> {
-        &self.short_message
-    }
-
-    #[allow(clippy::type_complexity)]
-    pub fn into_parts(
-        self,
-    ) -> (
-        ServiceType,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        EsmClass,
-        u8,
-        PriorityFlag,
-        EmptyOrFullCOctetString<17>,
-        EmptyOrFullCOctetString<17>,
-        RegisteredDelivery,
-        ReplaceIfPresentFlag,
-        DataCoding,
-        u8,
-        OctetString<0, 255>,
-    ) {
-        (
-            self.serivce_type,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.dest_addr_ton,
-            self.dest_addr_npi,
-            self.destination_addr,
-            self.esm_class,
-            self.protocol_id,
-            self.priority_flag,
-            self.schedule_delivery_time,
-            self.validity_period,
-            self.registered_delivery,
-            self.replace_if_present_flag,
-            self.data_coding,
-            self.sm_default_msg_id,
-            self.short_message,
-        )
+        assert_eq!(s_sm.sm_length(), 5);
+        assert_eq!(
+            s_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
     }
 }

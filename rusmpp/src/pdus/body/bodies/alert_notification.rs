@@ -1,7 +1,3 @@
-use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -14,6 +10,9 @@ use crate::{
     prelude::TLVValue,
     types::c_octet_string::COctetString,
 };
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 // Default is okay to derive because ms_availability_status will be None.
 // For the Builder, ms_availability_status setter will be private and have a nother name
@@ -49,8 +48,8 @@ pub struct AlertNotification {
     esme_addr_npi: Npi,
     #[getset(get = "pub", set = "pub")]
     esme_addr: COctetString<1, 65>,
-    #[rusmpp_io_read(length=(length - all_before))]
     #[getset(get = "pub")]
+    #[rusmpp_io_read(length=(length - all_before))]
     #[builder(private, setter(name = "_ms_availability_status"))]
     ms_availability_status: Option<TLV>,
 }
@@ -105,5 +104,27 @@ mod tests {
     #[tokio::test]
     async fn write_read_compare() {
         defaut_write_read_with_length_compare::<AlertNotification>().await;
+    }
+
+    #[test]
+    fn builder() {
+        let alert_notification = AlertNotificationBuilder::default().build().unwrap();
+
+        assert_eq!(alert_notification, AlertNotification::default());
+
+        let alert_notification = AlertNotificationBuilder::default()
+            .ms_availability_status(Some(MsAvailabilityStatus::Available))
+            .build()
+            .unwrap();
+
+        assert_eq!(
+            alert_notification
+                .ms_availability_status()
+                .as_ref()
+                .unwrap()
+                .value()
+                .unwrap(),
+            &TLVValue::MsAvailabilityStatus(MsAvailabilityStatus::Available)
+        );
     }
 }

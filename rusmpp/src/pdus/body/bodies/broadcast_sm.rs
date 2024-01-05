@@ -1,6 +1,3 @@
-use derivative::Derivative;
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -23,9 +20,17 @@ use crate::{
     },
     types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
+use derivative::Derivative;
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Derivative,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -39,26 +44,43 @@ use crate::{
 )]
 #[derivative(Default)]
 pub struct BroadcastSm {
+    #[getset(get = "pub", set = "pub")]
     serivce_type: ServiceType,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 21>,
+    #[getset(get = "pub", set = "pub")]
     message_id: COctetString<1, 65>,
+    #[getset(get = "pub", set = "pub")]
     priority_flag: PriorityFlag,
+    #[getset(get = "pub", set = "pub")]
     schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    #[getset(get = "pub", set = "pub")]
     validity_period: EmptyOrFullCOctetString<17>,
+    #[getset(get = "pub", set = "pub")]
     replace_if_present_flag: ReplaceIfPresentFlag,
+    #[getset(get = "pub", set = "pub")]
     data_coding: DataCoding,
+    #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
+    #[builder(private, setter(name = "_broadcast_area_identifier"))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
+    #[builder(private, setter(name = "_broadcast_content_type"))]
     #[derivative(Default(value = "TLVValue::BroadcastContentType(Default::default()).into()"))]
     broadcast_content_type: TLV,
+    #[builder(private, setter(name = "_broadcast_rep_num"))]
     #[derivative(Default(value = "TLVValue::BroadcastRepNum(Default::default()).into()"))]
     broadcast_rep_num: TLV,
+    #[builder(private, setter(name = "_broadcast_frequency_interval"))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_frequency_interval: TLV,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
+    #[builder(private, setter(name = "_tlvs"))]
     tlvs: Vec<TLV>,
 }
 
@@ -113,109 +135,85 @@ impl BroadcastSm {
         }
     }
 
-    pub fn service_type(&self) -> &ServiceType {
-        &self.serivce_type
+    pub fn set_tlvs(&mut self, tlvs: Vec<BroadcastRequestTLV>) {
+        self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
     }
 
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
+    pub fn push_tlv(&mut self, tlv: BroadcastRequestTLV) {
+        self.tlvs.push(tlv.into());
     }
 
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
-    }
-
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
-    }
-
-    pub fn message_id(&self) -> &COctetString<1, 65> {
-        &self.message_id
-    }
-
-    pub fn priority_flag(&self) -> &PriorityFlag {
-        &self.priority_flag
-    }
-
-    pub fn schedule_delivery_time(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.schedule_delivery_time
-    }
-
-    pub fn validity_period(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.validity_period
-    }
-
-    pub fn replace_if_present_flag(&self) -> &ReplaceIfPresentFlag {
-        &self.replace_if_present_flag
-    }
-
-    pub fn data_coding(&self) -> &DataCoding {
-        &self.data_coding
-    }
-
-    pub fn sm_default_msg_id(&self) -> u8 {
-        self.sm_default_msg_id
-    }
-
-    pub fn broadcast_area_identifier(&self) -> &TLV {
-        &self.broadcast_area_identifier
-    }
-
-    pub fn broadcast_content_type(&self) -> &TLV {
-        &self.broadcast_content_type
-    }
-
-    pub fn broadcast_rep_num(&self) -> &TLV {
-        &self.broadcast_rep_num
-    }
-
-    pub fn broadcast_frequency_interval(&self) -> &TLV {
-        &self.broadcast_frequency_interval
-    }
-
-    pub fn tlvs(&self) -> &[TLV] {
-        &self.tlvs
-    }
-
-    #[allow(clippy::type_complexity)]
-    pub fn into_parts(
-        self,
-    ) -> (
-        ServiceType,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        COctetString<1, 65>,
-        PriorityFlag,
-        EmptyOrFullCOctetString<17>,
-        EmptyOrFullCOctetString<17>,
-        ReplaceIfPresentFlag,
-        DataCoding,
-        u8,
-        TLV,
-        TLV,
-        TLV,
-        TLV,
-        Vec<TLV>,
+    pub fn set_broadcast_area_identifier(
+        &mut self,
+        broadcast_area_identifier: BroadcastAreaIdentifier,
     ) {
-        (
-            self.serivce_type,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.message_id,
-            self.priority_flag,
-            self.schedule_delivery_time,
-            self.validity_period,
-            self.replace_if_present_flag,
-            self.data_coding,
-            self.sm_default_msg_id,
-            self.broadcast_area_identifier,
-            self.broadcast_content_type,
-            self.broadcast_rep_num,
-            self.broadcast_frequency_interval,
-            self.tlvs,
-        )
+        self.broadcast_area_identifier =
+            TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+    }
+
+    pub fn set_broadcast_content_type(&mut self, broadcast_content_type: BroadcastContentType) {
+        self.broadcast_content_type =
+            TLV::new(TLVValue::BroadcastContentType(broadcast_content_type));
+    }
+
+    pub fn set_broadcast_rep_num(&mut self, broadcast_rep_num: u16) {
+        self.broadcast_rep_num = TLV::new(TLVValue::BroadcastRepNum(broadcast_rep_num));
+    }
+
+    pub fn set_broadcast_frequency_interval(
+        &mut self,
+        broadcast_frequency_interval: BroadcastFrequencyInterval,
+    ) {
+        self.broadcast_frequency_interval = TLV::new(TLVValue::BroadcastFrequencyInterval(
+            broadcast_frequency_interval,
+        ));
+    }
+}
+
+impl BroadcastSmBuilder {
+    pub fn tlvs(&mut self, tlvs: Vec<BroadcastRequestTLV>) -> &mut Self {
+        self.tlvs = Some(tlvs.into_iter().map(|v| v.into()).collect());
+        self
+    }
+
+    pub fn push_tlv(&mut self, tlv: BroadcastRequestTLV) -> &mut Self {
+        self.tlvs.get_or_insert_with(Vec::new).push(tlv.into());
+        self
+    }
+
+    pub fn broadcast_area_identifier(
+        &mut self,
+        broadcast_area_identifier: BroadcastAreaIdentifier,
+    ) -> &mut Self {
+        self.broadcast_area_identifier = Some(TLV::new(TLVValue::BroadcastAreaIdentifier(
+            broadcast_area_identifier,
+        )));
+        self
+    }
+
+    pub fn broadcast_content_type(
+        &mut self,
+        broadcast_content_type: BroadcastContentType,
+    ) -> &mut Self {
+        self.broadcast_content_type = Some(TLV::new(TLVValue::BroadcastContentType(
+            broadcast_content_type,
+        )));
+        self
+    }
+
+    pub fn broadcast_rep_num(&mut self, broadcast_rep_num: u16) -> &mut Self {
+        self.broadcast_rep_num = Some(TLV::new(TLVValue::BroadcastRepNum(broadcast_rep_num)));
+        self
+    }
+
+    pub fn broadcast_frequency_interval(
+        &mut self,
+        broadcast_frequency_interval: BroadcastFrequencyInterval,
+    ) -> &mut Self {
+        self.broadcast_frequency_interval = Some(TLV::new(TLVValue::BroadcastFrequencyInterval(
+            broadcast_frequency_interval,
+        )));
+        self
     }
 }
 

@@ -1,12 +1,20 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
-
 use crate::{
     pdus::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     types::c_octet_string::COctetString,
 };
+use derive_builder::Builder;
+use derive_new::new;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
+#[allow(clippy::too_many_arguments)]
 #[derive(
+    new,
     Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -18,40 +26,24 @@ use crate::{
     RusmppIoWrite,
     RusmppIoRead,
 )]
+#[builder(default)]
 pub struct CancelSm {
+    #[getset(get = "pub", set = "pub")]
     pub serivce_type: ServiceType,
+    #[getset(get = "pub", set = "pub")]
     pub message_id: COctetString<1, 65>,
+    #[getset(get_copy = "pub", set = "pub")]
     pub source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     pub source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     pub source_addr: COctetString<1, 21>,
+    #[getset(get_copy = "pub", set = "pub")]
     pub dest_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     pub dest_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     pub destination_addr: COctetString<1, 21>,
-}
-
-impl CancelSm {
-    #[allow(clippy::too_many_arguments)]
-    pub fn new(
-        serivce_type: ServiceType,
-        message_id: COctetString<1, 65>,
-        source_addr_ton: Ton,
-        source_addr_npi: Npi,
-        source_addr: COctetString<1, 21>,
-        dest_addr_ton: Ton,
-        dest_addr_npi: Npi,
-        destination_addr: COctetString<1, 21>,
-    ) -> Self {
-        Self {
-            serivce_type,
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-        }
-    }
 }
 
 #[cfg(test)]

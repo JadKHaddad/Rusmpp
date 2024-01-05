@@ -43,6 +43,7 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
     RusmppIoReadLength,
 )]
 #[derivative(Default)]
+#[builder(default)]
 pub struct BroadcastSm {
     #[getset(get = "pub", set = "pub")]
     serivce_type: ServiceType,
@@ -66,15 +67,19 @@ pub struct BroadcastSm {
     data_coding: DataCoding,
     #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
+    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
+    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastContentType(Default::default()).into()"))]
     broadcast_content_type: TLV,
+    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastRepNum(Default::default()).into()"))]
     broadcast_rep_num: TLV,
+    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_frequency_interval: TLV,

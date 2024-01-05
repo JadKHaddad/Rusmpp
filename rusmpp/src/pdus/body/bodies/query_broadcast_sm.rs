@@ -1,5 +1,3 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -11,8 +9,16 @@ use crate::{
     },
     types::c_octet_string::COctetString,
 };
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
+    Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -24,12 +30,19 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[builder(default)]
 pub struct QueryBroadcastSm {
+    #[getset(get = "pub", set = "pub")]
     message_id: COctetString<1, 65>,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 21>,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
+    #[builder(setter(custom))]
     user_message_reference: Option<TLV>,
 }
 
@@ -53,41 +66,28 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub fn message_id(&self) -> &COctetString<1, 65> {
-        &self.message_id
+    pub fn set_user_message_reference(&mut self, user_message_reference: Option<u16>) {
+        self.user_message_reference =
+            user_message_reference.map(|v| TLV::new(TLVValue::UserMessageReference(v)));
     }
+}
 
-    pub fn source_addr_ton(&self) -> Ton {
-        self.source_addr_ton
+impl QueryBroadcastSmBuilder {
+    pub fn user_message_reference(&mut self, user_message_reference: Option<u16>) -> &mut Self {
+        self.user_message_reference = user_message_reference
+            .map(|v| TLV::new(TLVValue::UserMessageReference(v)))
+            .into();
+        self
     }
+}
 
-    pub fn source_addr_npi(&self) -> Npi {
-        self.source_addr_npi
-    }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
 
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
-    }
-
-    pub fn user_message_reference(&self) -> Option<&TLV> {
-        self.user_message_reference.as_ref()
-    }
-
-    pub fn into_parts(
-        self,
-    ) -> (
-        COctetString<1, 65>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        Option<TLV>,
-    ) {
-        (
-            self.message_id,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.user_message_reference,
-        )
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<QueryBroadcastSm>().await;
     }
 }

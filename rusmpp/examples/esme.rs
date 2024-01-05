@@ -29,10 +29,7 @@ use rusmpp::{
             interface_version::InterfaceVersion,
             npi::Npi,
             priority_flag::PriorityFlag,
-            registered_delivery::{
-                IntermediateNotification, MCDeliveryReceipt, RegisteredDelivery,
-                SmeOriginatedAcknowledgement,
-            },
+            registered_delivery::RegisteredDelivery,
             replace_if_present_flag::ReplaceIfPresentFlag,
             sequence_number::SequenceNumber,
             service_type::{GenericServiceType, ServiceType},
@@ -110,12 +107,7 @@ async fn main() {
                 EmptyOrFullCOctetString::from_str("").unwrap(),
                 EmptyOrFullCOctetString::from_str("").unwrap(),
                 // Use default values to "not" get a delivery receipt
-                RegisteredDelivery::new(
-                    MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
-                    SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested,
-                    IntermediateNotification::IntermediateNotificationRequested,
-                    0,
-                ),
+                RegisteredDelivery::request_all(),
                 ReplaceIfPresentFlag::default(),
                 DataCoding::default(),
                 0,

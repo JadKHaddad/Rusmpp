@@ -27,6 +27,16 @@ impl RegisteredDelivery {
         }
     }
 
+    /// Request all delivery receipts, acknowledgements and notifications
+    pub fn request_all() -> Self {
+        Self::new(
+            MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
+            SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested,
+            IntermediateNotification::IntermediateNotificationRequested,
+            0,
+        )
+    }
+
     pub fn mc_delivery_receipt(&self) -> MCDeliveryReceipt {
         self.mc_delivery_receipt
     }

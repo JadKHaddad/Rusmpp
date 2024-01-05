@@ -107,3 +107,10 @@ pub enum MessageState {
     #[num_enum(catch_all)]
     Other(u8),
 }
+
+#[allow(clippy::derivable_impls)]
+impl Default for MessageState {
+    fn default() -> Self {
+        MessageState::Scheduled
+    }
+}

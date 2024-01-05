@@ -1,3 +1,5 @@
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 use crate::{
@@ -13,8 +15,15 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
+// Default is okay to derive because ms_availability_status will be None.
+// For the Builder, ms_availability_status setter will be private and have a nother name
+// so that we implement the setter ourselves.
 #[derive(
     Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -26,14 +35,23 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[builder(default)]
 pub struct AlertNotification {
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 65>,
+    #[getset(get_copy = "pub", set = "pub")]
     esme_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     esme_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     esme_addr: COctetString<1, 65>,
     #[rusmpp_io_read(length=(length - all_before))]
+    #[getset(get = "pub")]
+    #[builder(private, setter(name = "_ms_availability_status"))]
     ms_availability_status: Option<TLV>,
 }
 
@@ -59,32 +77,23 @@ impl AlertNotification {
         }
     }
 
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
+    pub fn set_ms_availability_status(
+        &mut self,
+        ms_availability_status: Option<MsAvailabilityStatus>,
+    ) {
+        self.ms_availability_status =
+            ms_availability_status.map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v)));
     }
+}
 
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
-    }
-
-    pub fn source_addr(&self) -> &COctetString<1, 65> {
-        &self.source_addr
-    }
-
-    pub fn esme_addr_ton(&self) -> &Ton {
-        &self.esme_addr_ton
-    }
-
-    pub fn esme_addr_npi(&self) -> &Npi {
-        &self.esme_addr_npi
-    }
-
-    pub fn esme_addr(&self) -> &COctetString<1, 65> {
-        &self.esme_addr
-    }
-
-    pub fn ms_availability_status(&self) -> Option<&TLV> {
-        self.ms_availability_status.as_ref()
+impl AlertNotificationBuilder {
+    pub fn ms_availability_status(
+        &mut self,
+        ms_availability_status: Option<MsAvailabilityStatus>,
+    ) -> &mut Self {
+        self.ms_availability_status =
+            Some(ms_availability_status.map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v))));
+        self
     }
 }
 

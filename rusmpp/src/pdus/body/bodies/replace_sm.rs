@@ -1,5 +1,3 @@
-use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
-
 use crate::{
     io::{
         length::IoLength,
@@ -14,8 +12,16 @@ use crate::{
         no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
     },
 };
+use derive_builder::Builder;
+use getset::{CopyGetters, Getters, Setters};
+use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
+    Default,
+    Getters,
+    CopyGetters,
+    Setters,
+    Builder,
     Debug,
     Clone,
     PartialEq,
@@ -27,19 +33,34 @@ use crate::{
     RusmppIoWrite,
     RusmppIoReadLength,
 )]
+#[builder(default)]
 pub struct ReplaceSm {
+    #[getset(get = "pub", set = "pub")]
     message_id: COctetString<1, 65>,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_ton: Ton,
+    #[getset(get_copy = "pub", set = "pub")]
     source_addr_npi: Npi,
+    #[getset(get = "pub", set = "pub")]
     source_addr: COctetString<1, 21>,
+    #[getset(get = "pub", set = "pub")]
     schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    #[getset(get = "pub", set = "pub")]
     validity_period: EmptyOrFullCOctetString<17>,
+    #[getset(get_copy = "pub", set = "pub")]
     registered_delivery: RegisteredDelivery,
+    #[getset(get_copy = "pub", set = "pub")]
     sm_default_msg_id: u8,
+    #[getset(get_copy = "pub")]
+    #[builder(setter(custom))]
     sm_length: u8,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(sm_length))]
+    #[builder(setter(custom))]
     short_message: OctetString<0, 255>,
+    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
+    #[builder(setter(custom))]
     message_payload: Option<TLV>,
 }
 
@@ -82,78 +103,168 @@ impl ReplaceSm {
         }
     }
 
-    pub fn message_id(&self) -> &COctetString<1, 65> {
-        &self.message_id
+    /// Sets the short message and short message length and clears the message payload.
+    /// Always clears the message payload.
+    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) {
+        self.sm_length = short_message.length() as u8;
+        self.short_message = short_message;
+        self.message_payload = None;
     }
 
-    pub fn source_addr_ton(&self) -> &Ton {
-        &self.source_addr_ton
+    /// Sets the message payload.
+    /// If Some, the short message and short message length are cleared.
+    /// If None, the short message and short message length will not be touched.
+    pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
+        self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
+
+        if self.message_payload.is_some() {
+            self.short_message = OctetString::empty();
+            self.sm_length = 0;
+        };
+    }
+}
+
+impl ReplaceSmBuilder {
+    pub fn short_message(&mut self, short_message: OctetString<0, 255>) -> &mut Self {
+        self.sm_length = Some(short_message.length() as u8);
+        self.short_message = Some(short_message);
+        self.message_payload = None;
+        self
     }
 
-    pub fn source_addr_npi(&self) -> &Npi {
-        &self.source_addr_npi
+    pub fn message_payload(
+        &mut self,
+        message_payload: Option<NoFixedSizeOctetString>,
+    ) -> &mut Self {
+        if self.message_payload.is_some() {
+            self.short_message = None;
+            self.sm_length = None;
+        };
+
+        self.message_payload = message_payload
+            .map(|v| TLV::new(TLVValue::MessagePayload(v)))
+            .into();
+
+        self
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
+
+    #[tokio::test]
+    async fn write_read_compare() {
+        defaut_write_read_with_length_compare::<ReplaceSm>().await;
     }
 
-    pub fn source_addr(&self) -> &COctetString<1, 21> {
-        &self.source_addr
+    #[test]
+    fn set_short_message() {
+        let mut replace_sm = ReplaceSm::default();
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
+
+        replace_sm.set_short_message(OctetString::from_str("hello").unwrap());
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
+
+        replace_sm.set_message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()));
+
+        assert!(replace_sm.message_payload().is_some());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
+
+        replace_sm.set_short_message(OctetString::from_str("hello").unwrap());
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
+
+        replace_sm.set_message_payload(None);
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
+
+        replace_sm.set_message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()));
+        replace_sm.set_short_message(OctetString::from_str("").unwrap());
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
     }
 
-    pub fn schedule_delivery_time(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.schedule_delivery_time
-    }
+    #[test]
+    fn builder_set_short_message() {
+        let replace_sm = ReplaceSmBuilder::default().build().unwrap();
 
-    pub fn validity_period(&self) -> &EmptyOrFullCOctetString<17> {
-        &self.validity_period
-    }
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
 
-    pub fn registered_delivery(&self) -> &RegisteredDelivery {
-        &self.registered_delivery
-    }
+        let replace_sm = ReplaceSmBuilder::default()
+            .short_message(OctetString::from_str("hello").unwrap())
+            .build()
+            .unwrap();
 
-    pub fn sm_default_msg_id(&self) -> &u8 {
-        &self.sm_default_msg_id
-    }
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
 
-    pub fn sm_length(&self) -> &u8 {
-        &self.sm_length
-    }
+        let replace_sm = ReplaceSmBuilder::default()
+            .message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()))
+            .short_message(OctetString::from_str("hello").unwrap())
+            .build()
+            .unwrap();
 
-    pub fn short_message(&self) -> &OctetString<0, 255> {
-        &self.short_message
-    }
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
 
-    pub fn message_payload(&self) -> Option<&TLV> {
-        self.message_payload.as_ref()
-    }
+        let replace_sm = ReplaceSmBuilder::default()
+            .message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()))
+            .short_message(OctetString::from_str("hello").unwrap())
+            .message_payload(None)
+            .build()
+            .unwrap();
 
-    #[allow(clippy::type_complexity)]
-    pub fn into_parts(
-        self,
-    ) -> (
-        COctetString<1, 65>,
-        Ton,
-        Npi,
-        COctetString<1, 21>,
-        EmptyOrFullCOctetString<17>,
-        EmptyOrFullCOctetString<17>,
-        RegisteredDelivery,
-        u8,
-        u8,
-        OctetString<0, 255>,
-        Option<TLV>,
-    ) {
-        (
-            self.message_id,
-            self.source_addr_ton,
-            self.source_addr_npi,
-            self.source_addr,
-            self.schedule_delivery_time,
-            self.validity_period,
-            self.registered_delivery,
-            self.sm_default_msg_id,
-            self.sm_length,
-            self.short_message,
-            self.message_payload,
-        )
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 5);
+        assert_eq!(
+            replace_sm.short_message(),
+            &OctetString::from_str("hello").unwrap()
+        );
+
+        let replace_sm = ReplaceSmBuilder::default()
+            .message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()))
+            .short_message(OctetString::from_str("").unwrap())
+            .build()
+            .unwrap();
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
     }
 }

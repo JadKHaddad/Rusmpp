@@ -5,7 +5,17 @@ use crate::types::c_octet_string::COctetString;
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
 
 #[derive(
-    Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, RusmppIoLength, RusmppIoWrite, RusmppIoRead,
+    Default,
+    Debug,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    PartialOrd,
+    Ord,
+    RusmppIoLength,
+    RusmppIoWrite,
+    RusmppIoRead,
 )]
 pub struct UnsuccessSme {
     pub dest_addr_ton: Ton,

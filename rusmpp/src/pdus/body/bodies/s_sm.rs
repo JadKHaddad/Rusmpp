@@ -127,24 +127,24 @@ impl SSm {
         }
     }
 
-    pub(crate) fn check_for_message_payload_and_update(self, tlvs: &[TLV]) -> Self {
+    /// Clears the short message and short message length if the message payload is set.
+    /// Returns true if the short message and short message length were cleared.
+    pub(crate) fn check_for_message_payload_and_clear_short_message(
+        &mut self,
+        tlvs: &[TLV],
+    ) -> bool {
         let message_payload_exists = tlvs
             .iter()
             .any(|v| matches!(v.tag(), TLVTag::MessagePayload));
 
-        let short_message = if message_payload_exists {
-            OctetString::empty()
-        } else {
-            self.short_message
+        if message_payload_exists {
+            self.short_message = OctetString::empty();
+            self.sm_length = 0;
+
+            return true;
         };
 
-        let sm_length = short_message.length() as u8;
-
-        Self {
-            short_message,
-            sm_length,
-            ..self
-        }
+        false
     }
 
     pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) {

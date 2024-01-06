@@ -34,6 +34,8 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
     RusmppIoReadLength,
 )]
 #[builder(default)]
+/// Short message is always superceded by the message payload.
+/// Clear message payload to use the short message.
 pub struct ReplaceSm {
     #[getset(get = "pub", set = "pub")]
     message_id: COctetString<1, 65>,
@@ -103,48 +105,76 @@ impl ReplaceSm {
         }
     }
 
-    /// Sets the short message and short message length and clears the message payload.
-    /// Always clears the message payload.
-    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) {
-        self.sm_length = short_message.length() as u8;
-        self.short_message = short_message;
-        self.message_payload = None;
-    }
-
-    /// Sets the message payload.
-    /// If Some, the short message and short message length are cleared.
-    /// If None, the short message and short message length will not be touched.
-    pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
-        self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
-
+    /// Clears the short message and short message length if the message payload is set.
+    /// Returns true if the short message and short message length were cleared.
+    fn check_for_message_payload_and_clear_short_message(&mut self) -> bool {
         if self.message_payload.is_some() {
             self.short_message = OctetString::empty();
             self.sm_length = 0;
+
+            return true;
         };
+
+        false
+    }
+
+    /// Sets the short message and short message length.
+    /// Updates the short message and short message length accordingly.
+    /// Has no effect if the message payload is set.
+    /// Returns true if the short message and short message length were set.
+    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
+        self.sm_length = short_message.length() as u8;
+        self.short_message = short_message;
+
+        !self.check_for_message_payload_and_clear_short_message()
+    }
+
+    /// Sets the message payload.
+    /// Updates the short message and short message length accordingly.
+    pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
+        self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
+
+        self.check_for_message_payload_and_clear_short_message();
+    }
+
+    pub fn clear_message_payload(&mut self) {
+        self.message_payload = None;
     }
 }
 
 impl ReplaceSmBuilder {
+    /// Clears the short message and short message length if the message payload is set.
+    fn check_for_message_payload_and_update(&mut self) {
+        if let Some(ref message_payload) = self.message_payload {
+            if message_payload.is_some() {
+                self.short_message = None;
+                self.sm_length = None;
+            };
+        }
+    }
+
+    /// Sets the short message and short message length.
+    /// Updates the short message and short message length accordingly.
+    /// Has no effect if the message payload is set.
     pub fn short_message(&mut self, short_message: OctetString<0, 255>) -> &mut Self {
         self.sm_length = Some(short_message.length() as u8);
         self.short_message = Some(short_message);
-        self.message_payload = None;
+
+        self.check_for_message_payload_and_update();
         self
     }
 
+    /// Sets the message payload.
+    /// Updates the short message and short message length accordingly.
     pub fn message_payload(
         &mut self,
         message_payload: Option<NoFixedSizeOctetString>,
     ) -> &mut Self {
-        if self.message_payload.is_some() {
-            self.short_message = None;
-            self.sm_length = None;
-        };
-
         self.message_payload = message_payload
             .map(|v| TLV::new(TLVValue::MessagePayload(v)))
             .into();
 
+        self.check_for_message_payload_and_update();
         self
     }
 }
@@ -186,26 +216,19 @@ mod tests {
 
         replace_sm.set_short_message(OctetString::from_str("hello").unwrap());
 
-        assert!(replace_sm.message_payload().is_none());
-        assert_eq!(replace_sm.sm_length(), 5);
-        assert_eq!(
-            replace_sm.short_message(),
-            &OctetString::from_str("hello").unwrap()
-        );
+        assert!(replace_sm.message_payload().is_some());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
 
         replace_sm.set_message_payload(None);
 
         assert!(replace_sm.message_payload().is_none());
-        assert_eq!(replace_sm.sm_length(), 5);
-        assert_eq!(
-            replace_sm.short_message(),
-            &OctetString::from_str("hello").unwrap()
-        );
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
 
         replace_sm.set_message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()));
-        replace_sm.set_short_message(OctetString::from_str("").unwrap());
 
-        assert!(replace_sm.message_payload().is_none());
+        assert!(replace_sm.message_payload().is_some());
         assert_eq!(replace_sm.sm_length(), 0);
         assert_eq!(replace_sm.short_message(), &OctetString::empty());
     }
@@ -236,15 +259,22 @@ mod tests {
             .build()
             .unwrap();
 
-        assert!(replace_sm.message_payload().is_none());
-        assert_eq!(replace_sm.sm_length(), 5);
-        assert_eq!(
-            replace_sm.short_message(),
-            &OctetString::from_str("hello").unwrap()
-        );
+        assert!(replace_sm.message_payload().is_some());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
 
         let replace_sm = ReplaceSmBuilder::default()
             .message_payload(Some(NoFixedSizeOctetString::from_str("hello").unwrap()))
+            .short_message(OctetString::from_str("hello").unwrap())
+            .message_payload(None)
+            .build()
+            .unwrap();
+
+        assert!(replace_sm.message_payload().is_none());
+        assert_eq!(replace_sm.sm_length(), 0);
+        assert_eq!(replace_sm.short_message(), &OctetString::empty());
+
+        let replace_sm = ReplaceSmBuilder::default()
             .short_message(OctetString::from_str("hello").unwrap())
             .message_payload(None)
             .build()
@@ -263,7 +293,7 @@ mod tests {
             .build()
             .unwrap();
 
-        assert!(replace_sm.message_payload().is_none());
+        assert!(replace_sm.message_payload().is_some());
         assert_eq!(replace_sm.sm_length(), 0);
         assert_eq!(replace_sm.short_message(), &OctetString::empty());
     }

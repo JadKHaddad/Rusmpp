@@ -31,7 +31,9 @@ pub struct SubmitSm {
 impl SubmitSm {
     pub fn new(ssm: SSm, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
         let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
-        let ssm = SSm::check_for_message_payload_and_update(ssm, &tlvs);
+
+        let mut ssm = ssm;
+        ssm.check_for_message_payload_and_clear_short_message(&tlvs);
 
         Self { ssm, tlvs }
     }

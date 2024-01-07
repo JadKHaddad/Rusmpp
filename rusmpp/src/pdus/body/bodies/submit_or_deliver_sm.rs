@@ -14,7 +14,6 @@ use crate::{
     prelude::{Npi, TLVTag, Ton},
 };
 use derive_builder::Builder;
-use getset::{Getters, Setters};
 use rusmpp_io::types::{
     c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
     octet_string::OctetString,
@@ -31,8 +30,6 @@ pub mod mod_name {
 
     #[derive(
         Default,
-        Getters,
-        Setters,
         Builder,
         Debug,
         Clone,

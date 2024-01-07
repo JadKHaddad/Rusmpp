@@ -10,14 +10,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -32,17 +28,11 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct CancelBroadcastSm {
-    #[getset(get = "pub", set = "pub")]
-    serivce_type: ServiceType,
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 21>,
-    #[getset(get = "pub")]
+    pub serivce_type: ServiceType,
+    pub message_id: COctetString<1, 65>,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -67,6 +57,10 @@ impl CancelBroadcastSm {
             source_addr,
             tlvs,
         }
+    }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<CancelBroadcastTLV>) {

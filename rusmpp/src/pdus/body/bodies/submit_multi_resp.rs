@@ -10,14 +10,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -32,15 +28,11 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct SubmitMultiResp {
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get_copy = "pub")]
+    pub message_id: COctetString<1, 65>,
     no_unsuccess: u8,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(count=no_unsuccess)]
     #[builder(setter(custom))]
     unsuccess_sme: Vec<UnsuccessSme>,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -62,6 +54,14 @@ impl SubmitMultiResp {
         }
     }
 
+    pub fn no_unsuccess(&self) -> u8 {
+        self.no_unsuccess
+    }
+
+    pub fn unsuccess_sme(&self) -> &[UnsuccessSme] {
+        &self.unsuccess_sme
+    }
+
     pub fn set_unsuccess_sme(&mut self, unsuccess_sme: Vec<UnsuccessSme>) {
         self.no_unsuccess = unsuccess_sme.len() as u8;
         self.unsuccess_sme = unsuccess_sme;
@@ -70,6 +70,10 @@ impl SubmitMultiResp {
     pub fn push_unsuccess_sme(&mut self, unsuccess_sme: UnsuccessSme) {
         self.unsuccess_sme.push(unsuccess_sme);
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
+    }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {

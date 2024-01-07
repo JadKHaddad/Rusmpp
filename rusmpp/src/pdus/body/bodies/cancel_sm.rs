@@ -4,16 +4,12 @@ use crate::{
 };
 use derive_builder::Builder;
 use derive_new::new;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[allow(clippy::too_many_arguments)]
 #[derive(
     new,
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -28,21 +24,13 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct CancelSm {
-    #[getset(get = "pub", set = "pub")]
     pub serivce_type: ServiceType,
-    #[getset(get = "pub", set = "pub")]
     pub message_id: COctetString<1, 65>,
-    #[getset(get_copy = "pub", set = "pub")]
     pub source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
     pub source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
     pub source_addr: COctetString<1, 21>,
-    #[getset(get_copy = "pub", set = "pub")]
     pub dest_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
     pub dest_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
     pub destination_addr: COctetString<1, 21>,
 }
 

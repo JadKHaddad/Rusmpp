@@ -1,14 +1,11 @@
 use crate::types::c_octet_string::COctetString;
 use derive_builder::Builder;
 use derive_new::new;
-use getset::{Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[derive(
     new,
     Default,
-    Getters,
-    Setters,
     Builder,
     Debug,
     Clone,

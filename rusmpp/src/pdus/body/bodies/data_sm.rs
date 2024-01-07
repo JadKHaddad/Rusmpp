@@ -13,14 +13,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -35,27 +31,16 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct DataSm {
-    #[getset(get = "pub", set = "pub")]
-    serivce_type: ServiceType,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 21>,
-    #[getset(get_copy = "pub", set = "pub")]
-    dest_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    dest_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    destination_addr: COctetString<1, 21>,
-    #[getset(get_copy = "pub", set = "pub")]
-    esm_class: EsmClass,
-    #[getset(get_copy = "pub", set = "pub")]
-    registered_delivery: RegisteredDelivery,
-    #[getset(get_copy = "pub", set = "pub")]
-    data_coding: DataCoding,
-    #[getset(get = "pub")]
+    pub serivce_type: ServiceType,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
+    pub dest_addr_ton: Ton,
+    pub dest_addr_npi: Npi,
+    pub destination_addr: COctetString<1, 21>,
+    pub esm_class: EsmClass,
+    pub registered_delivery: RegisteredDelivery,
+    pub data_coding: DataCoding,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -90,6 +75,10 @@ impl DataSm {
             data_coding,
             tlvs,
         }
+    }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {

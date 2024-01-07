@@ -10,13 +10,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -31,9 +28,7 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct BindResp {
-    #[getset(get = "pub", set = "pub")]
-    system_id: COctetString<1, 16>,
-    #[getset(get = "pub")]
+    pub system_id: COctetString<1, 16>,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     sc_interface_version: Option<TLV>,
@@ -49,6 +44,10 @@ impl BindResp {
             sc_interface_version: sc_interface_version
                 .map(|v| TLV::new(TLVValue::ScInterfaceVersion(v))),
         }
+    }
+
+    pub fn sc_interface_version(&self) -> Option<&TLV> {
+        self.sc_interface_version.as_ref()
     }
 
     pub fn set_sc_interface_version(&mut self, sc_interface_version: Option<InterfaceVersion>) {
@@ -88,7 +87,7 @@ mod tests {
             .build()
             .unwrap();
 
-        assert_eq!(bind_resp.system_id().to_str().unwrap(), "system_id");
+        assert_eq!(bind_resp.system_id.to_str().unwrap(), "system_id");
         assert!(bind_resp.sc_interface_version().is_none());
 
         let bind_resp = BindRespBuilder::default()
@@ -96,7 +95,7 @@ mod tests {
             .build()
             .unwrap();
 
-        assert_eq!(bind_resp.system_id().to_str().unwrap(), "");
+        assert_eq!(bind_resp.system_id.to_str().unwrap(), "");
         assert_eq!(
             bind_resp
                 .sc_interface_version()

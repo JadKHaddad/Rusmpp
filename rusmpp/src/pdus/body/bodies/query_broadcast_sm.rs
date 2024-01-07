@@ -10,14 +10,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -32,15 +28,10 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct QueryBroadcastSm {
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 21>,
-    #[getset(get = "pub")]
+    pub message_id: COctetString<1, 65>,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     user_message_reference: Option<TLV>,
@@ -64,6 +55,10 @@ impl QueryBroadcastSm {
             source_addr,
             user_message_reference,
         }
+    }
+
+    pub fn user_message_reference(&self) -> Option<&TLV> {
+        self.user_message_reference.as_ref()
     }
 
     pub fn set_user_message_reference(&mut self, user_message_reference: Option<u16>) {

@@ -22,14 +22,10 @@ use crate::{
 };
 use derivative::Derivative;
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Derivative,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -45,45 +41,29 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 #[derivative(Default)]
 #[builder(default)]
 pub struct BroadcastSm {
-    #[getset(get = "pub", set = "pub")]
-    serivce_type: ServiceType,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 21>,
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get = "pub", set = "pub")]
-    priority_flag: PriorityFlag,
-    #[getset(get = "pub", set = "pub")]
-    schedule_delivery_time: EmptyOrFullCOctetString<17>,
-    #[getset(get = "pub", set = "pub")]
-    validity_period: EmptyOrFullCOctetString<17>,
-    #[getset(get = "pub", set = "pub")]
-    replace_if_present_flag: ReplaceIfPresentFlag,
-    #[getset(get = "pub", set = "pub")]
-    data_coding: DataCoding,
-    #[getset(get_copy = "pub", set = "pub")]
-    sm_default_msg_id: u8,
-    #[getset(get = "pub")]
+    pub serivce_type: ServiceType,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
+    pub message_id: COctetString<1, 65>,
+    pub priority_flag: PriorityFlag,
+    pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    pub validity_period: EmptyOrFullCOctetString<17>,
+    pub replace_if_present_flag: ReplaceIfPresentFlag,
+    pub data_coding: DataCoding,
+    pub sm_default_msg_id: u8,
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
-    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastContentType(Default::default()).into()"))]
     broadcast_content_type: TLV,
-    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastRepNum(Default::default()).into()"))]
     broadcast_rep_num: TLV,
-    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_frequency_interval: TLV,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -140,12 +120,20 @@ impl BroadcastSm {
         }
     }
 
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
+    }
+
     pub fn set_tlvs(&mut self, tlvs: Vec<BroadcastRequestTLV>) {
         self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
     }
 
     pub fn push_tlv(&mut self, tlv: BroadcastRequestTLV) {
         self.tlvs.push(tlv.into());
+    }
+
+    pub fn broadcast_area_identifier(&self) -> &TLV {
+        &self.broadcast_area_identifier
     }
 
     pub fn set_broadcast_area_identifier(
@@ -156,13 +144,25 @@ impl BroadcastSm {
             TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
     }
 
+    pub fn broadcast_content_type(&self) -> &TLV {
+        &self.broadcast_content_type
+    }
+
     pub fn set_broadcast_content_type(&mut self, broadcast_content_type: BroadcastContentType) {
         self.broadcast_content_type =
             TLV::new(TLVValue::BroadcastContentType(broadcast_content_type));
     }
 
+    pub fn broadcast_rep_num(&self) -> &TLV {
+        &self.broadcast_rep_num
+    }
+
     pub fn set_broadcast_rep_num(&mut self, broadcast_rep_num: u16) {
         self.broadcast_rep_num = TLV::new(TLVValue::BroadcastRepNum(broadcast_rep_num));
+    }
+
+    pub fn broadcast_frequency_interval(&self) -> &TLV {
+        &self.broadcast_frequency_interval
     }
 
     pub fn set_broadcast_frequency_interval(

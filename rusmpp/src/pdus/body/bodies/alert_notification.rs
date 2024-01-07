@@ -11,7 +11,6 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 // Default is okay to derive because ms_availability_status will be None.
@@ -19,9 +18,6 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 // so that we implement the setter ourselves.
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -36,19 +32,12 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct AlertNotification {
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 65>,
-    #[getset(get_copy = "pub", set = "pub")]
-    esme_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    esme_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    esme_addr: COctetString<1, 65>,
-    #[getset(get = "pub")]
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 65>,
+    pub esme_addr_ton: Ton,
+    pub esme_addr_npi: Npi,
+    pub esme_addr: COctetString<1, 65>,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     ms_availability_status: Option<TLV>,
@@ -74,6 +63,10 @@ impl AlertNotification {
             ms_availability_status: ms_availability_status
                 .map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v))),
         }
+    }
+
+    pub fn ms_availability_status(&self) -> Option<&TLV> {
+        self.ms_availability_status.as_ref()
     }
 
     pub fn set_ms_availability_status(

@@ -7,13 +7,10 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 use derive_builder::Builder;
-use getset::{Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -28,9 +25,7 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct BroadcastSmResp {
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get = "pub")]
+    pub message_id: COctetString<1, 65>,
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -41,6 +36,10 @@ impl BroadcastSmResp {
         let tlvs = tlvs.into_iter().map(|v| v.into()).collect();
 
         Self { message_id, tlvs }
+    }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<BroadcastResponseTLV>) {

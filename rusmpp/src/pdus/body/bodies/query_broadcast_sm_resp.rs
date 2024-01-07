@@ -15,14 +15,10 @@ use crate::{
 };
 use derivative::Derivative;
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Derivative,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -38,21 +34,16 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 #[derivative(Default)]
 #[builder(default)]
 pub struct QueryBroadcastSmResp {
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get = "pub")]
+    pub message_id: COctetString<1, 65>,
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::MessageState(Default::default()).into()"))]
     message_state: TLV,
-    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaIdentifier(Default::default()).into()"))]
     broadcast_area_identifier: TLV,
-    #[getset(get = "pub")]
     #[builder(setter(custom))]
     #[derivative(Default(value = "TLVValue::BroadcastAreaSuccess(Default::default()).into()"))]
     broadcast_area_success: TLV,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     tlvs: Vec<TLV>,
@@ -83,6 +74,10 @@ impl QueryBroadcastSmResp {
         }
     }
 
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
+    }
+
     pub fn set_tlvs(&mut self, tlvs: Vec<QueryBroadcastResponseTLV>) {
         self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
     }
@@ -91,8 +86,16 @@ impl QueryBroadcastSmResp {
         self.tlvs.push(tlv.into());
     }
 
+    pub fn message_state(&self) -> &TLV {
+        &self.message_state
+    }
+
     pub fn set_message_state(&mut self, message_state: MessageState) {
         self.message_state = TLV::new(TLVValue::MessageState(message_state));
+    }
+
+    pub fn broadcast_area_identifier(&self) -> &TLV {
+        &self.broadcast_area_identifier
     }
 
     pub fn set_broadcast_area_identifier(
@@ -101,6 +104,10 @@ impl QueryBroadcastSmResp {
     ) {
         self.broadcast_area_identifier =
             TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+    }
+
+    pub fn broadcast_area_success(&self) -> &TLV {
+        &self.broadcast_area_success
     }
 
     pub fn set_broadcast_area_success(&mut self, broadcast_area_success: BroadcastAreaSuccess) {

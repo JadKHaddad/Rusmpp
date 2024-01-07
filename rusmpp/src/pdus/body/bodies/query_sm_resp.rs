@@ -4,15 +4,11 @@ use crate::{
 };
 use derive_builder::Builder;
 use derive_new::new;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 
 #[derive(
     new,
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -27,13 +23,9 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoRead, RusmppIoWrite};
 )]
 #[builder(default)]
 pub struct QuerySmResp {
-    #[getset(get = "pub", set = "pub")]
     pub message_id: COctetString<1, 65>,
-    #[getset(get = "pub", set = "pub")]
     pub final_date: EmptyOrFullCOctetString<17>,
-    #[getset(get_copy = "pub", set = "pub")]
     pub message_state: MessageState,
-    #[getset(get_copy = "pub", set = "pub")]
     pub error_code: u8,
 }
 

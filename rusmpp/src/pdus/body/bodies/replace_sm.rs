@@ -13,14 +13,10 @@ use crate::{
     },
 };
 use derive_builder::Builder;
-use getset::{CopyGetters, Getters, Setters};
 use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 
 #[derive(
     Default,
-    Getters,
-    CopyGetters,
-    Setters,
     Builder,
     Debug,
     Clone,
@@ -37,30 +33,19 @@ use rusmpp_macros::{RusmppIoLength, RusmppIoReadLength, RusmppIoWrite};
 /// Short message is always superceded by the message payload.
 /// Clear message payload to use the short message.
 pub struct ReplaceSm {
-    #[getset(get = "pub", set = "pub")]
-    message_id: COctetString<1, 65>,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_ton: Ton,
-    #[getset(get_copy = "pub", set = "pub")]
-    source_addr_npi: Npi,
-    #[getset(get = "pub", set = "pub")]
-    source_addr: COctetString<1, 21>,
-    #[getset(get = "pub", set = "pub")]
-    schedule_delivery_time: EmptyOrFullCOctetString<17>,
-    #[getset(get = "pub", set = "pub")]
-    validity_period: EmptyOrFullCOctetString<17>,
-    #[getset(get_copy = "pub", set = "pub")]
-    registered_delivery: RegisteredDelivery,
-    #[getset(get_copy = "pub", set = "pub")]
-    sm_default_msg_id: u8,
-    #[getset(get_copy = "pub")]
+    pub message_id: COctetString<1, 65>,
+    pub source_addr_ton: Ton,
+    pub source_addr_npi: Npi,
+    pub source_addr: COctetString<1, 21>,
+    pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    pub validity_period: EmptyOrFullCOctetString<17>,
+    pub registered_delivery: RegisteredDelivery,
+    pub sm_default_msg_id: u8,
     #[builder(setter(custom))]
     sm_length: u8,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(sm_length))]
     #[builder(setter(custom))]
     short_message: OctetString<0, 255>,
-    #[getset(get = "pub")]
     #[rusmpp_io_read(length=(length - all_before))]
     #[builder(setter(custom))]
     message_payload: Option<TLV>,
@@ -102,17 +87,12 @@ impl ReplaceSm {
         replace_sm
     }
 
-    /// Clears the short message and short message length if the message payload is set.
-    /// Returns true if the short message and short message length were cleared.
-    fn clear_short_message_if_message_payload_exists(&mut self) -> bool {
-        if self.message_payload.is_some() {
-            self.short_message = OctetString::empty();
-            self.sm_length = 0;
+    pub fn sm_length(&self) -> u8 {
+        self.sm_length
+    }
 
-            return true;
-        };
-
-        false
+    pub fn short_message(&self) -> &OctetString<0, 255> {
+        &self.short_message
     }
 
     /// Sets the short message and short message length.
@@ -126,12 +106,29 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
+    pub fn message_payload(&self) -> Option<&TLV> {
+        self.message_payload.as_ref()
+    }
+
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
     pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
         self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
 
         self.clear_short_message_if_message_payload_exists();
+    }
+
+    /// Clears the short message and short message length if the message payload is set.
+    /// Returns true if the short message and short message length were cleared.
+    fn clear_short_message_if_message_payload_exists(&mut self) -> bool {
+        if self.message_payload.is_some() {
+            self.short_message = OctetString::empty();
+            self.sm_length = 0;
+
+            return true;
+        };
+
+        false
     }
 }
 

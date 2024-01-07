@@ -15,6 +15,13 @@ mod length;
 mod read;
 mod write;
 
+#[derive(thiserror::Error, Debug)]
+#[error("Invalid PDU body: {value:?} for command_id: {command_id:?}")]
+pub struct InvalidPduBody {
+    value: Box<PduBody>,
+    command_id: CommandId,
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PduBody {
     BindTransmitter(Bind),
@@ -78,5 +85,16 @@ impl PduBody {
             PduBody::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             PduBody::Other { command_id, .. } => *command_id,
         }
+    }
+
+    pub fn validate(&self, command_id: CommandId) -> Result<(), InvalidPduBody> {
+        if self.command_id() != command_id {
+            return Err(InvalidPduBody {
+                value: self.clone().into(),
+                command_id,
+            });
+        }
+
+        Ok(())
     }
 }

@@ -1,5 +1,5 @@
 use super::{
-    body::pdu_body::PduBody,
+    body::pdu_body::{InvalidPduBody, PduBody},
     types::{
         command_id::CommandId,
         command_status::{CommandStatus, InvalidCommandStatus},
@@ -19,6 +19,8 @@ pub enum InvalidPdu {
     InvalidCommandStatus(#[from] InvalidCommandStatus),
     #[error(transparent)]
     InvalidSequenceNumber(#[from] InvalidSequenceNumber),
+    #[error(transparent)]
+    InvalidPduBody(#[from] InvalidPduBody),
 }
 
 #[derive(
@@ -93,6 +95,10 @@ impl Pdu {
     pub fn validate(&self) -> Result<(), InvalidPdu> {
         self.command_status.validate(self.command_id)?;
         self.sequence_number.validate(self.command_id)?;
+
+        if let Some(body) = &self.body {
+            body.validate(self.command_id)?;
+        }
 
         Ok(())
     }

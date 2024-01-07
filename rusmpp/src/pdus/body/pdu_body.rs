@@ -2,10 +2,10 @@ use super::bodies::{
     alert_notification::AlertNotification, bind::Bind, bind_resp::BindResp,
     broadcast_sm::BroadcastSm, broadcast_sm_resp::BroadcastSmResp,
     cancel_broadcast_sm::CancelBroadcastSm, cancel_sm::CancelSm, data_sm::DataSm,
-    deliver_sm::DeliverSm, deliver_sm_resp::DeliverSmResp, outbind::Outbind,
-    query_broadcast_sm::QueryBroadcastSm, query_broadcast_sm_resp::QueryBroadcastSmResp,
-    query_sm::QuerySm, query_sm_resp::QuerySmResp, replace_sm::ReplaceSm,
-    submit_multi::SubmitMulti, submit_or_data_sm_resp::SubmitOrDataSmResp, submit_sm::SubmitSm,
+    deliver_sm_resp::DeliverSmResp, outbind::Outbind, query_broadcast_sm::QueryBroadcastSm,
+    query_broadcast_sm_resp::QueryBroadcastSmResp, query_sm::QuerySm, query_sm_resp::QuerySmResp,
+    replace_sm::ReplaceSm, submit_multi::SubmitMulti, submit_or_data_sm_resp::SubmitOrDataSmResp,
+    submit_or_deliver_sm::DeliverSm, submit_or_deliver_sm::SubmitSm,
 };
 use crate::{
     pdus::types::command_id::CommandId, types::no_fixed_size_octet_string::NoFixedSizeOctetString,

@@ -14,7 +14,7 @@ See esme.rs for the async version and more details.
 use rusmpp::{
     pdus::{
         body::{
-            bodies::{bind::Bind, s_sm::SSm, submit_sm::SubmitSm},
+            bodies::{bind::Bind, submit_or_deliver_sm::SubmitSm},
             pdu_body::PduBody,
         },
         pdu::Pdu,
@@ -72,7 +72,7 @@ fn main() {
     // Submit the message regardless of the bind status
     // we are not checking the bind status here
     let submit_sm = SubmitSm::new(
-            SSm::new(ServiceType::new(GenericServiceType::default()).unwrap(),
+ServiceType::new(GenericServiceType::default()).unwrap(),
             Ton::Unknown,
             Npi::Unknown,
             COctetString::from_str("SomeSource").unwrap(),
@@ -94,7 +94,7 @@ fn main() {
             ReplaceIfPresentFlag::default(),
             DataCoding::default(),
             0,
-            OctetString::from_str("Hi, I am a short message.").unwrap()),
+            OctetString::from_str("Hi, I am a short message.").unwrap(),
             // Optional TLVs
             vec![],
         );

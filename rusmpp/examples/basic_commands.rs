@@ -7,7 +7,7 @@
 
 use rusmpp::{
     pdus::{
-        body::bodies::{bind::Bind, s_sm::SSm, submit_multi::SubmitMulti, submit_sm::SubmitSm},
+        body::bodies::{bind::Bind, submit_multi::SubmitMulti, submit_or_deliver_sm::SubmitSm},
         types::{
             data_coding::DataCoding,
             dest_address::{DestAddress, DistributionListName, SmeAddress},
@@ -89,7 +89,6 @@ async fn main() {
         CommandStatus::EsmeRok,
         SequenceNumber::new(3),
         PduBody::SubmitSm(SubmitSm::new(
-            SSm::new(
                 ServiceType::new(GenericServiceType::default()).unwrap(),
                 Ton::Unknown,
                 Npi::Unknown,
@@ -112,7 +111,6 @@ async fn main() {
                 DataCoding::default(),
                 0,
                 OctetString::from_str("Hi, I am a short message.").unwrap(),
-            ),
             vec![],
         )),
     )

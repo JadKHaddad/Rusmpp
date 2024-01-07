@@ -12,7 +12,7 @@ use rusmpp::{
     io::{read::AsyncIoRead, write::AsyncIoWrite},
     pdus::{
         body::{
-            bodies::{bind::Bind, query_sm::QuerySm, s_sm::SSm, submit_sm::SubmitSm},
+            bodies::{bind::Bind, query_sm::QuerySm, submit_or_deliver_sm::SubmitSm},
             pdu_body::PduBody,
         },
         pdu::Pdu,
@@ -93,26 +93,24 @@ async fn main() {
         println!();
 
         let submit_sm = SubmitSm::new(
-            SSm::new(
-                ServiceType::new(GenericServiceType::default()).unwrap(),
-                Ton::Unknown,
-                Npi::Unknown,
-                COctetString::from_str("596848").unwrap(),
-                Ton::Unknown,
-                Npi::Unknown,
-                COctetString::from_str("596848").unwrap(),
-                EsmClass::default(),
-                0,
-                PriorityFlag::default(),
-                EmptyOrFullCOctetString::from_str("").unwrap(),
-                EmptyOrFullCOctetString::from_str("").unwrap(),
-                // Use default values to "not" get a delivery receipt
-                RegisteredDelivery::request_all(),
-                ReplaceIfPresentFlag::default(),
-                DataCoding::default(),
-                0,
-                OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap(),
-            ),
+            ServiceType::new(GenericServiceType::default()).unwrap(),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str("596848").unwrap(),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str("596848").unwrap(),
+            EsmClass::default(),
+            0,
+            PriorityFlag::default(),
+            EmptyOrFullCOctetString::from_str("").unwrap(),
+            EmptyOrFullCOctetString::from_str("").unwrap(),
+            // Use default values to "not" get a delivery receipt
+            RegisteredDelivery::request_all(),
+            ReplaceIfPresentFlag::default(),
+            DataCoding::default(),
+            0,
+            OctetString::from_str("Hi, I am a short message. I will be overridden :(").unwrap(),
             // Optional TLVs
             vec![
                 MessageSubmissionRequestTLV::new(MessageSubmissionRequestTLVValue::MessagePayload(
@@ -132,9 +130,9 @@ async fn main() {
             ],
         );
 
-        let source_addr_ton = submit_sm.ssm().source_addr_ton();
-        let source_addr_npi = submit_sm.ssm().source_addr_npi();
-        let source_addr = submit_sm.ssm().source_addr().clone();
+        let source_addr_ton = submit_sm.source_addr_ton;
+        let source_addr_npi = submit_sm.source_addr_npi;
+        let source_addr = submit_sm.source_addr.clone();
 
         // Submit the message
         let submit_sm_pdu = Pdu::new(

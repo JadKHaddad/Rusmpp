@@ -81,16 +81,9 @@ impl ReplaceSm {
         message_payload: Option<NoFixedSizeOctetString>,
     ) -> Self {
         let message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
-
-        let short_message = if message_payload.is_some() {
-            OctetString::empty()
-        } else {
-            short_message
-        };
-
         let sm_length = short_message.length() as u8;
 
-        Self {
+        let mut replace_sm = Self {
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -102,12 +95,16 @@ impl ReplaceSm {
             sm_length,
             short_message,
             message_payload,
-        }
+        };
+
+        replace_sm.clear_short_message_if_message_payload_exists();
+
+        replace_sm
     }
 
     /// Clears the short message and short message length if the message payload is set.
     /// Returns true if the short message and short message length were cleared.
-    fn check_for_message_payload_and_clear_short_message(&mut self) -> bool {
+    fn clear_short_message_if_message_payload_exists(&mut self) -> bool {
         if self.message_payload.is_some() {
             self.short_message = OctetString::empty();
             self.sm_length = 0;
@@ -126,7 +123,7 @@ impl ReplaceSm {
         self.sm_length = short_message.length() as u8;
         self.short_message = short_message;
 
-        !self.check_for_message_payload_and_clear_short_message()
+        !self.clear_short_message_if_message_payload_exists()
     }
 
     /// Sets the message payload.
@@ -134,17 +131,13 @@ impl ReplaceSm {
     pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
         self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
 
-        self.check_for_message_payload_and_clear_short_message();
-    }
-
-    pub fn clear_message_payload(&mut self) {
-        self.message_payload = None;
+        self.clear_short_message_if_message_payload_exists();
     }
 }
 
 impl ReplaceSmBuilder {
     /// Clears the short message and short message length if the message payload is set.
-    fn check_for_message_payload_and_update(&mut self) {
+    fn clear_short_message_if_message_payload_exists(&mut self) {
         if let Some(ref message_payload) = self.message_payload {
             if message_payload.is_some() {
                 self.short_message = None;
@@ -160,7 +153,7 @@ impl ReplaceSmBuilder {
         self.sm_length = Some(short_message.length() as u8);
         self.short_message = Some(short_message);
 
-        self.check_for_message_payload_and_update();
+        self.clear_short_message_if_message_payload_exists();
         self
     }
 
@@ -174,7 +167,7 @@ impl ReplaceSmBuilder {
             .map(|v| TLV::new(TLVValue::MessagePayload(v)))
             .into();
 
-        self.check_for_message_payload_and_update();
+        self.clear_short_message_if_message_payload_exists();
         self
     }
 }

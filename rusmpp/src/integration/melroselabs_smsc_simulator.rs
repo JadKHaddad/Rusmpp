@@ -3,7 +3,7 @@
 use crate::{
     pdus::{
         body::bodies::{
-            bind::Bind, cancel_sm::CancelSm, query_sm::QuerySm, s_sm::SSm, submit_sm::SubmitSm,
+            bind::Bind, cancel_sm::CancelSm, query_sm::QuerySm, submit_or_deliver_sm::SubmitSm,
         },
         types::{
             data_coding::DataCoding,
@@ -234,25 +234,23 @@ async fn submit_sm_short_message(
     let short_message = OctetString::from_str("Hi, I am a short message.").unwrap();
 
     let submit_sm = SubmitSm::new(
-        SSm::new(
-            ServiceType::new(GenericServiceType::default()).unwrap(),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str(source_addr).unwrap(),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str(destination_addr).unwrap(),
-            EsmClass::default(),
-            0,
-            PriorityFlag::default(),
-            EmptyOrFullCOctetString::empty(),
-            EmptyOrFullCOctetString::empty(),
-            RegisteredDelivery::default(),
-            ReplaceIfPresentFlag::default(),
-            DataCoding::default(),
-            0,
-            short_message.clone(),
-        ),
+        ServiceType::new(GenericServiceType::default()).unwrap(),
+        Ton::Unknown,
+        Npi::Unknown,
+        COctetString::from_str(source_addr).unwrap(),
+        Ton::Unknown,
+        Npi::Unknown,
+        COctetString::from_str(destination_addr).unwrap(),
+        EsmClass::default(),
+        0,
+        PriorityFlag::default(),
+        EmptyOrFullCOctetString::empty(),
+        EmptyOrFullCOctetString::empty(),
+        RegisteredDelivery::default(),
+        ReplaceIfPresentFlag::default(),
+        DataCoding::default(),
+        0,
+        short_message.clone(),
         vec![],
     );
 
@@ -289,31 +287,29 @@ async fn submit_sm_short_message_deliver_sm_receive_delivery(
 ) -> COctetString<1, 65> {
     let short_message = OctetString::from_str("Hi, I am a short message.").unwrap();
     let submit_sm = SubmitSm::new(
-        SSm::new(
-            ServiceType::new(GenericServiceType::default()).unwrap(),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str(addr).unwrap(),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str(addr).unwrap(),
-            EsmClass::default(),
+        ServiceType::new(GenericServiceType::default()).unwrap(),
+        Ton::Unknown,
+        Npi::Unknown,
+        COctetString::from_str(addr).unwrap(),
+        Ton::Unknown,
+        Npi::Unknown,
+        COctetString::from_str(addr).unwrap(),
+        EsmClass::default(),
+        0,
+        PriorityFlag::default(),
+        EmptyOrFullCOctetString::empty(),
+        EmptyOrFullCOctetString::empty(),
+        RegisteredDelivery::new(
+            MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
+            SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested,
+            IntermediateNotification::IntermediateNotificationRequested,
             0,
-            PriorityFlag::default(),
-            EmptyOrFullCOctetString::empty(),
-            EmptyOrFullCOctetString::empty(),
-            RegisteredDelivery::new(
-                MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
-                SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested,
-                IntermediateNotification::IntermediateNotificationRequested,
-                0,
-            ),
-            ReplaceIfPresentFlag::default(),
-            DataCoding::default(),
-            0,
-            short_message.clone()
         ),
-        vec![],
+        ReplaceIfPresentFlag::default(),
+        DataCoding::default(),
+        0,
+        short_message.clone(),
+    vec![],
     );
 
     let submit_sm_pdu = Pdu::new(
@@ -351,7 +347,7 @@ async fn submit_sm_short_message_deliver_sm_receive_delivery(
                 }
             }
             Some(PduBody::DeliverSm(deliver_sm)) => {
-                if deliver_sm.ssm().short_message() == &short_message {
+                if deliver_sm.short_message() == &short_message {
                     results.insert("rec", true);
 
                     if results.values().all(|v| *v) {

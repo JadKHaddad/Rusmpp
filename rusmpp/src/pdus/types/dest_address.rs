@@ -160,15 +160,6 @@ impl SmeAddress {
     pub fn destination_addr(&self) -> &COctetString<1, 21> {
         &self.destination_addr
     }
-
-    pub fn into_parts(self) -> (DestFlag, Ton, Npi, COctetString<1, 21>) {
-        (
-            self.dest_flag,
-            self.dest_addr_ton,
-            self.dest_addr_npi,
-            self.destination_addr,
-        )
-    }
 }
 
 #[async_trait::async_trait]
@@ -212,10 +203,6 @@ impl DistributionListName {
 
     pub fn dl_name(&self) -> &COctetString<1, 21> {
         &self.dl_name
-    }
-
-    pub fn into_parts(self) -> (DestFlag, COctetString<1, 21>) {
-        (self.dest_flag, self.dl_name)
     }
 }
 

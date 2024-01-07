@@ -124,13 +124,4 @@ impl Pdu {
     pub fn byte_overflow(&self) -> &NoFixedSizeOctetString {
         &self.byte_overflow
     }
-
-    pub fn into_parts(self) -> (CommandId, CommandStatus, SequenceNumber, Option<PduBody>) {
-        (
-            self.command_id,
-            self.command_status,
-            self.sequence_number,
-            self.body,
-        )
-    }
 }

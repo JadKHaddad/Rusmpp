@@ -134,8 +134,31 @@ pub mod mod_name {
             &self.short_message
         }
 
+        /// Sets the short message and short message length.
+        /// Updates the short message and short message length accordingly.
+        /// Has no effect if the message payload is set.
+        /// Returns true if the short message and short message length were set.
+        pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
+            self.sm_length = short_message.length() as u8;
+            self.short_message = short_message;
+
+            !self.clear_short_message_if_message_payload_exists()
+        }
+
         pub fn tlvs(&self) -> &[TLV] {
             &self.tlvs
+        }
+
+        pub fn set_tlvs(&mut self, tlvs: Vec<tlv_type_name>) {
+            let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
+            self.tlvs = tlvs;
+            self.clear_short_message_if_message_payload_exists();
+        }
+
+        pub fn push_tlv(&mut self, tlv: tlv_type_name) {
+            let tlv = tlv.into();
+            self.tlvs.push(tlv);
+            self.clear_short_message_if_message_payload_exists();
         }
 
         /// Clears the short message and short message length if the message payload is set.
@@ -154,29 +177,6 @@ pub mod mod_name {
             };
 
             false
-        }
-
-        /// Sets the short message and short message length.
-        /// Updates the short message and short message length accordingly.
-        /// Has no effect if the message payload is set.
-        /// Returns true if the short message and short message length were set.
-        pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
-            self.sm_length = short_message.length() as u8;
-            self.short_message = short_message;
-
-            !self.clear_short_message_if_message_payload_exists()
-        }
-
-        pub fn set_tlvs(&mut self, tlvs: Vec<tlv_type_name>) {
-            let tlvs = tlvs.into_iter().map(|v| v.into()).collect::<Vec<TLV>>();
-            self.tlvs = tlvs;
-            self.clear_short_message_if_message_payload_exists();
-        }
-
-        pub fn push_tlv(&mut self, tlv: tlv_type_name) {
-            let tlv = tlv.into();
-            self.tlvs.push(tlv);
-            self.clear_short_message_if_message_payload_exists();
         }
     }
 
@@ -220,3 +220,19 @@ pub mod mod_name {
 
 pub use deliver_sm::*;
 pub use submit_sm::*;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::test_utils::defaut_write_read_with_length_compare;
+
+    #[tokio::test]
+    async fn write_read_compare_deliver_sm() {
+        defaut_write_read_with_length_compare::<DeliverSm>().await;
+    }
+
+    #[tokio::test]
+    async fn write_read_compare_submit_sm() {
+        defaut_write_read_with_length_compare::<SubmitSm>().await;
+    }
+}

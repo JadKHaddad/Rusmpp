@@ -271,7 +271,7 @@ async fn submit_sm_short_message(
         assert!(matches!(pdu.command_status(), CommandStatus::EsmeRok));
         if let Some(PduBody::SubmitSmResp(submit_sm_resp)) = pdu.body() {
             if pdu.sequence_number() == sequence_number {
-                return submit_sm_resp.message_id().clone();
+                return submit_sm_resp.message_id.clone();
             }
         }
     }
@@ -337,7 +337,7 @@ async fn submit_sm_short_message_deliver_sm_receive_delivery(
         match pdu.body() {
             Some(PduBody::SubmitSmResp(submit_sm_resp)) => {
                 if pdu.sequence_number() == sequence_number {
-                    message_id = submit_sm_resp.message_id().clone();
+                    message_id = submit_sm_resp.message_id.clone();
 
                     results.insert("submit", true);
 

@@ -233,7 +233,7 @@ async fn main() {
             }
             Some(PduBody::SubmitSmResp(submit_sm_resp)) => {
                 if pdu.sequence_number().value == SUBMIT_SM_SEQUENCE_NUMBER {
-                    let message_id = submit_sm_resp.message_id().clone();
+                    let message_id = submit_sm_resp.message_id.clone();
                     if query_sm_tx.send(message_id).await.is_err() {
                         panic!("What happened to our channel!?");
                     }

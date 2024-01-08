@@ -1,7 +1,7 @@
 use super::length::IoLength;
 
 pub type AsyncIoReadable = dyn tokio::io::AsyncBufRead + Send + Unpin;
-pub type IoReadable = dyn std::io::BufRead + Send;
+pub type IoReadable = dyn std::io::BufRead;
 
 #[async_trait::async_trait]
 pub trait AsyncIoRead

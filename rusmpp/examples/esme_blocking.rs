@@ -1,9 +1,7 @@
-/*
-A fake ESME that shows how to use rusmpp using the blocking API.
-
-See esme.rs for the async version and more details.
-*/
-
+//! A fake ESME that shows how to use rusmpp using the blocking API.
+//!
+//! See esme.rs for the async version and more details.
+//!
 //! Run with
 //!
 //! ```not_rust

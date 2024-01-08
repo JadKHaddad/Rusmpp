@@ -1,7 +1,5 @@
-/*
-A fake ESME that shows how to use rusmpp.
-*/
-
+//! A fake ESME that shows how to use rusmpp.
+//!
 //! Run with
 //!
 //! ```not_rust

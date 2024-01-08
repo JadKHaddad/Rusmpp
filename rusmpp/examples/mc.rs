@@ -1,9 +1,7 @@
-/*
-A fake MC that shows how to use rusmpp.
-
-You can use the online smpp client at https://melroselabs.com/tools/smppclientproxy/ to connect to this MC.
-*/
-
+//! A fake MC that shows how to use rusmpp.
+//!
+//! You can use the online smpp client at https://melroselabs.com/tools/smppclientproxy/ to connect to this MC.
+//!
 //! Run with
 //!
 //! ```not_rust

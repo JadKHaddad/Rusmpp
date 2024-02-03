@@ -373,6 +373,8 @@ async fn submit_sm_short_message_deliver_sm_receive_delivery(
     message_id
 }
 
+#[allow(dead_code)]
+#[allow(unused_variables)]
 async fn submit_sm_message_payload_deliver_sm(
     sequence_number: SequenceNumber,
     addr: &str,
@@ -456,14 +458,17 @@ async fn cancel_sm(
     }
 }
 
+#[allow(dead_code)]
 async fn submit_data() {
     todo!()
 }
 
+#[allow(dead_code)]
 async fn generic_nack() {
     todo!()
 }
 
+#[allow(dead_code)]
 async fn unbind() {
     todo!()
 }

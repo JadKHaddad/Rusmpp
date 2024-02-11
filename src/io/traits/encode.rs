@@ -29,10 +29,9 @@ impl std::error::Error for EncodeError {
     }
 }
 
-trait AsyncEncode {
-    async fn read_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-    ) -> Result<Self, EncodeError>
-    where
-        Self: Sized;
+pub trait AsyncEncode {
+    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
+        &self,
+        writer: &mut W,
+    ) -> Result<(), EncodeError>;
 }

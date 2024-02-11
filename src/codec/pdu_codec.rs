@@ -10,7 +10,7 @@ use tokio_util::{
 pub struct PduCodec;
 
 impl Encoder<PduOut> for PduCodec {
-    type Error = DecodeError;
+    type Error = EncodeError;
 
     fn encode(&mut self, item: PduOut, dst: &mut BytesMut) -> Result<(), Self::Error> {
         todo!()
@@ -19,7 +19,7 @@ impl Encoder<PduOut> for PduCodec {
 
 impl Decoder for PduCodec {
     type Item = PduIn;
-    type Error = EncodeError;
+    type Error = DecodeError;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         todo!()

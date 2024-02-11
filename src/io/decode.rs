@@ -2,30 +2,25 @@ mod error;
 
 pub use self::error::DecodeError;
 
-pub trait AsyncDecode {
+pub trait Decode {
     /// Decode a value from a reader
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-    ) -> Result<Self, DecodeError>
+    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized;
 }
 
-pub trait AsyncDecodeWithLength {
+pub trait DecodeWithLength {
     /// Decode a value from a reader, with a specified length
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Self, DecodeError>
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized;
 }
 
-pub trait AsyncDecodeWithKey {
+pub trait DecodeWithKey {
     type Key: From<u32> + Into<u32>;
 
     /// Decode a value from a reader, using a key to determine the type
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
+    fn decode_from<R: std::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,

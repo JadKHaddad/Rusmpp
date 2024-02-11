@@ -1,10 +1,9 @@
 use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
 use crate::io::{
-    decode::{AsyncDecodeWithLength, DecodeError},
-    encode::{AsyncEncode, EncodeError},
+    decode::{DecodeError, DecodeWithLength},
+    encode::{Encode, EncodeError},
     length::Length,
 };
-use tokio::io::AsyncWriteExt;
 
 /// An error that can occur when creating an [`OctetString`]
 #[derive(Debug)]
@@ -28,17 +27,17 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// An Octet String is a sequence of octets not necessarily
+/// An [`OctetString`] is a sequence of octets not necessarily
 /// terminated with a NULL octet. Such fields using Octet
 /// String encoding, typically represent fields that can be
 /// used to encode raw binary data. In all circumstances, the
 /// field will be either a fixed length field or explicit length field
 /// where another field indicates the length of the Octet
 /// String field. An example of this is the short_message field
-/// of the submit_sm PDU that is Octet String encoded and
+/// of the submit_sm PDU that is [`OctetString`] encoded and
 /// the previous message_length field specifies its length.
 ///
-/// A NULL Octet-String is not encoded. The explicit length
+/// A NULL [`OctetString`] is not encoded. The explicit length
 /// field that indicates its length should be set to zero.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
@@ -149,21 +148,15 @@ impl<const MIN: usize, const MAX: usize> Length for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> AsyncEncode for OctetString<MIN, MAX> {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes).await?;
+impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
-impl<const MIN: usize, const MAX: usize> AsyncDecodeWithLength for OctetString<MIN, MAX> {
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Self, DecodeError>
+impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

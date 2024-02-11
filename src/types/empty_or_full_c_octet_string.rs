@@ -1,9 +1,8 @@
 use crate::io::{
-    decode::{AsyncDecode, DecodeError},
-    encode::{AsyncEncode, EncodeError},
+    decode::{Decode, DecodeError},
+    encode::{Encode, EncodeError},
     length::Length,
 };
-use tokio::io::AsyncWriteExt;
 
 /// An error that can occur when creating a [`EmptyOrFullCOctetString`]
 #[derive(Debug)]
@@ -154,20 +153,15 @@ impl<const N: usize> Length for EmptyOrFullCOctetString<N> {
     }
 }
 
-impl<const N: usize> AsyncEncode for EmptyOrFullCOctetString<N> {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes).await?;
+impl<const N: usize> Encode for EmptyOrFullCOctetString<N> {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
-impl<const N: usize> AsyncDecode for EmptyOrFullCOctetString<N> {
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-    ) -> Result<Self, DecodeError>
+impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
+    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

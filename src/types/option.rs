@@ -1,7 +1,7 @@
 //! [`Length`] and [`AsyncEncode`] implementation for [`Option`]
 
 use crate::io::{
-    encode::{AsyncEncode, EncodeError},
+    encode::{Encode, EncodeError},
     length::Length,
 };
 
@@ -17,16 +17,13 @@ where
     }
 }
 
-impl<T> AsyncEncode for Option<T>
+impl<T> Encode for Option<T>
 where
-    T: AsyncEncode,
+    T: Encode,
 {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         match self {
-            Some(value) => value.encode_to(writer).await,
+            Some(value) => value.encode_to(writer),
             None => Ok(()),
         }
     }

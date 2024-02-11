@@ -1,9 +1,12 @@
 //! [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] implementation for [`Vec`]
 
-use crate::io::{
-    decode::{AsyncDecode, AsyncDecodeWithLength, DecodeError},
-    encode::{AsyncEncode, EncodeError},
-    length::Length,
+use crate::{
+    io::{
+        decode::{Decode, DecodeError, DecodeWithLength},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    tri,
 };
 
 impl<T> Length for Vec<T>
@@ -15,30 +18,24 @@ where
     }
 }
 
-impl<T> AsyncEncode for Vec<T>
+impl<T> Encode for Vec<T>
 where
-    T: AsyncEncode,
+    T: Encode,
 {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         for item in self {
-            item.encode_to(writer).await?;
+            tri!(item.encode_to(writer));
         }
 
         Ok(())
     }
 }
 
-impl<T> AsyncDecodeWithLength for Vec<T>
+impl<T> DecodeWithLength for Vec<T>
 where
-    T: AsyncDecode + Length,
+    T: Decode + Length,
 {
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Self, DecodeError>
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
@@ -46,7 +43,7 @@ where
         let mut remaining_length = length;
 
         while remaining_length > 0 {
-            let v = T::decode_from(reader).await?;
+            let v = tri!(T::decode_from(reader));
             remaining_length = remaining_length.saturating_sub(v.length());
             vec.push(v);
         }

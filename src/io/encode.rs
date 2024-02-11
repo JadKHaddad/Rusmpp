@@ -29,10 +29,7 @@ impl std::error::Error for EncodeError {
     }
 }
 
-pub trait AsyncEncode {
+pub trait Encode {
     /// Encode a value to a writer
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError>;
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError>;
 }

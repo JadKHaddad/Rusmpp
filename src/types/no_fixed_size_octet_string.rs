@@ -1,9 +1,8 @@
 use crate::io::{
-    decode::{AsyncDecodeWithLength, DecodeError},
-    encode::{AsyncEncode, EncodeError},
+    decode::{DecodeError, DecodeWithLength},
+    encode::{Encode, EncodeError},
     length::Length,
 };
-use tokio::io::AsyncWriteExt;
 
 /// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString)
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -97,21 +96,15 @@ impl Length for NoFixedSizeOctetString {
     }
 }
 
-impl AsyncEncode for NoFixedSizeOctetString {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes).await?;
+impl Encode for NoFixedSizeOctetString {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
-impl AsyncDecodeWithLength for NoFixedSizeOctetString {
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Self, DecodeError>
+impl DecodeWithLength for NoFixedSizeOctetString {
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

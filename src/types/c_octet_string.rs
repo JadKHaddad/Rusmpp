@@ -1,9 +1,8 @@
 use crate::io::{
-    decode::{AsyncDecode, DecodeError},
-    encode::{AsyncEncode, EncodeError},
+    decode::{Decode, DecodeError},
+    encode::{Encode, EncodeError},
     length::Length,
 };
-use tokio::io::AsyncWriteExt;
 
 /// An Error that can occur when creating a [`COctetString`]
 #[derive(Debug)]
@@ -33,7 +32,7 @@ impl std::fmt::Display for Error {
 
 impl std::error::Error for Error {}
 
-/// A C-Octet String is a sequence of ASCII characters
+/// A [`COctetString`] is a sequence of ASCII characters
 /// terminated with a NULL octet (0x00).
 /// The string “Hello” would be encoded in 6 octets (5
 /// characters of “Hello” and NULL octet) as follows:
@@ -41,19 +40,19 @@ impl std::error::Error for Error {}
 /// 0x48656C6C6F00
 ///
 /// Two special variants exist for use within SMPP. These
-/// are C-octet String (Decimal) and C-Octet String
+/// are [`COctetString`] (Decimal) and [`COctetString`]
 /// (Hexadecimal), which are used to carry decimal and
 /// hexadecimal digit sequences respectively. These fields
 /// are encoded the same way as any ASCII string, but are
 /// specifically used to designate decimal and hexadecimal
 /// numbers when presented in string format.
 ///
-/// A Decimal C-Octet String “123456789” would be encoded
+/// A Decimal [`COctetString`] “123456789” would be encoded
 /// as follows:
 ///
 /// 0x31323334353637383900
 ///
-/// A Hexadecimal C-Octet String “A2F5ED278FC” would be
+/// A Hexadecimal [`COctetString`] “A2F5ED278FC” would be
 /// encoded as follows:
 ///
 /// 0x413246354544323738464300
@@ -178,20 +177,15 @@ impl<const MIN: usize, const MAX: usize> Length for COctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> AsyncEncode for COctetString<MIN, MAX> {
-    async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
-        &self,
-        writer: &mut W,
-    ) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes).await?;
+impl<const MIN: usize, const MAX: usize> Encode for COctetString<MIN, MAX> {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
-impl<const MIN: usize, const MAX: usize> AsyncDecode for COctetString<MIN, MAX> {
-    async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
-        reader: &mut R,
-    ) -> Result<Self, DecodeError>
+impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
+    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

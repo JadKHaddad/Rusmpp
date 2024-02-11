@@ -1,5 +1,5 @@
 use crate::{
-    io::traits::{decode::DecodeError, encode::EncodeError},
+    io::{decode::DecodeError, encode::EncodeError},
     pdus::pdu::{PduIn, PduOut},
 };
 use tokio_util::{

@@ -1,5 +1,5 @@
-mod option;
-mod u16;
-mod u32;
-mod u8;
-mod vec;
+pub mod option;
+pub mod u16;
+pub mod u32;
+pub mod u8;
+pub mod vec;

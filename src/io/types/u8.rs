@@ -6,7 +6,7 @@
 //! A 1-octet Integer with a value 5, would be encoded in a
 //! single octet with the value 0x05
 
-use crate::io::traits::{
+use crate::io::{
     decode::{AsyncDecode, DecodeError},
     encode::{AsyncEncode, EncodeError},
     length::Length,

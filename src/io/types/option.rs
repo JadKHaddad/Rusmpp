@@ -1,4 +1,6 @@
-use crate::io::traits::{
+//! Implementations of [`Length`] and [`AsyncEncode`] for [`Option`].
+
+use crate::io::{
     encode::{AsyncEncode, EncodeError},
     length::Length,
 };

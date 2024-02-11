@@ -1,4 +1,6 @@
-use crate::io::traits::{
+//! Implementations of [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] for [`Vec`].
+
+use crate::io::{
     decode::{AsyncDecode, AsyncDecodeWithLength, DecodeError},
     encode::{AsyncEncode, EncodeError},
     length::Length,

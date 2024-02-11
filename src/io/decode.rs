@@ -1,35 +1,9 @@
-#[derive(Debug)]
-pub enum DecodeError {
-    IoError(std::io::Error),
-}
+mod error;
 
-impl From<std::io::Error> for DecodeError {
-    fn from(e: std::io::Error) -> Self {
-        DecodeError::IoError(e)
-    }
-}
-
-impl std::fmt::Display for DecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            DecodeError::IoError(e) => write!(f, "I/O error: {}", e),
-        }
-    }
-}
-
-impl std::error::Error for DecodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
-        match self {
-            DecodeError::IoError(e) => Some(e),
-        }
-    }
-
-    fn cause(&self) -> Option<&dyn std::error::Error> {
-        self.source()
-    }
-}
+pub use self::error::DecodeError;
 
 pub trait AsyncDecode {
+    /// Decode a value from a reader
     async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
         reader: &mut R,
     ) -> Result<Self, DecodeError>
@@ -38,6 +12,7 @@ pub trait AsyncDecode {
 }
 
 pub trait AsyncDecodeWithLength {
+    /// Decode a value from a reader, with a specified length
     async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
         reader: &mut R,
         length: usize,
@@ -49,6 +24,7 @@ pub trait AsyncDecodeWithLength {
 pub trait AsyncDecodeWithKey {
     type Key: From<u32> + Into<u32>;
 
+    /// Decode a value from a reader, using a key to determine the type
     async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
         key: Self::Key,
         reader: &mut R,

@@ -1,4 +1,4 @@
-//! Implementations of [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] for [`Vec`].
+//! [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] implementation for [`Vec`]
 
 use crate::io::{
     decode::{AsyncDecode, AsyncDecodeWithLength, DecodeError},

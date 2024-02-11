@@ -7,6 +7,7 @@ use tokio_util::{
     codec::{Decoder, Encoder},
 };
 
+/// A codec for encoding and decoding SMPP PDUs.
 pub struct PduCodec;
 
 impl Encoder<PduOut> for PduCodec {

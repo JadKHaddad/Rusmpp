@@ -1,13 +1,13 @@
 use crate::{
     io::{
-        decode::{Decode, DecodeError},
+        decode::{DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
     pdus::pdu::Pdu,
 };
 use tokio_util::{
-    bytes::{BufMut, BytesMut},
+    bytes::{Buf, BufMut, BytesMut},
     codec::{Decoder, Encoder},
 };
 
@@ -51,6 +51,13 @@ impl Decoder for PduCodec {
             return Ok(None);
         }
 
-        unimplemented!()
+        let mut slice = &src[4..command_length];
+        let pdu_len = command_length - 4;
+
+        let pdu = Pdu::decode_from(&mut slice, pdu_len)?;
+
+        src.advance(command_length);
+
+        Ok(Some(pdu))
     }
 }

@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     io::{
-        decode::{Decode, DecodeError},
+        decode::{Decode, DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -39,11 +39,20 @@ impl Encode for Pdu {
     }
 }
 
-impl Decode for Pdu {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+impl DecodeWithLength for Pdu {
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
-        todo!()
+        let command_id = tri!(CommandId::decode_from(reader));
+        let command_status = tri!(CommandStatus::decode_from(reader));
+        let sequence_number = tri!(u32::decode_from(reader));
+
+        Ok(Self {
+            command_id,
+            command_status,
+            sequence_number,
+            body: None,
+        })
     }
 }

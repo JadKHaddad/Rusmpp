@@ -1,2 +1,2 @@
-pub mod read;
-pub mod write;
+pub mod decode;
+pub mod encode;

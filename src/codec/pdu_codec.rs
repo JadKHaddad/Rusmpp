@@ -1,5 +1,5 @@
 use crate::{
-    io::traits::{read::ReadFromError, write::WriteToError},
+    io::traits::{decode::DecodeError, encode::EncodeError},
     pdus::pdu::{PduIn, PduOut},
 };
 use tokio_util::{
@@ -10,7 +10,7 @@ use tokio_util::{
 pub struct PduCodec;
 
 impl Encoder<PduOut> for PduCodec {
-    type Error = WriteToError;
+    type Error = DecodeError;
 
     fn encode(&mut self, item: PduOut, dst: &mut BytesMut) -> Result<(), Self::Error> {
         todo!()
@@ -19,7 +19,7 @@ impl Encoder<PduOut> for PduCodec {
 
 impl Decoder for PduCodec {
     type Item = PduIn;
-    type Error = ReadFromError;
+    type Error = EncodeError;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         todo!()

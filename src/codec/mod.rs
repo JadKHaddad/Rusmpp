@@ -1,1 +1,1 @@
-pub mod rusmpp_codec;
+pub mod pdu_codec;

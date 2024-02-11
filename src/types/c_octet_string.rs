@@ -1,8 +1,11 @@
-use crate::io::{decode::AsyncDecode, encode::AsyncEncode, length::Length};
-use std::{fmt::Display, str::FromStr};
+use crate::io::{
+    decode::{AsyncDecode, DecodeError},
+    encode::{AsyncEncode, EncodeError},
+    length::Length,
+};
 use tokio::io::AsyncWriteExt;
 
-/// An Error that can occur while creating a [`COctetString`]
+/// An Error that can occur when creating a [`COctetString`]
 #[derive(Debug)]
 pub enum Error {
     TooManyBytes { actual: usize, max: usize },
@@ -12,7 +15,7 @@ pub enum Error {
     NullByteFound,
 }
 
-impl Display for Error {
+impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::TooManyBytes { actual, max } => {
@@ -62,22 +65,22 @@ pub struct COctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
-    /// Create a new empty C-Octet String
+    /// Create a new empty [`COctetString`] String
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![0] }
     }
 
-    /// Check if the C-Octet String is empty
+    /// Check if a [`COctetString`] is empty
     ///
-    /// A C-Octet String is considered empty if it
+    /// A [`COctetString`] is considered empty if it
     /// contains only a single NULL octet (0x00)
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.bytes.len() == 1
     }
 
-    /// Create a new C-Octet String from a sequence of bytes
+    /// Create a new [`COctetString`] from a sequence of bytes
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
@@ -112,14 +115,20 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
         })
     }
 
+    /// Convert a [`COctetString`] to a &[`str`]
+    #[inline]
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
+    /// Get the bytes of a [`COctetString`]
+    #[inline]
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
     }
 
+    /// Convert a [`COctetString`] to a [`Vec`] of [`u8`]
+    #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
@@ -140,7 +149,7 @@ impl<const MIN: usize, const MAX: usize> std::fmt::Debug for COctetString<MIN, M
     }
 }
 
-impl<const MIN: usize, const MAX: usize> FromStr for COctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> std::str::FromStr for COctetString<MIN, MAX> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -173,7 +182,7 @@ impl<const MIN: usize, const MAX: usize> AsyncEncode for COctetString<MIN, MAX> 
     async fn encode_to<W: tokio::io::AsyncWrite + Unpin>(
         &self,
         writer: &mut W,
-    ) -> Result<(), crate::io::encode::EncodeError> {
+    ) -> Result<(), EncodeError> {
         writer.write_all(&self.bytes).await?;
         Ok(())
     }
@@ -182,7 +191,7 @@ impl<const MIN: usize, const MAX: usize> AsyncEncode for COctetString<MIN, MAX> 
 impl<const MIN: usize, const MAX: usize> AsyncDecode for COctetString<MIN, MAX> {
     async fn decode_from<R: tokio::io::AsyncRead + Unpin>(
         reader: &mut R,
-    ) -> Result<Self, crate::io::decode::DecodeError>
+    ) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

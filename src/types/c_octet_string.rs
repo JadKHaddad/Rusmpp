@@ -3,7 +3,7 @@ use crate::io::{
     encode::{Encode, EncodeError},
     length::Length,
 };
-use std::io::{BufRead, BufReader, Read};
+use std::io::Read;
 
 /// An Error that can occur when creating a [`COctetString`]
 #[derive(Debug)]
@@ -195,11 +195,11 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
         let mut reader_bytes = reader.bytes();
         for _ in 0..MAX {
             if let Some(Ok(byte)) = reader_bytes.next() {
+                bytes.push(byte);
+
                 if byte == 0 {
-                    bytes.push(byte);
                     break;
                 }
-                bytes.push(byte);
             }
         }
 

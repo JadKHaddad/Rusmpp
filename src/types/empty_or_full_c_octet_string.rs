@@ -340,8 +340,19 @@ mod tests {
         use super::*;
 
         #[test]
-        fn not_enough_bytes() {
+        fn not_null_terminated_empty() {
             let bytes = b"";
+            let error = EmptyOrFullCOctetString::<6>::decode_from(&mut bytes.as_ref()).unwrap_err();
+
+            assert!(matches!(
+                error,
+                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+            ));
+        }
+
+        #[test]
+        fn not_null_terminated_empty_not_empty() {
+            let bytes = b"Hi";
             let error = EmptyOrFullCOctetString::<6>::decode_from(&mut bytes.as_ref()).unwrap_err();
 
             assert!(matches!(

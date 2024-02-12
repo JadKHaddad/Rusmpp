@@ -161,16 +161,23 @@ impl<const N: usize> Encode for EmptyOrFullCOctetString<N> {
     }
 }
 
-// FIXME: read is not removed from the reader due to the use of BufReader
 impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
         let mut bytes = Vec::with_capacity(N);
-        let buf_reader = BufReader::new(reader);
 
-        let _ = buf_reader.take(N as u64).read_until(0x00, &mut bytes)?;
+        let mut reader_bytes = reader.bytes();
+        for _ in 0..N {
+            if let Some(Ok(byte)) = reader_bytes.next() {
+                if byte == 0 {
+                    bytes.push(byte);
+                    break;
+                }
+                bytes.push(byte);
+            }
+        }
 
         if bytes.last() != Some(&0x00) {
             return Err(DecodeError::COctetStringDecodeError(

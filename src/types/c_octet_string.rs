@@ -185,16 +185,23 @@ impl<const MIN: usize, const MAX: usize> Encode for COctetString<MIN, MAX> {
     }
 }
 
-// FIXME: read is not removed from the reader due to the use of BufReader
 impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
         let mut bytes = Vec::with_capacity(MAX);
-        let buf_reader = BufReader::new(reader);
 
-        let _ = buf_reader.take(MAX as u64).read_until(0x00, &mut bytes)?;
+        let mut reader_bytes = reader.bytes();
+        for _ in 0..MAX {
+            if let Some(Ok(byte)) = reader_bytes.next() {
+                if byte == 0 {
+                    bytes.push(byte);
+                    break;
+                }
+                bytes.push(byte);
+            }
+        }
 
         if bytes.last() != Some(&0x00) {
             return Err(DecodeError::COctetStringDecodeError(
@@ -443,7 +450,7 @@ mod tests {
         fn ok_remaining() {
             let bytes = b"Hello\0World!";
             let buf = &mut bytes.as_ref();
-            let string = COctetString::<1, 25>::decode_from(buf).unwrap();
+            let string = COctetString::<1, 10>::decode_from(buf).unwrap();
 
             assert_eq!(string.bytes, b"Hello\0");
             assert_eq!(string.length(), 6);

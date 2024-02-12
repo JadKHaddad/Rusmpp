@@ -1,6 +1,11 @@
-use crate::io::{
-    encode::{Encode, EncodeError},
-    length::Length,
+use super::types::command_id::CommandId;
+use crate::{
+    io::{
+        decode::{Decode, DecodeError, DecodeWithKey},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    tri,
 };
 
 pub mod bind;
@@ -51,5 +56,39 @@ impl Encode for Body {
             Body::BindReceiver(body) => body.encode_to(writer),
             Body::BindTransceiver(body) => body.encode_to(writer),
         }
+    }
+}
+
+impl DecodeWithKey for Body {
+    type Key = CommandId;
+
+    fn decode_from<R: std::io::Read>(
+        key: Self::Key,
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Option<Self>, DecodeError>
+    where
+        Self: Sized,
+    {
+        let body = match key {
+            CommandId::BindTransmitter => {
+                Body::BindTransmitter(tri!(bind::Bind::decode_from(reader)))
+            }
+            CommandId::BindReceiver => Body::BindReceiver(tri!(bind::Bind::decode_from(reader))),
+            CommandId::BindTransceiver => {
+                Body::BindTransceiver(tri!(bind::Bind::decode_from(reader)))
+            }
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
+            _ => return Ok(None),
+        };
+
+        Ok(Some(body))
     }
 }

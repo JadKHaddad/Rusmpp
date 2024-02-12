@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     io::{
-        decode::{Decode, DecodeError, DecodeWithLength},
+        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -21,10 +21,7 @@ pub struct Pdu {
 
 impl Length for Pdu {
     fn length(&self) -> usize {
-        self.command_id.length()
-            + self.command_status.length()
-            + self.sequence_number.length()
-            + self.body.length()
+        self.command_status.length() + self.sequence_number.length() + self.body.length()
     }
 }
 
@@ -48,11 +45,21 @@ impl DecodeWithLength for Pdu {
         let command_status = tri!(CommandStatus::decode_from(reader));
         let sequence_number = tri!(u32::decode_from(reader));
 
+        let body_length = length.saturating_sub(
+            command_id.length() + command_status.length() + sequence_number.length(),
+        );
+
+        let body = tri!(Body::length_checked_decode_from(
+            command_id,
+            reader,
+            body_length
+        ));
+
         Ok(Self {
             command_id,
             command_status,
             sequence_number,
-            body: None,
+            body,
         })
     }
 }

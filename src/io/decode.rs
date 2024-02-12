@@ -1,5 +1,7 @@
 mod error;
 
+use crate::tri;
+
 pub use self::error::DecodeError;
 
 pub trait Decode {
@@ -7,6 +9,50 @@ pub trait Decode {
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized;
+
+    /// Decode a value from a slice
+    ///
+    /// If the length is 0, return `None`
+    fn length_checked_decode_from<R: std::io::Read>(
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Option<Self>, DecodeError>
+    where
+        Self: Sized,
+    {
+        if length == 0 {
+            return Ok(None);
+        }
+
+        Self::decode_from(reader).map(Some)
+    }
+
+    /// Decode a vector of values from a reader
+    fn vecorized_decode_from<R: std::io::Read>(
+        reader: &mut R,
+        count: usize,
+    ) -> Result<Vec<Self>, DecodeError>
+    where
+        Self: Sized,
+    {
+        let mut vec = Vec::new();
+
+        for _ in 0..count {
+            let v = tri!(Self::decode_from(reader));
+            vec.push(v);
+        }
+
+        Ok(vec)
+    }
+
+    /// Decode a value from a slice
+    #[allow(clippy::useless_asref)]
+    fn decode_from_slice(slice: &[u8]) -> Result<Self, DecodeError>
+    where
+        Self: Sized,
+    {
+        Self::decode_from(&mut slice.as_ref())
+    }
 }
 
 pub trait DecodeWithLength {
@@ -27,4 +73,22 @@ pub trait DecodeWithKey {
     ) -> Result<Option<Self>, DecodeError>
     where
         Self: Sized;
+
+    /// Decode a value from a reader, using a key to determine the type
+    ///
+    /// If the length is 0, return `None`
+    fn length_checked_decode_from<R: std::io::Read>(
+        key: Self::Key,
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Option<Self>, DecodeError>
+    where
+        Self: Sized,
+    {
+        if length == 0 {
+            return Ok(None);
+        }
+
+        Self::decode_from(key, reader, length)
+    }
 }

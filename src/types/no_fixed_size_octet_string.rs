@@ -108,6 +108,67 @@ impl DecodeWithLength for NoFixedSizeOctetString {
     where
         Self: Sized,
     {
-        todo!()
+        let mut bytes = vec![0; length];
+        reader.read_exact(&mut bytes)?;
+
+        Ok(Self { bytes })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod new {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = NoFixedSizeOctetString::new(bytes);
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_len() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = NoFixedSizeOctetString::new(bytes);
+            assert_eq!(octet_string.bytes.len(), 13);
+            assert_eq!(octet_string.length(), 13);
+        }
+    }
+
+    mod decode {
+        use super::*;
+
+        #[test]
+        fn not_enough_bytes() {
+            let bytes = b"";
+            let error = NoFixedSizeOctetString::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+
+            assert!(matches!(error, DecodeError::IoError { .. }));
+        }
+
+        #[test]
+        fn ok_all() {
+            let bytes = b"Hello";
+            let buf = &mut bytes.as_ref();
+            let string = NoFixedSizeOctetString::decode_from(buf, 5).unwrap();
+
+            assert_eq!(string.bytes, b"Hello");
+            assert_eq!(string.length(), 5);
+            assert_eq!(buf, b"");
+        }
+
+        #[test]
+        fn ok_partial() {
+            let bytes = b"Hello";
+            let buf = &mut bytes.as_ref();
+            let string = NoFixedSizeOctetString::decode_from(buf, 3).unwrap();
+
+            assert_eq!(string.bytes, b"Hel");
+            assert_eq!(string.length(), 3);
+            assert_eq!(buf, b"lo");
+        }
     }
 }

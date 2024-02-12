@@ -1,6 +1,6 @@
 use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
 use crate::io::{
-    decode::{DecodeError, DecodeWithLength},
+    decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
     length::Length,
 };
@@ -160,6 +160,127 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
     where
         Self: Sized,
     {
-        todo!()
+        if length > MAX {
+            return Err(DecodeError::OctetStringDecodeError(
+                OctetStringDecodeError::TooManyBytes {
+                    actual: length,
+                    max: MAX,
+                },
+            ));
+        }
+
+        if length < MIN {
+            return Err(DecodeError::OctetStringDecodeError(
+                OctetStringDecodeError::TooFewBytes {
+                    actual: length,
+                    min: MIN,
+                },
+            ));
+        }
+
+        let mut bytes = vec![0; length];
+        reader.read_exact(&mut bytes)?;
+
+        Ok(Self { bytes })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod new {
+        use super::*;
+
+        #[test]
+        fn too_many_bytes() {
+            let bytes = b"Hello\0World!\0";
+            let error = OctetString::<0, 5>::new(bytes).unwrap_err();
+            assert!(matches!(error, Error::TooManyBytes { actual: 13, .. }));
+        }
+
+        #[test]
+        fn too_few_bytes() {
+            let bytes = b"Hello World!";
+            let error = OctetString::<15, 20>::new(bytes).unwrap_err();
+            assert!(matches!(error, Error::TooFewBytes { actual: 12, .. }));
+        }
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_len() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes.len(), 13);
+            assert_eq!(octet_string.length(), 13);
+        }
+    }
+
+    mod decode {
+        use super::*;
+
+        #[test]
+        fn not_enough_bytes() {
+            let bytes = b"";
+            let error = OctetString::<0, 6>::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+
+            assert!(matches!(error, DecodeError::IoError { .. }));
+        }
+
+        #[test]
+        fn too_many_bytes() {
+            let bytes = b"Hello";
+            let error = OctetString::<0, 5>::decode_from(&mut bytes.as_ref(), 15).unwrap_err();
+
+            assert!(matches!(
+                error,
+                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooManyBytes {
+                    actual: 15,
+                    ..
+                },)
+            ));
+        }
+
+        #[test]
+        fn too_few_bytes() {
+            let bytes = b"Hello";
+            let error = OctetString::<6, 10>::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+
+            assert!(matches!(
+                error,
+                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooFewBytes {
+                    actual: 5,
+                    ..
+                },)
+            ));
+        }
+
+        #[test]
+        fn ok_all() {
+            let bytes = b"Hello";
+            let buf = &mut bytes.as_ref();
+            let string = OctetString::<0, 5>::decode_from(buf, 5).unwrap();
+
+            assert_eq!(string.bytes, b"Hello");
+            assert_eq!(string.length(), 5);
+            assert_eq!(buf, b"");
+        }
+
+        #[test]
+        fn ok_partial() {
+            let bytes = b"Hello";
+            let buf = &mut bytes.as_ref();
+            let string = OctetString::<0, 5>::decode_from(buf, 3).unwrap();
+
+            assert_eq!(string.bytes, b"Hel");
+            assert_eq!(string.length(), 3);
+            assert_eq!(buf, b"lo");
+        }
     }
 }

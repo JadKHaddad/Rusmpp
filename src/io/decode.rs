@@ -2,7 +2,7 @@ mod error;
 
 use crate::tri;
 
-pub use self::error::DecodeError;
+pub use self::error::*;
 
 pub trait Decode {
     /// Decode a value from a reader

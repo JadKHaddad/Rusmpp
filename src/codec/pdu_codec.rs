@@ -27,6 +27,9 @@ impl Encoder<Pdu> for PduCodec {
         dst.put_u32(command_length as u32);
         dst.put_slice(&buf);
 
+        // let mut k = &mut dst[..];
+        // item.encode_to(&mut k)?;
+
         Ok(())
     }
 }

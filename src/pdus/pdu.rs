@@ -21,7 +21,10 @@ pub struct Pdu {
 
 impl Length for Pdu {
     fn length(&self) -> usize {
-        self.command_status.length() + self.sequence_number.length() + self.body.length()
+        self.command_id.length()
+            + self.command_status.length()
+            + self.sequence_number.length()
+            + self.body.length()
     }
 }
 

@@ -10,7 +10,7 @@ pub trait Decode {
     where
         Self: Sized;
 
-    /// Decode a value from a slice
+    /// Decode a value from a reader
     ///
     /// If the length is 0, return `None`
     fn length_checked_decode_from<R: std::io::Read>(

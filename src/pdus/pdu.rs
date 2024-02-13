@@ -1,6 +1,9 @@
 use super::{
     body::Body,
-    types::{command_id::CommandId, command_status::CommandStatus},
+    types::{
+        command_id::{CommandId, HasCommandId},
+        command_status::CommandStatus,
+    },
 };
 use crate::{
     io::{
@@ -13,10 +16,31 @@ use crate::{
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Pdu {
-    pub command_id: CommandId,
+    command_id: CommandId,
     pub command_status: CommandStatus,
     pub sequence_number: u32,
-    pub body: Option<Body>,
+    body: Body,
+}
+
+impl Pdu {
+    pub fn new(command_status: CommandStatus, sequence_number: u32, body: Body) -> Self {
+        let command_id = body.command_id();
+
+        Self {
+            command_id,
+            command_status,
+            sequence_number,
+            body,
+        }
+    }
+
+    pub fn command_id(&self) -> CommandId {
+        self.command_id
+    }
+
+    pub fn body(&self) -> &Body {
+        &self.body
+    }
 }
 
 impl Length for Pdu {
@@ -52,11 +76,7 @@ impl DecodeWithLength for Pdu {
             command_id.length() + command_status.length() + sequence_number.length(),
         );
 
-        let body = tri!(Body::length_checked_decode_from(
-            command_id,
-            reader,
-            body_length
-        ));
+        let body = tri!(Body::decode_from(command_id, reader, body_length));
 
         Ok(Self {
             command_id,

@@ -10,8 +10,7 @@ use crate::{
         body::{bind::Bind, Body},
         pdu::Pdu,
         types::{
-            command_id::CommandId, command_status::CommandStatus,
-            interface_version::InterfaceVersion, npi::Npi, ton::Ton,
+            command_status::CommandStatus, interface_version::InterfaceVersion, npi::Npi, ton::Ton,
         },
     },
     types::c_octet_string::COctetString,
@@ -34,23 +33,17 @@ async fn do_codec() {
         }
     });
 
-    let accuire_link_pdu = Pdu {
-        command_id: CommandId::EnquireLink,
-        command_status: CommandStatus::EsmeRok,
-        sequence_number: 0,
-        body: None,
-    };
+    let enquire_link_pdu = Pdu::new(CommandStatus::EsmeRok, 0, Body::EnquireLink);
 
     framed_write
-        .send(accuire_link_pdu)
+        .send(enquire_link_pdu)
         .await
         .expect("Failed to send PDU");
 
-    let bind_transceiver_pdu = Pdu {
-        command_id: CommandId::BindTransceiver,
-        command_status: CommandStatus::EsmeRok,
-        sequence_number: 1,
-        body: Some(Body::BindTransceiver(Bind {
+    let bind_transceiver_pdu = Pdu::new(
+        CommandStatus::EsmeRok,
+        1,
+        Body::BindTransceiver(Bind {
             system_id: COctetString::from_str("NfDfddEKVI0NCxO")
                 .expect("Failed to create system_id"),
             password: COctetString::from_str("rEZYMq5j").expect("Failed to create password"),
@@ -59,20 +52,15 @@ async fn do_codec() {
             addr_ton: Ton::Unknown,
             addr_npi: Npi::Unknown,
             address_range: COctetString::empty(),
-        })),
-    };
+        }),
+    );
 
     framed_write
         .send(bind_transceiver_pdu)
         .await
         .expect("Failed to send PDU");
 
-    let unbind_pdu = Pdu {
-        command_id: CommandId::Unbind,
-        command_status: CommandStatus::EsmeRok,
-        sequence_number: 2,
-        body: None,
-    };
+    let unbind_pdu = Pdu::new(CommandStatus::EsmeRok, 2, Body::Unbind);
 
     framed_write
         .send(unbind_pdu)

@@ -62,7 +62,7 @@ pub trait DecodeWithLength {
         Self: Sized;
 }
 
-pub trait DecodeWithKey {
+pub trait OptionalDecodeWithKey {
     type Key: From<u32> + Into<u32>;
 
     /// Decode a value from a reader, using a key to determine the type
@@ -91,4 +91,17 @@ pub trait DecodeWithKey {
 
         Self::decode_from(key, reader, length)
     }
+}
+
+pub trait DecodeWithKey {
+    type Key: From<u32> + Into<u32>;
+
+    /// Decode a value from a reader, using a key to determine the type
+    fn decode_from<R: std::io::Read>(
+        key: Self::Key,
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Self, DecodeError>
+    where
+        Self: Sized;
 }

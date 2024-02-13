@@ -1,6 +1,6 @@
 use crate::{
     io::{
-        decode::{Decode, DecodeError, DecodeWithKey},
+        decode::{Decode, DecodeError, OptionalDecodeWithKey},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -17,6 +17,7 @@ pub struct TLV {
 }
 
 impl TLV {
+    /// Create a new TLV with the given value
     pub fn new(value: TLVValue) -> Self {
         let tag = value.tlv_tag();
         let value_length = value.length() as u16;
@@ -28,6 +29,7 @@ impl TLV {
         }
     }
 
+    /// Create a new TLV without a value
     pub fn new_without_value(tag: TLVTag) -> Self {
         Self {
             tag,

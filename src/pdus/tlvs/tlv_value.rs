@@ -1,7 +1,7 @@
 use super::tlv_tag::TLVTag;
 use crate::{
     io::{
-        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
+        decode::{Decode, DecodeError, DecodeWithLength, OptionalDecodeWithKey},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -191,7 +191,7 @@ impl Encode for TLVValue {
     }
 }
 
-impl DecodeWithKey for TLVValue {
+impl OptionalDecodeWithKey for TLVValue {
     type Key = TLVTag;
 
     fn decode_from<R: std::io::Read>(

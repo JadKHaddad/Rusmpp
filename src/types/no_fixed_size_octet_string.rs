@@ -11,7 +11,7 @@ pub struct NoFixedSizeOctetString {
 }
 
 impl NoFixedSizeOctetString {
-    /// Create a new empty [`NoFixedSizeOctetString`] String
+    /// Create a new empty [`NoFixedSizeOctetString`]
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![] }

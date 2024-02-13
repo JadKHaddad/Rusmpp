@@ -65,7 +65,7 @@ pub struct COctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
-    /// Create a new empty [`COctetString`] String
+    /// Create a new empty [`COctetString`]
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![0] }

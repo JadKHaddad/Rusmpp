@@ -40,7 +40,7 @@ pub struct EmptyOrFullCOctetString<const N: usize> {
 }
 
 impl<const N: usize> EmptyOrFullCOctetString<N> {
-    /// Create a new empty [`EmptyOrFullCOctetString`] String
+    /// Create a new empty [`EmptyOrFullCOctetString`]
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![0] }

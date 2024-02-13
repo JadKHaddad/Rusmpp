@@ -45,7 +45,7 @@ pub struct OctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
-    /// Create a new empty [`OctetString`] String
+    /// Create a new empty [`OctetString`]
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![] }

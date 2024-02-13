@@ -11,7 +11,7 @@ use tokio_util::{
     codec::{Decoder, Encoder},
 };
 
-/// A codec for encoding and decoding SMPP PDUs.
+/// A codec for encoding and decoding SMPP PDUs
 pub struct PduCodec;
 
 impl Encoder<Pdu> for PduCodec {
@@ -37,17 +37,17 @@ impl Decoder for PduCodec {
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         if src.len() < 4 {
-            // Not enough data to read encoding and length marker.
+            // Not enough data to read command_length
             return Ok(None);
         }
 
         let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
 
         if src.len() < command_length {
-            // Reserve enough space to read the entire PDU.
+            // Reserve enough space to read the entire PDU
             src.reserve(command_length - src.len());
 
-            // Not enough data to read the entire PDU.
+            // Not enough data to read the entire PDU
             return Ok(None);
         }
 

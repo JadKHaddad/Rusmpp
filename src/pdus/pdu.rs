@@ -41,6 +41,10 @@ impl Pdu {
     pub fn body(&self) -> &Body {
         &self.body
     }
+
+    pub fn into_body(self) -> Body {
+        self.body
+    }
 }
 
 impl Length for Pdu {

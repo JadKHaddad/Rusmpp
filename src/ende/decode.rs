@@ -60,6 +60,15 @@ pub trait DecodeWithLength {
     fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized;
+
+    /// Decode a value from a slice, with a specified length
+    #[allow(clippy::useless_asref)]
+    fn decode_from_slice(slice: &[u8], length: usize) -> Result<Self, DecodeError>
+    where
+        Self: Sized,
+    {
+        Self::decode_from(&mut slice.as_ref(), length)
+    }
 }
 
 pub trait OptionalDecodeWithKey {

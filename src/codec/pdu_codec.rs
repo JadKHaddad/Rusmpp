@@ -23,7 +23,7 @@ impl Encoder<Pdu> for PduCodec {
         dst.reserve(command_length);
 
         dst.put_u32(command_length as u32);
-        dst.put_slice(&item.to_vec()?);
+        dst.put_slice(&item.encode_into_vec()?);
 
         Ok(())
     }
@@ -49,11 +49,8 @@ impl Decoder for PduCodec {
             return Ok(None);
         }
 
-        // Skip the command_length
-        let mut slice = &src[4..command_length];
-
         let pdu_len = command_length - 4;
-        let pdu = Pdu::decode_from(&mut slice, pdu_len)?;
+        let pdu = Pdu::decode_from_slice(&src[4..command_length], pdu_len)?;
 
         src.advance(command_length);
 

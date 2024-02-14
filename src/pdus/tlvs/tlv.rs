@@ -1,3 +1,4 @@
+use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 use crate::{
     ende::{
         decode::{Decode, DecodeError, OptionalDecodeWithKey},
@@ -6,8 +7,6 @@ use crate::{
     },
     tri,
 };
-
-use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct TLV {
@@ -30,7 +29,7 @@ impl TLV {
     }
 
     /// Create a new TLV without a value
-    pub fn new_without_value(tag: TLVTag) -> Self {
+    pub fn without_value(tag: TLVTag) -> Self {
         Self {
             tag,
             value_length: 0,

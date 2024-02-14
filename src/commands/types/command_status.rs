@@ -4,15 +4,15 @@ use crate::ende::{
     length::Length,
 };
 
-/// The command_status represents the means by which an ESME or MC sends an error code
+/// The [`CommandStatus`] represents the means by which an ESME or MC sends an error code
 /// to its peer. This field is only relevant in response PDUs. Thus PDU requests always have this
 /// field set to NULL (0x00000000).
 ///
-/// The command_status field of a SMPP message response indicates the success or failure of
+/// The [`CommandStatus`] field of a SMPP message response indicates the success or failure of
 /// a SMPP request. It is relevant only in the SMPP response message and should be set to
 /// NULL in SMPP request messages.
 ///
-/// The SMPP Error status codes are returned by the MC in the command_status field of the
+/// The SMPP Error status codes are returned by the MC in the [`CommandStatus`] field of the
 /// SMPP message header and in the error_status_code field of a submit_multi_resp message.
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]

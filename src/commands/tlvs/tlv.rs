@@ -8,6 +8,7 @@ use crate::{
     tri,
 };
 
+/// See module level documentation
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct TLV {
     tag: TLVTag,

@@ -1,15 +1,16 @@
 use super::tlv_tag::TLVTag;
 use crate::{
+    commands::types::interface_version::InterfaceVersion,
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength, OptionalDecodeWithKey},
         encode::{Encode, EncodeError},
         length::Length,
     },
-    pdus::types::interface_version::InterfaceVersion,
     tri,
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
+/// See module level documentation
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TLVValue {
     // AdditionalStatusInfoText(COctetString<1, 256>),

@@ -1,4 +1,4 @@
-pub mod body;
+pub mod command;
 pub mod pdu;
 pub mod tlvs;
 pub mod types;

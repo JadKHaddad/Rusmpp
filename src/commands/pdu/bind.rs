@@ -1,10 +1,10 @@
 use crate::{
+    commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     ende::{
         decode::{Decode, DecodeError},
         encode::{Encode, EncodeError},
         length::Length,
     },
-    pdus::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     tri,
     types::c_octet_string::COctetString,
 };

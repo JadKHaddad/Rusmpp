@@ -5,10 +5,10 @@ use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
 use crate::{
-    codec::pdu_codec::PduCodec,
-    pdus::{
-        body::{bind::Bind, Body},
-        pdu::Pdu,
+    codec::command_codec::CommandCodec,
+    commands::{
+        command::Command,
+        pdu::{bind::Bind, Pdu},
         types::{
             command_status::CommandStatus, interface_version::InterfaceVersion, npi::Npi, ton::Ton,
         },
@@ -23,8 +23,8 @@ async fn do_codec() {
         .expect("Failed to connect");
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, PduCodec {});
-    let mut framed_write = FramedWrite::new(writer, PduCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandCodec {});
+    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
 
     tokio::spawn(async move {
         while let Some(pdu) = framed_read.next().await {
@@ -33,17 +33,17 @@ async fn do_codec() {
         }
     });
 
-    let enquire_link_pdu = Pdu::new(CommandStatus::EsmeRok, 0, Body::EnquireLink);
+    let enquire_link_pdu = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 
     framed_write
         .send(enquire_link_pdu)
         .await
         .expect("Failed to send PDU");
 
-    let bind_transceiver_pdu = Pdu::new(
+    let bind_transceiver_pdu = Command::new(
         CommandStatus::EsmeRok,
         1,
-        Body::BindTransceiver(Bind {
+        Pdu::BindTransceiver(Bind {
             system_id: COctetString::from_str("NfDfddEKVI0NCxO")
                 .expect("Failed to create system_id"),
             password: COctetString::from_str("rEZYMq5j").expect("Failed to create password"),
@@ -60,7 +60,7 @@ async fn do_codec() {
         .await
         .expect("Failed to send PDU");
 
-    let unbind_pdu = Pdu::new(CommandStatus::EsmeRok, 2, Body::Unbind);
+    let unbind_pdu = Command::new(CommandStatus::EsmeRok, 2, Pdu::Unbind);
 
     framed_write
         .send(unbind_pdu)

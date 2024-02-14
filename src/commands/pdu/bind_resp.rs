@@ -1,12 +1,12 @@
 use crate::{
+    commands::{
+        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        types::interface_version::InterfaceVersion,
+    },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
-    },
-    pdus::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
-        types::interface_version::InterfaceVersion,
     },
     tri,
     types::c_octet_string::COctetString,

@@ -1,5 +1,5 @@
 use crate::{
-    io::{
+    ende::{
         decode::{DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
@@ -20,15 +20,10 @@ impl Encoder<Pdu> for PduCodec {
     fn encode(&mut self, item: Pdu, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let command_length = 4 + item.length();
 
-        let mut buf = Vec::with_capacity(command_length);
-        item.encode_to(&mut buf)?;
-
         dst.reserve(command_length);
-        dst.put_u32(command_length as u32);
-        dst.put_slice(&buf);
 
-        // let mut k = &mut dst[..];
-        // item.encode_to(&mut k)?;
+        dst.put_u32(command_length as u32);
+        dst.put_slice(&item.to_vec()?);
 
         Ok(())
     }
@@ -54,9 +49,10 @@ impl Decoder for PduCodec {
             return Ok(None);
         }
 
+        // Skip the command_length
         let mut slice = &src[4..command_length];
-        let pdu_len = command_length - 4;
 
+        let pdu_len = command_length - 4;
         let pdu = Pdu::decode_from(&mut slice, pdu_len)?;
 
         src.advance(command_length);

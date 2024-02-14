@@ -1,5 +1,5 @@
 use crate::{
-    io::{
+    ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
@@ -12,7 +12,7 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BindResp {
     pub system_id: COctetString<1, 16>,
     sc_interface_version: Option<TLV>,

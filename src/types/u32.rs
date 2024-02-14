@@ -6,7 +6,7 @@
 //! A 4-octet integer with the decimal value of 31022623
 //! would be encoded as 4 octets with the value 0x1D95E1F
 
-use crate::io::{
+use crate::ende::{
     decode::{Decode, DecodeError},
     encode::{Encode, EncodeError},
     length::Length,

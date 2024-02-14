@@ -1,4 +1,4 @@
-use crate::io::{
+use crate::ende::{
     decode::{Decode, DecodeError},
     encode::{Encode, EncodeError},
     length::Length,

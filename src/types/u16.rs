@@ -6,7 +6,7 @@
 //! A 2-octet integer with the decimal value of 41746 would
 //! be encoded as 2 octets with the value 0xA312
 
-use crate::io::{
+use crate::ende::{
     decode::{Decode, DecodeError},
     encode::{Encode, EncodeError},
     length::Length,

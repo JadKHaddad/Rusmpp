@@ -1,6 +1,6 @@
 //! [`Length`] and [`AsyncEncode`] implementation for [`Option`]
 
-use crate::io::{
+use crate::ende::{
     encode::{Encode, EncodeError},
     length::Length,
 };

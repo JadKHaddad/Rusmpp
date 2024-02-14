@@ -1,7 +1,7 @@
 //! [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] implementation for [`Vec`]
 
 use crate::{
-    io::{
+    ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,

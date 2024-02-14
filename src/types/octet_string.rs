@@ -1,5 +1,5 @@
 use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
-use crate::io::{
+use crate::ende::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
     length::Length,

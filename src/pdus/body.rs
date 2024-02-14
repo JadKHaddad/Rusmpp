@@ -1,6 +1,6 @@
 use super::types::command_id::{CommandId, HasCommandId};
 use crate::{
-    io::{
+    ende::{
         decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,

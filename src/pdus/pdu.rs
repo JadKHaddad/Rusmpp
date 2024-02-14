@@ -6,7 +6,7 @@ use super::{
     },
 };
 use crate::{
-    io::{
+    ende::{
         decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,

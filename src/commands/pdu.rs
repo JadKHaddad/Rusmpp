@@ -11,6 +11,7 @@ use crate::{
 
 pub mod bind;
 pub mod bind_resp;
+pub mod outbind;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
@@ -42,7 +43,13 @@ pub enum Pdu {
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transceiver
     BindTransceiverResp(bind_resp::BindResp),
-    // Outbind(Outbind),
+    /// Authentication PDU used by a Message Centre to Outbind to
+    /// an ESME to inform it that messages are present in the MC.
+    /// The PDU contains identification, and access password for the
+    /// ESME. If the ESME authenticates the request, it will respond
+    /// with a bind_receiver or bind_transceiver to begin the process
+    /// of binding into the MC.
+    Outbind(outbind::Outbind),
     // AlertNotification(AlertNotification),
     // SubmitSm(SubmitSm),
     // SubmitSmResp(SubmitOrDataSmResp),
@@ -109,25 +116,25 @@ impl HasCommandId for Pdu {
             Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
             Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
-            // Body::Outbind(_) => CommandId::Outbind,
-            // Body::AlertNotification(_) => CommandId::AlertNotification,
-            // Body::SubmitSm(_) => CommandId::SubmitSm,
-            // Body::SubmitSmResp(_) => CommandId::SubmitSmResp,
-            // Body::QuerySm(_) => CommandId::QuerySm,
-            // Body::QuerySmResp(_) => CommandId::QuerySmResp,
-            // Body::DeliverSm(_) => CommandId::DeliverSm,
-            // Body::DeliverSmResp(_) => CommandId::DeliverSmResp,
-            // Body::DataSm(_) => CommandId::DataSm,
-            // Body::DataSmResp(_) => CommandId::DataSmResp,
-            // Body::CancelSm(_) => CommandId::CancelSm,
-            // Body::ReplaceSm(_) => CommandId::ReplaceSm,
-            // Body::SubmitMulti(_) => CommandId::SubmitMulti,
-            // Body::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
-            // Body::BroadcastSm(_) => CommandId::BroadcastSm,
-            // Body::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
-            // Body::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
-            // Body::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
-            // Body::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
+            Pdu::Outbind(_) => CommandId::Outbind,
+            // Pdu::AlertNotification(_) => CommandId::AlertNotification,
+            // Pdu::SubmitSm(_) => CommandId::SubmitSm,
+            // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
+            // Pdu::QuerySm(_) => CommandId::QuerySm,
+            // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
+            // Pdu::DeliverSm(_) => CommandId::DeliverSm,
+            // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            // Pdu::DataSm(_) => CommandId::DataSm,
+            // Pdu::DataSmResp(_) => CommandId::DataSmResp,
+            // Pdu::CancelSm(_) => CommandId::CancelSm,
+            // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
+            // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
+            // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
+            // Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
+            // Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
+            // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
+            // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty bodies
             // The reason they exist it to force the creation of a pdu with the correct command_id using a body
@@ -152,6 +159,7 @@ impl Length for Pdu {
             Pdu::BindReceiverResp(body) => body.length(),
             Pdu::BindTransceiver(body) => body.length(),
             Pdu::BindTransceiverResp(body) => body.length(),
+            Pdu::Outbind(body) => body.length(),
             Pdu::Other { body, .. } => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
@@ -174,6 +182,7 @@ impl Encode for Pdu {
             Pdu::BindReceiverResp(body) => body.encode_to(writer),
             Pdu::BindTransceiver(body) => body.encode_to(writer),
             Pdu::BindTransceiverResp(body) => body.encode_to(writer),
+            Pdu::Outbind(body) => body.encode_to(writer),
             Pdu::Other { body, .. } => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
@@ -215,6 +224,7 @@ impl DecodeWithKey for Pdu {
             CommandId::BindTransceiverResp => {
                 Pdu::BindTransceiverResp(tri!(bind_resp::BindResp::decode_from(reader, length)))
             }
+            CommandId::Outbind => Pdu::Outbind(tri!(outbind::Outbind::decode_from(reader))),
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
                 body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),

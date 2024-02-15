@@ -37,7 +37,7 @@ pub trait Encode: Length {
     /// Encode a value to a writer
     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError>;
 
-    /// Encode a value to a vector
+    /// Encode a value into a vector
     fn encode_into_vec(&self) -> Result<Vec<u8>, EncodeError> {
         let mut buf = Vec::with_capacity(self.length());
 

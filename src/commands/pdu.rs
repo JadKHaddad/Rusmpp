@@ -9,6 +9,7 @@ use crate::{
     types::no_fixed_size_octet_string::NoFixedSizeOctetString,
 };
 
+pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
 pub mod outbind;
@@ -50,7 +51,16 @@ pub enum Pdu {
     /// with a bind_receiver or bind_transceiver to begin the process
     /// of binding into the MC.
     Outbind(outbind::Outbind),
-    // AlertNotification(AlertNotification),
+    /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
+    /// session. It is sent when the MC has detected that a particular mobile subscriber has become
+    /// available and a delivery pending flag had been previously set for that subscriber by means of
+    /// the set_dpf TLV.
+    ///
+    /// A typical use of this operation is to trigger a data content ‘Push’ to the subscriber from a WAP
+    /// Proxy Server.
+    ///
+    /// Note: There is no associated alert_notification_resp PDU.
+    AlertNotification(alert_notification::AlertNotification),
     // SubmitSm(SubmitSm),
     // SubmitSmResp(SubmitOrDataSmResp),
     // QuerySm(QuerySm),
@@ -117,7 +127,7 @@ impl HasCommandId for Pdu {
             Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             Pdu::Outbind(_) => CommandId::Outbind,
-            // Pdu::AlertNotification(_) => CommandId::AlertNotification,
+            Pdu::AlertNotification(_) => CommandId::AlertNotification,
             // Pdu::SubmitSm(_) => CommandId::SubmitSm,
             // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
@@ -160,6 +170,7 @@ impl Length for Pdu {
             Pdu::BindTransceiver(body) => body.length(),
             Pdu::BindTransceiverResp(body) => body.length(),
             Pdu::Outbind(body) => body.length(),
+            Pdu::AlertNotification(body) => body.length(),
             Pdu::Other { body, .. } => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
@@ -183,6 +194,7 @@ impl Encode for Pdu {
             Pdu::BindTransceiver(body) => body.encode_to(writer),
             Pdu::BindTransceiverResp(body) => body.encode_to(writer),
             Pdu::Outbind(body) => body.encode_to(writer),
+            Pdu::AlertNotification(body) => body.encode_to(writer),
             Pdu::Other { body, .. } => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),

@@ -1,9 +1,16 @@
 pub mod addr_subunit;
 pub mod alert_on_msg_delivery;
 pub mod bearer_type;
+pub mod broadcast_area_identifier;
+pub mod broadcast_area_success;
+pub mod broadcast_channel_indicator;
+pub mod broadcast_content_type;
+pub mod broadcast_frequency_interval;
+pub mod broadcast_message_class;
 pub mod callback_num_pres_ind;
 pub mod command_id;
 pub mod command_status;
+pub mod congestion_state;
 pub mod data_coding;
 pub mod delivery_failure_reason;
 pub mod dest_addr_np_resolution;

@@ -2,7 +2,11 @@ use super::tlv_tag::TLVTag;
 use crate::{
     commands::types::{
         addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
-        bearer_type::BearerType, broadcast_frequency_interval::BroadcastFrequencyInterval,
+        bearer_type::BearerType, broadcast_area_identifier::BroadcastAreaIdentifier,
+        broadcast_area_success::BroadcastAreaSuccess,
+        broadcast_channel_indicator::BroadcastChannelIndicator,
+        broadcast_content_type::BroadcastContentType,
+        broadcast_frequency_interval::BroadcastFrequencyInterval,
         broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
         command_status::CommandStatus, congestion_state::CongestionState,
         delivery_failure_reason::DeliveryFailureReason,
@@ -34,11 +38,11 @@ pub enum TLVValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
     AlertOnMessageDelivery(AlertOnMsgDelivery),
     BillingIdentification(OctetString<0, 1024>),
-    // BroadcastAreaIdentifier(BroadcastAreaIdentifier),
-    // BroadcastAreaSuccess(BroadcastAreaSuccess),
-    // BroadcastContentTypeInfo(OctetString<0, 255>),
-    // BroadcastChannelIndicator(BroadcastChannelIndicator),
-    // BroadcastContentType(BroadcastContentType),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    BroadcastAreaSuccess(BroadcastAreaSuccess),
+    BroadcastContentTypeInfo(OctetString<0, 255>),
+    BroadcastChannelIndicator(BroadcastChannelIndicator),
+    BroadcastContentType(BroadcastContentType),
     /// Absolute time is formatted as a 16-character string (encoded as a 17-octet C-octet String)
     /// “YYMMDDhhmmsstnnp” where:
     ///
@@ -122,11 +126,11 @@ impl TLVValue {
             TLVValue::AdditionalStatusInfoText(_) => TLVTag::AdditionalStatusInfoText,
             TLVValue::AlertOnMessageDelivery(_) => TLVTag::AlertOnMessageDelivery,
             TLVValue::BillingIdentification(_) => TLVTag::BillingIdentification,
-            // TLVValue::BroadcastAreaIdentifier(_) => TLVTag::BroadcastAreaIdentifier,
-            // TLVValue::BroadcastAreaSuccess(_) => TLVTag::BroadcastAreaSuccess,
-            // TLVValue::BroadcastContentTypeInfo(_) => TLVTag::BroadcastContentTypeInfo,
-            // TLVValue::BroadcastChannelIndicator(_) => TLVTag::BroadcastChannelIndicator,
-            // TLVValue::BroadcastContentType(_) => TLVTag::BroadcastContentType,
+            TLVValue::BroadcastAreaIdentifier(_) => TLVTag::BroadcastAreaIdentifier,
+            TLVValue::BroadcastAreaSuccess(_) => TLVTag::BroadcastAreaSuccess,
+            TLVValue::BroadcastContentTypeInfo(_) => TLVTag::BroadcastContentTypeInfo,
+            TLVValue::BroadcastChannelIndicator(_) => TLVTag::BroadcastChannelIndicator,
+            TLVValue::BroadcastContentType(_) => TLVTag::BroadcastContentType,
             TLVValue::BroadcastEndTime(_) => TLVTag::BroadcastEndTime,
             TLVValue::BroadcastErrorStatus(_) => TLVTag::BroadcastErrorStatus,
             TLVValue::BroadcastFrequencyInterval(_) => TLVTag::BroadcastFrequencyInterval,
@@ -194,11 +198,11 @@ impl Length for TLVValue {
             TLVValue::AdditionalStatusInfoText(value) => value.length(),
             TLVValue::AlertOnMessageDelivery(value) => value.length(),
             TLVValue::BillingIdentification(value) => value.length(),
-            // TLVValue::BroadcastAreaIdentifier(value) => value.length(),
-            // TLVValue::BroadcastAreaSuccess(value) => value.length(),
-            // TLVValue::BroadcastContentTypeInfo(value) => value.length(),
-            // TLVValue::BroadcastChannelIndicator(value) => value.length(),
-            // TLVValue::BroadcastContentType(value) => value.length(),
+            TLVValue::BroadcastAreaIdentifier(value) => value.length(),
+            TLVValue::BroadcastAreaSuccess(value) => value.length(),
+            TLVValue::BroadcastContentTypeInfo(value) => value.length(),
+            TLVValue::BroadcastChannelIndicator(value) => value.length(),
+            TLVValue::BroadcastContentType(value) => value.length(),
             TLVValue::BroadcastEndTime(value) => value.length(),
             TLVValue::BroadcastErrorStatus(value) => value.length(),
             TLVValue::BroadcastFrequencyInterval(value) => value.length(),
@@ -266,11 +270,11 @@ impl Encode for TLVValue {
             TLVValue::AdditionalStatusInfoText(value) => value.encode_to(writer),
             TLVValue::AlertOnMessageDelivery(value) => value.encode_to(writer),
             TLVValue::BillingIdentification(value) => value.encode_to(writer),
-            // TLVValue::BroadcastAreaIdentifier(value) => value.encode_to(writer),
-            // TLVValue::BroadcastAreaSuccess(value) => value.encode_to(writer),
-            // TLVValue::BroadcastContentTypeInfo(value) => value.encode_to(writer),
-            // TLVValue::BroadcastChannelIndicator(value) => value.encode_to(writer),
-            // TLVValue::BroadcastContentType(value) => value.encode_to(writer),
+            TLVValue::BroadcastAreaIdentifier(value) => value.encode_to(writer),
+            TLVValue::BroadcastAreaSuccess(value) => value.encode_to(writer),
+            TLVValue::BroadcastContentTypeInfo(value) => value.encode_to(writer),
+            TLVValue::BroadcastChannelIndicator(value) => value.encode_to(writer),
+            TLVValue::BroadcastContentType(value) => value.encode_to(writer),
             TLVValue::BroadcastEndTime(value) => value.encode_to(writer),
             TLVValue::BroadcastErrorStatus(value) => value.encode_to(writer),
             TLVValue::BroadcastFrequencyInterval(value) => value.encode_to(writer),
@@ -345,14 +349,171 @@ impl OptionalDecodeWithKey for TLVValue {
         Self: Sized,
     {
         let value = match key {
+            TLVTag::AdditionalStatusInfoText => {
+                TLVValue::AdditionalStatusInfoText(tri!(COctetString::decode_from(reader)))
+            }
+            TLVTag::AlertOnMessageDelivery => {
+                TLVValue::AlertOnMessageDelivery(tri!(AlertOnMsgDelivery::decode_from(reader)))
+            }
+            TLVTag::BillingIdentification => {
+                TLVValue::BillingIdentification(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::BroadcastAreaIdentifier => TLVValue::BroadcastAreaIdentifier(tri!(
+                BroadcastAreaIdentifier::decode_from(reader, length)
+            )),
+            TLVTag::BroadcastAreaSuccess => {
+                TLVValue::BroadcastAreaSuccess(tri!(BroadcastAreaSuccess::decode_from(reader)))
+            }
+            TLVTag::BroadcastContentTypeInfo => {
+                TLVValue::BroadcastContentTypeInfo(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::BroadcastChannelIndicator => TLVValue::BroadcastChannelIndicator(tri!(
+                BroadcastChannelIndicator::decode_from(reader)
+            )),
+            TLVTag::BroadcastContentType => {
+                TLVValue::BroadcastContentType(tri!(BroadcastContentType::decode_from(reader)))
+            }
+            TLVTag::BroadcastEndTime => {
+                TLVValue::BroadcastEndTime(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::BroadcastErrorStatus => {
+                TLVValue::BroadcastErrorStatus(tri!(CommandStatus::decode_from(reader)))
+            }
+            TLVTag::BroadcastFrequencyInterval => TLVValue::BroadcastFrequencyInterval(tri!(
+                BroadcastFrequencyInterval::decode_from(reader)
+            )),
+            TLVTag::BroadcastMessageClass => {
+                TLVValue::BroadcastMessageClass(tri!(BroadcastMessageClass::decode_from(reader)))
+            }
+            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(tri!(u16::decode_from(reader))),
+            TLVTag::BroadcastServiceGroup => {
+                TLVValue::BroadcastServiceGroup(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::CallbackNum => {
+                TLVValue::CallbackNum(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::CallbackNumAtag => {
+                TLVValue::CallbackNumAtag(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::CallbackNumPresInd => {
+                TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode_from(reader)))
+            }
+
+            TLVTag::CongestionState => {
+                TLVValue::CongestionState(tri!(CongestionState::decode_from(reader)))
+            }
+            TLVTag::DeliveryFailureReason => {
+                TLVValue::DeliveryFailureReason(tri!(DeliveryFailureReason::decode_from(reader)))
+            }
+            TLVTag::DestAddrNpCountry => {
+                TLVValue::DestAddrNpCountry(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::DestAddrNpInformation => {
+                TLVValue::DestAddrNpInformation(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::DestAddrNpResolution => {
+                TLVValue::DestAddrNpResolution(tri!(DestAddrNpResolution::decode_from(reader)))
+            }
+            TLVTag::DestAddrSubunit => {
+                TLVValue::DestAddrSubunit(tri!(AddrSubunit::decode_from(reader)))
+            }
+            TLVTag::DestBearerType => {
+                TLVValue::DestBearerType(tri!(BearerType::decode_from(reader)))
+            }
+            TLVTag::DestNetworkId => {
+                TLVValue::DestNetworkId(tri!(COctetString::decode_from(reader)))
+            }
+            TLVTag::DestNetworkType => {
+                TLVValue::DestNetworkType(tri!(NetworkType::decode_from(reader)))
+            }
+            TLVTag::DestNodeId => {
+                TLVValue::DestNodeId(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::DestSubaddress => {
+                TLVValue::DestSubaddress(tri!(Subaddress::decode_from(reader, length)))
+            }
+            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(tri!(u16::decode_from(reader))),
+            TLVTag::DestPort => TLVValue::DestPort(tri!(u16::decode_from(reader))),
+            TLVTag::DisplayTime => TLVValue::DisplayTime(tri!(DisplayTime::decode_from(reader))),
+            TLVTag::DpfResult => TLVValue::DpfResult(tri!(DpfResult::decode_from(reader))),
+            TLVTag::ItsReplyType => TLVValue::ItsReplyType(tri!(ItsReplyType::decode_from(reader))),
+            TLVTag::ItsSessionInfo => {
+                TLVValue::ItsSessionInfo(tri!(ItsSessionInfo::decode_from(reader)))
+            }
+            TLVTag::LanguageIndicator => {
+                TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode_from(reader)))
+            }
+            TLVTag::MessagePayload => {
+                TLVValue::MessagePayload(tri!(NoFixedSizeOctetString::decode_from(reader, length)))
+            }
+            TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode_from(reader))),
+            TLVTag::MoreMessagesToSend => {
+                TLVValue::MoreMessagesToSend(tri!(MoreMessagesToSend::decode_from(reader)))
+            }
+            TLVTag::MsAvailabilityStatus => {
+                TLVValue::MsAvailabilityStatus(tri!(MsAvailabilityStatus::decode_from(reader)))
+            }
+            TLVTag::MsMsgWaitFacilities => {
+                TLVValue::MsMsgWaitFacilities(tri!(MsMsgWaitFacilities::decode_from(reader)))
+            }
+            TLVTag::MsValidity => {
+                TLVValue::MsValidity(tri!(MsValidity::decode_from(reader, length)))
+            }
+            TLVTag::NetworkErrorCode => {
+                TLVValue::NetworkErrorCode(tri!(NetworkErrorCode::decode_from(reader)))
+            }
+            TLVTag::NumberOfMessages => {
+                TLVValue::NumberOfMessages(tri!(NumberOfMessages::decode_from(reader)))
+            }
+            TLVTag::PayloadType => TLVValue::PayloadType(tri!(PayloadType::decode_from(reader))),
+            TLVTag::PrivacyIndicator => {
+                TLVValue::PrivacyIndicator(tri!(PrivacyIndicator::decode_from(reader)))
+            }
+            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(tri!(u32::decode_from(reader))),
+            TLVTag::ReceiptedMessageId => {
+                TLVValue::ReceiptedMessageId(tri!(COctetString::decode_from(reader)))
+            }
+            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(tri!(u16::decode_from(reader))),
+            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(tri!(u8::decode_from(reader))),
+            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(tri!(u8::decode_from(reader))),
             TLVTag::ScInterfaceVersion => {
                 TLVValue::ScInterfaceVersion(tri!(InterfaceVersion::decode_from(reader)))
             }
-            TLVTag::Other(_) => {
-                let value = tri!(NoFixedSizeOctetString::decode_from(reader, length));
-                TLVValue::Other { tag: key, value }
+            TLVTag::SetDpf => TLVValue::SetDpf(tri!(SetDpf::decode_from(reader))),
+            TLVTag::SmsSignal => TLVValue::SmsSignal(tri!(u16::decode_from(reader))),
+            TLVTag::SourceAddrSubunit => {
+                TLVValue::SourceAddrSubunit(tri!(AddrSubunit::decode_from(reader)))
             }
-            _ => return Ok(None),
+            TLVTag::SourceBearerType => {
+                TLVValue::SourceBearerType(tri!(BearerType::decode_from(reader)))
+            }
+            TLVTag::SourceNetworkId => {
+                TLVValue::SourceNetworkId(tri!(COctetString::decode_from(reader)))
+            }
+            TLVTag::SourceNetworkType => {
+                TLVValue::SourceNetworkType(tri!(NetworkType::decode_from(reader)))
+            }
+            TLVTag::SourceNodeId => {
+                TLVValue::SourceNodeId(tri!(OctetString::decode_from(reader, length)))
+            }
+            TLVTag::SourcePort => TLVValue::SourcePort(tri!(u16::decode_from(reader))),
+            TLVTag::SourceSubaddress => {
+                TLVValue::SourceSubaddress(tri!(Subaddress::decode_from(reader, length)))
+            }
+            TLVTag::SourceTelematicsId => {
+                TLVValue::SourceTelematicsId(tri!(u16::decode_from(reader)))
+            }
+            TLVTag::UserMessageReference => {
+                TLVValue::UserMessageReference(tri!(u16::decode_from(reader)))
+            }
+            TLVTag::UserResponseCode => TLVValue::UserResponseCode(tri!(u8::decode_from(reader))),
+            TLVTag::UssdServiceOp => {
+                TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode_from(reader)))
+            }
+            other => {
+                let value = tri!(NoFixedSizeOctetString::decode_from(reader, length));
+                TLVValue::Other { tag: other, value }
+            }
         };
 
         Ok(Some(value))

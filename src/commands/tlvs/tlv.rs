@@ -1,13 +1,3 @@
-use self::{
-    message_delivery_request::{MessageDeliveryRequestTLVTag, MessageDeliveryRequestTLVValue},
-    message_delivery_response::{MessageDeliveryResponseTLVTag, MessageDeliveryResponseTLVValue},
-    message_submission_request::{
-        MessageSubmissionRequestTLVTag, MessageSubmissionRequestTLVValue,
-    },
-    message_submission_response::{
-        MessageSubmissionResponseTLVTag, MessageSubmissionResponseTLVValue,
-    },
-};
 use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 use crate::{
     ende::{
@@ -18,10 +8,14 @@ use crate::{
     tri,
 };
 
+pub mod broadcast_request;
+pub mod broadcast_response;
+pub mod cancel_broadcast;
 pub mod message_delivery_request;
 pub mod message_delivery_response;
 pub mod message_submission_request;
 pub mod message_submission_response;
+pub mod query_broadcast_response;
 
 /// See module level documentation
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -105,105 +99,5 @@ impl Decode for TLV {
             value_length,
             value,
         })
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageSubmissionRequestTLV {
-    tlv: TLV,
-}
-
-impl MessageSubmissionRequestTLV {
-    pub fn new(value: MessageSubmissionRequestTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
-
-        Self { tlv }
-    }
-
-    pub fn without_value(tag: MessageSubmissionRequestTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
-
-        Self { tlv }
-    }
-}
-
-impl From<MessageSubmissionRequestTLV> for TLV {
-    fn from(tlv: MessageSubmissionRequestTLV) -> Self {
-        tlv.tlv
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageSubmissionResponseTLV {
-    tlv: TLV,
-}
-
-impl MessageSubmissionResponseTLV {
-    pub fn new(value: MessageSubmissionResponseTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
-
-        Self { tlv }
-    }
-
-    pub fn without_value(tag: MessageSubmissionResponseTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
-
-        Self { tlv }
-    }
-}
-
-impl From<MessageSubmissionResponseTLV> for TLV {
-    fn from(tlv: MessageSubmissionResponseTLV) -> Self {
-        tlv.tlv
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageDeliveryRequestTLV {
-    tlv: TLV,
-}
-
-impl MessageDeliveryRequestTLV {
-    pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
-
-        Self { tlv }
-    }
-
-    pub fn without_value(tag: MessageDeliveryRequestTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
-
-        Self { tlv }
-    }
-}
-
-impl From<MessageDeliveryRequestTLV> for TLV {
-    fn from(tlv: MessageDeliveryRequestTLV) -> Self {
-        tlv.tlv
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageDeliveryResponseTLV {
-    tlv: TLV,
-}
-
-impl MessageDeliveryResponseTLV {
-    pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
-
-        Self { tlv }
-    }
-
-    pub fn without_value(tag: MessageDeliveryResponseTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
-
-        Self { tlv }
-    }
-}
-
-impl From<MessageDeliveryResponseTLV> for TLV {
-    fn from(tlv: MessageDeliveryResponseTLV) -> Self {
-        tlv.tlv
     }
 }

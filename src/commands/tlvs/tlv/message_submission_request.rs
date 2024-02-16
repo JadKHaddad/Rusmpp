@@ -1,3 +1,4 @@
+use super::TLV;
 use crate::{
     commands::{
         tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
@@ -278,5 +279,30 @@ impl From<MessageSubmissionRequestTLVValue> for TLVValue {
                 TLVValue::UssdServiceOp(value)
             }
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageSubmissionRequestTLV {
+    tlv: TLV,
+}
+
+impl MessageSubmissionRequestTLV {
+    pub fn new(value: MessageSubmissionRequestTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn without_value(tag: MessageSubmissionRequestTLVTag) -> Self {
+        let tlv = TLV::without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageSubmissionRequestTLV> for TLV {
+    fn from(tlv: MessageSubmissionRequestTLV) -> Self {
+        tlv.tlv
     }
 }

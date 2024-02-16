@@ -1,4 +1,4 @@
-use super::TLVValue;
+use super::{TLVValue, TLV};
 use crate::{
     commands::{
         tlvs::tlv_tag::TLVTag,
@@ -46,5 +46,30 @@ impl From<MessageDeliveryResponseTLVValue> for TLVValue {
             }
             MessageDeliveryResponseTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryResponseTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryResponseTLV {
+    pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn without_value(tag: MessageDeliveryResponseTLVTag) -> Self {
+        let tlv = TLV::without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryResponseTLV> for TLV {
+    fn from(tlv: MessageDeliveryResponseTLV) -> Self {
+        tlv.tlv
     }
 }

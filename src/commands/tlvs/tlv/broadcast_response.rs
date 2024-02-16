@@ -1,0 +1,64 @@
+use super::TLV;
+use crate::commands::{
+    tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+    types::{broadcast_area_identifier::BroadcastAreaIdentifier, command_status::CommandStatus},
+};
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastResponseTLVTag {
+    BroadcastErrorStatus,
+    BroadcastAreaIdentifier,
+}
+
+impl From<BroadcastResponseTLVTag> for TLVTag {
+    fn from(v: BroadcastResponseTLVTag) -> Self {
+        match v {
+            BroadcastResponseTLVTag::BroadcastErrorStatus => TLVTag::BroadcastErrorStatus,
+            BroadcastResponseTLVTag::BroadcastAreaIdentifier => TLVTag::BroadcastAreaIdentifier,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum BroadcastResponseTLVValue {
+    BroadcastErrorStatus(CommandStatus),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+}
+
+impl From<BroadcastResponseTLVValue> for TLVValue {
+    fn from(value: BroadcastResponseTLVValue) -> Self {
+        match value {
+            BroadcastResponseTLVValue::BroadcastErrorStatus(value) => {
+                TLVValue::BroadcastErrorStatus(value)
+            }
+            BroadcastResponseTLVValue::BroadcastAreaIdentifier(value) => {
+                TLVValue::BroadcastAreaIdentifier(value)
+            }
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct BroadcastResponseTLV {
+    tlv: TLV,
+}
+
+impl BroadcastResponseTLV {
+    pub fn new(value: BroadcastResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn without_value(tag: BroadcastResponseTLVTag) -> Self {
+        let tlv = TLV::without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<BroadcastResponseTLV> for TLV {
+    fn from(tlv: BroadcastResponseTLV) -> Self {
+        tlv.tlv
+    }
+}

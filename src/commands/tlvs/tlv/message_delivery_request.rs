@@ -1,4 +1,4 @@
-use super::TLVValue;
+use super::{TLVValue, TLV};
 use crate::{
     commands::{
         tlvs::tlv_tag::TLVTag,
@@ -205,5 +205,30 @@ impl From<MessageDeliveryRequestTLVValue> for TLVValue {
             }
             MessageDeliveryRequestTLVValue::UssdServiceOp(value) => TLVValue::UssdServiceOp(value),
         }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryRequestTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryRequestTLV {
+    pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    pub fn without_value(tag: MessageDeliveryRequestTLVTag) -> Self {
+        let tlv = TLV::without_value(tag.into());
+
+        Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryRequestTLV> for TLV {
+    fn from(tlv: MessageDeliveryRequestTLV) -> Self {
+        tlv.tlv
     }
 }

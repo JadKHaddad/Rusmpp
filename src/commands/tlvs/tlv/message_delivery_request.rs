@@ -1,12 +1,16 @@
+use super::TLVValue;
 use crate::{
-    commands::types::{
-        addr_subunit::AddrSubunit, callback_num_pres_ind::CallbackNumPresInd,
-        dest_addr_np_resolution::DestAddrNpResolution, dpf_result::DpfResult,
-        its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
-        language_indicator::LanguageIndicator, message_state::MessageState,
-        network_error_code::NetworkErrorCode, payload_type::PayloadType,
-        privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
-        ussd_service_op::UssdServiceOp,
+    commands::{
+        tlvs::tlv_tag::TLVTag,
+        types::{
+            addr_subunit::AddrSubunit, callback_num_pres_ind::CallbackNumPresInd,
+            dest_addr_np_resolution::DestAddrNpResolution, dpf_result::DpfResult,
+            its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
+            language_indicator::LanguageIndicator, message_state::MessageState,
+            network_error_code::NetworkErrorCode, payload_type::PayloadType,
+            privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
+            ussd_service_op::UssdServiceOp,
+        },
     },
     types::{
         c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
@@ -14,7 +18,80 @@ use crate::{
     },
 };
 
-use super::TLVValue;
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryRequestTLVTag {
+    CallbackNum,
+    CallbackNumAtag,
+    CallbackNumPresInd,
+    DestAddrNpCountry,
+    DestAddrNpInformation,
+    DestAddrNpResolution,
+    DestAddrSubunit,
+    DestNetworkId,
+    DestNodeId,
+    DestSubaddress,
+    DestPort,
+    DpfResult,
+    ItsReplyType,
+    ItsSessionInfo,
+    LanguageIndicator,
+    MessagePayload,
+    MessageState,
+    NetworkErrorCode,
+    PayloadType,
+    PrivacyIndicator,
+    ReceiptedMessageId,
+    SarMsgRefNum,
+    SarSegmentSeqnum,
+    SarTotalSegments,
+    SourceAddrSubunit,
+    SourceNetworkId,
+    SourceNodeId,
+    SourcePort,
+    SourceSubaddress,
+    UserMessageReference,
+    UserResponseCode,
+    UssdServiceOp,
+}
+
+impl From<MessageDeliveryRequestTLVTag> for TLVTag {
+    fn from(value: MessageDeliveryRequestTLVTag) -> Self {
+        match value {
+            MessageDeliveryRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
+            MessageDeliveryRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
+            MessageDeliveryRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
+            MessageDeliveryRequestTLVTag::DestAddrNpCountry => TLVTag::DestAddrNpCountry,
+            MessageDeliveryRequestTLVTag::DestAddrNpInformation => TLVTag::DestAddrNpInformation,
+            MessageDeliveryRequestTLVTag::DestAddrNpResolution => TLVTag::DestAddrNpResolution,
+            MessageDeliveryRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
+            MessageDeliveryRequestTLVTag::DestNetworkId => TLVTag::DestNetworkId,
+            MessageDeliveryRequestTLVTag::DestNodeId => TLVTag::DestNodeId,
+            MessageDeliveryRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
+            MessageDeliveryRequestTLVTag::DestPort => TLVTag::DestPort,
+            MessageDeliveryRequestTLVTag::DpfResult => TLVTag::DpfResult,
+            MessageDeliveryRequestTLVTag::ItsReplyType => TLVTag::ItsReplyType,
+            MessageDeliveryRequestTLVTag::ItsSessionInfo => TLVTag::ItsSessionInfo,
+            MessageDeliveryRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
+            MessageDeliveryRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
+            MessageDeliveryRequestTLVTag::MessageState => TLVTag::MessageState,
+            MessageDeliveryRequestTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+            MessageDeliveryRequestTLVTag::PayloadType => TLVTag::PayloadType,
+            MessageDeliveryRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
+            MessageDeliveryRequestTLVTag::ReceiptedMessageId => TLVTag::ReceiptedMessageId,
+            MessageDeliveryRequestTLVTag::SarMsgRefNum => TLVTag::SarMsgRefNum,
+            MessageDeliveryRequestTLVTag::SarSegmentSeqnum => TLVTag::SarSegmentSeqnum,
+            MessageDeliveryRequestTLVTag::SarTotalSegments => TLVTag::SarTotalSegments,
+            MessageDeliveryRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
+            MessageDeliveryRequestTLVTag::SourceNetworkId => TLVTag::SourceNetworkId,
+            MessageDeliveryRequestTLVTag::SourceNodeId => TLVTag::SourceNodeId,
+            MessageDeliveryRequestTLVTag::SourcePort => TLVTag::SourcePort,
+            MessageDeliveryRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
+            MessageDeliveryRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+            MessageDeliveryRequestTLVTag::UserResponseCode => TLVTag::UserResponseCode,
+            MessageDeliveryRequestTLVTag::UssdServiceOp => TLVTag::UssdServiceOp,
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageDeliveryRequestTLVValue {

@@ -1,11 +1,32 @@
+use super::TLVValue;
 use crate::{
-    commands::types::{
-        delivery_failure_reason::DeliveryFailureReason, network_error_code::NetworkErrorCode,
+    commands::{
+        tlvs::tlv_tag::TLVTag,
+        types::{
+            delivery_failure_reason::DeliveryFailureReason, network_error_code::NetworkErrorCode,
+        },
     },
     types::c_octet_string::COctetString,
 };
 
-use super::TLVValue;
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub enum MessageDeliveryResponseTLVTag {
+    AdditionalStatusInfoText,
+    DeliveryFailureReason,
+    NetworkErrorCode,
+}
+
+impl From<MessageDeliveryResponseTLVTag> for TLVTag {
+    fn from(value: MessageDeliveryResponseTLVTag) -> Self {
+        match value {
+            MessageDeliveryResponseTLVTag::AdditionalStatusInfoText => {
+                TLVTag::AdditionalStatusInfoText
+            }
+            MessageDeliveryResponseTLVTag::DeliveryFailureReason => TLVTag::DeliveryFailureReason,
+            MessageDeliveryResponseTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+        }
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageDeliveryResponseTLVValue {

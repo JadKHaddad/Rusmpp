@@ -1,4 +1,10 @@
-use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
+use super::{
+    tlv_tag::TLVTag,
+    tlv_value::{
+        message_delivery_request::MessageDeliveryRequestTLVValue,
+        message_delivery_response::MessageDeliveryResponseTLVValue, TLVValue,
+    },
+};
 use crate::{
     ende::{
         decode::{Decode, DecodeError, OptionalDecodeWithKey},
@@ -90,5 +96,57 @@ impl Decode for TLV {
             value_length,
             value,
         })
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryRequestTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryRequestTLV {
+    pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    // TODO
+    // pub fn without_value(tag: MessageDeliveryRequestTag) -> Self {
+    //     let tlv = TLV::without_value(tag.into());
+
+    //     Self { tlv }
+    // }
+}
+
+impl From<MessageDeliveryRequestTLV> for TLV {
+    fn from(tlv: MessageDeliveryRequestTLV) -> Self {
+        tlv.tlv
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct MessageDeliveryResponseTLV {
+    tlv: TLV,
+}
+
+impl MessageDeliveryResponseTLV {
+    pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
+        let tlv = TLV::new(value.into());
+
+        Self { tlv }
+    }
+
+    // TODO
+    // pub fn without_value(tag: MessageDeliveryResponseTag) -> Self {
+    //     let tlv = TLV::without_value(tag.into());
+
+    //     Self { tlv }
+    // }
+}
+
+impl From<MessageDeliveryResponseTLV> for TLV {
+    fn from(tlv: MessageDeliveryResponseTLV) -> Self {
+        tlv.tlv
     }
 }

@@ -1,9 +1,7 @@
 use crate::{
     commands::{
-        tlvs::{
-            tlv::TLV, tlv_value::TLVValue, tlv_values::ms_availability_status::MsAvailabilityStatus,
-        },
-        types::{npi::Npi, ton::Ton},
+        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},

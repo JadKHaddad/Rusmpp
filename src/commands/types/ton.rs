@@ -4,6 +4,7 @@ use crate::ende::{
     length::Length,
 };
 
+/// Type of Number.
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum Ton {

@@ -4,6 +4,7 @@ use crate::ende::{
     length::Length,
 };
 
+/// Numeric Plan Indicator.
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum Npi {

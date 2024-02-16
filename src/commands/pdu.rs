@@ -13,6 +13,7 @@ pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
 pub mod outbind;
+pub mod submit_sm;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
@@ -22,7 +23,7 @@ pub enum Pdu {
     BindTransmitter(bind::Bind),
     /// Message Centre response to a bind_transmitter PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
-    /// to bind as a transmitter
+    /// to bind as a transmitter.
     BindTransmitterResp(bind_resp::BindResp),
     /// Authentication PDU used by a receiver ESME to bind to the
     /// Message Centre. The PDU contains identification information,
@@ -32,7 +33,7 @@ pub enum Pdu {
     BindReceiver(bind::Bind),
     /// Message Centre response to a bind_receiver PDU. This PDU
     /// indicates the success or failure of the ESME’s attempt to bind
-    /// as a receiver
+    /// as a receiver.
     BindReceiverResp(bind_resp::BindResp),
     /// Authentication PDU used by a transceiver ESME to bind to
     /// the Message Centre. The PDU contains identification
@@ -42,7 +43,7 @@ pub enum Pdu {
     BindTransceiver(bind::Bind),
     /// Message Centre response to a bind_transceiver PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
-    /// to bind as a transceiver
+    /// to bind as a transceiver.
     BindTransceiverResp(bind_resp::BindResp),
     /// Authentication PDU used by a Message Centre to Outbind to
     /// an ESME to inform it that messages are present in the MC.
@@ -61,6 +62,8 @@ pub enum Pdu {
     ///
     /// Note: There is no associated alert_notification_resp PDU.
     AlertNotification(alert_notification::AlertNotification),
+    /// This operation is used by an ESME to submit a short message to the MC for onward
+    /// transmission to a specified short message entity (SME).
     // SubmitSm(SubmitSm),
     // SubmitSmResp(SubmitOrDataSmResp),
     // QuerySm(QuerySm),

@@ -1,6 +1,8 @@
-use super::{tlv_tag::TLVTag, tlv_values::ms_availability_status::MsAvailabilityStatus};
+use super::tlv_tag::TLVTag;
 use crate::{
-    commands::types::interface_version::InterfaceVersion,
+    commands::types::{
+        interface_version::InterfaceVersion, ms_availability_status::MsAvailabilityStatus,
+    },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength, OptionalDecodeWithKey},
         encode::{Encode, EncodeError},

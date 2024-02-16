@@ -72,7 +72,7 @@ pub trait DecodeWithLength {
 }
 
 pub trait OptionalDecodeWithKey {
-    type Key: From<u32> + Into<u32>;
+    type Key;
 
     /// Decode a value from a reader, using a key to determine the type
     fn decode_from<R: std::io::Read>(
@@ -103,7 +103,7 @@ pub trait OptionalDecodeWithKey {
 }
 
 pub trait DecodeWithKey {
-    type Key: From<u32> + Into<u32>;
+    type Key;
 
     /// Decode a value from a reader, using a key to determine the type
     fn decode_from<R: std::io::Read>(

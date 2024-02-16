@@ -218,18 +218,6 @@ impl From<TLVTag> for u16 {
     }
 }
 
-impl From<TLVTag> for u32 {
-    fn from(value: TLVTag) -> Self {
-        u16::from(value) as u32
-    }
-}
-
-impl From<u32> for TLVTag {
-    fn from(value: u32) -> Self {
-        TLVTag::from(value as u16)
-    }
-}
-
 impl Length for TLVTag {
     fn length(&self) -> usize {
         2

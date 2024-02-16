@@ -4,7 +4,6 @@ pub enum DecodeError {
     IoError(std::io::Error),
     COctetStringDecodeError(COctetStringDecodeError),
     OctetStringDecodeError(OctetStringDecodeError),
-    UnsupportedKey { key: u32 },
 }
 
 /// An error that can occur when decoding a [`COctetString`](struct@crate::types::c_octet_string::COctetString)
@@ -34,7 +33,6 @@ impl std::fmt::Display for DecodeError {
             DecodeError::IoError(e) => write!(f, "I/O error: {}", e),
             DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {}", e),
             DecodeError::OctetStringDecodeError(e) => write!(f, "OctetString error: {}", e),
-            DecodeError::UnsupportedKey { key } => write!(f, "Unsupported key: {}", key),
         }
     }
 }
@@ -45,7 +43,6 @@ impl std::error::Error for DecodeError {
             DecodeError::IoError(e) => Some(e),
             DecodeError::COctetStringDecodeError(e) => Some(e),
             DecodeError::OctetStringDecodeError(e) => Some(e),
-            DecodeError::UnsupportedKey { .. } => None,
         }
     }
 

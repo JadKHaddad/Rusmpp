@@ -1,4 +1,4 @@
-/// An error that can occur when decoding a [`PduIn`](struct@crate::pdus::pdu::PduIn)
+/// An error that can occur when decoding a [`Command`](struct@crate::commands::command::Command)
 #[derive(Debug)]
 pub enum DecodeError {
     IoError(std::io::Error),

@@ -1,4 +1,4 @@
-/// Helper for creating a [`PriorityFlag`]
+/// Helper for creating a priority_flag.
 ///
 /// A priority flag type can not be created from u8.
 /// Depending on the variant you want to create, you need to use the variant itself.

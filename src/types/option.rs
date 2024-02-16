@@ -1,4 +1,4 @@
-//! [`Length`] and [`AsyncEncode`] implementation for [`Option`]
+//! [`Length`] and [`Encode`] implementation for [`Option`]
 
 use crate::ende::{
     encode::{Encode, EncodeError},

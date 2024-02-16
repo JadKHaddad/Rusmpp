@@ -42,22 +42,18 @@ pub enum TLVValue {
     /// Absolute time is formatted as a 16-character string (encoded as a 17-octet C-octet String)
     /// “YYMMDDhhmmsstnnp” where:
     ///
-    /// Digits      Meaning
-    /// ‘YY’        last two digits of the year (00-99)
-    /// ‘MM’        month (01-12)
-    /// ‘DD’        day (01-31)
-    /// ‘hh’        hour (00-23)
-    /// ‘mm’        minute (00-59)
-    /// ‘ss’        second (00-59)
-    /// ‘t’         tenths of second (0-9)
-    /// ‘nn’        Time difference in quarter hours between local
-    ///             time (as expressed in the first 13 octets) and
-    ///             UTC (Universal Time Constant) time (00-48).
-    /// ‘p’         “+” Local time is in quarter hours advanced in
-    ///             relation to UTC time.
-    ///             “-” Local time is in quarter hours retarded in
-    ///             relation to UTC time.
-    // BroadcastEndTime(OctetString<0, 17>),
+    /// | Digits | Meaning |
+    /// |--------|---------|
+    /// | ‘YY’   | last two digits of the year (00-99)   |
+    /// | ‘MM’   | month (01-12)                         |
+    /// | ‘DD’   | day (01-31)                           |
+    /// | ‘hh’   | hour (00-23)                          |
+    /// | ‘mm’   | minute (00-59)                        |
+    /// | ‘ss’   | second (00-59)                        |
+    /// | ‘t’    | tenths of second (0-9)                |
+    /// | ‘nn’   | Time difference in quarter hours between local time (as expressed in the first 13 octets) and UTC (Universal Time Constant) time (00-48). |
+    /// | ‘p’    | “+” Local time is in quarter hours advanced in relation to UTC time. “-” Local time is in quarter hours retarded in relation to UTC time. |
+    BroadcastEndTime(OctetString<0, 17>),
     // BroadcastErrorStatus(CommandStatus),
     // BroadcastFrequencyInterval(BroadcastFrequencyInterval),
     // BroadcastMessageClass(BroadcastMessageClass),
@@ -131,7 +127,7 @@ impl TLVValue {
             // TLVValue::BroadcastContentTypeInfo(_) => TLVTag::BroadcastContentTypeInfo,
             // TLVValue::BroadcastChannelIndicator(_) => TLVTag::BroadcastChannelIndicator,
             // TLVValue::BroadcastContentType(_) => TLVTag::BroadcastContentType,
-            // TLVValue::BroadcastEndTime(_) => TLVTag::BroadcastEndTime,
+            TLVValue::BroadcastEndTime(_) => TLVTag::BroadcastEndTime,
             // TLVValue::BroadcastErrorStatus(_) => TLVTag::BroadcastErrorStatus,
             // TLVValue::BroadcastFrequencyInterval(_) => TLVTag::BroadcastFrequencyInterval,
             // TLVValue::BroadcastMessageClass(_) => TLVTag::BroadcastMessageClass,
@@ -203,7 +199,7 @@ impl Length for TLVValue {
             // TLVValue::BroadcastContentTypeInfo(value) => value.length(),
             // TLVValue::BroadcastChannelIndicator(value) => value.length(),
             // TLVValue::BroadcastContentType(value) => value.length(),
-            // TLVValue::BroadcastEndTime(value) => value.length(),
+            TLVValue::BroadcastEndTime(value) => value.length(),
             // TLVValue::BroadcastErrorStatus(value) => value.length(),
             // TLVValue::BroadcastFrequencyInterval(value) => value.length(),
             // TLVValue::BroadcastMessageClass(value) => value.length(),
@@ -275,7 +271,7 @@ impl Encode for TLVValue {
             // TLVValue::BroadcastContentTypeInfo(value) => value.encode_to(writer),
             // TLVValue::BroadcastChannelIndicator(value) => value.encode_to(writer),
             // TLVValue::BroadcastContentType(value) => value.encode_to(writer),
-            // TLVValue::BroadcastEndTime(value) => value.encode_to(writer),
+            TLVValue::BroadcastEndTime(value) => value.encode_to(writer),
             // TLVValue::BroadcastErrorStatus(value) => value.encode_to(writer),
             // TLVValue::BroadcastFrequencyInterval(value) => value.encode_to(writer),
             // TLVValue::BroadcastMessageClass(value) => value.encode_to(writer),

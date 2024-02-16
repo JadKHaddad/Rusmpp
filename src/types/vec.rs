@@ -1,4 +1,4 @@
-//! [`Length`], [`AsyncEncode`] and [`AsyncDecodeWithLength`] implementation for [`Vec`]
+//! [`Length`], [`Encode`] and [`DecodeWithLength`] implementation for [`Vec`]
 
 use crate::{
     ende::{

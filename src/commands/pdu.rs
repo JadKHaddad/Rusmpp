@@ -15,6 +15,8 @@ pub mod bind_resp;
 pub mod deliver_sm;
 pub mod deliver_sm_resp;
 pub mod outbind;
+pub mod query_sm;
+pub mod query_sm_resp;
 pub mod submit_sm;
 pub mod submit_sm_resp;
 
@@ -69,8 +71,13 @@ pub enum Pdu {
     /// transmission to a specified short message entity (SME).
     SubmitSm(submit_sm::SubmitSm),
     SubmitSmResp(submit_sm_resp::SubmitSmResp),
-    // QuerySm(QuerySm),
-    // QuerySmResp(QuerySmResp),
+    /// This command is issued by the ESME to query the status of a previously submitted short
+    /// message.
+    /// The matching mechanism is based on the MC assigned message_id and source address.
+    /// Where the original submit_sm, data_sm or submit_multi ‘source address’ was defaulted to
+    /// NULL, then the source address in the query_sm command should also be set to NULL.
+    QuerySm(query_sm::QuerySm),
+    QuerySmResp(query_sm_resp::QuerySmResp),
     /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
     /// the MC may route a short message to the ESME for delivery.
     DeliverSm(deliver_sm::DeliverSm),
@@ -138,8 +145,8 @@ impl HasCommandId for Pdu {
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
             Pdu::SubmitSm(_) => CommandId::SubmitSm,
             Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
-            // Pdu::QuerySm(_) => CommandId::QuerySm,
-            // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
+            Pdu::QuerySm(_) => CommandId::QuerySm,
+            Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
             Pdu::DeliverSm(_) => CommandId::DeliverSm,
             Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             // Pdu::DataSm(_) => CommandId::DataSm,
@@ -181,6 +188,8 @@ impl Length for Pdu {
             Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
             Pdu::SubmitSmResp(body) => body.length(),
+            Pdu::QuerySm(body) => body.length(),
+            Pdu::QuerySmResp(body) => body.length(),
             Pdu::DeliverSm(body) => body.length(),
             Pdu::DeliverSmResp(body) => body.length(),
             Pdu::Other { body, .. } => body.length(),
@@ -209,6 +218,8 @@ impl Encode for Pdu {
             Pdu::AlertNotification(body) => body.encode_to(writer),
             Pdu::SubmitSm(body) => body.encode_to(writer),
             Pdu::SubmitSmResp(body) => body.encode_to(writer),
+            Pdu::QuerySm(body) => body.encode_to(writer),
+            Pdu::QuerySmResp(body) => body.encode_to(writer),
             Pdu::DeliverSm(body) => body.encode_to(writer),
             Pdu::DeliverSmResp(body) => body.encode_to(writer),
             Pdu::Other { body, .. } => body.encode_to(writer),
@@ -262,6 +273,10 @@ impl DecodeWithKey for Pdu {
             CommandId::SubmitSmResp => Pdu::SubmitSmResp(tri!(
                 submit_sm_resp::SubmitSmResp::decode_from(reader, length)
             )),
+            CommandId::QuerySm => Pdu::QuerySm(tri!(query_sm::QuerySm::decode_from(reader))),
+            CommandId::QuerySmResp => {
+                Pdu::QuerySmResp(tri!(query_sm_resp::QuerySmResp::decode_from(reader)))
+            }
             CommandId::DeliverSm => {
                 Pdu::DeliverSm(tri!(deliver_sm::DeliverSm::decode_from(reader, length)))
             }

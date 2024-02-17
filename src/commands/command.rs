@@ -44,6 +44,7 @@ use crate::{
         length::Length,
     },
     tri,
+    types::u32::EndeU32,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

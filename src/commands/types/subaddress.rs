@@ -5,7 +5,7 @@ use crate::{
         length::Length,
     },
     tri,
-    types::octet_string::OctetString,
+    types::{octet_string::OctetString, u8::EndeU8},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -82,25 +82,4 @@ impl From<SubaddressTag> for u8 {
     }
 }
 
-impl Length for SubaddressTag {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for SubaddressTag {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for SubaddressTag {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for SubaddressTag {}

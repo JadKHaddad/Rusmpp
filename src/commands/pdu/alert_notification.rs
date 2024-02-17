@@ -9,7 +9,7 @@ use crate::{
         length::Length,
     },
     tri,
-    types::c_octet_string::COctetString,
+    types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
 /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver

@@ -1,7 +1,10 @@
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    ende::{
+        decode::{Decode, DecodeError},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    types::u8::EndeU8,
 };
 
 /// Type of Number.
@@ -49,25 +52,4 @@ impl From<Ton> for u8 {
     }
 }
 
-impl Length for Ton {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for Ton {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for Ton {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for Ton {}

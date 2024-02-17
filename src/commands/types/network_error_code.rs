@@ -5,6 +5,7 @@ use crate::{
         length::Length,
     },
     tri,
+    types::u8::EndeU8,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -98,25 +99,4 @@ impl From<ErrorCodeNetworkType> for u8 {
     }
 }
 
-impl Length for ErrorCodeNetworkType {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for ErrorCodeNetworkType {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for ErrorCodeNetworkType {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for ErrorCodeNetworkType {}

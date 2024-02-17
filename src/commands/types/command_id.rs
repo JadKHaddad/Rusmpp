@@ -1,7 +1,10 @@
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    ende::{
+        decode::{Decode, DecodeError},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    types::u32::EndeU32,
 };
 
 pub trait HasCommandId {
@@ -142,28 +145,7 @@ impl From<CommandId> for u32 {
     }
 }
 
-impl Length for CommandId {
-    fn length(&self) -> usize {
-        4
-    }
-}
-
-impl Encode for CommandId {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u32::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for CommandId {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u32::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU32 for CommandId {}
 
 #[cfg(test)]
 mod tests {

@@ -1,7 +1,10 @@
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    ende::{
+        decode::{Decode, DecodeError},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    types::u8::EndeU8,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -34,28 +37,7 @@ impl From<CallbackNumPresInd> for u8 {
     }
 }
 
-impl Length for CallbackNumPresInd {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for CallbackNumPresInd {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for CallbackNumPresInd {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for CallbackNumPresInd {}
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -88,6 +70,8 @@ impl From<Presentation> for u8 {
         }
     }
 }
+
+impl EndeU8 for Presentation {}
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -123,6 +107,8 @@ impl From<Screening> for u8 {
         }
     }
 }
+
+impl EndeU8 for Screening {}
 
 #[cfg(test)]
 mod tests {

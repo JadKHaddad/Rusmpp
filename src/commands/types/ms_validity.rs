@@ -5,6 +5,7 @@ use crate::{
         length::Length,
     },
     tri,
+    types::u8::EndeU8,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -132,28 +133,7 @@ impl From<MsValidityBehaviour> for u8 {
     }
 }
 
-impl Length for MsValidityBehaviour {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for MsValidityBehaviour {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for MsValidityBehaviour {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for MsValidityBehaviour {}
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -199,25 +179,4 @@ impl From<UnitsOfTime> for u8 {
     }
 }
 
-impl Length for UnitsOfTime {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for UnitsOfTime {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for UnitsOfTime {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for UnitsOfTime {}

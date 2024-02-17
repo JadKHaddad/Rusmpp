@@ -5,6 +5,7 @@ use crate::{
         length::Length,
     },
     tri,
+    types::{u16::EndeU16, u8::EndeU8},
 };
 
 #[repr(u8)]
@@ -42,28 +43,7 @@ impl From<TypeOfNetwork> for u8 {
     }
 }
 
-impl Length for TypeOfNetwork {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for TypeOfNetwork {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for TypeOfNetwork {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for TypeOfNetwork {}
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -220,28 +200,7 @@ impl From<EncodingContentType> for u16 {
     }
 }
 
-impl Length for EncodingContentType {
-    fn length(&self) -> usize {
-        2
-    }
-}
-
-impl Encode for EncodingContentType {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u16::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for EncodingContentType {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u16::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU16 for EncodingContentType {}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BroadcastContentType {

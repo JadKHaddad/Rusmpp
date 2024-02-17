@@ -6,6 +6,7 @@ use crate::{
         length::Length,
     },
     tri,
+    types::u16::EndeU16,
 };
 
 pub mod broadcast_request;

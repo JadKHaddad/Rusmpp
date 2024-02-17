@@ -6,7 +6,7 @@ use crate::{
         length::Length,
     },
     tri,
-    types::c_octet_string::COctetString,
+    types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

@@ -1,7 +1,10 @@
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    ende::{
+        decode::{Decode, DecodeError},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    types::u16::EndeU16,
 };
 
 #[repr(u16)]
@@ -218,25 +221,4 @@ impl From<TLVTag> for u16 {
     }
 }
 
-impl Length for TLVTag {
-    fn length(&self) -> usize {
-        2
-    }
-}
-
-impl Encode for TLVTag {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u16::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for TLVTag {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u16::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU16 for TLVTag {}

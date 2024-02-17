@@ -28,7 +28,7 @@ use crate::{
     tri,
     types::{
         c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
-        octet_string::OctetString,
+        octet_string::OctetString, u32::EndeU32, u8::EndeU8,
     },
 };
 

@@ -39,3 +39,24 @@ impl Decode for u32 {
         Ok(value)
     }
 }
+
+pub trait EndeU32
+where
+    Self: From<u32> + Copy,
+    u32: From<Self>,
+{
+    fn length(&self) -> usize {
+        4
+    }
+
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        u32::from(*self).encode_to(writer)
+    }
+
+    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    where
+        Self: Sized,
+    {
+        u32::decode_from(reader).map(Self::from)
+    }
+}

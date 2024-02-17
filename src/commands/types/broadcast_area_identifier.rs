@@ -1,11 +1,11 @@
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
+        decode::{DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
     tri,
-    types::octet_string::OctetString,
+    types::{octet_string::OctetString, u8::EndeU8},
 };
 
 #[repr(u8)]
@@ -40,28 +40,7 @@ impl From<BroadcastAreaFormat> for u8 {
     }
 }
 
-impl Length for BroadcastAreaFormat {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for BroadcastAreaFormat {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
-    }
-}
-
-impl Decode for BroadcastAreaFormat {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = Self::from(u8::decode_from(reader)?);
-
-        Ok(value)
-    }
-}
+impl EndeU8 for BroadcastAreaFormat {}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct BroadcastAreaIdentifier {

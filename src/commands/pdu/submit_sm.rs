@@ -1,16 +1,24 @@
 use crate::{
     commands::{
-        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
+        tlvs::{
+            tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
+            tlv_tag::TLVTag,
+        },
         types::{
             data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
             registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
             service_type::ServiceType, ton::Ton,
         },
     },
-    ende::{decode::Decode, encode::Encode, length::Length},
+    ende::{
+        decode::{Decode, DecodeError, DecodeWithLength},
+        encode::{Encode, EncodeError},
+        length::Length,
+    },
+    tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        octet_string::OctetString,
+        octet_string::OctetString, u8::EndeU8,
     },
 };
 
@@ -86,4 +94,239 @@ pub struct SubmitSm {
     short_message: OctetString<0, 255>,
     /// Message submission TLVs ([`MessageSubmissionRequestTLV`])
     tlvs: Vec<TLV>,
+}
+
+#[allow(clippy::too_many_arguments)]
+impl SubmitSm {
+    pub fn new(
+        serivce_type: ServiceType,
+        source_addr_ton: Ton,
+        source_addr_npi: Npi,
+        source_addr: COctetString<1, 21>,
+        dest_addr_ton: Ton,
+        dest_addr_npi: Npi,
+        destination_addr: COctetString<1, 21>,
+        esm_class: EsmClass,
+        protocol_id: u8,
+        priority_flag: u8,
+        schedule_delivery_time: EmptyOrFullCOctetString<17>,
+        validity_period: EmptyOrFullCOctetString<17>,
+        registered_delivery: RegisteredDelivery,
+        replace_if_present_flag: ReplaceIfPresentFlag,
+        data_coding: DataCoding,
+        sm_default_msg_id: u8,
+        short_message: OctetString<0, 255>,
+        tlvs: Vec<MessageSubmissionRequestTLV>,
+    ) -> Self {
+        let tlvs = tlvs
+            .into_iter()
+            .map(|value| value.into())
+            .collect::<Vec<TLV>>();
+
+        let sm_length = short_message.length() as u8;
+
+        let mut submit_sm = Self {
+            serivce_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+            esm_class,
+            protocol_id,
+            priority_flag,
+            schedule_delivery_time,
+            validity_period,
+            registered_delivery,
+            replace_if_present_flag,
+            data_coding,
+            sm_default_msg_id,
+            sm_length,
+            short_message,
+            tlvs,
+        };
+
+        submit_sm.clear_short_message_if_message_payload_exists();
+
+        submit_sm
+    }
+
+    pub fn sm_length(&self) -> u8 {
+        self.sm_length
+    }
+
+    pub fn short_message(&self) -> &OctetString<0, 255> {
+        &self.short_message
+    }
+
+    /// Sets the short message and short message length.
+    /// Updates the short message and short message length accordingly.
+    /// Has no effect if the message payload is set.
+    /// Returns true if the short message and short message length were set.
+    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
+        self.sm_length = short_message.length() as u8;
+        self.short_message = short_message;
+
+        !self.clear_short_message_if_message_payload_exists()
+    }
+
+    pub fn tlvs(&self) -> &[TLV] {
+        &self.tlvs
+    }
+
+    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
+        let tlvs = tlvs
+            .into_iter()
+            .map(|value| value.into())
+            .collect::<Vec<TLV>>();
+
+        self.tlvs = tlvs;
+        self.clear_short_message_if_message_payload_exists();
+    }
+
+    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
+        let tlv = tlv.into();
+
+        self.tlvs.push(tlv);
+        self.clear_short_message_if_message_payload_exists();
+    }
+
+    /// Clears the short message and short message length if the message payload is set.
+    /// Returns true if the short message and short message length were cleared.
+    fn clear_short_message_if_message_payload_exists(&mut self) -> bool {
+        let message_payload_exists = self
+            .tlvs
+            .iter()
+            .any(|value| matches!(value.tag(), TLVTag::MessagePayload));
+
+        if message_payload_exists {
+            self.short_message = OctetString::empty();
+            self.sm_length = 0;
+
+            return true;
+        };
+
+        false
+    }
+}
+
+impl Length for SubmitSm {
+    fn length(&self) -> usize {
+        self.serivce_type.length()
+            + self.source_addr_ton.length()
+            + self.source_addr_npi.length()
+            + self.source_addr.length()
+            + self.dest_addr_ton.length()
+            + self.dest_addr_npi.length()
+            + self.destination_addr.length()
+            + self.esm_class.length()
+            + self.protocol_id.length()
+            + self.priority_flag.length()
+            + self.schedule_delivery_time.length()
+            + self.validity_period.length()
+            + self.registered_delivery.length()
+            + self.replace_if_present_flag.length()
+            + self.data_coding.length()
+            + self.sm_default_msg_id.length()
+            + self.sm_length.length()
+            + self.tlvs.length()
+    }
+}
+
+impl Encode for SubmitSm {
+    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+        tri!(self.serivce_type.encode_to(writer));
+        tri!(self.source_addr_ton.encode_to(writer));
+        tri!(self.source_addr_npi.encode_to(writer));
+        tri!(self.source_addr.encode_to(writer));
+        tri!(self.dest_addr_ton.encode_to(writer));
+        tri!(self.dest_addr_npi.encode_to(writer));
+        tri!(self.destination_addr.encode_to(writer));
+        tri!(self.esm_class.encode_to(writer));
+        tri!(self.protocol_id.encode_to(writer));
+        tri!(self.priority_flag.encode_to(writer));
+        tri!(self.schedule_delivery_time.encode_to(writer));
+        tri!(self.validity_period.encode_to(writer));
+        tri!(self.registered_delivery.encode_to(writer));
+        tri!(self.replace_if_present_flag.encode_to(writer));
+        tri!(self.data_coding.encode_to(writer));
+        tri!(self.sm_default_msg_id.encode_to(writer));
+        tri!(self.sm_length.encode_to(writer));
+        tri!(self.short_message.encode_to(writer));
+        tri!(self.tlvs.encode_to(writer));
+
+        Ok(())
+    }
+}
+
+impl DecodeWithLength for SubmitSm {
+    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    where
+        Self: Sized,
+    {
+        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::decode_from(reader));
+        let dest_addr_ton = tri!(Ton::decode_from(reader));
+        let dest_addr_npi = tri!(Npi::decode_from(reader));
+        let destination_addr = tri!(COctetString::decode_from(reader));
+        let esm_class = tri!(EsmClass::decode_from(reader));
+        let protocol_id = tri!(u8::decode_from(reader));
+        let priority_flag = tri!(u8::decode_from(reader));
+        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
+        let replace_if_present_flag = tri!(ReplaceIfPresentFlag::decode_from(reader));
+        let data_coding = tri!(DataCoding::decode_from(reader));
+        let sm_default_msg_id = tri!(u8::decode_from(reader));
+        let sm_length = tri!(u8::decode_from(reader));
+        let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
+
+        let tlvs_length = length.saturating_sub(
+            serivce_type.length()
+                + source_addr_ton.length()
+                + source_addr_npi.length()
+                + source_addr.length()
+                + dest_addr_ton.length()
+                + dest_addr_npi.length()
+                + destination_addr.length()
+                + esm_class.length()
+                + protocol_id.length()
+                + priority_flag.length()
+                + schedule_delivery_time.length()
+                + validity_period.length()
+                + registered_delivery.length()
+                + replace_if_present_flag.length()
+                + data_coding.length()
+                + sm_default_msg_id.length()
+                + sm_length.length()
+                + short_message.length(),
+        );
+
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
+
+        Ok(Self {
+            serivce_type,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+            esm_class,
+            protocol_id,
+            priority_flag,
+            schedule_delivery_time,
+            validity_period,
+            registered_delivery,
+            replace_if_present_flag,
+            data_coding,
+            sm_default_msg_id,
+            sm_length,
+            short_message,
+            tlvs,
+        })
+    }
 }

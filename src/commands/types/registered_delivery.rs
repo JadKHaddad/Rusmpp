@@ -1,4 +1,4 @@
-
+use crate::types::u8::EndeU8;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct RegisteredDelivery {
@@ -77,6 +77,8 @@ impl From<RegisteredDelivery> for u8 {
             | value.other
     }
 }
+
+impl EndeU8 for RegisteredDelivery {}
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]

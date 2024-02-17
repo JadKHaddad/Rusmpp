@@ -13,6 +13,7 @@ pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
 pub mod outbind;
+pub mod submit_resp;
 pub mod submit_sm;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -64,8 +65,8 @@ pub enum Pdu {
     AlertNotification(alert_notification::AlertNotification),
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
-    // SubmitSm(SubmitSm),
-    // SubmitSmResp(SubmitOrDataSmResp),
+    SubmitSm(submit_sm::SubmitSm),
+    SubmitSmResp(submit_resp::SubmitResp),
     // QuerySm(QuerySm),
     // QuerySmResp(QuerySmResp),
     // DeliverSm(DeliverSm),
@@ -131,8 +132,8 @@ impl HasCommandId for Pdu {
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             Pdu::Outbind(_) => CommandId::Outbind,
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
-            // Pdu::SubmitSm(_) => CommandId::SubmitSm,
-            // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
+            Pdu::SubmitSm(_) => CommandId::SubmitSm,
+            Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
             // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
             // Pdu::DeliverSm(_) => CommandId::DeliverSm,
@@ -174,6 +175,8 @@ impl Length for Pdu {
             Pdu::BindTransceiverResp(body) => body.length(),
             Pdu::Outbind(body) => body.length(),
             Pdu::AlertNotification(body) => body.length(),
+            Pdu::SubmitSm(body) => body.length(),
+            Pdu::SubmitSmResp(body) => body.length(),
             Pdu::Other { body, .. } => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
@@ -198,6 +201,8 @@ impl Encode for Pdu {
             Pdu::BindTransceiverResp(body) => body.encode_to(writer),
             Pdu::Outbind(body) => body.encode_to(writer),
             Pdu::AlertNotification(body) => body.encode_to(writer),
+            Pdu::SubmitSm(body) => body.encode_to(writer),
+            Pdu::SubmitSmResp(body) => body.encode_to(writer),
             Pdu::Other { body, .. } => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),

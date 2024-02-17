@@ -1,6 +1,6 @@
 use crate::{
     commands::{
-        tlvs::tlv::TLV,
+        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
         types::{
             data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
             registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
@@ -84,6 +84,6 @@ pub struct SubmitSm {
     /// Note: this field is superceded by the message_payload TLV if
     /// specified.
     short_message: OctetString<0, 255>,
-    /// Message submission TLVs.
+    /// Message submission TLVs ([`MessageSubmissionRequestTLV`])
     tlvs: Vec<TLV>,
 }

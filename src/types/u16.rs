@@ -40,6 +40,7 @@ impl Decode for u16 {
     }
 }
 
+/// A trait for encoding and decoding a value as [`u16`]
 pub trait EndeU16
 where
     Self: From<u16> + Copy,

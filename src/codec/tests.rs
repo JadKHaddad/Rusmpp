@@ -43,7 +43,7 @@ async fn do_codec() {
 
     tokio::spawn(async move {
         while let Some(pdu) = framed_read.next().await {
-            println!("{:?}", pdu);
+            println!("{:#?}", pdu);
             println!();
         }
     });
@@ -114,6 +114,9 @@ async fn do_codec() {
         .send(submit_sm_command)
         .await
         .expect("Failed to send PDU");
+
+    // wait for delivery receipt
+    tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
     let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
 

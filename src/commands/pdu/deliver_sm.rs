@@ -1,7 +1,7 @@
 use crate::{
     commands::{
         tlvs::{
-            tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
+            tlv::{message_delivery_request::MessageDeliveryRequestTLV, TLV},
             tlv_tag::TLVTag,
         },
         types::{
@@ -25,7 +25,7 @@ use crate::{
 /// This operation is used by an ESME to submit a short message to the MC for onward
 /// transmission to a specified short message entity (SME).
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct SubmitSm {
+pub struct DeliverSm {
     /// The service_type parameter can be used to
     /// indicate the SMS Application service
     /// associated with the message. Specifying the
@@ -90,12 +90,12 @@ pub struct SubmitSm {
     /// Note: this field is superceded by the message_payload TLV if
     /// specified.
     short_message: OctetString<0, 255>,
-    /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
+    /// Message delivery request TLVs ([`MessageDeliveryRequestTLV`])
     tlvs: Vec<TLV>,
 }
 
 #[allow(clippy::too_many_arguments)]
-impl SubmitSm {
+impl DeliverSm {
     pub fn new(
         serivce_type: ServiceType,
         source_addr_ton: Ton,
@@ -114,7 +114,7 @@ impl SubmitSm {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<MessageSubmissionRequestTLV>,
+        tlvs: Vec<MessageDeliveryRequestTLV>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
@@ -173,7 +173,7 @@ impl SubmitSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<MessageDeliveryRequestTLV>) {
         let tlvs = tlvs
             .into_iter()
             .map(|value| value.into())
@@ -183,7 +183,7 @@ impl SubmitSm {
         self.clear_short_message_if_message_payload_exists();
     }
 
-    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
+    pub fn push_tlv(&mut self, tlv: MessageDeliveryRequestTLV) {
         let tlv = tlv.into();
 
         self.tlvs.push(tlv);
@@ -209,7 +209,7 @@ impl SubmitSm {
     }
 }
 
-impl Length for SubmitSm {
+impl Length for DeliverSm {
     fn length(&self) -> usize {
         self.serivce_type.length()
             + self.source_addr_ton.length()
@@ -232,7 +232,7 @@ impl Length for SubmitSm {
     }
 }
 
-impl Encode for SubmitSm {
+impl Encode for DeliverSm {
     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         tri!(self.serivce_type.encode_to(writer));
         tri!(self.source_addr_ton.encode_to(writer));
@@ -258,7 +258,7 @@ impl Encode for SubmitSm {
     }
 }
 
-impl DecodeWithLength for SubmitSm {
+impl DecodeWithLength for DeliverSm {
     fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,

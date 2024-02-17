@@ -12,9 +12,11 @@ use crate::{
 pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
+pub mod deliver_sm;
+pub mod deliver_sm_resp;
 pub mod outbind;
-pub mod submit_resp;
 pub mod submit_sm;
+pub mod submit_sm_resp;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
@@ -66,11 +68,13 @@ pub enum Pdu {
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     SubmitSm(submit_sm::SubmitSm),
-    SubmitSmResp(submit_resp::SubmitResp),
+    SubmitSmResp(submit_sm_resp::SubmitSmResp),
     // QuerySm(QuerySm),
     // QuerySmResp(QuerySmResp),
-    // DeliverSm(DeliverSm),
-    // DeliverSmResp(DeliverSmResp),
+    /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
+    /// the MC may route a short message to the ESME for delivery.
+    DeliverSm(deliver_sm::DeliverSm),
+    DeliverSmResp(deliver_sm_resp::DeliverSmResp),
     // DataSm(DataSm),
     // DataSmResp(SubmitOrDataSmResp),
     // CancelSm(CancelSm),
@@ -136,8 +140,8 @@ impl HasCommandId for Pdu {
             Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
             // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
-            // Pdu::DeliverSm(_) => CommandId::DeliverSm,
-            // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            Pdu::DeliverSm(_) => CommandId::DeliverSm,
+            Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             // Pdu::DataSm(_) => CommandId::DataSm,
             // Pdu::DataSmResp(_) => CommandId::DataSmResp,
             // Pdu::CancelSm(_) => CommandId::CancelSm,
@@ -177,6 +181,8 @@ impl Length for Pdu {
             Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
             Pdu::SubmitSmResp(body) => body.length(),
+            Pdu::DeliverSm(body) => body.length(),
+            Pdu::DeliverSmResp(body) => body.length(),
             Pdu::Other { body, .. } => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
@@ -203,6 +209,8 @@ impl Encode for Pdu {
             Pdu::AlertNotification(body) => body.encode_to(writer),
             Pdu::SubmitSm(body) => body.encode_to(writer),
             Pdu::SubmitSmResp(body) => body.encode_to(writer),
+            Pdu::DeliverSm(body) => body.encode_to(writer),
+            Pdu::DeliverSmResp(body) => body.encode_to(writer),
             Pdu::Other { body, .. } => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
@@ -251,9 +259,15 @@ impl DecodeWithKey for Pdu {
             CommandId::SubmitSm => {
                 Pdu::SubmitSm(tri!(submit_sm::SubmitSm::decode_from(reader, length)))
             }
-            CommandId::SubmitSmResp => {
-                Pdu::SubmitSmResp(tri!(submit_resp::SubmitResp::decode_from(reader, length)))
+            CommandId::SubmitSmResp => Pdu::SubmitSmResp(tri!(
+                submit_sm_resp::SubmitSmResp::decode_from(reader, length)
+            )),
+            CommandId::DeliverSm => {
+                Pdu::DeliverSm(tri!(deliver_sm::DeliverSm::decode_from(reader, length)))
             }
+            CommandId::DeliverSmResp => Pdu::DeliverSmResp(tri!(
+                deliver_sm_resp::DeliverSmResp::decode_from(reader, length)
+            )),
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
                 body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),

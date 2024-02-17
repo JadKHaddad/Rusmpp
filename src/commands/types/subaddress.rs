@@ -1,6 +1,6 @@
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
+        decode::{DecodeError, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },

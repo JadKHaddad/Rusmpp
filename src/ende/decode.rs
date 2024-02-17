@@ -71,37 +71,6 @@ pub trait DecodeWithLength {
     }
 }
 
-pub trait OptionalDecodeWithKey {
-    type Key;
-
-    /// Decode a value from a reader, using a key to determine the type
-    fn decode_from<R: std::io::Read>(
-        key: Self::Key,
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Option<Self>, DecodeError>
-    where
-        Self: Sized;
-
-    /// Decode a value from a reader, using a key to determine the type
-    ///
-    /// If the length is 0, return `None`
-    fn length_checked_decode_from<R: std::io::Read>(
-        key: Self::Key,
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Option<Self>, DecodeError>
-    where
-        Self: Sized,
-    {
-        if length == 0 {
-            return Ok(None);
-        }
-
-        Self::decode_from(key, reader, length)
-    }
-}
-
 pub trait DecodeWithKey {
     type Key;
 
@@ -113,4 +82,22 @@ pub trait DecodeWithKey {
     ) -> Result<Self, DecodeError>
     where
         Self: Sized;
+
+    /// Decode a value from a reader, using a key to determine the type
+    ///
+    /// If the length is 0, return `None`
+    fn optional_length_checked_decode_from<R: std::io::Read>(
+        key: Self::Key,
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Option<Self>, DecodeError>
+    where
+        Self: Sized,
+    {
+        if length == 0 {
+            return Ok(None);
+        }
+
+        Self::decode_from(key, reader, length).map(Some)
+    }
 }

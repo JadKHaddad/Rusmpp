@@ -1,7 +1,7 @@
 use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, OptionalDecodeWithKey},
+        decode::{Decode, DecodeError, DecodeWithKey},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -100,7 +100,7 @@ impl Decode for TLV {
         let tag = tri!(TLVTag::decode_from(reader));
         let value_length = tri!(u16::decode_from(reader));
 
-        let value = tri!(TLVValue::length_checked_decode_from(
+        let value = tri!(TLVValue::optional_length_checked_decode_from(
             tag,
             reader,
             value_length as usize

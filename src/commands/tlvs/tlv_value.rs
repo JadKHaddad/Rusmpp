@@ -21,7 +21,7 @@ use crate::{
         ussd_service_op::UssdServiceOp,
     },
     ende::{
-        decode::{Decode, DecodeError, DecodeWithLength, OptionalDecodeWithKey},
+        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -337,14 +337,14 @@ impl Encode for TLVValue {
 }
 
 // TODO
-impl OptionalDecodeWithKey for TLVValue {
+impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 
     fn decode_from<R: std::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,
-    ) -> Result<Option<Self>, DecodeError>
+    ) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
@@ -398,7 +398,6 @@ impl OptionalDecodeWithKey for TLVValue {
             TLVTag::CallbackNumPresInd => {
                 TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode_from(reader)))
             }
-
             TLVTag::CongestionState => {
                 TLVValue::CongestionState(tri!(CongestionState::decode_from(reader)))
             }
@@ -516,6 +515,6 @@ impl OptionalDecodeWithKey for TLVValue {
             }
         };
 
-        Ok(Some(value))
+        Ok(value)
     }
 }

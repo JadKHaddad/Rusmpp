@@ -289,15 +289,31 @@ pub struct MessageSubmissionRequestTLV {
 
 impl MessageSubmissionRequestTLV {
     pub fn new(value: MessageSubmissionRequestTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: MessageSubmissionRequestTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<MessageSubmissionRequestTLVTag> for TLV {
+    fn from(tag: MessageSubmissionRequestTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<MessageSubmissionRequestTLVValue> for TLV {
+    fn from(value: MessageSubmissionRequestTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

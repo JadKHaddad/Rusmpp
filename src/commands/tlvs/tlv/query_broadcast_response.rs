@@ -11,8 +11,8 @@ pub enum QueryBroadcastResponseTLVTag {
 }
 
 impl From<QueryBroadcastResponseTLVTag> for TLVTag {
-    fn from(v: QueryBroadcastResponseTLVTag) -> Self {
-        match v {
+    fn from(value: QueryBroadcastResponseTLVTag) -> Self {
+        match value {
             QueryBroadcastResponseTLVTag::BroadcastEndTime => TLVTag::BroadcastEndTime,
             QueryBroadcastResponseTLVTag::UserMessageReference => TLVTag::UserMessageReference,
         }
@@ -45,15 +45,31 @@ pub struct QueryBroadcastResponseTLV {
 
 impl QueryBroadcastResponseTLV {
     pub fn new(value: QueryBroadcastResponseTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: QueryBroadcastResponseTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<QueryBroadcastResponseTLVTag> for TLV {
+    fn from(tag: QueryBroadcastResponseTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<QueryBroadcastResponseTLVValue> for TLV {
+    fn from(value: QueryBroadcastResponseTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

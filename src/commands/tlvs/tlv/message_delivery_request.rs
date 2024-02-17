@@ -215,15 +215,31 @@ pub struct MessageDeliveryRequestTLV {
 
 impl MessageDeliveryRequestTLV {
     pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: MessageDeliveryRequestTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryRequestTLVTag> for TLV {
+    fn from(tag: MessageDeliveryRequestTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<MessageDeliveryRequestTLVValue> for TLV {
+    fn from(value: MessageDeliveryRequestTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

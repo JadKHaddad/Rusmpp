@@ -56,15 +56,31 @@ pub struct MessageDeliveryResponseTLV {
 
 impl MessageDeliveryResponseTLV {
     pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: MessageDeliveryResponseTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<MessageDeliveryResponseTLVTag> for TLV {
+    fn from(tag: MessageDeliveryResponseTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<MessageDeliveryResponseTLVValue> for TLV {
+    fn from(value: MessageDeliveryResponseTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

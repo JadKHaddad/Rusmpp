@@ -149,15 +149,31 @@ pub struct BroadcastRequestTLV {
 
 impl BroadcastRequestTLV {
     pub fn new(value: BroadcastRequestTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: BroadcastRequestTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<BroadcastRequestTLVTag> for TLV {
+    fn from(tag: BroadcastRequestTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<BroadcastRequestTLVValue> for TLV {
+    fn from(value: BroadcastRequestTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

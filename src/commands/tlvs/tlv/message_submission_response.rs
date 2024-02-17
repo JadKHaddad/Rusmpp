@@ -63,15 +63,31 @@ pub struct MessageSubmissionResponseTLV {
 
 impl MessageSubmissionResponseTLV {
     pub fn new(value: MessageSubmissionResponseTLVValue) -> Self {
-        let tlv = TLV::new(value.into());
+        let value = TLVValue::from(value);
+        let tlv = TLV::from(value);
 
         Self { tlv }
     }
 
     pub fn without_value(tag: MessageSubmissionResponseTLVTag) -> Self {
-        let tlv = TLV::without_value(tag.into());
+        let tag = TLVTag::from(tag);
+        let tlv = TLV::from(tag);
 
         Self { tlv }
+    }
+}
+
+impl From<MessageSubmissionResponseTLVTag> for TLV {
+    fn from(tag: MessageSubmissionResponseTLVTag) -> Self {
+        let tag = TLVTag::from(tag);
+        TLV::from(tag)
+    }
+}
+
+impl From<MessageSubmissionResponseTLVValue> for TLV {
+    fn from(value: MessageSubmissionResponseTLVValue) -> Self {
+        let value = TLVValue::from(value);
+        TLV::from(value)
     }
 }
 

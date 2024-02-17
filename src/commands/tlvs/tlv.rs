@@ -28,23 +28,12 @@ pub struct TLV {
 impl TLV {
     /// Create a new TLV with the given value
     pub fn new(value: TLVValue) -> Self {
-        let tag = value.tlv_tag();
-        let value_length = value.length() as u16;
-
-        Self {
-            tag,
-            value_length,
-            value: Some(value),
-        }
+        Self::from(value)
     }
 
     /// Create a new TLV without a value
     pub fn without_value(tag: TLVTag) -> Self {
-        Self {
-            tag,
-            value_length: 0,
-            value: None,
-        }
+        Self::from(tag)
     }
 
     pub fn tag(&self) -> &TLVTag {
@@ -61,6 +50,29 @@ impl TLV {
 
     pub fn into_value(self) -> Option<TLVValue> {
         self.value
+    }
+}
+
+impl From<TLVValue> for TLV {
+    fn from(value: TLVValue) -> Self {
+        let tag = value.tlv_tag();
+        let value_length = value.length() as u16;
+
+        Self {
+            tag,
+            value_length,
+            value: Some(value),
+        }
+    }
+}
+
+impl From<TLVTag> for TLV {
+    fn from(tag: TLVTag) -> Self {
+        Self {
+            tag,
+            value_length: 0,
+            value: None,
+        }
     }
 }
 

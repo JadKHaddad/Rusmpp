@@ -8,12 +8,27 @@ use crate::{
     codec::command_codec::CommandCodec,
     commands::{
         command::Command,
-        pdu::{bind::Bind, Pdu},
+        pdu::{bind::Bind, submit_sm::SubmitSm, Pdu},
+        tlvs::tlv::message_submission_request::{
+            MessageSubmissionRequestTLV, MessageSubmissionRequestTLVValue,
+        },
         types::{
-            command_status::CommandStatus, interface_version::InterfaceVersion, npi::Npi, ton::Ton,
+            command_status::CommandStatus,
+            data_coding::DataCoding,
+            esm_class::EsmClass,
+            interface_version::InterfaceVersion,
+            npi::Npi,
+            priority_flag::GsmSms,
+            registered_delivery::RegisteredDelivery,
+            replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::{GenericServiceType, ServiceType},
+            ton::Ton,
         },
     },
-    types::c_octet_string::COctetString,
+    types::{
+        c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
+        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
+    },
 };
 
 #[tokio::test]
@@ -33,14 +48,14 @@ async fn do_codec() {
         }
     });
 
-    let enquire_link_pdu = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+    let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 
     framed_write
-        .send(enquire_link_pdu)
+        .send(enquire_link_command)
         .await
         .expect("Failed to send PDU");
 
-    let bind_transceiver_pdu = Command::new(
+    let bind_transceiver_command = Command::new(
         CommandStatus::EsmeRok,
         1,
         Pdu::BindTransceiver(Bind {
@@ -56,14 +71,54 @@ async fn do_codec() {
     );
 
     framed_write
-        .send(bind_transceiver_pdu)
+        .send(bind_transceiver_command)
         .await
         .expect("Failed to send PDU");
 
-    let unbind_pdu = Command::new(CommandStatus::EsmeRok, 2, Pdu::Unbind);
+    let submit_sm_command = Command::new(
+        CommandStatus::EsmeRok,
+        2,
+        Pdu::SubmitSm(SubmitSm::new(
+            ServiceType::new(GenericServiceType::default()).expect("Failed to create ServiceType"),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str("some_source").expect("Failed to create source"),
+            Ton::Unknown,
+            Npi::Unknown,
+            COctetString::from_str("some_dest").expect("Failed to create dest"),
+            EsmClass::default(),
+            0,
+            GsmSms::from(2).into(),
+            EmptyOrFullCOctetString::empty(),
+            EmptyOrFullCOctetString::empty(),
+            // Use default values to "not" get a delivery receipt
+            RegisteredDelivery::request_all(),
+            ReplaceIfPresentFlag::default(),
+            DataCoding::default(),
+            0,
+            OctetString::from_str("Hi, I am a short message. I will be overridden :(")
+                .expect("Failed to create short message"),
+            // Optional TLVs
+            vec![MessageSubmissionRequestTLV::new(
+                MessageSubmissionRequestTLVValue::MessagePayload(
+                    NoFixedSizeOctetString::from_str(
+                        "Hi, I am a very long message that will override the short message :D",
+                    )
+                    .expect("Failed to create message_payload"),
+                ),
+            )],
+        )),
+    );
 
     framed_write
-        .send(unbind_pdu)
+        .send(submit_sm_command)
+        .await
+        .expect("Failed to send PDU");
+
+    let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
+
+    framed_write
+        .send(unbind_command)
         .await
         .expect("Failed to send PDU");
 

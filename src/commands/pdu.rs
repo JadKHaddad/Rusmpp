@@ -245,6 +245,15 @@ impl DecodeWithKey for Pdu {
                 Pdu::BindTransceiverResp(tri!(bind_resp::BindResp::decode_from(reader, length)))
             }
             CommandId::Outbind => Pdu::Outbind(tri!(outbind::Outbind::decode_from(reader))),
+            CommandId::AlertNotification => Pdu::AlertNotification(tri!(
+                alert_notification::AlertNotification::decode_from(reader, length)
+            )),
+            CommandId::SubmitSm => {
+                Pdu::SubmitSm(tri!(submit_sm::SubmitSm::decode_from(reader, length)))
+            }
+            CommandId::SubmitSmResp => {
+                Pdu::SubmitSmResp(tri!(submit_resp::SubmitResp::decode_from(reader, length)))
+            }
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
                 body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),

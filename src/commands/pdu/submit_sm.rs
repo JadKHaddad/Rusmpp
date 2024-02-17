@@ -5,9 +5,14 @@ use crate::{
             tlv_tag::TLVTag,
         },
         types::{
-            data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
-            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-            service_type::ServiceType, ton::Ton,
+            data_coding::DataCoding,
+            esm_class::EsmClass,
+            npi::Npi,
+            priority_flag::{PriorityFlag},
+            registered_delivery::RegisteredDelivery,
+            replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::ServiceType,
+            ton::Ton,
         },
     },
     ende::{
@@ -59,9 +64,7 @@ pub struct SubmitSm {
     /// Network specific field.
     pub protocol_id: u8,
     /// Designates the priority level of the message.
-    ///
-    /// See [`PriorityFlagType`](crate::commands::types::priority_flag::PriorityFlagType) for more information.
-    pub priority_flag: u8,
+    pub priority_flag: PriorityFlag,
     /// The short message is to be
     /// scheduled by the MC for delivery.
     /// Set to NULL for immediate message delivery.
@@ -108,7 +111,7 @@ impl SubmitSm {
         destination_addr: COctetString<1, 21>,
         esm_class: EsmClass,
         protocol_id: u8,
-        priority_flag: u8,
+        priority_flag: PriorityFlag,
         schedule_delivery_time: EmptyOrFullCOctetString<17>,
         validity_period: EmptyOrFullCOctetString<17>,
         registered_delivery: RegisteredDelivery,
@@ -274,7 +277,7 @@ impl DecodeWithLength for SubmitSm {
         let destination_addr = tri!(COctetString::decode_from(reader));
         let esm_class = tri!(EsmClass::decode_from(reader));
         let protocol_id = tri!(u8::decode_from(reader));
-        let priority_flag = tri!(u8::decode_from(reader));
+        let priority_flag = tri!(PriorityFlag::decode_from(reader));
         let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
         let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
         let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));

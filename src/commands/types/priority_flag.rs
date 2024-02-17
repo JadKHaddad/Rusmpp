@@ -1,3 +1,78 @@
+use crate::types::u8::EndeU8;
+
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct PriorityFlag {
+    pub value: u8,
+}
+
+impl PriorityFlag {
+    pub fn new(value: u8) -> Self {
+        Self { value }
+    }
+}
+
+impl From<PriorityFlagType> for PriorityFlag {
+    fn from(value: PriorityFlagType) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl From<u8> for PriorityFlag {
+    fn from(value: u8) -> Self {
+        Self { value }
+    }
+}
+
+impl From<PriorityFlag> for u8 {
+    fn from(value: PriorityFlag) -> Self {
+        value.value
+    }
+}
+
+impl From<GsmSms> for PriorityFlag {
+    fn from(value: GsmSms) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl From<GsmCbs> for PriorityFlag {
+    fn from(value: GsmCbs) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl From<Ansi136> for PriorityFlag {
+    fn from(value: Ansi136) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl From<Is95> for PriorityFlag {
+    fn from(value: Is95) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl From<Ansi41Cbs> for PriorityFlag {
+    fn from(value: Ansi41Cbs) -> Self {
+        Self {
+            value: value.into(),
+        }
+    }
+}
+
+impl EndeU8 for PriorityFlag {}
+
 /// Helper for creating a priority_flag.
 ///
 /// A priority flag type can not be created from u8.
@@ -6,11 +81,19 @@
 /// # Example
 ///
 /// ```rust
-/// use rusmpp::commands::types::priority_flag::{GsmSms, PriorityFlagType};
+/// use rusmpp::commands::types::priority_flag::{GsmSms, PriorityFlag, PriorityFlagType};
 ///
 /// let gsm_sms = GsmSms::from(1);
 /// assert_eq!(gsm_sms, GsmSms::Priority1);
-/// let priority_flag: u8 = gsm_sms.into();
+///
+/// let priority_flag_type = PriorityFlagType::from(gsm_sms);
+/// assert!(matches!(priority_flag_type, PriorityFlagType::GsmSms(GsmSms::Priority1)));
+///
+/// let priority_flag = PriorityFlag::from(priority_flag_type);
+/// assert_eq!(priority_flag, PriorityFlag::new(1));
+///
+/// let priority_flag: PriorityFlag = GsmSms::from(1).into();
+/// assert_eq!(priority_flag, PriorityFlag::new(1));
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum PriorityFlagType {
@@ -66,6 +149,12 @@ impl From<GsmSms> for u8 {
     }
 }
 
+impl From<GsmSms> for PriorityFlagType {
+    fn from(value: GsmSms) -> Self {
+        PriorityFlagType::GsmSms(value)
+    }
+}
+
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum GsmCbs {
@@ -102,6 +191,12 @@ impl From<GsmCbs> for u8 {
     }
 }
 
+impl From<GsmCbs> for PriorityFlagType {
+    fn from(value: GsmCbs) -> Self {
+        PriorityFlagType::GsmCbs(value)
+    }
+}
+
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum Ansi136 {
@@ -132,6 +227,12 @@ impl From<Ansi136> for u8 {
             Ansi136::Urgent => 2,
             Ansi136::VeryUrgent => 3,
         }
+    }
+}
+
+impl From<Ansi136> for PriorityFlagType {
+    fn from(value: Ansi136) -> Self {
+        PriorityFlagType::Ansi136(value)
     }
 }
 
@@ -168,6 +269,12 @@ impl From<Is95> for u8 {
     }
 }
 
+impl From<Is95> for PriorityFlagType {
+    fn from(value: Is95) -> Self {
+        PriorityFlagType::Is95(value)
+    }
+}
+
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum Ansi41Cbs {
@@ -198,6 +305,12 @@ impl From<Ansi41Cbs> for u8 {
             Ansi41Cbs::Urgent => 2,
             Ansi41Cbs::Emergency => 3,
         }
+    }
+}
+
+impl From<Ansi41Cbs> for PriorityFlagType {
+    fn from(value: Ansi41Cbs) -> Self {
+        PriorityFlagType::Ansi41Cbs(value)
     }
 }
 

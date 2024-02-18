@@ -23,12 +23,21 @@ use crate::{
 /// Note: There is no associated alert_notification_resp PDU.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct AlertNotification {
+    /// Type of Number for alert SME.
     pub source_addr_ton: Ton,
+    /// Numbering Plan Indicator for alert SME.
     pub source_addr_npi: Npi,
+    /// Address of alert SME.
     pub source_addr: COctetString<1, 65>,
+    /// Type of Number for ESME address
+    /// which requested the alert.
     pub esme_addr_ton: Ton,
+    /// Numbering Plan Indicator for ESME
+    /// address which requested the alert.
     pub esme_addr_npi: Npi,
+    /// Address for ESME which requested the alert.
     pub esme_addr: COctetString<1, 65>,
+    /// The status of the mobile station.
     ms_availability_status: Option<TLV>,
 }
 

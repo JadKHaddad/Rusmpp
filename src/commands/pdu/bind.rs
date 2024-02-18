@@ -11,12 +11,33 @@ use crate::{
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Bind {
+    /// Identifies the ESME system
+    /// requesting to bind with the MC.
     pub system_id: COctetString<1, 16>,
+    /// The password may be used by the
+    /// MC to authenticate the ESME
+    /// requesting to bind.
     pub password: COctetString<1, 9>,
+    /// Identifies the type of ESME system
+    /// requesting to bind with the MC.
     pub system_type: COctetString<1, 13>,
+    /// Identifies the version of the SMPP
+    /// protocol supported by the ESME.
     pub interface_version: InterfaceVersion,
+    /// Type of Number (TON) for ESME
+    /// address(es) served via this SMPP session.
+    ///
+    /// Set to NULL (Unknown) if not known.
     pub addr_ton: Ton,
+    /// Numbering Plan Indicator (NPI) for
+    /// ESME address(es) served via this SMPP session.
+    ///
+    /// Set to NULL (Unknown) if not known.
     pub addr_npi: Npi,
+    /// A single ESME address or a range of
+    /// ESME addresses served via this SMPP session.
+    ///   
+    /// Set to NULL if not known.
     pub address_range: COctetString<1, 41>,
 }
 

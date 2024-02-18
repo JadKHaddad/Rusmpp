@@ -90,7 +90,7 @@ pub struct SubmitSm {
     /// Note: this field is superceded by the message_payload TLV if
     /// specified.
     short_message: OctetString<0, 255>,
-    /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
+    /// Message submission request TLVs ([`MessageSubmissionRequestTLV`]).
     tlvs: Vec<TLV>,
 }
 

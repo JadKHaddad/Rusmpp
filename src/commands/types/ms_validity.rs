@@ -14,6 +14,18 @@ pub struct MsValidity {
     pub validity_information: Option<MsValidityInformation>,
 }
 
+impl MsValidity {
+    pub fn new(
+        validity_behaviour: MsValidityBehaviour,
+        validity_information: Option<MsValidityInformation>,
+    ) -> Self {
+        Self {
+            validity_behaviour,
+            validity_information,
+        }
+    }
+}
+
 impl Length for MsValidity {
     fn length(&self) -> usize {
         self.validity_behaviour.length() + self.validity_information.length()

@@ -48,6 +48,12 @@ pub struct BroadcastAreaIdentifier {
     pub area: OctetString<0, 100>,
 }
 
+impl BroadcastAreaIdentifier {
+    pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
+        Self { format, area }
+    }
+}
+
 impl Length for BroadcastAreaIdentifier {
     fn length(&self) -> usize {
         self.format.length() + self.area.length()

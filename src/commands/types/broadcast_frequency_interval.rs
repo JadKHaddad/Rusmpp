@@ -63,6 +63,12 @@ pub struct BroadcastFrequencyInterval {
     pub value: u16,
 }
 
+impl BroadcastFrequencyInterval {
+    pub fn new(unit: UnitOfTime, value: u16) -> Self {
+        Self { unit, value }
+    }
+}
+
 impl Length for BroadcastFrequencyInterval {
     fn length(&self) -> usize {
         self.unit.length() + self.value.length()

@@ -1,3 +1,5 @@
+//! Abstraction for types used in the SMPP protocol.
+
 pub mod addr_subunit;
 pub mod alert_on_msg_delivery;
 pub mod bearer_type;

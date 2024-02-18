@@ -1,3 +1,5 @@
+//! SMPP PDUs.
+
 use super::types::command_id::{CommandId, HasCommandId};
 use crate::{
     ende::{

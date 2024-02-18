@@ -1,3 +1,5 @@
+//! Core SMPP types.
+
 pub mod c_octet_string;
 pub mod empty_or_full_c_octet_string;
 pub mod no_fixed_size_octet_string;

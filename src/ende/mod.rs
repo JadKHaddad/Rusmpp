@@ -1,4 +1,4 @@
-//! Encode and decode PDUs and their components.
+//! Encode and decode SMPP PDUs.
 
 pub mod decode;
 pub mod encode;

@@ -1,3 +1,5 @@
+//! Tagged Length Value Field.
+//!
 //! A Tagged Length Value Field is a special composite field
 //! that comprises of three parts:
 //! * A 2-octet Integer (Tag)

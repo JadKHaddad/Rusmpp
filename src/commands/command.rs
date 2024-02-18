@@ -1,3 +1,5 @@
+//! SMPP commands.
+//!
 //! The following PDU example illustrates how a SMPP PDU is decoded:
 //!
 //! Sample PDU (Values are shown in Hex format):

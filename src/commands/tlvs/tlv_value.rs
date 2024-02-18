@@ -55,7 +55,7 @@ pub enum TLVValue {
     /// | ‘mm’   | minute (00-59)                        |
     /// | ‘ss’   | second (00-59)                        |
     /// | ‘t’    | tenths of second (0-9)                |
-    /// | ‘nn’   | Time difference in quarter hours between local time (as expressed in the first 13 octets) and UTC (Universal Time Constant) time (00-48). |
+    /// | ‘nn’   | time difference in quarter hours between local time (as expressed in the first 13 octets) and UTC (Universal Time Constant) time (00-48). |
     /// | ‘p’    | “+” Local time is in quarter hours advanced in relation to UTC time. “-” Local time is in quarter hours retarded in relation to UTC time. |
     BroadcastEndTime(OctetString<0, 17>),
     BroadcastErrorStatus(CommandStatus),

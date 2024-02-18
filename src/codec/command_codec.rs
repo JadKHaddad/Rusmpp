@@ -11,7 +11,7 @@ use tokio_util::{
     codec::{Decoder, Encoder},
 };
 
-/// A codec for encoding and decoding SMPP PDUs
+/// A codec for encoding and decoding SMPP PDUs.
 pub struct CommandCodec;
 
 impl Encoder<Command> for CommandCodec {

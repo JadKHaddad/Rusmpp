@@ -32,6 +32,7 @@ use crate::{
 };
 
 #[tokio::test]
+#[ignore = "integration test"]
 async fn do_codec() {
     let stream = TcpStream::connect("34.242.18.250:2775")
         .await

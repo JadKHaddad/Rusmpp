@@ -12,6 +12,7 @@ use crate::{
 pub mod alert_notification;
 pub mod bind;
 pub mod bind_resp;
+pub mod cancel_sm;
 pub mod data_sm;
 pub mod deliver_sm;
 pub mod outbind;
@@ -89,7 +90,19 @@ pub enum Pdu {
     /// packet-based applications.
     DataSm(data_sm::DataSm),
     DataSmResp(sm_resp::SmResp),
-    // CancelSm(CancelSm),
+    /// This command is issued by the ESME to cancel one or more previously submitted short
+    /// messages that are pending delivery. The command may specify a particular message to
+    /// cancel, or all messages matching a particular source, destination and service_type.
+    ///
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
+    ///
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.  
+    /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
+    /// NULL, then the source address in the cancel_sm command should also be NULL.
+    CancelSm(cancel_sm::CancelSm),
     // ReplaceSm(ReplaceSm),
     // SubmitMulti(SubmitMulti),
     // SubmitMultiResp(SubmitOrDataSmResp),
@@ -98,10 +111,6 @@ pub enum Pdu {
     // QueryBroadcastSm(QueryBroadcastSm),
     // QueryBroadcastSmResp(QueryBroadcastSmResp),
     // CancelBroadcastSm(CancelBroadcastSm),
-    Other {
-        command_id: CommandId,
-        body: NoFixedSizeOctetString,
-    },
     /// This PDU can be sent by the ESME or MC as a means of
     /// initiating the termination of a SMPP session.
     Unbind,
@@ -135,6 +144,10 @@ pub enum Pdu {
     /// attempt and for successful attempts will also include the
     /// current state of the message.
     CancelBroadcastSmResp,
+    Other {
+        command_id: CommandId,
+        body: NoFixedSizeOctetString,
+    },
 }
 
 impl HasCommandId for Pdu {
@@ -156,7 +169,7 @@ impl HasCommandId for Pdu {
             Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             Pdu::DataSm(_) => CommandId::DataSm,
             Pdu::DataSmResp(_) => CommandId::DataSmResp,
-            // Pdu::CancelSm(_) => CommandId::CancelSm,
+            Pdu::CancelSm(_) => CommandId::CancelSm,
             // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
             // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
@@ -199,6 +212,7 @@ impl Length for Pdu {
             Pdu::DeliverSmResp(body) => body.length(),
             Pdu::DataSm(body) => body.length(),
             Pdu::DataSmResp(body) => body.length(),
+            Pdu::CancelSm(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -231,6 +245,7 @@ impl Encode for Pdu {
             Pdu::DeliverSmResp(body) => body.encode_to(writer),
             Pdu::DataSm(body) => body.encode_to(writer),
             Pdu::DataSmResp(body) => body.encode_to(writer),
+            Pdu::CancelSm(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -296,6 +311,7 @@ impl DecodeWithKey for Pdu {
             CommandId::DataSmResp => {
                 Pdu::DataSmResp(tri!(sm_resp::SmResp::decode_from(reader, length)))
             }
+            CommandId::CancelSm => Pdu::CancelSm(tri!(cancel_sm::CancelSm::decode_from(reader))),
             CommandId::Unbind => Pdu::Unbind,
             CommandId::UnbindResp => Pdu::UnbindResp,
             CommandId::EnquireLink => Pdu::EnquireLink,

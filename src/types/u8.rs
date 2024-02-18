@@ -41,7 +41,7 @@ impl Decode for u8 {
 }
 
 /// A trait for encoding and decoding a value as [`u8`]
-pub trait EndeU8
+pub(crate) trait EndeU8
 where
     Self: From<u8> + Copy,
     u8: From<Self>,

@@ -41,7 +41,7 @@ impl Decode for u32 {
 }
 
 /// A trait for encoding and decoding a value as [`u32`]
-pub trait EndeU32
+pub(crate) trait EndeU32
 where
     Self: From<u32> + Copy,
     u32: From<Self>,

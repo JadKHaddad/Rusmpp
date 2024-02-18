@@ -10,7 +10,7 @@ use crate::{
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct DeliverSmResp {
+pub struct SmResp {
     /// This field contains the MC message ID of the submitted message.
     /// It may be used at a later stage to query the status of a message,
     /// cancel or replace the message.
@@ -19,7 +19,7 @@ pub struct DeliverSmResp {
     tlvs: Vec<TLV>,
 }
 
-impl DeliverSmResp {
+impl SmResp {
     pub fn new(message_id: COctetString<1, 65>, tlvs: Vec<MessageDeliveryResponseTLV>) -> Self {
         let tlvs = tlvs.into_iter().map(|value| value.into()).collect();
 
@@ -50,13 +50,13 @@ impl DeliverSmResp {
     }
 }
 
-impl Length for DeliverSmResp {
+impl Length for SmResp {
     fn length(&self) -> usize {
         self.message_id.length() + self.tlvs.length()
     }
 }
 
-impl Encode for DeliverSmResp {
+impl Encode for SmResp {
     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         tri!(self.message_id.encode_to(writer));
         tri!(self.tlvs.encode_to(writer));
@@ -65,7 +65,7 @@ impl Encode for DeliverSmResp {
     }
 }
 
-impl DecodeWithLength for DeliverSmResp {
+impl DecodeWithLength for SmResp {
     fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,

@@ -94,8 +94,8 @@ pub struct SubmitSm {
     tlvs: Vec<TLV>,
 }
 
-#[allow(clippy::too_many_arguments)]
 impl SubmitSm {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         serivce_type: ServiceType,
         source_addr_ton: Ton,

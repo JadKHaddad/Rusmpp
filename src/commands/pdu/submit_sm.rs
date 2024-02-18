@@ -207,6 +207,10 @@ impl SubmitSm {
 
         false
     }
+
+    pub fn builder() -> SubmitSmBuilder {
+        SubmitSmBuilder::new()
+    }
 }
 
 impl Length for SubmitSm {
@@ -326,5 +330,121 @@ impl DecodeWithLength for SubmitSm {
             short_message,
             tlvs,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct SubmitSmBuilder {
+    inner: SubmitSm,
+}
+
+impl SubmitSmBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn serivce_type(mut self, serivce_type: ServiceType) -> Self {
+        self.inner.serivce_type = serivce_type;
+        self
+    }
+
+    pub fn source_addr_ton(mut self, source_addr_ton: Ton) -> Self {
+        self.inner.source_addr_ton = source_addr_ton;
+        self
+    }
+
+    pub fn source_addr_npi(mut self, source_addr_npi: Npi) -> Self {
+        self.inner.source_addr_npi = source_addr_npi;
+        self
+    }
+
+    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+        self.inner.source_addr = source_addr;
+        self
+    }
+
+    pub fn dest_addr_ton(mut self, dest_addr_ton: Ton) -> Self {
+        self.inner.dest_addr_ton = dest_addr_ton;
+        self
+    }
+
+    pub fn dest_addr_npi(mut self, dest_addr_npi: Npi) -> Self {
+        self.inner.dest_addr_npi = dest_addr_npi;
+        self
+    }
+
+    pub fn destination_addr(mut self, destination_addr: COctetString<1, 21>) -> Self {
+        self.inner.destination_addr = destination_addr;
+        self
+    }
+
+    pub fn esm_class(mut self, esm_class: EsmClass) -> Self {
+        self.inner.esm_class = esm_class;
+        self
+    }
+
+    pub fn protocol_id(mut self, protocol_id: u8) -> Self {
+        self.inner.protocol_id = protocol_id;
+        self
+    }
+
+    pub fn priority_flag(mut self, priority_flag: PriorityFlag) -> Self {
+        self.inner.priority_flag = priority_flag;
+        self
+    }
+
+    pub fn schedule_delivery_time(
+        mut self,
+        schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    ) -> Self {
+        self.inner.schedule_delivery_time = schedule_delivery_time;
+        self
+    }
+
+    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<17>) -> Self {
+        self.inner.validity_period = validity_period;
+        self
+    }
+
+    pub fn registered_delivery(mut self, registered_delivery: RegisteredDelivery) -> Self {
+        self.inner.registered_delivery = registered_delivery;
+        self
+    }
+
+    pub fn replace_if_present_flag(
+        mut self,
+        replace_if_present_flag: ReplaceIfPresentFlag,
+    ) -> Self {
+        self.inner.replace_if_present_flag = replace_if_present_flag;
+        self
+    }
+
+    pub fn data_coding(mut self, data_coding: DataCoding) -> Self {
+        self.inner.data_coding = data_coding;
+        self
+    }
+
+    pub fn sm_default_msg_id(mut self, sm_default_msg_id: u8) -> Self {
+        self.inner.sm_default_msg_id = sm_default_msg_id;
+        self
+    }
+
+    pub fn short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+        self.inner.set_short_message(short_message);
+        self
+    }
+
+    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+        self.inner.set_tlvs(tlvs);
+        self
+    }
+
+    pub fn push_tlv(mut self, tlv: MessageSubmissionRequestTLV) -> Self {
+        self.inner.push_tlv(tlv);
+        self
+    }
+
+    pub fn build(self) -> SubmitSm {
+        self.inner
     }
 }

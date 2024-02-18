@@ -41,6 +41,32 @@ pub struct Bind {
     pub address_range: COctetString<1, 41>,
 }
 
+impl Bind {
+    pub fn new(
+        system_id: COctetString<1, 16>,
+        password: COctetString<1, 9>,
+        system_type: COctetString<1, 13>,
+        interface_version: InterfaceVersion,
+        addr_ton: Ton,
+        addr_npi: Npi,
+        address_range: COctetString<1, 41>,
+    ) -> Self {
+        Self {
+            system_id,
+            password,
+            system_type,
+            interface_version,
+            addr_ton,
+            addr_npi,
+            address_range,
+        }
+    }
+
+    pub fn builder() -> BindBuilder {
+        BindBuilder::new()
+    }
+}
+
 impl Length for Bind {
     fn length(&self) -> usize {
         self.system_id.length()
@@ -89,5 +115,55 @@ impl Decode for Bind {
             addr_npi,
             address_range,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct BindBuilder {
+    inner: Bind,
+}
+
+impl BindBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn system_id(mut self, system_id: COctetString<1, 16>) -> Self {
+        self.inner.system_id = system_id;
+        self
+    }
+
+    pub fn password(mut self, password: COctetString<1, 9>) -> Self {
+        self.inner.password = password;
+        self
+    }
+
+    pub fn system_type(mut self, system_type: COctetString<1, 13>) -> Self {
+        self.inner.system_type = system_type;
+        self
+    }
+
+    pub fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
+        self.inner.interface_version = interface_version;
+        self
+    }
+
+    pub fn addr_ton(mut self, addr_ton: Ton) -> Self {
+        self.inner.addr_ton = addr_ton;
+        self
+    }
+
+    pub fn addr_npi(mut self, addr_npi: Npi) -> Self {
+        self.inner.addr_npi = addr_npi;
+        self
+    }
+
+    pub fn address_range(mut self, address_range: COctetString<1, 41>) -> Self {
+        self.inner.address_range = address_range;
+        self
+    }
+
+    pub fn build(self) -> Bind {
+        self.inner
     }
 }

@@ -36,6 +36,26 @@ pub struct QuerySmResp {
     pub error_code: u8,
 }
 
+impl QuerySmResp {
+    pub fn new(
+        message_id: COctetString<1, 65>,
+        final_date: EmptyOrFullCOctetString<17>,
+        message_state: MessageState,
+        error_code: u8,
+    ) -> Self {
+        Self {
+            message_id,
+            final_date,
+            message_state,
+            error_code,
+        }
+    }
+
+    pub fn builder() -> QuerySmRespBuilder {
+        QuerySmRespBuilder::new()
+    }
+}
+
 impl Length for QuerySmResp {
     fn length(&self) -> usize {
         self.message_id.length()
@@ -72,5 +92,40 @@ impl Decode for QuerySmResp {
             message_state,
             error_code,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct QuerySmRespBuilder {
+    inner: QuerySmResp,
+}
+
+impl QuerySmRespBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn final_date(mut self, final_date: EmptyOrFullCOctetString<17>) -> Self {
+        self.inner.final_date = final_date;
+        self
+    }
+
+    pub fn message_state(mut self, message_state: MessageState) -> Self {
+        self.inner.message_state = message_state;
+        self
+    }
+
+    pub fn error_code(mut self, error_code: u8) -> Self {
+        self.inner.error_code = error_code;
+        self
+    }
+
+    pub fn build(self) -> QuerySmResp {
+        self.inner
     }
 }

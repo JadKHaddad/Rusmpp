@@ -160,6 +160,10 @@ impl ReplaceSm {
 
         false
     }
+
+    pub fn builder() -> ReplaceSmBuilder {
+        ReplaceSmBuilder::new()
+    }
 }
 
 impl Length for ReplaceSm {
@@ -243,5 +247,73 @@ impl DecodeWithLength for ReplaceSm {
             short_message,
             message_payload,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct ReplaceSmBuilder {
+    inner: ReplaceSm,
+}
+
+impl ReplaceSmBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn source_addr_ton(mut self, source_addr_ton: Ton) -> Self {
+        self.inner.source_addr_ton = source_addr_ton;
+        self
+    }
+
+    pub fn source_addr_npi(mut self, source_addr_npi: Npi) -> Self {
+        self.inner.source_addr_npi = source_addr_npi;
+        self
+    }
+
+    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+        self.inner.source_addr = source_addr;
+        self
+    }
+
+    pub fn schedule_delivery_time(
+        mut self,
+        schedule_delivery_time: EmptyOrFullCOctetString<17>,
+    ) -> Self {
+        self.inner.schedule_delivery_time = schedule_delivery_time;
+        self
+    }
+
+    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<17>) -> Self {
+        self.inner.validity_period = validity_period;
+        self
+    }
+
+    pub fn registered_delivery(mut self, registered_delivery: RegisteredDelivery) -> Self {
+        self.inner.registered_delivery = registered_delivery;
+        self
+    }
+
+    pub fn sm_default_msg_id(mut self, sm_default_msg_id: u8) -> Self {
+        self.inner.sm_default_msg_id = sm_default_msg_id;
+        self
+    }
+
+    pub fn short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+        self.inner.set_short_message(short_message);
+        self
+    }
+
+    pub fn message_payload(mut self, message_payload: Option<NoFixedSizeOctetString>) -> Self {
+        self.inner.set_message_payload(message_payload);
+        self
+    }
+
+    pub fn build(self) -> ReplaceSm {
+        self.inner
     }
 }

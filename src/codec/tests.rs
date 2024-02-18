@@ -13,21 +13,14 @@ use crate::{
             MessageSubmissionRequestTLV, MessageSubmissionRequestTLVValue,
         },
         types::{
-            command_status::CommandStatus,
-            data_coding::DataCoding,
-            esm_class::EsmClass,
-            interface_version::InterfaceVersion,
-            npi::Npi,
-            priority_flag::GsmSms,
-            registered_delivery::RegisteredDelivery,
-            replace_if_present_flag::ReplaceIfPresentFlag,
-            service_type::{GenericServiceType, ServiceType},
-            ton::Ton,
+            command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
+            interface_version::InterfaceVersion, npi::Npi, registered_delivery::RegisteredDelivery,
+            replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
         },
     },
     types::{
-        c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString,
+        c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
+        octet_string::OctetString,
     },
 };
 
@@ -59,16 +52,19 @@ async fn do_codec() {
     let bind_transceiver_command = Command::new(
         CommandStatus::EsmeRok,
         1,
-        Pdu::BindTransceiver(Bind {
-            system_id: COctetString::from_str("NfDfddEKVI0NCxO")
-                .expect("Failed to create system_id"),
-            password: COctetString::from_str("rEZYMq5j").expect("Failed to create password"),
-            system_type: COctetString::from_str("").expect("Failed to create system_type"),
-            interface_version: InterfaceVersion::Smpp5_0,
-            addr_ton: Ton::Unknown,
-            addr_npi: Npi::Unknown,
-            address_range: COctetString::empty(),
-        }),
+        Pdu::BindTransceiver(
+            Bind::builder()
+                .system_id(
+                    COctetString::from_str("NfDfddEKVI0NCxO").expect("Failed to create system_id"),
+                )
+                .password(COctetString::from_str("rEZYMq5j").expect("Failed to create password"))
+                .system_type(COctetString::empty())
+                .interface_version(InterfaceVersion::Smpp5_0)
+                .addr_ton(Ton::Unknown)
+                .addr_npi(Npi::Unknown)
+                .address_range(COctetString::empty())
+                .build(),
+        ),
     );
 
     framed_write
@@ -79,36 +75,38 @@ async fn do_codec() {
     let submit_sm_command = Command::new(
         CommandStatus::EsmeRok,
         2,
-        Pdu::SubmitSm(SubmitSm::new(
-            ServiceType::new(GenericServiceType::default()).expect("Failed to create ServiceType"),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str("some_source").expect("Failed to create source"),
-            Ton::Unknown,
-            Npi::Unknown,
-            COctetString::from_str("some_dest").expect("Failed to create dest"),
-            EsmClass::default(),
-            0,
-            GsmSms::from(2).into(),
-            EmptyOrFullCOctetString::empty(),
-            EmptyOrFullCOctetString::empty(),
-            // Use default values to "not" get a delivery receipt
-            RegisteredDelivery::request_all(),
-            ReplaceIfPresentFlag::default(),
-            DataCoding::default(),
-            0,
-            OctetString::from_str("Hi, I am a short message. I will be overridden :(")
-                .expect("Failed to create short message"),
-            // Optional TLVs
-            vec![MessageSubmissionRequestTLV::new(
-                MessageSubmissionRequestTLVValue::MessagePayload(
-                    NoFixedSizeOctetString::from_str(
-                        "Hi, I am a very long message that will override the short message :D",
-                    )
-                    .expect("Failed to create message_payload"),
-                ),
-            )],
-        )),
+        Pdu::SubmitSm(
+            SubmitSm::builder()
+                .serivce_type(ServiceType::default())
+                .source_addr_ton(Ton::Unknown)
+                .source_addr_npi(Npi::Unknown)
+                .source_addr(
+                    COctetString::from_str("some_source").expect("Failed to create source"),
+                )
+                .dest_addr_ton(Ton::Unknown)
+                .dest_addr_npi(Npi::Unknown)
+                .destination_addr(
+                    COctetString::from_str("some_dest").expect("Failed to create dest"),
+                )
+                .esm_class(EsmClass::default())
+                // Use default values to "not" get a delivery receipt
+                .registered_delivery(RegisteredDelivery::request_all())
+                .replace_if_present_flag(ReplaceIfPresentFlag::default())
+                .data_coding(DataCoding::default())
+                .short_message(
+                    OctetString::from_str("Hi, I am a short message. I will be overridden :(")
+                        .expect("Failed to create short message"),
+                )
+                .push_tlv(MessageSubmissionRequestTLV::new(
+                    MessageSubmissionRequestTLVValue::MessagePayload(
+                        NoFixedSizeOctetString::from_str(
+                            "Hi, I am a very long message that will override the short message :D",
+                        )
+                        .expect("Failed to create message_payload"),
+                    ),
+                ))
+                .build(),
+        ),
     );
 
     framed_write

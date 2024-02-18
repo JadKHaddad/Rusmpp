@@ -74,6 +74,10 @@ impl AlertNotification {
         self.ms_availability_status =
             ms_availability_status.map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v)));
     }
+
+    pub fn builder() -> AlertNotificationBuilder {
+        AlertNotificationBuilder::new()
+    }
 }
 
 impl Length for AlertNotification {
@@ -137,5 +141,59 @@ impl DecodeWithLength for AlertNotification {
             esme_addr,
             ms_availability_status,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct AlertNotificationBuilder {
+    inner: AlertNotification,
+}
+
+impl AlertNotificationBuilder {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn source_addr_ton(mut self, source_addr_ton: Ton) -> Self {
+        self.inner.source_addr_ton = source_addr_ton;
+        self
+    }
+
+    pub fn source_addr_npi(mut self, source_addr_npi: Npi) -> Self {
+        self.inner.source_addr_npi = source_addr_npi;
+        self
+    }
+
+    pub fn source_addr(mut self, source_addr: COctetString<1, 65>) -> Self {
+        self.inner.source_addr = source_addr;
+        self
+    }
+
+    pub fn esme_addr_ton(mut self, esme_addr_ton: Ton) -> Self {
+        self.inner.esme_addr_ton = esme_addr_ton;
+        self
+    }
+
+    pub fn esme_addr_npi(mut self, esme_addr_npi: Npi) -> Self {
+        self.inner.esme_addr_npi = esme_addr_npi;
+        self
+    }
+
+    pub fn esme_addr(mut self, esme_addr: COctetString<1, 65>) -> Self {
+        self.inner.esme_addr = esme_addr;
+        self
+    }
+
+    pub fn ms_availability_status(
+        mut self,
+        ms_availability_status: Option<MsAvailabilityStatus>,
+    ) -> Self {
+        self.inner
+            .set_ms_availability_status(ms_availability_status);
+        self
+    }
+
+    pub fn build(self) -> AlertNotification {
+        self.inner
     }
 }

@@ -48,6 +48,10 @@ impl SubmitSmResp {
 
         self.tlvs.push(tlv);
     }
+
+    pub fn builder() -> SubmitSmRespBuilder {
+        SubmitSmRespBuilder::new()
+    }
 }
 
 impl Length for SubmitSmResp {
@@ -77,5 +81,35 @@ impl DecodeWithLength for SubmitSmResp {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self { message_id, tlvs })
+    }
+}
+
+#[derive(Default)]
+pub struct SubmitSmRespBuilder {
+    inner: SubmitSmResp,
+}
+
+impl SubmitSmRespBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionResponseTLV>) -> Self {
+        self.inner.set_tlvs(tlvs);
+        self
+    }
+
+    pub fn push_tlv(mut self, tlv: MessageSubmissionResponseTLV) -> Self {
+        self.inner.push_tlv(tlv);
+        self
+    }
+
+    pub fn build(self) -> SubmitSmResp {
+        self.inner
     }
 }

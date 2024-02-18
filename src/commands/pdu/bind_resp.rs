@@ -42,6 +42,10 @@ impl BindResp {
         self.sc_interface_version =
             sc_interface_version.map(|v| TLV::new(TLVValue::ScInterfaceVersion(v)));
     }
+
+    pub fn builder() -> BindRespBuilder {
+        BindRespBuilder::new()
+    }
 }
 
 impl Length for BindResp {
@@ -77,5 +81,30 @@ impl DecodeWithLength for BindResp {
             system_id,
             sc_interface_version,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct BindRespBuilder {
+    inner: BindResp,
+}
+
+impl BindRespBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn system_id(mut self, system_id: COctetString<1, 16>) -> Self {
+        self.inner.system_id = system_id;
+        self
+    }
+
+    pub fn sc_interface_version(mut self, sc_interface_version: Option<InterfaceVersion>) -> Self {
+        self.inner.set_sc_interface_version(sc_interface_version);
+        self
+    }
+
+    pub fn build(self) -> BindResp {
+        self.inner
     }
 }

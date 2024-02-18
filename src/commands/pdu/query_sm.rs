@@ -49,6 +49,26 @@ pub struct QuerySm {
     pub source_addr: COctetString<1, 21>,
 }
 
+impl QuerySm {
+    pub fn new(
+        message_id: COctetString<1, 65>,
+        source_addr_ton: Ton,
+        source_addr_npi: Npi,
+        source_addr: COctetString<1, 21>,
+    ) -> Self {
+        Self {
+            message_id,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+        }
+    }
+
+    pub fn builder() -> QuerySmBuilder {
+        QuerySmBuilder::new()
+    }
+}
+
 impl Length for QuerySm {
     fn length(&self) -> usize {
         self.message_id.length()
@@ -85,5 +105,40 @@ impl Decode for QuerySm {
             source_addr_npi,
             source_addr,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct QuerySmBuilder {
+    inner: QuerySm,
+}
+
+impl QuerySmBuilder {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn source_addr_ton(mut self, source_addr_ton: Ton) -> Self {
+        self.inner.source_addr_ton = source_addr_ton;
+        self
+    }
+
+    pub fn source_addr_npi(mut self, source_addr_npi: Npi) -> Self {
+        self.inner.source_addr_npi = source_addr_npi;
+        self
+    }
+
+    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+        self.inner.source_addr = source_addr;
+        self
+    }
+
+    pub fn build(self) -> QuerySm {
+        self.inner
     }
 }

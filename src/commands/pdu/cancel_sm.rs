@@ -96,6 +96,35 @@ pub struct CancelSm {
     pub destination_addr: COctetString<1, 21>,
 }
 
+impl CancelSm {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        serivce_type: ServiceType,
+        message_id: COctetString<1, 65>,
+        source_addr_ton: Ton,
+        source_addr_npi: Npi,
+        source_addr: COctetString<1, 21>,
+        dest_addr_ton: Ton,
+        dest_addr_npi: Npi,
+        destination_addr: COctetString<1, 21>,
+    ) -> Self {
+        Self {
+            serivce_type,
+            message_id,
+            source_addr_ton,
+            source_addr_npi,
+            source_addr,
+            dest_addr_ton,
+            dest_addr_npi,
+            destination_addr,
+        }
+    }
+
+    pub fn builder() -> CancelSmBuilder {
+        CancelSmBuilder::new()
+    }
+}
+
 impl Length for CancelSm {
     fn length(&self) -> usize {
         self.serivce_type.length()
@@ -148,5 +177,60 @@ impl Decode for CancelSm {
             dest_addr_npi,
             destination_addr,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct CancelSmBuilder {
+    inner: CancelSm,
+}
+
+impl CancelSmBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+        self.inner.serivce_type = service_type;
+        self
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn source_addr_ton(mut self, source_addr_ton: Ton) -> Self {
+        self.inner.source_addr_ton = source_addr_ton;
+        self
+    }
+
+    pub fn source_addr_npi(mut self, source_addr_npi: Npi) -> Self {
+        self.inner.source_addr_npi = source_addr_npi;
+        self
+    }
+
+    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+        self.inner.source_addr = source_addr;
+        self
+    }
+
+    pub fn dest_addr_ton(mut self, dest_addr_ton: Ton) -> Self {
+        self.inner.dest_addr_ton = dest_addr_ton;
+        self
+    }
+
+    pub fn dest_addr_npi(mut self, dest_addr_npi: Npi) -> Self {
+        self.inner.dest_addr_npi = dest_addr_npi;
+        self
+    }
+
+    pub fn destination_addr(mut self, destination_addr: COctetString<1, 21>) -> Self {
+        self.inner.destination_addr = destination_addr;
+        self
+    }
+
+    pub fn build(self) -> CancelSm {
+        self.inner
     }
 }

@@ -48,6 +48,10 @@ impl SmResp {
 
         self.tlvs.push(tlv);
     }
+
+    pub fn builder() -> SmRespBuilder {
+        SmRespBuilder::new()
+    }
 }
 
 impl Length for SmResp {
@@ -77,5 +81,35 @@ impl DecodeWithLength for SmResp {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self { message_id, tlvs })
+    }
+}
+
+#[derive(Default)]
+pub struct SmRespBuilder {
+    inner: SmResp,
+}
+
+impl SmRespBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+        self.inner.message_id = message_id;
+        self
+    }
+
+    pub fn tlvs(mut self, tlvs: Vec<MessageDeliveryResponseTLV>) -> Self {
+        self.inner.set_tlvs(tlvs);
+        self
+    }
+
+    pub fn push_tlv(mut self, tlv: MessageDeliveryResponseTLV) -> Self {
+        self.inner.push_tlv(tlv);
+        self
+    }
+
+    pub fn build(self) -> SmResp {
+        self.inner
     }
 }

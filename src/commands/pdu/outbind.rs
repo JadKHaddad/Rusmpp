@@ -27,6 +27,19 @@ pub struct Outbind {
     pub password: COctetString<1, 9>,
 }
 
+impl Outbind {
+    pub fn new(system_id: COctetString<1, 16>, password: COctetString<1, 9>) -> Self {
+        Self {
+            system_id,
+            password,
+        }
+    }
+
+    pub fn builder() -> OutbindBuilder {
+        OutbindBuilder::new()
+    }
+}
+
 impl Length for Outbind {
     fn length(&self) -> usize {
         self.system_id.length() + self.password.length()
@@ -54,5 +67,30 @@ impl Decode for Outbind {
             system_id,
             password,
         })
+    }
+}
+
+#[derive(Default)]
+pub struct OutbindBuilder {
+    inner: Outbind,
+}
+
+impl OutbindBuilder {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn system_id(mut self, system_id: COctetString<1, 16>) -> Self {
+        self.inner.system_id = system_id;
+        self
+    }
+
+    pub fn password(mut self, password: COctetString<1, 9>) -> Self {
+        self.inner.password = password;
+        self
+    }
+
+    pub fn build(self) -> Outbind {
+        self.inner
     }
 }

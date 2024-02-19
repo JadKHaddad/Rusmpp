@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{message_delivery_response::MessageDeliveryResponseTLV, TLV},
     ende::{
@@ -51,6 +52,14 @@ impl SmResp {
 
     pub fn builder() -> SmRespBuilder {
         SmRespBuilder::new()
+    }
+
+    pub fn into_deliver_sm_resp(self) -> Pdu {
+        Pdu::DeliverSmResp(self)
+    }
+
+    pub fn into_data_sm_resp(self) -> Pdu {
+        Pdu::DataSmResp(self)
     }
 }
 

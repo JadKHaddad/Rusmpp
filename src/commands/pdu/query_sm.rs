@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, ton::Ton},
     ende::{
@@ -66,6 +67,10 @@ impl QuerySm {
 
     pub fn builder() -> QuerySmBuilder {
         QuerySmBuilder::new()
+    }
+
+    pub fn into_query_sm(self) -> Pdu {
+        Pdu::QuerySm(self)
     }
 }
 

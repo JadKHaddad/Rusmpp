@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     ende::{
         decode::{Decode, DecodeError},
@@ -37,6 +38,10 @@ impl Outbind {
 
     pub fn builder() -> OutbindBuilder {
         OutbindBuilder::new()
+    }
+
+    pub fn into_outnbind(self) -> Pdu {
+        Pdu::Outbind(self)
     }
 }
 

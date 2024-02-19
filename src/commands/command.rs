@@ -86,6 +86,17 @@ impl Command {
     pub fn into_body(self) -> Pdu {
         self.pdu
     }
+
+    pub fn builder() -> CommandStatusBuilder {
+        CommandStatusBuilder {
+            inner: Command {
+                command_id: CommandId::BindTransmitter,
+                command_status: CommandStatus::EsmeRok,
+                sequence_number: 0,
+                pdu: Pdu::BindTransmitter(Default::default()),
+            },
+        }
+    }
 }
 
 impl Length for Command {
@@ -129,5 +140,44 @@ impl DecodeWithLength for Command {
             sequence_number,
             pdu,
         })
+    }
+}
+
+pub struct CommandStatusBuilder {
+    inner: Command,
+}
+
+impl CommandStatusBuilder {
+    pub fn command_status(mut self, command_status: CommandStatus) -> SequenceNumberBuilder {
+        self.inner.command_status = command_status;
+
+        SequenceNumberBuilder { inner: self.inner }
+    }
+}
+
+pub struct SequenceNumberBuilder {
+    inner: Command,
+}
+
+impl SequenceNumberBuilder {
+    pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder {
+        self.inner.sequence_number = sequence_number;
+
+        PduBuilder { inner: self.inner }
+    }
+}
+
+pub struct PduBuilder {
+    inner: Command,
+}
+
+impl PduBuilder {
+    pub fn pdu(mut self, pdu: Pdu) -> Self {
+        self.inner.pdu = pdu;
+        self
+    }
+
+    pub fn build(self) -> Command {
+        self.inner
     }
 }

@@ -36,23 +36,27 @@ async fn do_codec() {
     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
 
     tokio::spawn(async move {
-        while let Some(pdu) = framed_read.next().await {
-            println!("{:#?}", pdu);
+        while let Some(command) = framed_read.next().await {
+            println!("{:#?}", command);
             println!();
         }
     });
 
-    let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+    let enquire_link_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(0)
+        .pdu(Pdu::EnquireLink)
+        .build();
 
     framed_write
         .send(enquire_link_command)
         .await
         .expect("Failed to send PDU");
 
-    let bind_transceiver_command = Command::new(
-        CommandStatus::EsmeRok,
-        1,
-        Pdu::BindTransceiver(
+    let bind_transceiver_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(1)
+        .pdu(
             Bind::builder()
                 .system_id(
                     COctetString::from_str("NfDfddEKVI0NCxO").expect("Failed to create system_id"),
@@ -63,19 +67,20 @@ async fn do_codec() {
                 .addr_ton(Ton::Unknown)
                 .addr_npi(Npi::Unknown)
                 .address_range(COctetString::empty())
-                .build(),
-        ),
-    );
+                .build()
+                .into_bind_transceiver(),
+        )
+        .build();
 
     framed_write
         .send(bind_transceiver_command)
         .await
         .expect("Failed to send PDU");
 
-    let submit_sm_command = Command::new(
-        CommandStatus::EsmeRok,
-        2,
-        Pdu::SubmitSm(
+    let submit_sm_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(2)
+        .pdu(
             SubmitSm::builder()
                 .serivce_type(ServiceType::default())
                 .source_addr_ton(Ton::Unknown)
@@ -105,9 +110,10 @@ async fn do_codec() {
                         .expect("Failed to create message_payload"),
                     ),
                 ))
-                .build(),
-        ),
-    );
+                .build()
+                .into_submit_sm(),
+        )
+        .build();
 
     framed_write
         .send(submit_sm_command)
@@ -117,7 +123,11 @@ async fn do_codec() {
     // wait for delivery receipt
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 
-    let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
+    let unbind_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(3)
+        .pdu(Pdu::Unbind)
+        .build();
 
     framed_write
         .send(unbind_command)

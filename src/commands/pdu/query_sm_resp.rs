@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::types::message_state::MessageState,
     ende::{
@@ -53,6 +54,10 @@ impl QuerySmResp {
 
     pub fn builder() -> QuerySmRespBuilder {
         QuerySmRespBuilder::new()
+    }
+
+    pub fn into_query_sm_resp(self) -> Pdu {
+        Pdu::QuerySmResp(self)
     }
 }
 

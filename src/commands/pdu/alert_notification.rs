@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
@@ -77,6 +78,10 @@ impl AlertNotification {
 
     pub fn builder() -> AlertNotificationBuilder {
         AlertNotificationBuilder::new()
+    }
+
+    pub fn into_alert_notification(self) -> Pdu {
+        Pdu::AlertNotification(self)
     }
 }
 

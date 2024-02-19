@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
@@ -210,6 +211,10 @@ impl SubmitSm {
 
     pub fn builder() -> SubmitSmBuilder {
         SubmitSmBuilder::new()
+    }
+
+    pub fn into_submit_sm(self) -> Pdu {
+        Pdu::SubmitSm(self)
     }
 }
 

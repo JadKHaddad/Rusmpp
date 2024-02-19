@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
@@ -210,6 +211,10 @@ impl DeliverSm {
 
     pub fn builder() -> DeliverSmBuilder {
         DeliverSmBuilder::new()
+    }
+
+    pub fn into_deliver_sm(self) -> Pdu {
+        Pdu::DeliverSm(self)
     }
 }
 

@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
@@ -163,6 +164,10 @@ impl ReplaceSm {
 
     pub fn builder() -> ReplaceSmBuilder {
         ReplaceSmBuilder::new()
+    }
+
+    pub fn into_replace_sm(self) -> Pdu {
+        Pdu::ReplaceSm(self)
     }
 }
 

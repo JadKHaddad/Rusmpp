@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
@@ -45,6 +46,18 @@ impl BindResp {
 
     pub fn builder() -> BindRespBuilder {
         BindRespBuilder::new()
+    }
+
+    pub fn into_bind_transmitter_resp(self) -> Pdu {
+        Pdu::BindTransmitterResp(self)
+    }
+
+    pub fn into_bind_receiver_resp(self) -> Pdu {
+        Pdu::BindReceiverResp(self)
+    }
+
+    pub fn into_bind_transceiver_resp(self) -> Pdu {
+        Pdu::BindTransceiverResp(self)
     }
 }
 

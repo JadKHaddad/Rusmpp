@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     ende::{
@@ -122,6 +123,10 @@ impl CancelSm {
 
     pub fn builder() -> CancelSmBuilder {
         CancelSmBuilder::new()
+    }
+
+    pub fn into_cancel_sm(self) -> Pdu {
+        Pdu::CancelSm(self)
     }
 }
 

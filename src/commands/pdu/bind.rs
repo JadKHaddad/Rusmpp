@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     ende::{
@@ -64,6 +65,18 @@ impl Bind {
 
     pub fn builder() -> BindBuilder {
         BindBuilder::new()
+    }
+
+    pub fn into_bind_transmitter(self) -> Pdu {
+        Pdu::BindTransmitter(self)
+    }
+
+    pub fn into_bind_receiver(self) -> Pdu {
+        Pdu::BindReceiver(self)
+    }
+
+    pub fn into_bind_transceiver(self) -> Pdu {
+        Pdu::BindTransceiver(self)
     }
 }
 

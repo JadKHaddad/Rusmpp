@@ -79,11 +79,16 @@ impl Command {
         self.command_id
     }
 
-    pub fn body(&self) -> &Pdu {
+    pub fn pdu(&self) -> &Pdu {
         &self.pdu
     }
 
-    pub fn into_body(self) -> Pdu {
+    pub fn set_pdu(&mut self, pdu: Pdu) {
+        self.command_id = pdu.command_id();
+        self.pdu = pdu;
+    }
+
+    pub fn into_pdu(self) -> Pdu {
         self.pdu
     }
 
@@ -173,9 +178,7 @@ pub struct PduBuilder {
 
 impl PduBuilder {
     pub fn pdu(mut self, pdu: Pdu) -> Self {
-        let command_id = pdu.command_id();
-        self.inner.command_id = command_id;
-        self.inner.pdu = pdu;
+        self.inner.set_pdu(pdu);
         self
     }
 

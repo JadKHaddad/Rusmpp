@@ -24,6 +24,7 @@ use crate::{
     },
 };
 
+// cargo test do_codec --features tokio-codec -- --ignored --nocapture
 #[tokio::test]
 #[ignore = "integration test"]
 async fn do_codec() {

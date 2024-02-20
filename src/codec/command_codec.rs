@@ -12,6 +12,8 @@ use tokio_util::{
 };
 
 /// A codec for encoding and decoding SMPP PDUs.
+///
+/// Only available when the `tokio-codec` feature is enabled.
 pub struct CommandCodec;
 
 impl Encoder<Command> for CommandCodec {

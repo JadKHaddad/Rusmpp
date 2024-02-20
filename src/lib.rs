@@ -1,3 +1,4 @@
+#[cfg(feature = "tokio-codec")]
 pub mod codec;
 pub mod commands;
 pub mod ende;

@@ -173,6 +173,8 @@ pub struct PduBuilder {
 
 impl PduBuilder {
     pub fn pdu(mut self, pdu: Pdu) -> Self {
+        let command_id = pdu.command_id();
+        self.inner.command_id = command_id;
         self.inner.pdu = pdu;
         self
     }

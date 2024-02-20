@@ -201,7 +201,7 @@ impl From<GsmCbs> for PriorityFlagType {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum Ansi136 {
     #[default]
-    Buld = 0,
+    Bulk = 0,
     Noraml = 1,
     Urgent = 2,
     VeryUrgent = 3,
@@ -210,7 +210,7 @@ pub enum Ansi136 {
 impl From<u8> for Ansi136 {
     fn from(value: u8) -> Self {
         match value {
-            0 => Ansi136::Buld,
+            0 => Ansi136::Bulk,
             1 => Ansi136::Noraml,
             2 => Ansi136::Urgent,
             3 => Ansi136::VeryUrgent,
@@ -222,7 +222,7 @@ impl From<u8> for Ansi136 {
 impl From<Ansi136> for u8 {
     fn from(value: Ansi136) -> Self {
         match value {
-            Ansi136::Buld => 0,
+            Ansi136::Bulk => 0,
             Ansi136::Noraml => 1,
             Ansi136::Urgent => 2,
             Ansi136::VeryUrgent => 3,

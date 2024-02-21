@@ -40,22 +40,30 @@ pub struct EmptyOrFullCOctetString<const N: usize> {
 }
 
 impl<const N: usize> EmptyOrFullCOctetString<N> {
-    /// Create a new empty [`EmptyOrFullCOctetString`]
+    /// Create a new empty [`EmptyOrFullCOctetString`].
+    ///
+    /// Equivalent to [`EmptyOrFullCOctetString::empty`].
+    #[inline]
+    pub fn null() -> Self {
+        Self::empty()
+    }
+
+    /// Create a new empty [`EmptyOrFullCOctetString`].
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![0] }
     }
 
-    /// Check if an [`EmptyOrFullCOctetString`] is empty
+    /// Check if an [`EmptyOrFullCOctetString`] is empty.
     ///
     /// An [`EmptyOrFullCOctetString`] is considered empty if it
-    /// contains only a single NULL octet (0x00)
+    /// contains only a single NULL octet (0x00).
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.bytes.len() == 1
     }
 
-    /// Create a new [`EmptyOrFullCOctetString`] from a sequence of bytes
+    /// Create a new [`EmptyOrFullCOctetString`] from a sequence of bytes.
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
@@ -91,19 +99,19 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
         })
     }
 
-    /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`]
+    /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
-    /// Get the bytes of an [`EmptyOrFullCOctetString`]
+    /// Get the bytes of an [`EmptyOrFullCOctetString`].
     #[inline]
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
     }
 
-    /// Convert an [`EmptyOrFullCOctetString`] to a [`Vec`] of [`u8`]
+    /// Convert an [`EmptyOrFullCOctetString`] to a [`Vec`] of [`u8`].
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes

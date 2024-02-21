@@ -18,6 +18,15 @@ pub enum Npi {
     Other(u8),
 }
 
+impl Npi {
+    /// Create a new [`Npi`] with a value of 0.
+    ///
+    /// Equivalent to [`Npi::Unknown`].
+    pub fn null() -> Self {
+        Self::default()
+    }
+}
+
 impl From<u8> for Npi {
     fn from(value: u8) -> Self {
         match value {

@@ -63,9 +63,11 @@ pub struct DeliverSm {
     pub priority_flag: PriorityFlag,
     /// The short message is to be
     /// scheduled by the MC for delivery.
+    ///
     /// Set to NULL for immediate message delivery.
     pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
     /// The validity period of this message.  
+    ///
     /// Set to NULL to request the MC default validity period.
     ///
     /// Note: this is superseded by the qos_time_to_live TLV if

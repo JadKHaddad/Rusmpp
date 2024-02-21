@@ -11,22 +11,30 @@ pub struct NoFixedSizeOctetString {
 }
 
 impl NoFixedSizeOctetString {
-    /// Create a new empty [`NoFixedSizeOctetString`]
+    /// Create a new empty [`NoFixedSizeOctetString`].
+    ///
+    /// Equivalent to [`NoFixedSizeOctetString::empty`].
+    #[inline]
+    pub fn null() -> Self {
+        Self::empty()
+    }
+
+    /// Create a new empty [`NoFixedSizeOctetString`].
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![] }
     }
 
-    /// Check if a [`NoFixedSizeOctetString`] is empty
+    /// Check if a [`NoFixedSizeOctetString`] is empty.
     ///
     /// A [`NoFixedSizeOctetString`] is considered empty if it
-    /// contains no octets
+    /// contains no octets.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
 
-    /// Create a new [`NoFixedSizeOctetString`] from a sequence of bytes
+    /// Create a new [`NoFixedSizeOctetString`] from a sequence of bytes.
     #[inline]
     pub fn new(bytes: impl AsRef<[u8]>) -> Self {
         let bytes = bytes.as_ref();
@@ -36,19 +44,19 @@ impl NoFixedSizeOctetString {
         }
     }
 
-    /// Convert a [`NoFixedSizeOctetString`] to a &[`str`]
+    /// Convert a [`NoFixedSizeOctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes)
     }
 
-    /// Get the bytes of a [`NoFixedSizeOctetString`]
+    /// Get the bytes of a [`NoFixedSizeOctetString`].
     #[inline]
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
     }
 
-    /// Convert a [`NoFixedSizeOctetString`] to a [`Vec`] of [`u8`]
+    /// Convert a [`NoFixedSizeOctetString`] to a [`Vec`] of [`u8`].
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes

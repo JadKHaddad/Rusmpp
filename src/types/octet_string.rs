@@ -45,16 +45,24 @@ pub struct OctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
-    /// Create a new empty [`OctetString`]
+    /// Create a new empty [`OctetString`].
+    ///
+    /// Equivalent to [`OctetString::empty`].
+    #[inline]
+    pub fn null() -> Self {
+        Self::empty()
+    }
+
+    /// Create a new empty [`OctetString`].
     #[inline]
     pub fn empty() -> Self {
         Self { bytes: vec![] }
     }
 
-    /// Check if an [`OctetString`] is empty
+    /// Check if an [`OctetString`] is empty.
     ///
     /// An [`OctetString`] is considered empty if it
-    /// contains no octets
+    /// contains no octets.
     #[inline]
     pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
@@ -82,19 +90,19 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
         })
     }
 
-    /// Convert an [`OctetString`] to a &[`str`]
+    /// Convert an [`OctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
         std::str::from_utf8(&self.bytes)
     }
 
-    /// Get the bytes of an [`OctetString`]
+    /// Get the bytes of an [`OctetString`].
     #[inline]
     pub fn bytes(&self) -> &[u8] {
         &self.bytes
     }
 
-    /// Convert an [`OctetString`] to a [`Vec`] of [`u8`]
+    /// Convert an [`OctetString`] to a [`Vec`] of [`u8`].
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes

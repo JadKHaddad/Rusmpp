@@ -24,6 +24,7 @@ pub enum GenericServiceType<'a> {
     Other(&'a str),
 }
 
+// FIXME: Rework this
 impl<'a> GenericServiceType<'a> {
     pub fn value(&self) -> Result<COctetString<1, 6>, COctetStringError> {
         match self {
@@ -70,6 +71,13 @@ impl ServiceType {
         Ok(Self {
             value: tri!(generic_service_type.value()),
         })
+    }
+
+    /// Create a new [`ServiceType`] with a value of 0.
+    pub fn null() -> Self {
+        Self {
+            value: COctetString::null(),
+        }
     }
 
     pub fn value(&self) -> &COctetString<1, 6> {

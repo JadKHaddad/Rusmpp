@@ -15,6 +15,15 @@ pub enum Ton {
     Other(u8),
 }
 
+impl Ton {
+    /// Create a new [`Ton`] with a value of 0.
+    ///
+    /// Equivalent to [`Ton::Unknown`].
+    pub fn null() -> Self {
+        Self::default()
+    }
+}
+
 impl From<u8> for Ton {
     fn from(value: u8) -> Self {
         match value {

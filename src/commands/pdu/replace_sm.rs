@@ -75,7 +75,7 @@ pub struct ReplaceSm {
     ///
     /// Applications which need to send messages longer than
     /// 255 octets should use the message_payload TLV. In
-    /// this case the sm_length field should be set to zero
+    /// this case the sm_length field should be set to zero.
     short_message: OctetString<0, 255>,
     /// Message replacement request TLVs.
     message_payload: Option<TLV>,

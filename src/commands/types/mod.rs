@@ -16,6 +16,7 @@ pub mod congestion_state;
 pub mod data_coding;
 pub mod delivery_failure_reason;
 pub mod dest_addr_np_resolution;
+pub mod dest_address;
 pub mod display_time;
 pub mod dpf_result;
 pub mod esm_class;

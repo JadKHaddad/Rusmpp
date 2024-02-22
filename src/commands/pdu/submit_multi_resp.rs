@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
+        tlvs::tlv::{message_submission_response::MessageSubmissionResponseTLV, TLV},
         types::unsuccess_sme::UnsuccessSme,
     },
     ende::{
@@ -36,7 +36,7 @@ impl SubmitMultiResp {
     pub fn new(
         message_id: COctetString<1, 65>,
         unsuccess_sme: Vec<UnsuccessSme>,
-        tlvs: Vec<MessageSubmissionRequestTLV>,
+        tlvs: Vec<MessageSubmissionResponseTLV>,
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
@@ -75,14 +75,14 @@ impl SubmitMultiResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionResponseTLV>) {
         self.tlvs = tlvs
             .into_iter()
             .map(|value| value.into())
             .collect::<Vec<TLV>>();
     }
 
-    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
+    pub fn push_tlv(&mut self, tlv: MessageSubmissionResponseTLV) {
         self.tlvs.push(tlv.into());
     }
 
@@ -168,12 +168,12 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionResponseTLV>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: MessageSubmissionRequestTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: MessageSubmissionResponseTLV) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

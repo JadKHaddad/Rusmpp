@@ -53,6 +53,9 @@ pub use submit_sm_resp::SubmitSmResp;
 pub mod submit_multi;
 pub use submit_multi::SubmitMulti;
 
+pub mod submit_multi_resp;
+pub use submit_multi_resp::SubmitMultiResp;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
@@ -145,7 +148,7 @@ pub enum Pdu {
     /// 255 different destinations instead of the default single destination. It provides an efficient
     /// means of sending the same message to several different subscribers at the same time.
     SubmitMulti(SubmitMulti),
-    // SubmitMultiResp(SubmitOrDataSmResp),
+    SubmitMultiResp(SubmitMultiResp),
     // BroadcastSm(BroadcastSm),
     // BroadcastSmResp(BroadcastSmResp),
     // QueryBroadcastSm(QueryBroadcastSm),
@@ -212,7 +215,7 @@ impl HasCommandId for Pdu {
             Pdu::CancelSm(_) => CommandId::CancelSm,
             Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
-            // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
+            Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             // Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             // Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
@@ -255,6 +258,7 @@ impl Length for Pdu {
             Pdu::CancelSm(body) => body.length(),
             Pdu::ReplaceSm(body) => body.length(),
             Pdu::SubmitMulti(body) => body.length(),
+            Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -290,6 +294,7 @@ impl Encode for Pdu {
             Pdu::CancelSm(body) => body.encode_to(writer),
             Pdu::ReplaceSm(body) => body.encode_to(writer),
             Pdu::SubmitMulti(body) => body.encode_to(writer),
+            Pdu::SubmitMultiResp(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -347,6 +352,9 @@ impl DecodeWithKey for Pdu {
             CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
             CommandId::SubmitMulti => {
                 Pdu::SubmitMulti(tri!(SubmitMulti::decode_from(reader, length)))
+            }
+            CommandId::SubmitMultiResp => {
+                Pdu::SubmitMultiResp(tri!(SubmitMultiResp::decode_from(reader, length)))
             }
             CommandId::Unbind => Pdu::Unbind,
             CommandId::UnbindResp => Pdu::UnbindResp,

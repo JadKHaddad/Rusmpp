@@ -42,4 +42,5 @@ pub mod service_type;
 pub mod set_dpf;
 pub mod subaddress;
 pub mod ton;
+pub mod unsuccess_sme;
 pub mod ussd_service_op;

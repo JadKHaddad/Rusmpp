@@ -1,3 +1,4 @@
+use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
@@ -21,8 +22,6 @@ use crate::{
         octet_string::OctetString, u8::EndeU8,
     },
 };
-
-use super::Pdu;
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct SubmitMulti {

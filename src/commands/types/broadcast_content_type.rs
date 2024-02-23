@@ -202,7 +202,7 @@ impl From<EncodingContentType> for u16 {
 
 impl EndeU16 for EncodingContentType {}
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,
     pub encoding_content_type: EncodingContentType,

@@ -19,7 +19,7 @@ pub struct BindResp {
     ///
     /// Identifies the MC to the ESME.
     pub system_id: COctetString<1, 16>,
-    /// SMPP version supported by MC.
+    /// SMPP version supported by MC. [`TLVValue::ScInterfaceVersion`].
     sc_interface_version: Option<TLV>,
 }
 
@@ -31,7 +31,7 @@ impl BindResp {
         Self {
             system_id,
             sc_interface_version: sc_interface_version
-                .map(|v| TLV::new(TLVValue::ScInterfaceVersion(v))),
+                .map(|value| TLV::new(TLVValue::ScInterfaceVersion(value))),
         }
     }
 
@@ -41,7 +41,7 @@ impl BindResp {
 
     pub fn set_sc_interface_version(&mut self, sc_interface_version: Option<InterfaceVersion>) {
         self.sc_interface_version =
-            sc_interface_version.map(|v| TLV::new(TLVValue::ScInterfaceVersion(v)));
+            sc_interface_version.map(|value| TLV::new(TLVValue::ScInterfaceVersion(value)));
     }
 
     pub fn builder() -> BindRespBuilder {

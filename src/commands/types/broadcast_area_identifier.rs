@@ -42,7 +42,12 @@ impl From<BroadcastAreaFormat> for u8 {
 
 impl EndeU8 for BroadcastAreaFormat {}
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// Identifies the target Broadcast Area(s) for the
+/// requested message broadcast.
+///
+/// This parameter can be included a number of times
+/// for multiple target Broadcast Areas(s).
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,
     pub area: OctetString<0, 100>,

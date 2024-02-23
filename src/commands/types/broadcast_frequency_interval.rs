@@ -57,7 +57,9 @@ impl From<UnitOfTime> for u8 {
 
 impl EndeU8 for UnitOfTime {}
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+/// This field indicates the frequency interval at which
+/// the broadcasts of a message should be repeated.
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct BroadcastFrequencyInterval {
     pub unit: UnitOfTime,
     pub value: u16,

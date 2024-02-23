@@ -38,10 +38,16 @@ pub enum TLVValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
     AlertOnMessageDelivery(AlertOnMsgDelivery),
     BillingIdentification(OctetString<0, 1024>),
+    /// Identifies the target Broadcast Area(s) for the
+    /// requested message broadcast.
+    ///
+    /// This parameter can be included a number of times
+    /// for multiple target Broadcast Areas(s).
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
     BroadcastAreaSuccess(BroadcastAreaSuccess),
     BroadcastContentTypeInfo(OctetString<0, 255>),
     BroadcastChannelIndicator(BroadcastChannelIndicator),
+    /// Specifies the content type of the message.
     BroadcastContentType(BroadcastContentType),
     /// Absolute time is formatted as a 16-character string (encoded as a 17-octet C-octet String)
     /// “YYMMDDhhmmsstnnp” where:
@@ -59,8 +65,12 @@ pub enum TLVValue {
     /// | ‘p’    | “+” Local time is in quarter hours advanced in relation to UTC time. “-” Local time is in quarter hours retarded in relation to UTC time. |
     BroadcastEndTime(OctetString<0, 17>),
     BroadcastErrorStatus(CommandStatus),
+    /// This field indicates the frequency interval at which
+    /// the broadcasts of a message should be repeated.
     BroadcastFrequencyInterval(BroadcastFrequencyInterval),
     BroadcastMessageClass(BroadcastMessageClass),
+    /// This field indicates the number of repeated
+    /// broadcasts of a message requested by the submitter.
     BroadcastRepNum(u16),
     BroadcastServiceGroup(OctetString<1, 255>),
     CallbackNum(OctetString<4, 19>),

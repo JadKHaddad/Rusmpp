@@ -1,3 +1,5 @@
+#![forbid(unsafe_code)]
+// #![deny(missing_docs)]
 #[cfg(feature = "tokio-codec")]
 pub mod codec;
 pub mod commands;

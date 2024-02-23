@@ -59,6 +59,9 @@ pub use submit_multi_resp::SubmitMultiResp;
 pub mod broadcast_sm;
 pub use broadcast_sm::BroadcastSm;
 
+pub mod broadcast_sm_resp;
+pub use broadcast_sm_resp::BroadcastSmResp;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
@@ -155,7 +158,7 @@ pub enum Pdu {
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
     BroadcastSm(BroadcastSm),
-    // BroadcastSmResp(BroadcastSmResp),
+    BroadcastSmResp(BroadcastSmResp),
     // QueryBroadcastSm(QueryBroadcastSm),
     // QueryBroadcastSmResp(QueryBroadcastSmResp),
     // CancelBroadcastSm(CancelBroadcastSm),
@@ -222,7 +225,7 @@ impl HasCommandId for Pdu {
             Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
             Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
-            // Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
+            Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
             // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
             // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
@@ -265,6 +268,7 @@ impl Length for Pdu {
             Pdu::SubmitMulti(body) => body.length(),
             Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
+            Pdu::BroadcastSmResp(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -302,6 +306,7 @@ impl Encode for Pdu {
             Pdu::SubmitMulti(body) => body.encode_to(writer),
             Pdu::SubmitMultiResp(body) => body.encode_to(writer),
             Pdu::BroadcastSm(body) => body.encode_to(writer),
+            Pdu::BroadcastSmResp(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -365,6 +370,9 @@ impl DecodeWithKey for Pdu {
             }
             CommandId::BroadcastSm => {
                 Pdu::BroadcastSm(tri!(BroadcastSm::decode_from(reader, length)))
+            }
+            CommandId::BroadcastSmResp => {
+                Pdu::BroadcastSmResp(tri!(BroadcastSmResp::decode_from(reader, length)))
             }
             CommandId::Unbind => Pdu::Unbind,
             CommandId::UnbindResp => Pdu::UnbindResp,

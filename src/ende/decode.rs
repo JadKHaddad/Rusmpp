@@ -4,7 +4,7 @@ use crate::tri;
 
 pub use self::error::*;
 
-pub(crate) trait Decode {
+pub trait Decode {
     /// Decode a value from a reader
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
@@ -55,7 +55,7 @@ pub(crate) trait Decode {
     }
 }
 
-pub(crate) trait DecodeWithLength {
+pub trait DecodeWithLength {
     /// Decode a value from a reader, with a specified length
     fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
@@ -71,7 +71,7 @@ pub(crate) trait DecodeWithLength {
     }
 }
 
-pub(crate) trait DecodeWithKey {
+pub trait DecodeWithKey {
     type Key;
 
     /// Decode a value from a reader, using a key to determine the type

@@ -33,7 +33,7 @@ impl std::error::Error for EncodeError {
     }
 }
 
-pub(crate) trait Encode: Length {
+pub trait Encode: Length {
     /// Encode a value to a writer
     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError>;
 

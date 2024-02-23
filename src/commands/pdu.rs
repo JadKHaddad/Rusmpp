@@ -62,6 +62,9 @@ pub use broadcast_sm::BroadcastSm;
 pub mod broadcast_sm_resp;
 pub use broadcast_sm_resp::BroadcastSmResp;
 
+pub mod query_broadcast_sm;
+pub use query_broadcast_sm::QueryBroadcastSm;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
@@ -159,7 +162,20 @@ pub enum Pdu {
     /// broadcast to a specified geographical area or set of geographical areas.
     BroadcastSm(BroadcastSm),
     BroadcastSmResp(BroadcastSmResp),
-    // QueryBroadcastSm(QueryBroadcastSm),
+    /// This command is issued by the ESME to query the status of a previously submitted
+    /// broadcast message. The message can be queried either on the basis of the Message Center
+    /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
+    /// assigned message reference number user_message_reference as indicated in the
+    /// broadcast_sm operation associated with that message.
+    ///
+    /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
+    /// reference user_message_reference this should be qualified within the service by the
+    /// system_id and/or the system_type associated with the query_broadcast_sm operation
+    /// (specified in the bind operation). If more than one message with the same
+    /// user_message_reference value is present in the Message Center, the details of the most
+    /// recently submitted message with the specified user_message_reference value will be
+    /// returned in the query_broadcast_sm_resp.
+    QueryBroadcastSm(QueryBroadcastSm),
     // QueryBroadcastSmResp(QueryBroadcastSmResp),
     // CancelBroadcastSm(CancelBroadcastSm),
     /// This PDU can be sent by the ESME or MC as a means of
@@ -226,7 +242,7 @@ impl HasCommandId for Pdu {
             Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
-            // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
+            Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
             // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
             // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
@@ -269,6 +285,7 @@ impl Length for Pdu {
             Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
+            Pdu::QueryBroadcastSm(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -307,6 +324,7 @@ impl Encode for Pdu {
             Pdu::SubmitMultiResp(body) => body.encode_to(writer),
             Pdu::BroadcastSm(body) => body.encode_to(writer),
             Pdu::BroadcastSmResp(body) => body.encode_to(writer),
+            Pdu::QueryBroadcastSm(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -373,6 +391,9 @@ impl DecodeWithKey for Pdu {
             }
             CommandId::BroadcastSmResp => {
                 Pdu::BroadcastSmResp(tri!(BroadcastSmResp::decode_from(reader, length)))
+            }
+            CommandId::QueryBroadcastSm => {
+                Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode_from(reader, length)))
             }
             CommandId::Unbind => Pdu::Unbind,
             CommandId::UnbindResp => Pdu::UnbindResp,

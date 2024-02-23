@@ -19,7 +19,9 @@ pub struct BindResp {
     ///
     /// Identifies the MC to the ESME.
     pub system_id: COctetString<1, 16>,
-    /// SMPP version supported by MC. [`TLVValue::ScInterfaceVersion`].
+    /// [`TLVValue::ScInterfaceVersion`].
+    ///
+    /// SMPP version supported by MC.
     sc_interface_version: Option<TLV>,
 }
 

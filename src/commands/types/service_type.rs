@@ -5,51 +5,81 @@ use crate::{
         length::Length,
     },
     tri,
-    types::c_octet_string::{COctetString, Error as COctetStringError},
+    types::c_octet_string::COctetString,
 };
-use std::str::FromStr;
 
+/// Helper for creating a [`ServiceType`] with predefined values.
+///
+/// # Example
+/// ```rust
+/// use rusmpp::commands::types::service_type::{GenericServiceType, ServiceType};
+///
+/// let service_type = ServiceType::new(GenericServiceType::CellularMessaging.into());
+/// assert_eq!(service_type.value().bytes(), b"CMT\0");
+/// assert_eq!(service_type.value().to_str(), Ok("CMT"));
+///
+/// let generic_service_type = GenericServiceType::VoiceMailAlerting;
+/// let service_type: ServiceType = generic_service_type.into();
+/// assert_eq!(service_type.value().bytes(), b"VMA\0");
+/// assert_eq!(service_type.value().to_str(), Ok("VMA"));
+/// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum GenericServiceType<'a> {
+pub enum GenericServiceType {
+    /// Empty value
     #[default]
     Default,
+    /// CMT
     CellularMessaging,
+    /// CPT
     CellularPaging,
+    /// VMN
     VoiceMailNotification,
+    /// VMA
     VoiceMailAlerting,
+    /// WAP
     WirelessApplicationProtocol,
+    /// USSD
     UnstructuredSupplementaryServicesData,
+    /// CBS
     CellBroadcastService,
+    /// GUTS
     GenericUDPTransportService,
-    Other(&'a str),
 }
 
-// FIXME: Rework this
-impl<'a> GenericServiceType<'a> {
-    pub fn value(&self) -> Result<COctetString<1, 6>, COctetStringError> {
-        match self {
-            GenericServiceType::Default => COctetString::from_str(""),
-            GenericServiceType::CellularMessaging => COctetString::from_str("CMT"),
-            GenericServiceType::CellularPaging => COctetString::from_str("CPT"),
-            GenericServiceType::VoiceMailNotification => COctetString::from_str("VMN"),
-            GenericServiceType::VoiceMailAlerting => COctetString::from_str("VMA"),
-            GenericServiceType::WirelessApplicationProtocol => COctetString::from_str("WAP"),
-            GenericServiceType::UnstructuredSupplementaryServicesData => {
-                COctetString::from_str("USSD")
+impl From<GenericServiceType> for COctetString<1, 6> {
+    fn from(value: GenericServiceType) -> Self {
+        match value {
+            GenericServiceType::Default => COctetString::null(),
+            GenericServiceType::CellularMessaging => COctetString::new_unchecked(b"CMT\0"),
+            GenericServiceType::CellularPaging => COctetString::new_unchecked(b"CPT\0"),
+            GenericServiceType::VoiceMailNotification => COctetString::new_unchecked(b"VMN\0"),
+            GenericServiceType::VoiceMailAlerting => COctetString::new_unchecked(b"VMA\0"),
+            GenericServiceType::WirelessApplicationProtocol => {
+                COctetString::new_unchecked(b"WAP\0")
             }
-            GenericServiceType::CellBroadcastService => COctetString::from_str("CBS"),
-            GenericServiceType::GenericUDPTransportService => COctetString::from_str("GUTS"),
-            GenericServiceType::Other(value) => COctetString::from_str(value),
+            GenericServiceType::UnstructuredSupplementaryServicesData => {
+                COctetString::new_unchecked(b"USSD\0")
+            }
+            GenericServiceType::CellBroadcastService => COctetString::new_unchecked(b"CBS\0"),
+            GenericServiceType::GenericUDPTransportService => {
+                COctetString::new_unchecked(b"GUTS\0")
+            }
         }
+    }
+}
+
+impl From<GenericServiceType> for ServiceType {
+    fn from(value: GenericServiceType) -> Self {
+        ServiceType::new(value.into())
     }
 }
 
 /// The service_type parameter can be used to indicate the SMS Application service associated
 /// with the message. Specifying the service_type allows the ESME to:
 ///
-///    • Avail of enhanced messaging services such as replace_if_present by service type
-///      (generic to all network types).
-///    • Control the teleservice used on the air interface (e.g. ANSI-136/TDMA, IS-95/CDMA).
+/// * Avail of enhanced messaging services such as replace_if_present by service type
+///   (generic to all network types).
+/// * Control the teleservice used on the air interface (e.g. ANSI-136/TDMA, IS-95/CDMA).
 ///
 /// MCs may implicitly associate a ‘replace if present’ function from the indicated service_type in
 /// a message submission operation, i.e., the MC will always replace an existing message
@@ -60,17 +90,16 @@ impl<'a> GenericServiceType<'a> {
 ///
 /// Note: In the case of Cell Broadcast Service replace functionality by service type is not
 /// supported.
-
+///
+/// See [`GenericServiceType`].
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct ServiceType {
     value: COctetString<1, 6>,
 }
 
 impl ServiceType {
-    pub fn new(generic_service_type: GenericServiceType<'_>) -> Result<Self, COctetStringError> {
-        Ok(Self {
-            value: tri!(generic_service_type.value()),
-        })
+    pub fn new(value: COctetString<1, 6>) -> Self {
+        Self { value }
     }
 
     /// Create a new [`ServiceType`] with a value of 0.

@@ -352,7 +352,6 @@ impl Encode for TLVValue {
     }
 }
 
-// TODO
 impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 

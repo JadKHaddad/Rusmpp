@@ -123,6 +123,14 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
         })
     }
 
+    /// Create a new [`COctetString`] from a sequence of bytes without checking the length and null termination.
+    #[inline]
+    pub(crate) fn new_unchecked(bytes: impl AsRef<[u8]>) -> Self {
+        Self {
+            bytes: bytes.as_ref().to_vec(),
+        }
+    }
+
     /// Convert a [`COctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {

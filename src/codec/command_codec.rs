@@ -14,6 +14,51 @@ use tokio_util::{
 /// A codec for encoding and decoding SMPP PDUs.
 ///
 /// Only available when the `tokio-codec` feature is enabled.
+///
+/// # Usage
+/// ```rust
+/// use futures::{SinkExt, StreamExt};
+/// use tokio::net::TcpStream;
+/// use tokio_util::codec::{FramedRead, FramedWrite};
+/// use rusmpp::{
+///    codec::command_codec::CommandCodec,
+///    commands::{
+///        command::Command,
+///        pdu::{Pdu},
+///        types::{
+///           command_status::CommandStatus, command_id::CommandId,
+///          },
+///     },
+/// };
+///
+/// #[tokio::main]
+/// async fn main() {
+///     let stream = TcpStream::connect("34.242.18.250:2775")
+///         .await
+///         .expect("Failed to connect");
+///
+///     let (reader, writer) = stream.into_split();
+///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
+///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///
+///     let enquire_link_command = Command::builder()
+///         .command_status(CommandStatus::EsmeRok)
+///         .sequence_number(0)
+///         .pdu(Pdu::EnquireLink)
+///         .build();
+///
+///     framed_write
+///         .send(enquire_link_command)
+///         .await
+///         .expect("Failed to send PDU");
+///
+///     while let Some(Ok(command)) = framed_read.next().await {
+///         if let CommandId::EnquireLinkResp = command.command_id() {
+///             break;
+///         }
+///     }
+/// }
+/// ```
 pub struct CommandCodec;
 
 impl Encoder<Command> for CommandCodec {

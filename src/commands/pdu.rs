@@ -65,6 +65,12 @@ pub use broadcast_sm_resp::BroadcastSmResp;
 pub mod query_broadcast_sm;
 pub use query_broadcast_sm::QueryBroadcastSm;
 
+pub mod query_broadcast_sm_resp;
+pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
+
+pub mod cancel_broadcast_sm;
+pub use cancel_broadcast_sm::CancelBroadcastSm;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
@@ -176,8 +182,25 @@ pub enum Pdu {
     /// recently submitted message with the specified user_message_reference value will be
     /// returned in the query_broadcast_sm_resp.
     QueryBroadcastSm(QueryBroadcastSm),
-    // QueryBroadcastSmResp(QueryBroadcastSmResp),
-    // CancelBroadcastSm(CancelBroadcastSm),
+    QueryBroadcastSmResp(QueryBroadcastSmResp),
+    /// This command is issued by the ESME to cancel a broadcast message which has been
+    /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
+    /// pending delivery.  
+    ///
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
+    ///
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.
+    ///
+    /// If the user_message_reference is set to the ESME-assigned reference of a previously
+    /// submitted message, then provided the source address supplied by the ESME matches that of
+    /// the stored message, that message will be cancelled.
+    ///
+    /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
+    /// address in the cancel_broadcast_sm command should also be NULL.
+    CancelBroadcastSm(CancelBroadcastSm),
     /// This PDU can be sent by the ESME or MC as a means of
     /// initiating the termination of a SMPP session.
     Unbind,
@@ -243,11 +266,11 @@ impl HasCommandId for Pdu {
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
-            // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
-            // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
+            Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
-            // These are empty bodies
-            // The reason they exist it to force the creation of a pdu with the correct command_id using a body
+            // These are empty pdus.
+            // The reason they exist it to force the creation of a command with the correct command_id using a pdu.
             Pdu::Unbind => CommandId::Unbind,
             Pdu::UnbindResp => CommandId::UnbindResp,
             Pdu::EnquireLink => CommandId::EnquireLink,
@@ -286,6 +309,8 @@ impl Length for Pdu {
             Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
             Pdu::QueryBroadcastSm(body) => body.length(),
+            Pdu::QueryBroadcastSmResp(body) => body.length(),
+            Pdu::CancelBroadcastSm(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -325,6 +350,8 @@ impl Encode for Pdu {
             Pdu::BroadcastSm(body) => body.encode_to(writer),
             Pdu::BroadcastSmResp(body) => body.encode_to(writer),
             Pdu::QueryBroadcastSm(body) => body.encode_to(writer),
+            Pdu::QueryBroadcastSmResp(body) => body.encode_to(writer),
+            Pdu::CancelBroadcastSm(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -395,6 +422,12 @@ impl DecodeWithKey for Pdu {
             CommandId::QueryBroadcastSm => {
                 Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode_from(reader, length)))
             }
+            CommandId::QueryBroadcastSmResp => {
+                Pdu::QueryBroadcastSmResp(tri!(QueryBroadcastSmResp::decode_from(reader, length)))
+            }
+            CommandId::CancelBroadcastSm => {
+                Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
+            }
             CommandId::Unbind => Pdu::Unbind,
             CommandId::UnbindResp => Pdu::UnbindResp,
             CommandId::EnquireLink => Pdu::EnquireLink,
@@ -407,7 +440,6 @@ impl DecodeWithKey for Pdu {
                 command_id: key,
                 body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),
             },
-            _ => unimplemented!(),
         };
 
         Ok(body)

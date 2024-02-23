@@ -38,12 +38,17 @@ pub enum TLVValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
     AlertOnMessageDelivery(AlertOnMsgDelivery),
     BillingIdentification(OctetString<0, 1024>),
-    /// Identifies the target Broadcast Area(s) for the
-    /// requested message broadcast.
+    /// Identifies one or more target Broadcast Area(s) for which the
+    /// status information applies.
     ///
-    /// This parameter can be included a number of times
-    /// for multiple target Broadcast Areas(s).
+    /// The number of instances of this parameter will be exactly equal
+    /// to the number of occurrences of the broadcast_area_identifiers
+    /// parameter in the corresponding broadcast_sm.
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    /// The success rate indicator, defined as the ratio of the
+    /// number of BTSs that accepted the message and the total
+    /// number of BTSs that should have accepted the message, for
+    /// a particular broadcast_area_identifier.
     BroadcastAreaSuccess(BroadcastAreaSuccess),
     BroadcastContentTypeInfo(OctetString<0, 255>),
     BroadcastChannelIndicator(BroadcastChannelIndicator),
@@ -95,6 +100,7 @@ pub enum TLVValue {
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
     MessagePayload(NoFixedSizeOctetString),
+    /// This field indicates the current status of the broadcast message.
     MessageState(MessageState),
     MoreMessagesToSend(MoreMessagesToSend),
     MsAvailabilityStatus(MsAvailabilityStatus),

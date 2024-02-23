@@ -1,5 +1,6 @@
 use crate::types::u8::EndeU8;
 
+/// This field indicates the current status of the broadcast message.
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum MessageState {

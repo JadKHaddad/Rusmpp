@@ -202,6 +202,7 @@ impl From<EncodingContentType> for u16 {
 
 impl EndeU16 for EncodingContentType {}
 
+/// Specifies the content type of the message.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,

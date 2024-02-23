@@ -1,4 +1,9 @@
 use crate::types::u8::EndeU8;
+
+/// The success rate indicator, defined as the ratio of the
+/// number of BTSs that accepted the message and the total
+/// number of BTSs that should have accepted the message, for
+/// a particular broadcast_area_identifier.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum BroadcastAreaSuccess {
     #[default]

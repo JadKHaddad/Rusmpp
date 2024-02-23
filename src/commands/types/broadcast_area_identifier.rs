@@ -42,11 +42,12 @@ impl From<BroadcastAreaFormat> for u8 {
 
 impl EndeU8 for BroadcastAreaFormat {}
 
-/// Identifies the target Broadcast Area(s) for the
-/// requested message broadcast.
+/// Identifies one or more target Broadcast Area(s) for which the
+/// status information applies.
 ///
-/// This parameter can be included a number of times
-/// for multiple target Broadcast Areas(s).
+/// The number of instances of this parameter will be exactly equal
+/// to the number of occurrences of the broadcast_area_identifiers
+/// parameter in the corresponding broadcast_sm.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,

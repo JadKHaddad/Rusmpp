@@ -99,3 +99,13 @@ impl OutbindBuilder {
         self.inner
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<Outbind>();
+    }
+}

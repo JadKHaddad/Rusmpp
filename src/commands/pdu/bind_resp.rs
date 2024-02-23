@@ -123,3 +123,13 @@ impl BindRespBuilder {
         self.inner
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode_with_length::<BindResp>();
+    }
+}

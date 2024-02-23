@@ -60,6 +60,7 @@ pub enum MessagingMode {
 impl From<u8> for MessagingMode {
     fn from(value: u8) -> Self {
         match value {
+            0b00000000 => MessagingMode::Default,
             0b00000001 => MessagingMode::Datagram,
             0b00000010 => MessagingMode::Forward,
             0b00000011 => MessagingMode::StoreAndForward,
@@ -93,6 +94,7 @@ pub enum MessageType {
 impl From<u8> for MessageType {
     fn from(value: u8) -> Self {
         match value {
+            0b00000000 => MessageType::Default,
             0b00000100 => MessageType::ShortMessageContainsMCDeliveryReceip,
             0b00001000 => MessageType::ShortMessageContainsIntermediateDeliveryNotification,
             _ => MessageType::Other(value),
@@ -157,6 +159,7 @@ pub enum GsmFeatures {
 impl From<u8> for GsmFeatures {
     fn from(value: u8) -> Self {
         match value {
+            0b00000000 => GsmFeatures::NotSelected,
             0b01000000 => GsmFeatures::UDHIIndicator,
             0b10000000 => GsmFeatures::SetReplyPath,
             0b11000000 => GsmFeatures::SetUDHIAndReplyPath,

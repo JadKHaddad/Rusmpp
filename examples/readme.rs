@@ -1,8 +1,10 @@
-# Rusmpp
+//! Run with
+//!
+//! ```not_rust
+//! cargo run --example readme --features tokio-codec
+//! ```
+//!
 
-Speak SMPP like english.
-
-```rust
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     commands::types::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
@@ -51,5 +53,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-
-```

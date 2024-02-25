@@ -17,7 +17,7 @@ pub struct UnsuccessSme {
     pub dest_addr_npi: Npi,
     /// Destination Address of SME.
     pub destination_addr: COctetString<1, 21>,
-    /// Indicates the success or failure of the [`Pdu::SubmitMulti`](enum@crate::commands::pdu::Pdu::SubmitMulti) request to this SME address.
+    /// Indicates the success or failure of the [`Pdu::SubmitMulti`](type@crate::commands::pdu::Pdu::SubmitMulti) request to this SME address.
     pub error_status_code: CommandStatus,
 }
 

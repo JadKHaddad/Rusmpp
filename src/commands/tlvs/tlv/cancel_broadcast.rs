@@ -71,6 +71,12 @@ impl From<CancelBroadcastTLVTag> for TLV {
     }
 }
 
+impl From<CancelBroadcastTLVValue> for CancelBroadcastTLV {
+    fn from(value: CancelBroadcastTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<CancelBroadcastTLVValue> for TLV {
     fn from(value: CancelBroadcastTLVValue) -> Self {
         let value = TLVValue::from(value);

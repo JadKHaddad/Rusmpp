@@ -84,6 +84,12 @@ impl From<MessageSubmissionResponseTLVTag> for TLV {
     }
 }
 
+impl From<MessageSubmissionResponseTLVValue> for MessageSubmissionResponseTLV {
+    fn from(value: MessageSubmissionResponseTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<MessageSubmissionResponseTLVValue> for TLV {
     fn from(value: MessageSubmissionResponseTLVValue) -> Self {
         let value = TLVValue::from(value);

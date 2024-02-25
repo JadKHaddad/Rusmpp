@@ -66,6 +66,12 @@ impl From<BroadcastResponseTLVTag> for TLV {
     }
 }
 
+impl From<BroadcastResponseTLVValue> for BroadcastResponseTLV {
+    fn from(value: BroadcastResponseTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<BroadcastResponseTLVValue> for TLV {
     fn from(value: BroadcastResponseTLVValue) -> Self {
         let value = TLVValue::from(value);

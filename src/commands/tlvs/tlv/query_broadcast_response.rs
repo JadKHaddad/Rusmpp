@@ -66,6 +66,12 @@ impl From<QueryBroadcastResponseTLVTag> for TLV {
     }
 }
 
+impl From<QueryBroadcastResponseTLVValue> for QueryBroadcastResponseTLV {
+    fn from(value: QueryBroadcastResponseTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<QueryBroadcastResponseTLVValue> for TLV {
     fn from(value: QueryBroadcastResponseTLVValue) -> Self {
         let value = TLVValue::from(value);

@@ -170,6 +170,12 @@ impl From<BroadcastRequestTLVTag> for TLV {
     }
 }
 
+impl From<BroadcastRequestTLVValue> for BroadcastRequestTLV {
+    fn from(value: BroadcastRequestTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<BroadcastRequestTLVValue> for TLV {
     fn from(value: BroadcastRequestTLVValue) -> Self {
         let value = TLVValue::from(value);

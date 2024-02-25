@@ -236,6 +236,12 @@ impl From<MessageDeliveryRequestTLVTag> for TLV {
     }
 }
 
+impl From<MessageDeliveryRequestTLVValue> for MessageDeliveryRequestTLV {
+    fn from(value: MessageDeliveryRequestTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<MessageDeliveryRequestTLVValue> for TLV {
     fn from(value: MessageDeliveryRequestTLVValue) -> Self {
         let value = TLVValue::from(value);

@@ -310,6 +310,12 @@ impl From<MessageSubmissionRequestTLVTag> for TLV {
     }
 }
 
+impl From<MessageSubmissionRequestTLVValue> for MessageSubmissionRequestTLV {
+    fn from(value: MessageSubmissionRequestTLVValue) -> Self {
+        Self::new(value)
+    }
+}
+
 impl From<MessageSubmissionRequestTLVValue> for TLV {
     fn from(value: MessageSubmissionRequestTLVValue) -> Self {
         let value = TLVValue::from(value);

@@ -101,3 +101,16 @@ pub trait DecodeWithKey {
         Self::decode_from(key, reader, length).map(Some)
     }
 }
+
+pub trait DecodeWithKeyOptional {
+    type Key;
+
+    /// Decode a value from a reader, using a key to determine the type
+    fn decode_from<R: std::io::Read>(
+        key: Self::Key,
+        reader: &mut R,
+        length: usize,
+    ) -> Result<Option<Self>, DecodeError>
+    where
+        Self: Sized;
+}

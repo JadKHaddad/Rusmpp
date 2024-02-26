@@ -41,7 +41,7 @@ use super::{
 };
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
+        decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -139,9 +139,7 @@ impl DecodeWithLength for Command {
             command_id.length() + command_status.length() + sequence_number.length(),
         );
 
-        let pdu = tri!(Pdu::optional_length_checked_decode_from(
-            command_id, reader, pdu_length
-        ));
+        let pdu = tri!(Pdu::decode_from(command_id, reader, pdu_length));
 
         Ok(Self {
             command_id,

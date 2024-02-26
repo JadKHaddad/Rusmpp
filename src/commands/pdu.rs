@@ -3,7 +3,7 @@
 use super::types::command_id::{CommandId, HasCommandId};
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
+        decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
         encode::{Encode, EncodeError},
         length::Length,
     },
@@ -271,8 +271,6 @@ impl HasCommandId for Pdu {
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty pdus.
             // The reason they exist it to force the creation of a command with the correct command_id using a pdu.
-            // Do not check for these in an incoming pdu for they will not be present.
-            // Check for the command_id instead.
             Pdu::Unbind => CommandId::Unbind,
             Pdu::UnbindResp => CommandId::UnbindResp,
             Pdu::EnquireLink => CommandId::EnquireLink,
@@ -367,17 +365,33 @@ impl Encode for Pdu {
     }
 }
 
-impl DecodeWithKey for Pdu {
+impl DecodeWithKeyOptional for Pdu {
     type Key = CommandId;
 
     fn decode_from<R: std::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,
-    ) -> Result<Self, DecodeError>
+    ) -> Result<Option<Self>, DecodeError>
     where
         Self: Sized,
     {
+        if length == 0 {
+            let body = match key {
+                CommandId::Unbind => Pdu::Unbind,
+                CommandId::UnbindResp => Pdu::UnbindResp,
+                CommandId::EnquireLink => Pdu::EnquireLink,
+                CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
+                CommandId::GenericNack => Pdu::GenericNack,
+                CommandId::CancelSmResp => Pdu::CancelSmResp,
+                CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
+                CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
+                _ => return Ok(None),
+            };
+
+            return Ok(Some(body));
+        }
+
         let body = match key {
             CommandId::BindTransmitter => Pdu::BindTransmitter(tri!(Bind::decode_from(reader))),
             CommandId::BindTransmitterResp => {
@@ -430,20 +444,21 @@ impl DecodeWithKey for Pdu {
             CommandId::CancelBroadcastSm => {
                 Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
             }
-            CommandId::Unbind => Pdu::Unbind,
-            CommandId::UnbindResp => Pdu::UnbindResp,
-            CommandId::EnquireLink => Pdu::EnquireLink,
-            CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
-            CommandId::GenericNack => Pdu::GenericNack,
-            CommandId::CancelSmResp => Pdu::CancelSmResp,
-            CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
-            CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
+            // Length is not 0 and still have to decode the body. This is an invalid PDU.
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
                 body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),
             },
         };
 
-        Ok(body)
+        Ok(Some(body))
     }
 }

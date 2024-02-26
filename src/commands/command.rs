@@ -60,7 +60,9 @@ pub struct Command {
     /// and response PDUs based on matching sequence number.
     pub sequence_number: u32,
     /// See [`Pdu`]
-    pdu: Pdu,
+    ///
+    /// Optional because incoming commands may not have a PDU.
+    pdu: Option<Pdu>,
 }
 
 impl Command {
@@ -71,7 +73,7 @@ impl Command {
             command_id,
             command_status,
             sequence_number,
-            pdu,
+            pdu: Some(pdu),
         }
     }
 
@@ -79,17 +81,17 @@ impl Command {
         self.command_id
     }
 
-    pub fn pdu(&self) -> &Pdu {
-        &self.pdu
+    pub fn pdu(&self) -> Option<&Pdu> {
+        self.pdu.as_ref()
+    }
+
+    pub fn take_pdu(&mut self) -> Option<Pdu> {
+        self.pdu.take()
     }
 
     pub fn set_pdu(&mut self, pdu: Pdu) {
         self.command_id = pdu.command_id();
-        self.pdu = pdu;
-    }
-
-    pub fn into_pdu(self) -> Pdu {
-        self.pdu
+        self.pdu = Some(pdu);
     }
 
     pub fn builder() -> CommandStatusBuilder {
@@ -98,7 +100,7 @@ impl Command {
                 command_id: CommandId::BindTransmitter,
                 command_status: CommandStatus::EsmeRok,
                 sequence_number: 0,
-                pdu: Pdu::BindTransmitter(Default::default()),
+                pdu: None,
             },
         }
     }
@@ -137,7 +139,9 @@ impl DecodeWithLength for Command {
             command_id.length() + command_status.length() + sequence_number.length(),
         );
 
-        let pdu = tri!(Pdu::decode_from(command_id, reader, pdu_length));
+        let pdu = tri!(Pdu::optional_length_checked_decode_from(
+            command_id, reader, pdu_length
+        ));
 
         Ok(Self {
             command_id,

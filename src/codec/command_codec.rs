@@ -41,12 +41,8 @@ use tokio_util::{
 ///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
 ///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
 ///
-///     let enquire_link_command = Command::builder()
-///         .command_status(CommandStatus::EsmeRok)
-///         .sequence_number(0)
-///         .pdu(Pdu::EnquireLink)
-///         .build();
-///
+///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+///         
 ///     framed_write
 ///         .send(enquire_link_command)
 ///         .await
@@ -97,6 +93,7 @@ impl Decoder for CommandCodec {
         }
 
         let pdu_len = command_length - 4;
+
         let command = Command::decode_from_slice(&src[4..command_length], pdu_len)?;
 
         src.advance(command_length);

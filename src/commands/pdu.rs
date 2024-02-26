@@ -271,6 +271,8 @@ impl HasCommandId for Pdu {
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty pdus.
             // The reason they exist it to force the creation of a command with the correct command_id using a pdu.
+            // Do not check for these in an incoming pdu for they will not be present.
+            // Check for the command_id instead.
             Pdu::Unbind => CommandId::Unbind,
             Pdu::UnbindResp => CommandId::UnbindResp,
             Pdu::EnquireLink => CommandId::EnquireLink,

@@ -9,7 +9,7 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-rusmpp = { path = "../rusmpp" }
+rusmpp = { path = "../" }
 
 [workspace]
 members = ["."]
@@ -18,7 +18,7 @@ members = ["."]
 debug = 1
 
 [[bin]]
-name = "io_read"
-path = "fuzz_targets/io_read.rs"
+name = "decode"
+path = "fuzz_targets/decode.rs"
 test = false
 doc = false

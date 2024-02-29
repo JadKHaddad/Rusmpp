@@ -1,2 +1,0 @@
-mod melroselabs_smsc_simulator;
-mod smpp_org_smsc_simulator;

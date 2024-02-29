@@ -86,9 +86,11 @@ impl std::str::FromStr for NoFixedSizeOctetString {
     }
 }
 
-impl ToString for NoFixedSizeOctetString {
-    fn to_string(&self) -> String {
-        String::from_utf8_lossy(&self.bytes).to_string()
+impl std::fmt::Display for NoFixedSizeOctetString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&String::from_utf8_lossy(
+            &self.bytes[..self.bytes.len() - 1],
+        ))
     }
 }
 

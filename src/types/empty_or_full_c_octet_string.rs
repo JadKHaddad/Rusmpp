@@ -144,9 +144,11 @@ impl<const N: usize> std::str::FromStr for EmptyOrFullCOctetString<N> {
     }
 }
 
-impl<const N: usize> ToString for EmptyOrFullCOctetString<N> {
-    fn to_string(&self) -> String {
-        String::from_utf8_lossy(&self.bytes[..self.bytes.len() - 1]).to_string()
+impl<const N: usize> std::fmt::Display for EmptyOrFullCOctetString<N> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&String::from_utf8_lossy(
+            &self.bytes[..self.bytes.len() - 1],
+        ))
     }
 }
 

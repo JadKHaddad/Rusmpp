@@ -176,9 +176,11 @@ impl<const MIN: usize, const MAX: usize> std::str::FromStr for COctetString<MIN,
     }
 }
 
-impl<const MIN: usize, const MAX: usize> ToString for COctetString<MIN, MAX> {
-    fn to_string(&self) -> String {
-        String::from_utf8_lossy(&self.bytes[..self.bytes.len() - 1]).to_string()
+impl<const MIN: usize, const MAX: usize> std::fmt::Display for COctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(&String::from_utf8_lossy(
+            &self.bytes[..self.bytes.len() - 1],
+        ))
     }
 }
 

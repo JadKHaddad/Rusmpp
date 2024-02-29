@@ -5,6 +5,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
+    tri,
 };
 use tokio_util::{
     bytes::{Buf, BufMut, BytesMut},
@@ -18,41 +19,36 @@ use tokio_util::{
 /// # Usage
 /// ```rust
 /// use futures::{SinkExt, StreamExt};
-/// use tokio::net::TcpStream;
-/// use tokio_util::codec::{FramedRead, FramedWrite};
 /// use rusmpp::{
-///    codec::command_codec::CommandCodec,
-///    commands::{
-///        command::Command,
-///        pdu::{Pdu},
-///        types::{
-///           command_status::CommandStatus, command_id::CommandId,
-///          },
+///     codec::command_codec::CommandCodec,
+///     commands::{
+///         command::Command,
+///         pdu::Pdu,
+///         types::{command_id::CommandId, command_status::CommandStatus},
 ///     },
 /// };
+/// use tokio::net::TcpStream;
+/// use tokio_util::codec::{FramedRead, FramedWrite};
 ///
 /// #[tokio::main]
-/// async fn main() {
-///     let stream = TcpStream::connect("34.242.18.250:2775")
-///         .await
-///         .expect("Failed to connect");
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 ///
 ///     let (reader, writer) = stream.into_split();
 ///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
 ///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
 ///
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
-///         
-///     framed_write
-///         .send(&enquire_link_command)
-///         .await
-///         .expect("Failed to send PDU");
+///
+///     framed_write.send(&enquire_link_command).await?;
 ///
 ///     while let Some(Ok(command)) = framed_read.next().await {
 ///         if let CommandId::EnquireLinkResp = command.command_id() {
 ///             break;
 ///         }
 ///     }
+///
+///     Ok(())
 /// }
 /// ```
 pub struct CommandCodec;
@@ -62,7 +58,7 @@ impl Encoder<&Command> for CommandCodec {
 
     fn encode(&mut self, command: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let command_length = 4 + command.length();
-        let encoded = command.encode_into_vec()?;
+        let encoded = tri!(command.encode_into_vec());
 
         dst.reserve(command_length);
         dst.put_u32(command_length as u32);
@@ -110,10 +106,20 @@ impl Decoder for CommandCodec {
         #[cfg(feature = "tracing")]
         tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::BytesHexPrinter(&src[..command_length]));
 
-        let command = Command::decode_from_slice(&src[4..command_length], pdu_len)?;
+        let command = match Command::decode_from_slice(&src[4..command_length], pdu_len) {
+            Ok(command) => {
+                #[cfg(feature = "tracing")]
+                tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command);
 
-        #[cfg(feature = "tracing")]
-        tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command);
+                command
+            }
+            Err(err) => {
+                #[cfg(feature = "tracing")]
+                tracing::error!(target: "rusmpp::codec::decode", ?err);
+
+                return Err(err);
+            }
+        };
 
         src.advance(command_length);
 

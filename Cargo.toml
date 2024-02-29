@@ -29,7 +29,20 @@ tracing = { version = "0.1.40", optional = true }
 cfg-if = "1.0"
 
 [features]
-default = ["full"]
+default = []
 full = ["tokio-codec", "tracing"]
 tokio-codec = ["dep:tokio-util"]
 tracing = ["dep:tracing"]
+
+[[example]]
+name = "readme"
+path = "examples/readme.rs"
+required-features = ["tokio-codec"]
+
+[[example]]
+name = "submit_sm"
+path = "examples/submit_sm.rs"
+required-features = ["tokio-codec", "tracing"]
+
+[package.metadata.docs.rs]
+all-features = true

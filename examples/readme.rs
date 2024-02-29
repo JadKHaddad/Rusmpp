@@ -1,8 +1,10 @@
-# Rusmpp
+//! Run with
+//!
+//! ```not_rust
+//! cargo run --example readme --features tokio-codec
+//! ```
+//!
 
-Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
-
-```rust
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     codec::command_codec::CommandCodec,
@@ -37,4 +39,3 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     Ok(())
 }
-```

@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::c_octet_string::COctetString,
 };
 
@@ -120,19 +120,28 @@ impl DecodeWithLength for SubmitMultiResp {
     where
         Self: Sized,
     {
-        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-        let no_unsuccess = tri!(u8::decode_from(reader));
-        let unsuccess_sme = tri!(UnsuccessSme::vecorized_decode_from(
-            reader,
-            no_unsuccess as usize
-        ));
+        let message_id = tri_decode!(
+            COctetString::<1, 65>::decode_from(reader),
+            SubmitMultiResp,
+            message_id
+        );
+        let no_unsuccess = tri_decode!(u8::decode_from(reader), SubmitMultiResp, no_unsuccess);
+        let unsuccess_sme = tri_decode!(
+            UnsuccessSme::vecorized_decode_from(reader, no_unsuccess as usize),
+            SubmitMultiResp,
+            unsuccess_sme
+        );
 
         let tlvs_length = length
             .saturating_sub(message_id.length())
             .saturating_sub(no_unsuccess.length())
             .saturating_sub(unsuccess_sme.length());
 
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
+        let tlvs = tri_decode!(
+            Vec::<TLV>::decode_from(reader, tlvs_length),
+            SubmitMultiResp,
+            tlvs
+        );
 
         Ok(Self {
             message_id,

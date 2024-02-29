@@ -20,11 +20,15 @@ keywords = [
 
 [dev-dependencies]
 tokio = { version = "1.36.0", features = ["full"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 futures = "0.3.30"
 
 [dependencies]
 tokio-util = { version = "0.7.10", features = ["codec"], optional = true }
+tracing = { version = "0.1.40", optional = true }
 
 [features]
-default = ["tokio-codec"]
+default = ["full"]
+full = ["tokio-codec", "tracing"]
 tokio-codec = ["dep:tokio-util"]
+tracing = ["dep:tracing"]

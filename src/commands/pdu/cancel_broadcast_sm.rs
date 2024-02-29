@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -148,11 +148,25 @@ impl DecodeWithLength for CancelBroadcastSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
+        let serivce_type = tri_decode!(
+            ServiceType::decode_from(reader),
+            CancelBroadcastSm,
+            serivce_type
+        );
+        let message_id = tri_decode!(
+            COctetString::decode_from(reader),
+            CancelBroadcastSm,
+            message_id
+        );
+        let source_addr_ton =
+            tri_decode!(Ton::decode_from(reader), CancelBroadcastSm, source_addr_ton);
+        let source_addr_npi =
+            tri_decode!(Npi::decode_from(reader), CancelBroadcastSm, source_addr_npi);
+        let source_addr = tri_decode!(
+            COctetString::decode_from(reader),
+            CancelBroadcastSm,
+            source_addr
+        );
 
         let tlvs_length = length.saturating_sub(
             serivce_type.length()
@@ -162,7 +176,11 @@ impl DecodeWithLength for CancelBroadcastSm {
                 + source_addr.length(),
         );
 
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
+        let tlvs = tri_decode!(
+            Vec::<TLV>::decode_from(reader, tlvs_length),
+            CancelBroadcastSm,
+            tlvs
+        );
 
         Ok(Self {
             serivce_type,

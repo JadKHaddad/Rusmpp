@@ -6,7 +6,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -99,10 +99,10 @@ impl Decode for QuerySm {
     where
         Self: Sized,
     {
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
+        let message_id = tri_decode!(COctetString::decode_from(reader), QuerySm, message_id);
+        let source_addr_ton = tri_decode!(Ton::decode_from(reader), QuerySm, source_addr_ton);
+        let source_addr_npi = tri_decode!(Npi::decode_from(reader), QuerySm, source_addr_npi);
+        let source_addr = tri_decode!(COctetString::decode_from(reader), QuerySm, source_addr);
 
         Ok(Self {
             message_id,

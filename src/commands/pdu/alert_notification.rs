@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -116,12 +116,22 @@ impl DecodeWithLength for AlertNotification {
     where
         Self: Sized,
     {
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let esme_addr_ton = tri!(Ton::decode_from(reader));
-        let esme_addr_npi = tri!(Npi::decode_from(reader));
-        let esme_addr = tri!(COctetString::decode_from(reader));
+        let source_addr_ton =
+            tri_decode!(Ton::decode_from(reader), AlertNotification, source_addr_ton);
+        let source_addr_npi =
+            tri_decode!(Npi::decode_from(reader), AlertNotification, source_addr_npi);
+        let source_addr = tri_decode!(
+            COctetString::decode_from(reader),
+            AlertNotification,
+            source_addr
+        );
+        let esme_addr_ton = tri_decode!(Ton::decode_from(reader), AlertNotification, esme_addr_ton);
+        let esme_addr_npi = tri_decode!(Npi::decode_from(reader), AlertNotification, esme_addr_npi);
+        let esme_addr = tri_decode!(
+            COctetString::decode_from(reader),
+            AlertNotification,
+            esme_addr
+        );
 
         let ms_availability_status_length = length.saturating_sub(
             source_addr_ton.length()
@@ -132,10 +142,11 @@ impl DecodeWithLength for AlertNotification {
                 + esme_addr.length(),
         );
 
-        let ms_availability_status = tri!(TLV::length_checked_decode_from(
-            reader,
-            ms_availability_status_length
-        ));
+        let ms_availability_status = tri_decode!(
+            TLV::length_checked_decode_from(reader, ms_availability_status_length),
+            AlertNotification,
+            ms_availability_status
+        );
 
         Ok(Self {
             source_addr_ton,

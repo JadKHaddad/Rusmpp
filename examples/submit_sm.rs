@@ -1,7 +1,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run --example submit_sm --features tokio-codec
+//! cargo run --example submit_sm --features tokio-codec, tracing
 //! ```
 //!
 
@@ -21,6 +21,14 @@ use tokio_util::codec::{FramedRead, FramedWrite};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "rusmpp=debug");
+    }
+
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();

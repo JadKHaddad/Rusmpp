@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::c_octet_string::COctetString,
 };
 
@@ -83,14 +83,15 @@ impl DecodeWithLength for BindResp {
     where
         Self: Sized,
     {
-        let system_id = tri!(COctetString::decode_from(reader));
+        let system_id = tri_decode!(COctetString::decode_from(reader), BindResp, system_id);
 
         let sc_interface_version_length = length.saturating_sub(system_id.length());
 
-        let sc_interface_version = tri!(TLV::length_checked_decode_from(
-            reader,
-            sc_interface_version_length
-        ));
+        let sc_interface_version = tri_decode!(
+            TLV::length_checked_decode_from(reader, sc_interface_version_length),
+            BindResp,
+            sc_interface_version
+        );
 
         Ok(Self {
             system_id,

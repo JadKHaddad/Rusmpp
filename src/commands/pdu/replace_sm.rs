@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString, u8::EndeU8,
@@ -210,16 +210,32 @@ impl DecodeWithLength for ReplaceSm {
     where
         Self: Sized,
     {
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
-        let sm_default_msg_id = tri!(u8::decode_from(reader));
-        let sm_length = tri!(u8::decode_from(reader));
-        let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
+        let message_id = tri_decode!(COctetString::decode_from(reader), ReplaceSm, message_id);
+        let source_addr_ton = tri_decode!(Ton::decode_from(reader), ReplaceSm, source_addr_ton);
+        let source_addr_npi = tri_decode!(Npi::decode_from(reader), ReplaceSm, source_addr_npi);
+        let source_addr = tri_decode!(COctetString::decode_from(reader), ReplaceSm, source_addr);
+        let schedule_delivery_time = tri_decode!(
+            EmptyOrFullCOctetString::decode_from(reader),
+            ReplaceSm,
+            schedule_delivery_time
+        );
+        let validity_period = tri_decode!(
+            EmptyOrFullCOctetString::decode_from(reader),
+            ReplaceSm,
+            validity_period
+        );
+        let registered_delivery = tri_decode!(
+            RegisteredDelivery::decode_from(reader),
+            ReplaceSm,
+            registered_delivery
+        );
+        let sm_default_msg_id = tri_decode!(u8::decode_from(reader), ReplaceSm, sm_default_msg_id);
+        let sm_length = tri_decode!(u8::decode_from(reader), ReplaceSm, sm_length);
+        let short_message = tri_decode!(
+            OctetString::decode_from(reader, sm_length as usize),
+            ReplaceSm,
+            short_message
+        );
 
         let message_payload_length = length.saturating_sub(
             message_id.length()
@@ -234,10 +250,11 @@ impl DecodeWithLength for ReplaceSm {
                 + short_message.length(),
         );
 
-        let message_payload = tri!(TLV::length_checked_decode_from(
-            reader,
-            message_payload_length
-        ));
+        let message_payload = tri_decode!(
+            TLV::length_checked_decode_from(reader, message_payload_length),
+            ReplaceSm,
+            message_payload
+        );
 
         Ok(Self {
             message_id,

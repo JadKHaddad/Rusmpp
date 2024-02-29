@@ -6,7 +6,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    tri, tri_decode,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -111,13 +111,17 @@ impl Decode for Bind {
     where
         Self: Sized,
     {
-        let system_id = tri!(COctetString::decode_from(reader));
-        let password = tri!(COctetString::decode_from(reader));
-        let system_type = tri!(COctetString::decode_from(reader));
-        let interface_version = tri!(InterfaceVersion::decode_from(reader));
-        let addr_ton = tri!(Ton::decode_from(reader));
-        let addr_npi = tri!(Npi::decode_from(reader));
-        let address_range = tri!(COctetString::decode_from(reader));
+        let system_id = tri_decode!(COctetString::decode_from(reader), Bind, system_id);
+        let password = tri_decode!(COctetString::decode_from(reader), Bind, password);
+        let system_type = tri_decode!(COctetString::decode_from(reader), Bind, system_type);
+        let interface_version = tri_decode!(
+            InterfaceVersion::decode_from(reader),
+            Bind,
+            interface_version
+        );
+        let addr_ton = tri_decode!(Ton::decode_from(reader), Bind, addr_ton);
+        let addr_npi = tri_decode!(Npi::decode_from(reader), Bind, addr_npi);
+        let address_range = tri_decode!(COctetString::decode_from(reader), Bind, address_range);
 
         Ok(Self {
             system_id,

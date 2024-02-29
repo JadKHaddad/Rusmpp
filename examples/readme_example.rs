@@ -1,7 +1,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run --example readme --features tokio-codec
+//! cargo run --example readme_example --features tokio-codec
 //! ```
 //!
 

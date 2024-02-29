@@ -34,8 +34,8 @@ tokio-codec = ["dep:tokio-util"]
 tracing = ["dep:tracing"]
 
 [[example]]
-name = "readme"
-path = "examples/readme.rs"
+name = "readme_example"
+path = "examples/readme_example.rs"
 required-features = ["tokio-codec"]
 
 [[example]]

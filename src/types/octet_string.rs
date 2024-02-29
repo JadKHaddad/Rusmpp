@@ -112,7 +112,7 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
 impl<const MIN: usize, const MAX: usize> std::fmt::Debug for OctetString<MIN, MAX> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OctetString")
-            .field("bytes", &self.bytes)
+            .field("bytes", &crate::utils::BytesHexPrinter(&self.bytes))
             .field("string", &self.to_string())
             .finish()
     }

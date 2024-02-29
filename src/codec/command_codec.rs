@@ -60,9 +60,9 @@ pub struct CommandCodec;
 impl Encoder<&Command> for CommandCodec {
     type Error = EncodeError;
 
-    fn encode(&mut self, item: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
-        let command_length = 4 + item.length();
-        let encoded = item.encode_into_vec()?;
+    fn encode(&mut self, command: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
+        let command_length = 4 + command.length();
+        let encoded = command.encode_into_vec()?;
 
         dst.reserve(command_length);
         dst.put_u32(command_length as u32);
@@ -70,8 +70,8 @@ impl Encoder<&Command> for CommandCodec {
 
         #[cfg(feature = "tracing")]
         {
-            tracing::debug!(target: "rusmpp::codec::encode::item", command=?item);
-            tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?BytesHexPrinter(&encoded));
+            tracing::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
+            tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::BytesHexPrinter(&encoded));
         }
 
         Ok(())
@@ -108,25 +108,15 @@ impl Decoder for CommandCodec {
         let pdu_len = command_length - 4;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?BytesHexPrinter(&src[..command_length]));
+        tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::BytesHexPrinter(&src[..command_length]));
 
         let command = Command::decode_from_slice(&src[4..command_length], pdu_len)?;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: "rusmpp::codec::decode::item", command=?command);
+        tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command);
 
         src.advance(command_length);
 
         Ok(Some(command))
-    }
-}
-
-#[cfg(feature = "tracing")]
-struct BytesHexPrinter<'a>(&'a [u8]);
-
-#[cfg(feature = "tracing")]
-impl std::fmt::Debug for BytesHexPrinter<'_> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:02x?}", self.0)
     }
 }

@@ -11,6 +11,7 @@ macro_rules! tri {
     };
 }
 
+/// Like [`tri!`], but traces decoding operations.
 #[macro_export]
 macro_rules! tri_decode {
     ($e:expr, $s:ident, $f:ident $(,)?) => {

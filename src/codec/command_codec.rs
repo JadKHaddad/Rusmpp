@@ -44,7 +44,7 @@ use tokio_util::{
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 ///         
 ///     framed_write
-///         .send(enquire_link_command)
+///         .send(&enquire_link_command)
 ///         .await
 ///         .expect("Failed to send PDU");
 ///
@@ -57,16 +57,22 @@ use tokio_util::{
 /// ```
 pub struct CommandCodec;
 
-impl Encoder<Command> for CommandCodec {
+impl Encoder<&Command> for CommandCodec {
     type Error = EncodeError;
 
-    fn encode(&mut self, item: Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
+    fn encode(&mut self, item: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let command_length = 4 + item.length();
+        let encoded = item.encode_into_vec()?;
 
         dst.reserve(command_length);
-
         dst.put_u32(command_length as u32);
-        dst.put_slice(&item.encode_into_vec()?);
+        dst.put_slice(&encoded);
+
+        #[cfg(feature = "tracing")]
+        {
+            tracing::debug!(target: "rusmpp::codec::encode::item", command=?item);
+            tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?BytesHexPrinter(&encoded));
+        }
 
         Ok(())
     }
@@ -78,26 +84,49 @@ impl Decoder for CommandCodec {
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
         if src.len() < 4 {
-            // Not enough data to read command_length
+            #[cfg(feature = "tracing")]
+            tracing::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough data to read command_length");
+
             return Ok(None);
         }
 
         let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
 
+        #[cfg(feature = "tracing")]
+        tracing::trace!(target: "rusmpp::codec::decode", %command_length);
+
         if src.len() < command_length {
             // Reserve enough space to read the entire command
             src.reserve(command_length - src.len());
 
-            // Not enough data to read the entire command
+            #[cfg(feature = "tracing")]
+            tracing::trace!(target: "rusmpp::codec::decode", %command_length, "Not enough data to read the entire command");
+
             return Ok(None);
         }
 
         let pdu_len = command_length - 4;
 
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?BytesHexPrinter(&src[..command_length]));
+
         let command = Command::decode_from_slice(&src[4..command_length], pdu_len)?;
+
+        #[cfg(feature = "tracing")]
+        tracing::debug!(target: "rusmpp::codec::decode::item", command=?command);
 
         src.advance(command_length);
 
         Ok(Some(command))
+    }
+}
+
+#[cfg(feature = "tracing")]
+struct BytesHexPrinter<'a>(&'a [u8]);
+
+#[cfg(feature = "tracing")]
+impl std::fmt::Debug for BytesHexPrinter<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:02x?}", self.0)
     }
 }

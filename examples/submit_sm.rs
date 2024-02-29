@@ -21,8 +21,12 @@ use tokio_util::codec::{FramedRead, FramedWrite};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // Set up powerful logging.
     if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "rusmpp=debug");
+        std::env::set_var(
+            "RUST_LOG",
+            "rusmpp::decode=off,rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
+        );
     }
 
     tracing_subscriber::fmt()
@@ -52,14 +56,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     );
 
     // Send commands.
-    framed_write.send(bind_transceiver_command).await?;
+    framed_write.send(&bind_transceiver_command).await?;
 
     // Wait for responses.
     while let Some(Ok(command)) = framed_read.next().await {
-        println!();
-        println!("{:?}", command);
-        println!();
-
         if let Some(Pdu::BindTransceiverResp(_)) = command.pdu() {
             println!("BindTransceiverResp received.");
 
@@ -94,13 +94,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .into_submit_sm(),
     );
 
-    framed_write.send(submit_sm_command).await?;
+    framed_write.send(&submit_sm_command).await?;
 
     'outer: while let Some(Ok(command)) = framed_read.next().await {
-        println!();
-        println!("{:?}", command);
-        println!();
-
         match command.pdu() {
             Some(Pdu::SubmitSmResp(_)) => {
                 println!("SubmitSmResp received.");
@@ -126,13 +122,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
 
-    framed_write.send(unbind_command).await?;
+    framed_write.send(&unbind_command).await?;
 
     while let Some(Ok(command)) = framed_read.next().await {
-        println!();
-        println!("{:?}", command);
-        println!();
-
         if let CommandId::UnbindResp = command.command_id() {
             println!("UnbindResp received.");
 

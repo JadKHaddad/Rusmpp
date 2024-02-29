@@ -46,7 +46,7 @@ async fn do_codec() {
     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 
     framed_write
-        .send(enquire_link_command)
+        .send(&enquire_link_command)
         .await
         .expect("Failed to send PDU");
 
@@ -68,7 +68,7 @@ async fn do_codec() {
     );
 
     framed_write
-        .send(bind_transceiver_command)
+        .send(&bind_transceiver_command)
         .await
         .expect("Failed to send PDU");
 
@@ -105,7 +105,7 @@ async fn do_codec() {
     );
 
     framed_write
-        .send(submit_sm_command)
+        .send(&submit_sm_command)
         .await
         .expect("Failed to send PDU");
 
@@ -115,7 +115,7 @@ async fn do_codec() {
     let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
 
     framed_write
-        .send(unbind_command)
+        .send(&unbind_command)
         .await
         .expect("Failed to send PDU");
 

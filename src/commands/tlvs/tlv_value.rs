@@ -27,8 +27,8 @@ use crate::{
     },
     tri,
     types::{
-        c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
-        octet_string::OctetString, u32::EndeU32, u8::EndeU8,
+        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
+        u32::EndeU32, u8::EndeU8,
     },
 };
 
@@ -99,7 +99,7 @@ pub enum TLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(NoFixedSizeOctetString),
+    MessagePayload(AnyOctetString),
     /// This field indicates the current status of the broadcast message.
     MessageState(MessageState),
     MoreMessagesToSend(MoreMessagesToSend),
@@ -132,7 +132,7 @@ pub enum TLVValue {
     UssdServiceOp(UssdServiceOp),
     Other {
         tag: TLVTag,
-        value: NoFixedSizeOctetString,
+        value: AnyOctetString,
     },
 }
 
@@ -458,7 +458,7 @@ impl DecodeWithKey for TLVValue {
                 TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode_from(reader)))
             }
             TLVTag::MessagePayload => {
-                TLVValue::MessagePayload(tri!(NoFixedSizeOctetString::decode_from(reader, length)))
+                TLVValue::MessagePayload(tri!(AnyOctetString::decode_from(reader, length)))
             }
             TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode_from(reader))),
             TLVTag::MoreMessagesToSend => {
@@ -525,7 +525,7 @@ impl DecodeWithKey for TLVValue {
                 TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode_from(reader)))
             }
             other => {
-                let value = tri!(NoFixedSizeOctetString::decode_from(reader, length));
+                let value = tri!(AnyOctetString::decode_from(reader, length));
                 TLVValue::Other { tag: other, value }
             }
         };

@@ -121,7 +121,7 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
 impl<const N: usize> std::fmt::Debug for EmptyOrFullCOctetString<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OctetString")
-            .field("bytes", &crate::utils::BytesHexPrinter(&self.bytes))
+            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
             .finish()
     }

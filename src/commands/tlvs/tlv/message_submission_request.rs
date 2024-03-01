@@ -15,8 +15,7 @@ use crate::{
         },
     },
     types::{
-        c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
-        octet_string::OctetString,
+        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
     },
 };
 
@@ -141,7 +140,7 @@ pub enum MessageSubmissionRequestTLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(NoFixedSizeOctetString),
+    MessagePayload(AnyOctetString),
     MoreMessagesToSend(MoreMessagesToSend),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     MsValidity(MsValidity),

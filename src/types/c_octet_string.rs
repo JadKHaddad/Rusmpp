@@ -159,7 +159,7 @@ impl<const MIN: usize, const MAX: usize> Default for COctetString<MIN, MAX> {
 impl<const MIN: usize, const MAX: usize> std::fmt::Debug for COctetString<MIN, MAX> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("COctetString")
-            .field("bytes", &crate::utils::BytesHexPrinter(&self.bytes))
+            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
             .finish()
     }

@@ -11,7 +11,7 @@ use crate::{
             payload_type::PayloadType, privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
         },
     },
-    types::{no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString},
+    types::{any_octet_string::AnyOctetString, octet_string::OctetString},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -84,7 +84,7 @@ pub enum BroadcastRequestTLVValue {
     DestPort(u16),
     DisplayTime(DisplayTime),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(NoFixedSizeOctetString),
+    MessagePayload(AnyOctetString),
     MsValidity(MsValidity),
     PayloadType(PayloadType),
     PrivacyIndicator(PrivacyIndicator),

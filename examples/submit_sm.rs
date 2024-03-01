@@ -1,7 +1,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run --example submit_sm --features tokio-codec, tracing
+//! cargo run --example submit_sm --features="tokio-codec tracing"
 //! ```
 //!
 
@@ -12,7 +12,7 @@ use rusmpp::{
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
     pdu::{Bind, SubmitSm},
-    types::{COctetString, NoFixedSizeOctetString, OctetString},
+    types::{AnyOctetString, COctetString, OctetString},
     Command, CommandCodec, CommandId, CommandStatus, Pdu, TLVTag,
 };
 use std::str::FromStr;
@@ -85,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "Hi, I am a short message. I will be overridden :(",
             )?)
             .push_tlv(
-                MessageSubmissionRequestTLVValue::MessagePayload(NoFixedSizeOctetString::from_str(
+                MessageSubmissionRequestTLVValue::MessagePayload(AnyOctetString::from_str(
                     "Hi, I am a very long message. I will override the short message :D",
                 )?)
                 .into(),

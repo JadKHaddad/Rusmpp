@@ -19,8 +19,7 @@ use crate::{
         },
     },
     types::{
-        c_octet_string::COctetString, no_fixed_size_octet_string::NoFixedSizeOctetString,
-        octet_string::OctetString,
+        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
     },
 };
 
@@ -94,7 +93,7 @@ async fn do_codec() {
             )
             .push_tlv(MessageSubmissionRequestTLV::new(
                 MessageSubmissionRequestTLVValue::MessagePayload(
-                    NoFixedSizeOctetString::from_str(
+                    AnyOctetString::from_str(
                         "Hi, I am a very long message that will override the short message :D",
                     )
                     .expect("Failed to create message_payload"),

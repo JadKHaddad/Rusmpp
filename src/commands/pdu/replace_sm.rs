@@ -11,8 +11,9 @@ use crate::{
     },
     tri, tri_decode,
     types::{
-        c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        no_fixed_size_octet_string::NoFixedSizeOctetString, octet_string::OctetString, u8::EndeU8,
+        any_octet_string::AnyOctetString, c_octet_string::COctetString,
+        empty_or_full_c_octet_string::EmptyOrFullCOctetString, octet_string::OctetString,
+        u8::EndeU8,
     },
 };
 
@@ -93,7 +94,7 @@ impl ReplaceSm {
         registered_delivery: RegisteredDelivery,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        message_payload: Option<NoFixedSizeOctetString>,
+        message_payload: Option<AnyOctetString>,
     ) -> Self {
         let message_payload =
             message_payload.map(|value| TLV::new(TLVValue::MessagePayload(value)));
@@ -143,7 +144,7 @@ impl ReplaceSm {
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
-    pub fn set_message_payload(&mut self, message_payload: Option<NoFixedSizeOctetString>) {
+    pub fn set_message_payload(&mut self, message_payload: Option<AnyOctetString>) {
         self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
 
         self.clear_short_message_if_message_payload_exists();
@@ -330,7 +331,7 @@ impl ReplaceSmBuilder {
         self
     }
 
-    pub fn message_payload(mut self, message_payload: Option<NoFixedSizeOctetString>) -> Self {
+    pub fn message_payload(mut self, message_payload: Option<AnyOctetString>) -> Self {
         self.inner.set_message_payload(message_payload);
         self
     }

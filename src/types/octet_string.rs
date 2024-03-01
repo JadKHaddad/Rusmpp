@@ -1,4 +1,4 @@
-use super::no_fixed_size_octet_string::NoFixedSizeOctetString;
+use super::any_octet_string::AnyOctetString;
 use crate::ende::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
@@ -112,7 +112,7 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
 impl<const MIN: usize, const MAX: usize> std::fmt::Debug for OctetString<MIN, MAX> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("OctetString")
-            .field("bytes", &crate::utils::BytesHexPrinter(&self.bytes))
+            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
             .finish()
     }
@@ -146,7 +146,7 @@ impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for NoFixedSizeOctetString {
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for AnyOctetString {
     fn from(octet_string: OctetString<MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }

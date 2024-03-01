@@ -8,7 +8,7 @@ use crate::{
         length::Length,
     },
     tri,
-    types::no_fixed_size_octet_string::NoFixedSizeOctetString,
+    types::any_octet_string::AnyOctetString,
 };
 
 pub mod alert_notification;
@@ -236,7 +236,7 @@ pub enum Pdu {
     CancelBroadcastSmResp,
     Other {
         command_id: CommandId,
-        body: NoFixedSizeOctetString,
+        body: AnyOctetString,
     },
 }
 
@@ -455,7 +455,7 @@ impl DecodeWithKeyOptional for Pdu {
             | CommandId::CancelBroadcastSmResp => return Ok(None),
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
-                body: tri!(NoFixedSizeOctetString::decode_from(reader, length)),
+                body: tri!(AnyOctetString::decode_from(reader, length)),
             },
         };
 

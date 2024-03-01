@@ -67,7 +67,7 @@ impl Encoder<&Command> for CommandCodec {
         #[cfg(feature = "tracing")]
         {
             tracing::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
-            tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::BytesHexPrinter(&encoded));
+            tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&encoded));
         }
 
         Ok(())
@@ -104,7 +104,7 @@ impl Decoder for CommandCodec {
         let pdu_len = command_length - 4;
 
         #[cfg(feature = "tracing")]
-        tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::BytesHexPrinter(&src[..command_length]));
+        tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::HexFormatter(&src[..command_length]));
 
         let command = match Command::decode_from_slice(&src[4..command_length], pdu_len) {
             Ok(command) => {

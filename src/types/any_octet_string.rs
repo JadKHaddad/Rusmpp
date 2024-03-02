@@ -88,9 +88,7 @@ impl std::str::FromStr for AnyOctetString {
 
 impl std::fmt::Display for AnyOctetString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(
-            &self.bytes[..self.bytes.len() - 1],
-        ))
+        f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
 

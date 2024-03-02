@@ -134,9 +134,7 @@ impl<const MIN: usize, const MAX: usize> std::str::FromStr for OctetString<MIN, 
 
 impl<const MIN: usize, const MAX: usize> std::fmt::Display for OctetString<MIN, MAX> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(
-            &self.bytes[..self.bytes.len() - 1],
-        ))
+        f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
 

@@ -30,8 +30,12 @@ tracing = { version = "0.1.40", optional = true }
 [features]
 default = []
 full = ["tokio-codec", "tracing"]
-tokio-codec = ["dep:tokio-util"]
-tracing = ["dep:tracing"]
+pretty-hex-fmt = [
+] # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F]
+tokio-codec = [
+    "dep:tokio-util",
+] # Enables the use of tokio's codec for SMPP PDUs.
+tracing = ["dep:tracing"] # Enables tracing support.
 
 [[example]]
 name = "readme_example"

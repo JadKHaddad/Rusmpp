@@ -1,7 +1,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run --example submit_sm --features="tokio-codec tracing"
+//! cargo run --example submit_sm --features="tokio-codec tracing pretty-hex-fmt"
 //! ```
 //!
 

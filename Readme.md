@@ -38,6 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/examples) directory for more examples.
 
 ## License
 

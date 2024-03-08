@@ -246,6 +246,31 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
     }
 }
 
+#[cfg(feature = "serde")]
+mod serde {
+    use super::COctetString;
+
+    impl<const MIN: usize, const MAX: usize> serde::Serialize for COctetString<MIN, MAX> {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            serializer.serialize_bytes(&self.bytes)
+        }
+    }
+
+    impl<'de, const MIN: usize, const MAX: usize> serde::Deserialize<'de> for COctetString<MIN, MAX> {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+        {
+            let bytes = Vec::<u8>::deserialize(deserializer)?;
+
+            COctetString::new(bytes).map_err(serde::de::Error::custom)
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -484,6 +509,26 @@ mod tests {
             assert_eq!(string.bytes, b"Hello\0");
             assert_eq!(string.length(), 6);
             assert_eq!(buf, b"World!");
+        }
+    }
+
+    #[cfg(feature = "serde")]
+    mod serde {
+        use super::*;
+
+        #[test]
+        fn too_many_bytes() {
+            let string = "[72,101,108,108,111,0]";
+            let _error = serde_json::from_str::<COctetString<1, 5>>(string).unwrap_err();
+            // TODO: Check error type.
+        }
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0";
+            let string = "[72,101,108,108,111,0]";
+            let co = serde_json::from_str::<COctetString<1, 6>>(string).unwrap();
+            assert_eq!(co.bytes, bytes);
         }
     }
 }

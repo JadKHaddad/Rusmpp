@@ -13,20 +13,23 @@ keywords = ["smpp", "sms", "messaging", "networking", "protocol"]
 tokio = { version = "1.36.0", features = ["full"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 futures = "0.3.30"
+serde_json = "1.0.64"
 
 [dependencies]
 tokio-util = { version = "0.7.10", features = ["codec"], optional = true }
 tracing = { version = "0.1.40", optional = true }
+serde = { version = "1.0.197", features = ["derive"], optional = true }
 
 [features]
-default = []
-full = ["tokio-codec", "tracing"]
+default = ["serde"]
+full = ["tokio-codec", "tracing", "serde"]
 pretty-hex-fmt = [
 ] # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F]
 tokio-codec = [
     "dep:tokio-util",
 ] # Enables the use of tokio's codec for SMPP PDUs.
 tracing = ["dep:tracing"] # Enables tracing support.
+serde = ["dep:serde"] # Enables serde support for PDUs.
 
 [[example]]
 name = "readme_example"

@@ -45,7 +45,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::u32::EndeU32,
 };
 
@@ -131,20 +131,15 @@ impl DecodeWithLength for Command {
     where
         Self: Sized,
     {
-        let command_id = tri_decode!(CommandId::decode_from(reader), Command, command_id);
-        let command_status =
-            tri_decode!(CommandStatus::decode_from(reader), Command, command_status);
-        let sequence_number = tri_decode!(u32::decode_from(reader), Command, sequence_number);
+        let command_id = tri!(CommandId::decode_from(reader));
+        let command_status = tri!(CommandStatus::decode_from(reader));
+        let sequence_number = tri!(u32::decode_from(reader));
 
         let pdu_length = length.saturating_sub(
             command_id.length() + command_status.length() + sequence_number.length(),
         );
 
-        let pdu = tri_decode!(
-            Pdu::decode_from(command_id, reader, pdu_length),
-            Command,
-            pdu
-        );
+        let pdu = tri!(Pdu::decode_from(command_id, reader, pdu_length),);
 
         Ok(Self {
             command_id,

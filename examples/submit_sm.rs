@@ -25,7 +25,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var(
             "RUST_LOG",
-            "rusmpp::decode=off,rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
+            "rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
         );
     }
 

@@ -6,7 +6,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::c_octet_string::COctetString,
 };
 
@@ -83,15 +83,11 @@ impl DecodeWithLength for SmResp {
     where
         Self: Sized,
     {
-        let message_id = tri_decode!(
-            COctetString::<1, 65>::decode_from(reader),
-            SmResp,
-            message_id
-        );
+        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
 
         let tlvs_length = length.saturating_sub(message_id.length());
 
-        let tlvs = tri_decode!(Vec::<TLV>::decode_from(reader, tlvs_length), SmResp, tlvs);
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self { message_id, tlvs })
     }

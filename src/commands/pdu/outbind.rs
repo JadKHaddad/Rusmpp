@@ -5,7 +5,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::c_octet_string::COctetString,
 };
 
@@ -65,8 +65,8 @@ impl Decode for Outbind {
     where
         Self: Sized,
     {
-        let system_id = tri_decode!(COctetString::decode_from(reader), Outbind, system_id);
-        let password = tri_decode!(COctetString::decode_from(reader), Outbind, password);
+        let system_id = tri!(COctetString::decode_from(reader));
+        let password = tri!(COctetString::decode_from(reader));
 
         Ok(Self {
             system_id,

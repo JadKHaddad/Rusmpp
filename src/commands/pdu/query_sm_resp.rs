@@ -6,7 +6,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         u8::EndeU8,
@@ -86,22 +86,10 @@ impl Decode for QuerySmResp {
     where
         Self: Sized,
     {
-        let message_id = tri_decode!(
-            COctetString::<1, 65>::decode_from(reader),
-            QuerySmResp,
-            message_id
-        );
-        let final_date = tri_decode!(
-            EmptyOrFullCOctetString::<17>::decode_from(reader),
-            QuerySmResp,
-            final_date
-        );
-        let message_state = tri_decode!(
-            MessageState::decode_from(reader),
-            QuerySmResp,
-            message_state
-        );
-        let error_code = tri_decode!(u8::decode_from(reader), QuerySmResp, error_code);
+        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
+        let final_date = tri!(EmptyOrFullCOctetString::<17>::decode_from(reader));
+        let message_state = tri!(MessageState::decode_from(reader));
+        let error_code = tri!(u8::decode_from(reader));
 
         Ok(Self {
             message_id,

@@ -16,7 +16,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString, u8::EndeU8,
@@ -297,52 +297,26 @@ impl DecodeWithLength for SubmitMulti {
     where
         Self: Sized,
     {
-        let serivce_type = tri_decode!(ServiceType::decode_from(reader), SubmitMulti, service_type);
-        let source_addr_ton = tri_decode!(Ton::decode_from(reader), SubmitMulti, source_addr_ton);
-        let source_addr_npi = tri_decode!(Npi::decode_from(reader), SubmitMulti, source_addr_npi);
-        let source_addr = tri_decode!(COctetString::decode_from(reader), SubmitMulti, source_addr);
-        let number_of_dests = tri_decode!(u8::decode_from(reader), SubmitMulti, number_of_dests);
-        let dest_address = tri_decode!(
-            DestAddress::vecorized_decode_from(reader, number_of_dests as usize),
-            SubmitMulti,
-            dest_address
-        );
-        let esm_class = tri_decode!(EsmClass::decode_from(reader), SubmitMulti, esm_class);
-        let protocol_id = tri_decode!(u8::decode_from(reader), SubmitMulti, protocol_id);
-        let priority_flag = tri_decode!(
-            PriorityFlag::decode_from(reader),
-            SubmitMulti,
-            priority_flag
-        );
-        let schedule_delivery_time = tri_decode!(
-            EmptyOrFullCOctetString::decode_from(reader),
-            SubmitMulti,
-            schedule_delivery_time
-        );
-        let validity_period = tri_decode!(
-            EmptyOrFullCOctetString::decode_from(reader),
-            SubmitMulti,
-            validity_period
-        );
-        let registered_delivery = tri_decode!(
-            RegisteredDelivery::decode_from(reader),
-            SubmitMulti,
-            registered_delivery
-        );
-        let replace_if_present_flag = tri_decode!(
-            ReplaceIfPresentFlag::decode_from(reader),
-            SubmitMulti,
-            replace_if_present_flag
-        );
-        let data_coding = tri_decode!(DataCoding::decode_from(reader), SubmitMulti, data_coding);
-        let sm_default_msg_id =
-            tri_decode!(u8::decode_from(reader), SubmitMulti, sm_default_msg_id);
-        let sm_length = tri_decode!(u8::decode_from(reader), SubmitMulti, sm_length);
-        let short_message = tri_decode!(
-            OctetString::decode_from(reader, sm_length as usize),
-            SubmitMulti,
-            short_message
-        );
+        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::decode_from(reader));
+        let number_of_dests = tri!(u8::decode_from(reader));
+        let dest_address = tri!(DestAddress::vecorized_decode_from(
+            reader,
+            number_of_dests as usize
+        ));
+        let esm_class = tri!(EsmClass::decode_from(reader));
+        let protocol_id = tri!(u8::decode_from(reader));
+        let priority_flag = tri!(PriorityFlag::decode_from(reader));
+        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
+        let replace_if_present_flag = tri!(ReplaceIfPresentFlag::decode_from(reader));
+        let data_coding = tri!(DataCoding::decode_from(reader));
+        let sm_default_msg_id = tri!(u8::decode_from(reader));
+        let sm_length = tri!(u8::decode_from(reader));
+        let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
 
         let tlvs_length = length
             .saturating_sub(serivce_type.length())
@@ -363,11 +337,7 @@ impl DecodeWithLength for SubmitMulti {
             .saturating_sub(sm_length.length())
             .saturating_sub(short_message.length());
 
-        let tlvs = tri_decode!(
-            Vec::<TLV>::decode_from(reader, tlvs_length),
-            SubmitMulti,
-            tlvs
-        );
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
             serivce_type,

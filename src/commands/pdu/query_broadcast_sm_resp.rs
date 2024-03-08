@@ -15,7 +15,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::c_octet_string::COctetString,
 };
 
@@ -178,26 +178,10 @@ impl DecodeWithLength for QueryBroadcastSmResp {
     where
         Self: Sized,
     {
-        let message_id = tri_decode!(
-            COctetString::<1, 65>::decode_from(reader),
-            QueryBroadcastSmResp,
-            message_id
-        );
-        let message_state = tri_decode!(
-            TLV::decode_from(reader),
-            QueryBroadcastSmResp,
-            message_state
-        );
-        let broadcast_area_identifier = tri_decode!(
-            TLV::decode_from(reader),
-            QueryBroadcastSmResp,
-            broadcast_area_identifier
-        );
-        let broadcast_area_success = tri_decode!(
-            TLV::decode_from(reader),
-            QueryBroadcastSmResp,
-            broadcast_area_success
-        );
+        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
+        let message_state = tri!(TLV::decode_from(reader));
+        let broadcast_area_identifier = tri!(TLV::decode_from(reader));
+        let broadcast_area_success = tri!(TLV::decode_from(reader));
 
         let tlvs_length = length
             .saturating_sub(message_id.length())
@@ -205,11 +189,7 @@ impl DecodeWithLength for QueryBroadcastSmResp {
             .saturating_sub(broadcast_area_identifier.length())
             .saturating_sub(broadcast_area_success.length());
 
-        let tlvs = tri_decode!(
-            Vec::<TLV>::decode_from(reader, tlvs_length),
-            QueryBroadcastSmResp,
-            tlvs
-        );
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
             message_id,

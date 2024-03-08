@@ -6,7 +6,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -163,18 +163,14 @@ impl Decode for CancelSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri_decode!(ServiceType::decode_from(reader), CancelSm, service_type);
-        let message_id = tri_decode!(COctetString::decode_from(reader), CancelSm, message_id);
-        let source_addr_ton = tri_decode!(Ton::decode_from(reader), CancelSm, source_addr_ton);
-        let source_addr_npi = tri_decode!(Npi::decode_from(reader), CancelSm, source_addr_npi);
-        let source_addr = tri_decode!(COctetString::decode_from(reader), CancelSm, source_addr);
-        let dest_addr_ton = tri_decode!(Ton::decode_from(reader), CancelSm, dest_addr_ton);
-        let dest_addr_npi = tri_decode!(Npi::decode_from(reader), CancelSm, dest_addr_npi);
-        let destination_addr = tri_decode!(
-            COctetString::decode_from(reader),
-            CancelSm,
-            destination_addr
-        );
+        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let message_id = tri!(COctetString::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::decode_from(reader));
+        let dest_addr_ton = tri!(Ton::decode_from(reader));
+        let dest_addr_npi = tri!(Npi::decode_from(reader));
+        let destination_addr = tri!(COctetString::decode_from(reader));
 
         Ok(Self {
             serivce_type,

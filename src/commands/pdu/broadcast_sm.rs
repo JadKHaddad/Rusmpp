@@ -18,7 +18,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         u8::EndeU8,
@@ -324,51 +324,21 @@ impl DecodeWithLength for BroadcastSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri_decode!(ServiceType::decode_from(reader), BroadcastSm, serivce_type);
-        let source_addr_ton = tri_decode!(Ton::decode_from(reader), BroadcastSm, source_addr_ton);
-        let source_addr_npi = tri_decode!(Npi::decode_from(reader), BroadcastSm, source_addr_npi);
-        let source_addr = tri_decode!(COctetString::decode_from(reader), BroadcastSm, source_addr);
-        let message_id = tri_decode!(COctetString::decode_from(reader), BroadcastSm, message_id);
-        let priority_flag = tri_decode!(
-            PriorityFlag::decode_from(reader),
-            BroadcastSm,
-            priority_flag
-        );
-        let schedule_delivery_time = tri_decode!(
-            EmptyOrFullCOctetString::decode_from(reader),
-            BroadcastSm,
-            schedule_delivery_time
-        );
-        let validity_period = tri_decode!(
-            EmptyOrFullCOctetString::decode_from(reader),
-            BroadcastSm,
-            validity_period
-        );
-        let replace_if_present_flag = tri_decode!(
-            ReplaceIfPresentFlag::decode_from(reader),
-            BroadcastSm,
-            replace_if_present_flag
-        );
-        let data_coding = tri_decode!(DataCoding::decode_from(reader), BroadcastSm, data_coding);
-        let sm_default_msg_id =
-            tri_decode!(u8::decode_from(reader), BroadcastSm, sm_default_msg_id);
-        let broadcast_area_identifier = tri_decode!(
-            TLV::decode_from(reader),
-            BroadcastSm,
-            broadcast_area_identifier
-        );
-        let broadcast_content_type = tri_decode!(
-            TLV::decode_from(reader),
-            BroadcastSm,
-            broadcast_content_type
-        );
-        let broadcast_rep_num =
-            tri_decode!(TLV::decode_from(reader), BroadcastSm, broadcast_rep_num);
-        let broadcast_frequency_interval = tri_decode!(
-            TLV::decode_from(reader),
-            BroadcastSm,
-            broadcast_frequency_interval
-        );
+        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::decode_from(reader));
+        let message_id = tri!(COctetString::decode_from(reader));
+        let priority_flag = tri!(PriorityFlag::decode_from(reader));
+        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
+        let replace_if_present_flag = tri!(ReplaceIfPresentFlag::decode_from(reader));
+        let data_coding = tri!(DataCoding::decode_from(reader));
+        let sm_default_msg_id = tri!(u8::decode_from(reader));
+        let broadcast_area_identifier = tri!(TLV::decode_from(reader));
+        let broadcast_content_type = tri!(TLV::decode_from(reader));
+        let broadcast_rep_num = tri!(TLV::decode_from(reader));
+        let broadcast_frequency_interval = tri!(TLV::decode_from(reader));
 
         let tlvs_length = length
             .saturating_sub(serivce_type.length())
@@ -387,11 +357,7 @@ impl DecodeWithLength for BroadcastSm {
             .saturating_sub(broadcast_rep_num.length())
             .saturating_sub(broadcast_frequency_interval.length());
 
-        let tlvs = tri_decode!(
-            Vec::<TLV>::decode_from(reader, tlvs_length),
-            BroadcastSm,
-            tlvs
-        );
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
             serivce_type,

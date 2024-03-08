@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -119,20 +119,10 @@ impl DecodeWithLength for QueryBroadcastSm {
     where
         Self: Sized,
     {
-        let message_id = tri_decode!(
-            COctetString::<1, 65>::decode_from(reader),
-            QueryBroadcastSm,
-            message_id
-        );
-        let source_addr_ton =
-            tri_decode!(Ton::decode_from(reader), QueryBroadcastSm, source_addr_ton);
-        let source_addr_npi =
-            tri_decode!(Npi::decode_from(reader), QueryBroadcastSm, source_addr_npi);
-        let source_addr = tri_decode!(
-            COctetString::<1, 21>::decode_from(reader),
-            QueryBroadcastSm,
-            source_addr
-        );
+        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::<1, 21>::decode_from(reader));
 
         let user_message_reference_length = length
             .saturating_sub(message_id.length())
@@ -140,11 +130,10 @@ impl DecodeWithLength for QueryBroadcastSm {
             .saturating_sub(source_addr_npi.length())
             .saturating_sub(source_addr.length());
 
-        let user_message_reference = tri_decode!(
-            TLV::length_checked_decode_from(reader, user_message_reference_length),
-            QueryBroadcastSm,
-            user_message_reference
-        );
+        let user_message_reference = tri!(TLV::length_checked_decode_from(
+            reader,
+            user_message_reference_length
+        ));
 
         Ok(Self {
             message_id,

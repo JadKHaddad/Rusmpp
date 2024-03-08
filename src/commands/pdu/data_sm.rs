@@ -11,7 +11,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri, tri_decode,
+    tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -161,21 +161,16 @@ impl DecodeWithLength for DataSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri_decode!(ServiceType::decode_from(reader), DataSm, service_type);
-        let source_addr_ton = tri_decode!(Ton::decode_from(reader), DataSm, source_addr_ton);
-        let source_addr_npi = tri_decode!(Npi::decode_from(reader), DataSm, source_addr_npi);
-        let source_addr = tri_decode!(COctetString::decode_from(reader), DataSm, source_addr);
-        let dest_addr_ton = tri_decode!(Ton::decode_from(reader), DataSm, dest_addr_ton);
-        let dest_addr_npi = tri_decode!(Npi::decode_from(reader), DataSm, dest_addr_npi);
-        let destination_addr =
-            tri_decode!(COctetString::decode_from(reader), DataSm, destination_addr);
-        let esm_class = tri_decode!(EsmClass::decode_from(reader), DataSm, esm_class);
-        let registered_delivery = tri_decode!(
-            RegisteredDelivery::decode_from(reader),
-            DataSm,
-            registered_delivery
-        );
-        let data_coding = tri_decode!(DataCoding::decode_from(reader), DataSm, data_coding);
+        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let source_addr_ton = tri!(Ton::decode_from(reader));
+        let source_addr_npi = tri!(Npi::decode_from(reader));
+        let source_addr = tri!(COctetString::decode_from(reader));
+        let dest_addr_ton = tri!(Ton::decode_from(reader));
+        let dest_addr_npi = tri!(Npi::decode_from(reader));
+        let destination_addr = tri!(COctetString::decode_from(reader));
+        let esm_class = tri!(EsmClass::decode_from(reader));
+        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
+        let data_coding = tri!(DataCoding::decode_from(reader));
 
         let tlvs_length = length.saturating_sub(
             serivce_type.length()
@@ -190,7 +185,7 @@ impl DecodeWithLength for DataSm {
                 + data_coding.length(),
         );
 
-        let tlvs = tri_decode!(Vec::<TLV>::decode_from(reader, tlvs_length), DataSm, tlvs);
+        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
             serivce_type,

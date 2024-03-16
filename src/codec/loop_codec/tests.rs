@@ -1,6 +1,6 @@
 use std::net::TcpStream;
 
-use crate::codec::loop_codec::LoopCodec;
+use crate::{codec::loop_codec::LoopCodec, ende::decode::DecodeError};
 
 // cargo test do_loop_codec --features tracing -- --ignored --nocapture
 #[test]
@@ -17,18 +17,21 @@ fn do_loop_codec() {
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .init();
 
-    let stream = TcpStream::connect("127.0.0.1:8080").expect("Failed to connect");
+    let mut stream = TcpStream::connect("127.0.0.1:8080").expect("Failed to connect");
+    stream
+        .set_read_timeout(Some(std::time::Duration::from_millis(50)))
+        .expect("Failed to set read timeout");
 
-    println!("Connected to server");
-
-    let mut loop_codec = LoopCodec::<2, _>::new(&stream);
+    let mut loop_codec = LoopCodec::new();
+    let mut buffer = [0u8; 4];
 
     loop {
-        match loop_codec.try_decode() {
+        match loop_codec.try_decode(&mut buffer, &mut stream) {
             Ok(Some(command)) => {
                 println!("Received command: {:?}", command);
             }
             Ok(None) => {}
+            Err(DecodeError::IoError(err)) if err.kind() == std::io::ErrorKind::TimedOut => {}
             Err(err) => {
                 println!("Error: {:?}", err);
                 break;

@@ -5,30 +5,29 @@ use crate::{
     Command,
 };
 
-pub struct LoopCodec<const BUFFER_SIZE: usize, R: std::io::Read> {
-    reader: R,
+#[derive(Default)]
+pub struct LoopCodec {
     src: BytesMut,
-    buffer: [u8; BUFFER_SIZE],
 }
 
-impl<const BUFFER_SIZE: usize, R: std::io::Read> LoopCodec<BUFFER_SIZE, R> {
-    pub fn new(reader: R) -> Self {
-        Self {
-            reader,
-            src: BytesMut::new(),
-            buffer: [0; BUFFER_SIZE],
-        }
+impl LoopCodec {
+    pub fn new() -> Self {
+        Default::default()
     }
 
-    pub fn try_decode(&mut self) -> Result<Option<Command>, DecodeError> {
-        match self.reader.read(&mut self.buffer) {
+    pub fn try_decode<R: std::io::Read>(
+        &mut self,
+        buffer: &mut [u8],
+        mut reader: R,
+    ) -> Result<Option<Command>, DecodeError> {
+        match reader.read(buffer) {
             Ok(0) => Err(DecodeError::IoError(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
                 "Unexpected EOF",
             ))),
             Err(err) => Err(DecodeError::IoError(err)),
             Ok(n) => {
-                self.src.extend_from_slice(&self.buffer[..n]);
+                self.src.extend_from_slice(&buffer[..n]);
 
                 #[cfg(feature = "tracing")]
                 tracing::trace!(target: "rusmpp::codec::decode", read=n, source_length= self.src.len());

@@ -21,7 +21,21 @@ use crate::{
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
     },
+    CommandId,
 };
+
+fn init_tracing() {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var(
+            "RUST_LOG",
+            "rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
+        );
+    }
+
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+}
 
 // cargo test do_tokio_codec --features tokio-codec -- --ignored --nocapture
 #[tokio::test]
@@ -125,16 +139,7 @@ async fn do_tokio_codec() {
 #[tokio::test]
 #[ignore = "integration test"]
 async fn run_server() {
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var(
-            "RUST_LOG",
-            "rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
-        );
-    }
-
-    tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
-        .init();
+    init_tracing();
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await
@@ -172,10 +177,60 @@ async fn run_server() {
                     .await
                     .expect("Failed to send PDU");
 
-                println!("Sent enquire_link_command");
-
                 tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
             }
+        });
+    }
+}
+
+// cargo test run_responsive_server --features "tokio-codec tracing pretty-hex-fmt" -- --ignored --nocapture
+#[tokio::test]
+#[ignore = "integration test"]
+async fn run_responsive_server() {
+    init_tracing();
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
+        .await
+        .expect("Failed to bind to address");
+
+    loop {
+        let (stream, _) = listener
+            .accept()
+            .await
+            .expect("Failed to accept connection");
+
+        println!("Accepted connection");
+
+        tokio::spawn(async move {
+            let (reader, writer) = stream.into_split();
+
+            let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
+            let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
+
+            loop {
+                match framed_read.next().await {
+                    Some(Ok(command)) => {
+                        if let CommandId::EnquireLink = command.command_id() {
+                            let enquire_link_resp_command = Command::new(
+                                CommandStatus::EsmeRok,
+                                command.sequence_number,
+                                Pdu::EnquireLinkResp,
+                            );
+                            framed_write
+                                .send(&enquire_link_resp_command)
+                                .await
+                                .expect("Failed to send PDU");
+                        }
+                    }
+                    Some(Err(err)) => {
+                        println!("Error: {:?}", err);
+                        break;
+                    }
+                    _ => {}
+                }
+            }
+
+            println!("Connection closed");
         });
     }
 }

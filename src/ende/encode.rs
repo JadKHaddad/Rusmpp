@@ -48,14 +48,14 @@ pub trait Encode: Length {
 }
 
 pub trait EncodeReady: Encode {
-    /// Encode a value to a writer including the length, so it can be sent as is over the wire
+    /// Encode a value to a writer including the length, so it can be sent over the wire as an SMPP Command
     fn encode_ready_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         let ready_length = 4 + self.length() as u32;
         tri!(ready_length.encode_to(writer));
         self.encode_to(writer)
     }
 
-    /// Encode a value into a vector including the length, so it can be sent as is over the wire
+    /// Encode a value into a vector including the length, so it can be sent over the wire as an SMPP Command
     fn encode_ready_into_vec(&self) -> Result<Vec<u8>, EncodeError> {
         let mut buf = Vec::with_capacity(4 + self.length());
 

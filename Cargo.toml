@@ -13,10 +13,12 @@ keywords = ["smpp", "sms", "messaging", "networking", "protocol"]
 tokio = { version = "1.36.0", features = ["full"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 futures = "0.3.30"
+tracing = { version = "0.1.40" }
 
 [dependencies]
 tokio-util = { version = "0.7.10", features = ["codec"], optional = true }
 tracing = { version = "0.1.40", optional = true }
+bytes = "1.5.0"
 
 [features]
 default = []

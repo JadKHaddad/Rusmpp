@@ -5,7 +5,7 @@ use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
 use crate::{
-    codec::command_codec::CommandCodec,
+    codec::tokio_codec::CommandTokioCodec,
     commands::{
         command::Command,
         pdu::{bind::Bind, submit_sm::SubmitSm, Pdu},
@@ -23,17 +23,17 @@ use crate::{
     },
 };
 
-// cargo test do_codec --features tokio-codec -- --ignored --nocapture
+// cargo test do_tokio_codec --features tokio-codec -- --ignored --nocapture
 #[tokio::test]
 #[ignore = "integration test"]
-async fn do_codec() {
+async fn do_tokio_codec() {
     let stream = TcpStream::connect("34.242.18.250:2775")
         .await
         .expect("Failed to connect");
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
+    let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
 
     tokio::spawn(async move {
         while let Some(command) = framed_read.next().await {
@@ -119,4 +119,43 @@ async fn do_codec() {
         .expect("Failed to send PDU");
 
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+}
+
+// cargo test run_server_and_send_enquire_link --features tokio-codec -- --ignored --nocapture
+#[tokio::test]
+#[ignore = "integration test"]
+async fn run_server_and_send_enquire_link() {
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
+        .await
+        .expect("Failed to bind to address");
+
+    loop {
+        let (stream, _) = listener
+            .accept()
+            .await
+            .expect("Failed to accept connection");
+
+        println!("Accepted connection");
+
+        tokio::spawn(async move {
+            let (_, writer) = stream.into_split();
+            let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
+
+            let mut seq = 0;
+            loop {
+                let enquire_link_command =
+                    Command::new(CommandStatus::EsmeRok, seq, Pdu::EnquireLink);
+                seq += 1;
+
+                framed_write
+                    .send(&enquire_link_command)
+                    .await
+                    .expect("Failed to send PDU");
+
+                println!("Sent enquire_link_command");
+
+                tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+            }
+        });
+    }
 }

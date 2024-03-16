@@ -5,7 +5,7 @@
 //! ```rust
 //! use futures::{SinkExt, StreamExt};
 //! use rusmpp::{
-//!     codec::command_codec::CommandCodec,
+//!     codec::tokio_codec::CommandTokioCodec,
 //!     commands::{
 //!         command::Command,
 //!         pdu::Pdu,
@@ -20,8 +20,8 @@
 //!     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 //!
 //!     let (reader, writer) = stream.into_split();
-//!     let mut framed_read = FramedRead::new(reader, CommandCodec {});
-//!     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+//!     let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
+//!     let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
 //!
 //!     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 //!
@@ -42,10 +42,7 @@
 #![forbid(unsafe_code)]
 // #![deny(missing_docs)]
 
-#[cfg(feature = "tokio-codec")]
 pub mod codec;
-#[cfg(feature = "tokio-codec")]
-pub use codec::command_codec::CommandCodec;
 
 pub mod commands;
 pub use commands::command::Command;

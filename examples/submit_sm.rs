@@ -7,13 +7,14 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
+    codec::tokio_codec::CommandTokioCodec,
     commands::{
         tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
     pdu::{Bind, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandCodec, CommandId, CommandStatus, Pdu, TLVTag,
+    Command, CommandId, CommandStatus, Pdu, TLVTag,
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;
@@ -36,8 +37,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
+    let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
 
     // Build commands. Omitted values will be set to default.
     let bind_transceiver_command = Command::new(

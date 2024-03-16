@@ -1,3 +1,6 @@
+//! Tokio codec for encoding and decoding SMPP PDUs.
+//! Only available when the `tokio-codec` feature is enabled.
+
 use crate::{
     commands::command::Command,
     ende::{
@@ -20,7 +23,7 @@ use tokio_util::{
 /// ```rust
 /// use futures::{SinkExt, StreamExt};
 /// use rusmpp::{
-///     codec::command_codec::CommandCodec,
+///     codec::tokio_codec::CommandTokioCodec,
 ///     commands::{
 ///         command::Command,
 ///         pdu::Pdu,
@@ -35,8 +38,8 @@ use tokio_util::{
 ///     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 ///
 ///     let (reader, writer) = stream.into_split();
-///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
-///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///     let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
+///     let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
 ///
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 ///
@@ -51,9 +54,9 @@ use tokio_util::{
 ///     Ok(())
 /// }
 /// ```
-pub struct CommandCodec;
+pub struct CommandTokioCodec;
 
-impl Encoder<&Command> for CommandCodec {
+impl Encoder<&Command> for CommandTokioCodec {
     type Error = EncodeError;
 
     fn encode(&mut self, command: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
@@ -74,7 +77,7 @@ impl Encoder<&Command> for CommandCodec {
     }
 }
 
-impl Decoder for CommandCodec {
+impl Decoder for CommandTokioCodec {
     type Item = Command;
     type Error = DecodeError;
 
@@ -126,3 +129,6 @@ impl Decoder for CommandCodec {
         Ok(Some(command))
     }
 }
+
+#[cfg(test)]
+mod tests;

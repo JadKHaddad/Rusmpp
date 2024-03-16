@@ -5,8 +5,7 @@ use crate::{
     commands::command::Command,
     ende::{
         decode::{DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
+        encode::{EncodeError, EncodeReady},
     },
     tri,
 };
@@ -60,11 +59,9 @@ impl Encoder<&Command> for CommandTokioCodec {
     type Error = EncodeError;
 
     fn encode(&mut self, command: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
-        let command_length = 4 + command.length();
-        let encoded = tri!(command.encode_into_vec());
+        let encoded = tri!(command.encode_ready_into_vec());
 
-        dst.reserve(command_length);
-        dst.put_u32(command_length as u32);
+        dst.reserve(encoded.len());
         dst.put_slice(&encoded);
 
         #[cfg(feature = "tracing")]

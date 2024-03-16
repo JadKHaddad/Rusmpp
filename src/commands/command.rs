@@ -42,7 +42,7 @@ use super::{
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
-        encode::{Encode, EncodeError},
+        encode::{Encode, EncodeError, EncodeReady},
         length::Length,
     },
     tri,
@@ -125,6 +125,8 @@ impl Encode for Command {
         Ok(())
     }
 }
+
+impl EncodeReady for Command {}
 
 impl DecodeWithLength for Command {
     fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>

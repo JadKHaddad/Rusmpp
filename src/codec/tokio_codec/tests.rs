@@ -36,8 +36,8 @@ async fn do_tokio_codec() {
     let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
 
     tokio::spawn(async move {
-        while let Some(command) = framed_read.next().await {
-            println!("{:#?}", command);
+        while let Some(command_res) = framed_read.next().await {
+            println!("{:#?}", command_res);
             println!();
         }
     });
@@ -121,11 +121,22 @@ async fn do_tokio_codec() {
     tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
 }
 
-// cargo test run_server_and_send_enquire_link --features tokio-codec -- --ignored --nocapture
+// cargo test run_server --features "tokio-codec tracing pretty-hex-fmt" -- --ignored --nocapture
 #[tokio::test]
 #[ignore = "integration test"]
-async fn run_server_and_send_enquire_link() {
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:8080")
+async fn run_server() {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var(
+            "RUST_LOG",
+            "rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
+        );
+    }
+
+    tracing_subscriber::fmt()
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .init();
+
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:8080")
         .await
         .expect("Failed to bind to address");
 
@@ -138,8 +149,17 @@ async fn run_server_and_send_enquire_link() {
         println!("Accepted connection");
 
         tokio::spawn(async move {
-            let (_, writer) = stream.into_split();
+            let (reader, writer) = stream.into_split();
+
+            let mut framed_read = FramedRead::new(reader, CommandTokioCodec {});
             let mut framed_write = FramedWrite::new(writer, CommandTokioCodec {});
+
+            tokio::spawn(async move {
+                while let Some(command_res) = framed_read.next().await {
+                    println!("{:#?}", command_res);
+                    println!();
+                }
+            });
 
             let mut seq = 0;
             loop {

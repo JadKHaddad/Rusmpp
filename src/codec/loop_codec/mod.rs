@@ -6,11 +6,11 @@ use crate::{
 };
 
 #[derive(Default)]
-pub struct LoopCodec {
+pub struct CommandLoopCodec {
     src: BytesMut,
 }
 
-impl LoopCodec {
+impl CommandLoopCodec {
     pub fn new() -> Self {
         Default::default()
     }

@@ -1,6 +1,6 @@
 use std::net::TcpStream;
 
-use crate::{codec::loop_codec::LoopCodec, ende::decode::DecodeError};
+use crate::{codec::loop_codec::CommandLoopCodec, ende::decode::DecodeError};
 
 // cargo test do_loop_codec --features tracing -- --ignored --nocapture
 #[test]
@@ -22,7 +22,7 @@ fn do_loop_codec() {
         .set_read_timeout(Some(std::time::Duration::from_millis(50)))
         .expect("Failed to set read timeout");
 
-    let mut loop_codec = LoopCodec::new();
+    let mut loop_codec = CommandLoopCodec::new();
     let mut buffer = [0u8; 4];
 
     loop {

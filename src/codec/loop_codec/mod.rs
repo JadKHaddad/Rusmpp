@@ -5,29 +5,32 @@ use crate::{
     Command,
 };
 
-#[derive(Default)]
-pub struct CommandLoopCodec {
+/// A codec for encoding SMPP PDUs from a reader.
+pub struct CommandLoopCodec<const BUF_SIZE: usize> {
     src: BytesMut,
+    buffer: [u8; BUF_SIZE],
 }
 
-impl CommandLoopCodec {
+impl<const BUF_SIZE: usize> CommandLoopCodec<BUF_SIZE> {
     pub fn new() -> Self {
-        Default::default()
+        Self {
+            src: BytesMut::new(),
+            buffer: [0u8; BUF_SIZE],
+        }
     }
 
     pub fn try_decode<R: std::io::Read>(
         &mut self,
-        buffer: &mut [u8],
         mut reader: R,
     ) -> Result<Option<Command>, DecodeError> {
-        match reader.read(buffer) {
+        match reader.read(&mut self.buffer) {
             Ok(0) => Err(DecodeError::IoError(std::io::Error::new(
                 std::io::ErrorKind::UnexpectedEof,
                 "Unexpected EOF",
             ))),
             Err(err) => Err(DecodeError::IoError(err)),
             Ok(n) => {
-                self.src.extend_from_slice(&buffer[..n]);
+                self.src.extend_from_slice(&self.buffer[..n]);
 
                 #[cfg(feature = "tracing")]
                 tracing::trace!(target: "rusmpp::codec::decode", read=n, source_length= self.src.len());
@@ -80,6 +83,12 @@ impl CommandLoopCodec {
                 Ok(Some(command))
             }
         }
+    }
+}
+
+impl<const BUF_SIZE: usize> Default for CommandLoopCodec<BUF_SIZE> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

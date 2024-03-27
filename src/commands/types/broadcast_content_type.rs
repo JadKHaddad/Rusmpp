@@ -1,10 +1,6 @@
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::{u16::EndeU16, u8::EndeU8},
 };
 
@@ -202,11 +198,13 @@ impl From<EncodingContentType> for u16 {
 
 impl EndeU16 for EncodingContentType {}
 
-/// Specifies the content type of the message.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct BroadcastContentType {
-    pub type_of_network: TypeOfNetwork,
-    pub encoding_content_type: EncodingContentType,
+impl_length_encode! {
+    /// Specifies the content type of the message.
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct BroadcastContentType {
+        pub type_of_network: TypeOfNetwork,
+        pub encoding_content_type: EncodingContentType,
+    }
 }
 
 impl BroadcastContentType {
@@ -215,21 +213,6 @@ impl BroadcastContentType {
             type_of_network,
             encoding_content_type,
         }
-    }
-}
-
-impl Length for BroadcastContentType {
-    fn length(&self) -> usize {
-        self.type_of_network.length() + self.encoding_content_type.length()
-    }
-}
-
-impl Encode for BroadcastContentType {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.type_of_network.encode_to(writer));
-        tri!(self.encoding_content_type.encode_to(writer));
-
-        Ok(())
     }
 }
 

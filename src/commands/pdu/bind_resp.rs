@@ -6,23 +6,24 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct BindResp {
-    /// MC identifier.
-    ///
-    /// Identifies the MC to the ESME.
-    pub system_id: COctetString<1, 16>,
-    /// [`TLVValue::ScInterfaceVersion`].
-    ///
-    /// SMPP version supported by MC.
-    sc_interface_version: Option<TLV>,
+impl_length_encode! {
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct BindResp {
+        /// MC identifier.
+        ///
+        /// Identifies the MC to the ESME.
+        pub system_id: COctetString<1, 16>,
+        /// [`TLVValue::ScInterfaceVersion`].
+        ///
+        /// SMPP version supported by MC.
+        sc_interface_version: Option<TLV>,
+    }
 }
 
 impl BindResp {
@@ -60,21 +61,6 @@ impl BindResp {
 
     pub fn into_bind_transceiver_resp(self) -> Pdu {
         Pdu::BindTransceiverResp(self)
-    }
-}
-
-impl Length for BindResp {
-    fn length(&self) -> usize {
-        self.system_id.length() + self.sc_interface_version.length()
-    }
-}
-
-impl Encode for BindResp {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.system_id.encode_to(writer));
-        tri!(self.sc_interface_version.encode_to(writer));
-
-        Ok(())
     }
 }
 

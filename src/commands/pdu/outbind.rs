@@ -1,31 +1,29 @@
 use super::Pdu;
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
 
-/// Authentication PDU used by a Message Centre to Outbind to
-/// an ESME to inform it that messages are present in the MC.
-/// The PDU contains identification, and access password for the
-/// ESME. If the ESME authenticates the request, it will respond
-/// with a bind_receiver or bind_transceiver to begin the process
-/// of binding into the MC.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Outbind {
-    /// MC identifier.
-    ///
-    /// Identifies the MC to the ESME.
-    pub system_id: COctetString<1, 16>,
-    /// The password may be used by the
-    /// ESME for security reasons to
-    /// authenticate the MC originating the
-    /// outbind.
-    pub password: COctetString<1, 9>,
+impl_length_encode! {
+    /// Authentication PDU used by a Message Centre to Outbind to
+    /// an ESME to inform it that messages are present in the MC.
+    /// The PDU contains identification, and access password for the
+    /// ESME. If the ESME authenticates the request, it will respond
+    /// with a bind_receiver or bind_transceiver to begin the process
+    /// of binding into the MC.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct Outbind {
+        /// MC identifier.
+        ///
+        /// Identifies the MC to the ESME.
+        pub system_id: COctetString<1, 16>,
+        /// The password may be used by the
+        /// ESME for security reasons to
+        /// authenticate the MC originating the
+        /// outbind.
+        pub password: COctetString<1, 9>,
+    }
 }
 
 impl Outbind {
@@ -42,21 +40,6 @@ impl Outbind {
 
     pub fn into_outnbind(self) -> Pdu {
         Pdu::Outbind(self)
-    }
-}
-
-impl Length for Outbind {
-    fn length(&self) -> usize {
-        self.system_id.length() + self.password.length()
-    }
-}
-
-impl Encode for Outbind {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.system_id.encode_to(writer));
-        tri!(self.password.encode_to(writer));
-
-        Ok(())
     }
 }
 

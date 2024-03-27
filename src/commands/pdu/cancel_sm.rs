@@ -1,100 +1,98 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-/// This command is issued by the ESME to cancel one or more previously submitted short
-/// messages that are pending delivery. The command may specify a particular message to
-/// cancel, or all messages matching a particular source, destination and service_type.
-///
-/// If the message_id is set to the ID of a previously submitted message, then provided the
-/// source address supplied by the ESME matches that of the stored message, that message
-/// will be cancelled.
-///
-/// If the message_id is NULL, all outstanding undelivered messages with matching source and
-/// destination addresses (and service_type if specified) are cancelled.  
-/// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
-/// NULL, then the source address in the cancel_sm command should also be NULL.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct CancelSm {
-    /// Set to indicate SMS Application service,
-    /// if cancellation of a group of application
-    /// service messages is desired.
-    /// Otherwise set to NULL.
-    pub serivce_type: ServiceType,
-    /// Message ID of the message to be
-    /// cancelled. This must be the MC
-    /// assigned Message ID of the original
-    /// message.
+impl_length_encode! {
+    /// This command is issued by the ESME to cancel one or more previously submitted short
+    /// messages that are pending delivery. The command may specify a particular message to
+    /// cancel, or all messages matching a particular source, destination and service_type.
     ///
-    /// Set to NULL if cancelling a group of
-    /// messages.
-    pub message_id: COctetString<1, 65>,
-    /// Type of Number of message originator.
-    /// This is used for verification purposes,
-    /// and must match that supplied in the
-    /// original message submission request PDU.
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
     ///
-    /// If not known, set to NULL.
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Identity of message
-    /// originator.  
-    ///
-    /// This is used for verification purposes,
-    /// and must match that supplied in the
-    /// original message submission request PDU.  
-    ///
-    /// If not known, set to NULL.
-    pub source_addr_npi: Npi,
-    /// Source address of message(s) to be
-    /// cancelled. This is used for verification
-    /// purposes, and must match that supplied
-    /// in the original message submission
-    /// request PDU(s).
-    ///
-    /// If not known, set to NULL.
-    pub source_addr: COctetString<1, 21>,
-    /// Type of number of destination SME
-    /// address of the message(s) to be cancelled.
-    ///
-    /// This is used for verification purposes,
-    /// and must match that supplied in the
-    /// original message submission request
-    /// PDU (e.g. submit_sm).  
-    ///
-    /// May be set to NULL when the
-    /// message_id is provided.
-    pub dest_addr_ton: Ton,
-    /// Numbering Plan Indicator of destination
-    /// SME address of the message(s) to be
-    /// cancelled.
-    ///
-    /// This is used for verification purposes,
-    /// and must match that supplied in the
-    /// original message submission request
-    /// PDU.  
-    ///
-    /// May be set to NULL when the
-    /// message_id is provided.
-    pub dest_addr_npi: Npi,
-    /// Destination address of message(s) to be
-    /// cancelled.
-    ///
-    /// This is used for verification purposes,
-    /// and must match that supplied in the
-    /// original message submission request
-    /// PDU.  
-    ///
-    /// May be set to NULL when the
-    /// message_id is provided.
-    pub destination_addr: COctetString<1, 21>,
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.
+    /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
+    /// NULL, then the source address in the cancel_sm command should also be NULL.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct CancelSm {
+        /// Set to indicate SMS Application service,
+        /// if cancellation of a group of application
+        /// service messages is desired.
+        /// Otherwise set to NULL.
+        pub serivce_type: ServiceType,
+        /// Message ID of the message to be
+        /// cancelled. This must be the MC
+        /// assigned Message ID of the original
+        /// message.
+        ///
+        /// Set to NULL if cancelling a group of
+        /// messages.
+        pub message_id: COctetString<1, 65>,
+        /// Type of Number of message originator.
+        /// This is used for verification purposes,
+        /// and must match that supplied in the
+        /// original message submission request PDU.
+        ///
+        /// If not known, set to NULL.
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Identity of message
+        /// originator.
+        ///
+        /// This is used for verification purposes,
+        /// and must match that supplied in the
+        /// original message submission request PDU.
+        ///
+        /// If not known, set to NULL.
+        pub source_addr_npi: Npi,
+        /// Source address of message(s) to be
+        /// cancelled. This is used for verification
+        /// purposes, and must match that supplied
+        /// in the original message submission
+        /// request PDU(s).
+        ///
+        /// If not known, set to NULL.
+        pub source_addr: COctetString<1, 21>,
+        /// Type of number of destination SME
+        /// address of the message(s) to be cancelled.
+        ///
+        /// This is used for verification purposes,
+        /// and must match that supplied in the
+        /// original message submission request
+        /// PDU (e.g. submit_sm).
+        ///
+        /// May be set to NULL when the
+        /// message_id is provided.
+        pub dest_addr_ton: Ton,
+        /// Numbering Plan Indicator of destination
+        /// SME address of the message(s) to be
+        /// cancelled.
+        ///
+        /// This is used for verification purposes,
+        /// and must match that supplied in the
+        /// original message submission request
+        /// PDU.
+        ///
+        /// May be set to NULL when the
+        /// message_id is provided.
+        pub dest_addr_npi: Npi,
+        /// Destination address of message(s) to be
+        /// cancelled.
+        ///
+        /// This is used for verification purposes,
+        /// and must match that supplied in the
+        /// original message submission request
+        /// PDU.
+        ///
+        /// May be set to NULL when the
+        /// message_id is provided.
+        pub destination_addr: COctetString<1, 21>,
+    }
 }
 
 impl CancelSm {
@@ -127,34 +125,6 @@ impl CancelSm {
 
     pub fn into_cancel_sm(self) -> Pdu {
         Pdu::CancelSm(self)
-    }
-}
-
-impl Length for CancelSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-    }
-}
-
-impl Encode for CancelSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.serivce_type.encode_to(writer));
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.dest_addr_ton.encode_to(writer));
-        tri!(self.dest_addr_npi.encode_to(writer));
-        tri!(self.destination_addr.encode_to(writer));
-
-        Ok(())
     }
 }
 

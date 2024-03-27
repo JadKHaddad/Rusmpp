@@ -6,40 +6,41 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-/// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
-/// session. It is sent when the MC has detected that a particular mobile subscriber has become
-/// available and a delivery pending flag had been previously set for that subscriber by means of
-/// the set_dpf TLV.
-///
-/// A typical use of this operation is to trigger a data content ‘Push’ to the subscriber from a WAP
-/// Proxy Server.
-///
-/// Note: There is no associated alert_notification_resp PDU.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct AlertNotification {
-    /// Type of Number for alert SME.
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Indicator for alert SME.
-    pub source_addr_npi: Npi,
-    /// Address of alert SME.
-    pub source_addr: COctetString<1, 65>,
-    /// Type of Number for ESME address
-    /// which requested the alert.
-    pub esme_addr_ton: Ton,
-    /// Numbering Plan Indicator for ESME
-    /// address which requested the alert.
-    pub esme_addr_npi: Npi,
-    /// Address for ESME which requested the alert.
-    pub esme_addr: COctetString<1, 65>,
-    /// The status of the mobile station.
-    ms_availability_status: Option<TLV>,
+impl_length_encode! {
+    /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
+    /// session. It is sent when the MC has detected that a particular mobile subscriber has become
+    /// available and a delivery pending flag had been previously set for that subscriber by means of
+    /// the set_dpf TLV.
+    ///
+    /// A typical use of this operation is to trigger a data content ‘Push’ to the subscriber from a WAP
+    /// Proxy Server.
+    ///
+    /// Note: There is no associated alert_notification_resp PDU.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct AlertNotification {
+        /// Type of Number for alert SME.
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Indicator for alert SME.
+        pub source_addr_npi: Npi,
+        /// Address of alert SME.
+        pub source_addr: COctetString<1, 65>,
+        /// Type of Number for ESME address
+        /// which requested the alert.
+        pub esme_addr_ton: Ton,
+        /// Numbering Plan Indicator for ESME
+        /// address which requested the alert.
+        pub esme_addr_npi: Npi,
+        /// Address for ESME which requested the alert.
+        pub esme_addr: COctetString<1, 65>,
+        /// The status of the mobile station.
+        ms_availability_status: Option<TLV>,
+    }
 }
 
 impl AlertNotification {
@@ -82,32 +83,6 @@ impl AlertNotification {
 
     pub fn into_alert_notification(self) -> Pdu {
         Pdu::AlertNotification(self)
-    }
-}
-
-impl Length for AlertNotification {
-    fn length(&self) -> usize {
-        self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.esme_addr_ton.length()
-            + self.esme_addr_npi.length()
-            + self.esme_addr.length()
-            + self.ms_availability_status.length()
-    }
-}
-
-impl Encode for AlertNotification {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.esme_addr_ton.encode_to(writer));
-        tri!(self.esme_addr_npi.encode_to(writer));
-        tri!(self.esme_addr.encode_to(writer));
-        tri!(self.ms_availability_status.encode_to(writer));
-
-        Ok(())
     }
 }
 

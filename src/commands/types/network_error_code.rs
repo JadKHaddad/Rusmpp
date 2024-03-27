@@ -1,17 +1,15 @@
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::u8::EndeU8,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct NetworkErrorCode {
-    pub network_type: ErrorCodeNetworkType,
-    pub error_code: u16,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct NetworkErrorCode {
+        pub network_type: ErrorCodeNetworkType,
+        pub error_code: u16,
+    }
 }
 
 impl NetworkErrorCode {
@@ -20,21 +18,6 @@ impl NetworkErrorCode {
             network_type,
             error_code,
         }
-    }
-}
-
-impl Length for NetworkErrorCode {
-    fn length(&self) -> usize {
-        self.network_type.length() + self.error_code.length()
-    }
-}
-
-impl Encode for NetworkErrorCode {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.network_type.encode_to(writer));
-        tri!(self.error_code.encode_to(writer));
-
-        Ok(())
     }
 }
 

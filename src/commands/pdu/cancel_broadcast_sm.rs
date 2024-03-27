@@ -6,65 +6,66 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-/// This command is issued by the ESME to cancel a broadcast message which has been
-/// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
-/// pending delivery.  
-///
-/// If the message_id is set to the ID of a previously submitted message, then provided the
-/// source address supplied by the ESME matches that of the stored message, that message
-/// will be cancelled.
-///
-/// If the message_id is NULL, all outstanding undelivered messages with matching source and
-/// destination addresses (and service_type if specified) are cancelled.
-///
-/// If the user_message_reference is set to the ESME-assigned reference of a previously
-/// submitted message, then provided the source address supplied by the ESME matches that of
-/// the stored message, that message will be cancelled.
-///
-/// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
-/// address in the cancel_broadcast_sm command should also be NULL.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct CancelBroadcastSm {
-    /// Set to indicate CBS Application service, if
-    /// cancellation of a group of application service
-    /// messages is desired.
+impl_length_encode! {
+    /// This command is issued by the ESME to cancel a broadcast message which has been
+    /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
+    /// pending delivery.
     ///
-    /// Otherwise set to NULL.
-    pub serivce_type: ServiceType,
-    /// Message ID of the message to be cancelled. This must
-    /// be the MC assigned Message ID of the original message.  
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
     ///
-    /// Set to NULL if setting user_message_reference.
-    pub message_id: COctetString<1, 65>,
-    /// Type of Number of message originator. This is used for
-    /// verification purposes, and must match that supplied in
-    /// the original message submission request PDU.
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.
     ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Identity of message originator.  
+    /// If the user_message_reference is set to the ESME-assigned reference of a previously
+    /// submitted message, then provided the source address supplied by the ESME matches that of
+    /// the stored message, that message will be cancelled.
     ///
-    /// This is used for verification purposes, and must match
-    /// that supplied in the original message submission
-    /// request PDU.  
-    ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr_npi: Npi,
-    /// Source address of message to be cancelled. This is used
-    // for verification purposes, and must match that supplied in
-    // the original message submission request PDU.
-    //
-    // If not known, set to NULL (Unknown).
-    pub source_addr: COctetString<1, 21>,
-    /// Cancel broadcast  TLVs ([`CancelBroadcastTLV`]).
-    tlvs: Vec<TLV>,
+    /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
+    /// address in the cancel_broadcast_sm command should also be NULL.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct CancelBroadcastSm {
+        /// Set to indicate CBS Application service, if
+        /// cancellation of a group of application service
+        /// messages is desired.
+        ///
+        /// Otherwise set to NULL.
+        pub serivce_type: ServiceType,
+        /// Message ID of the message to be cancelled. This must
+        /// be the MC assigned Message ID of the original message.
+        ///
+        /// Set to NULL if setting user_message_reference.
+        pub message_id: COctetString<1, 65>,
+        /// Type of Number of message originator. This is used for
+        /// verification purposes, and must match that supplied in
+        /// the original message submission request PDU.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Identity of message originator.
+        ///
+        /// This is used for verification purposes, and must match
+        /// that supplied in the original message submission
+        /// request PDU.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr_npi: Npi,
+        /// Source address of message to be cancelled. This is used
+        // for verification purposes, and must match that supplied in
+        // the original message submission request PDU.
+        //
+        // If not known, set to NULL (Unknown).
+        pub source_addr: COctetString<1, 21>,
+        /// Cancel broadcast  TLVs ([`CancelBroadcastTLV`]).
+        tlvs: Vec<TLV>,
+    }
 }
 
 impl CancelBroadcastSm {
@@ -116,30 +117,6 @@ impl CancelBroadcastSm {
 
     pub fn into_cancel_broadcast_sm(self) -> Pdu {
         Pdu::CancelBroadcastSm(self)
-    }
-}
-
-impl Length for CancelBroadcastSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.tlvs.length()
-    }
-}
-
-impl Encode for CancelBroadcastSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.serivce_type.encode_to(writer));
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.tlvs.encode_to(writer));
-
-        Ok(())
     }
 }
 

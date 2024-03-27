@@ -1,17 +1,15 @@
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError, DecodeWithLength},
+    impl_length_encode, tri,
     types::u8::EndeU8,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct MsValidity {
-    pub validity_behaviour: MsValidityBehaviour,
-    pub validity_information: Option<MsValidityInformation>,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct MsValidity {
+        pub validity_behaviour: MsValidityBehaviour,
+        pub validity_information: Option<MsValidityInformation>,
+    }
 }
 
 impl MsValidity {
@@ -23,21 +21,6 @@ impl MsValidity {
             validity_behaviour,
             validity_information,
         }
-    }
-}
-
-impl Length for MsValidity {
-    fn length(&self) -> usize {
-        self.validity_behaviour.length() + self.validity_information.length()
-    }
-}
-
-impl Encode for MsValidity {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.validity_behaviour.encode_to(writer));
-        tri!(self.validity_information.encode_to(writer));
-
-        Ok(())
     }
 }
 
@@ -62,10 +45,12 @@ impl DecodeWithLength for MsValidity {
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct MsValidityInformation {
-    pub units_of_time: UnitsOfTime,
-    pub number_of_time_units: u16,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct MsValidityInformation {
+        pub units_of_time: UnitsOfTime,
+        pub number_of_time_units: u16,
+    }
 }
 
 impl MsValidityInformation {
@@ -74,21 +59,6 @@ impl MsValidityInformation {
             units_of_time,
             number_of_time_units,
         }
-    }
-}
-
-impl Length for MsValidityInformation {
-    fn length(&self) -> usize {
-        self.units_of_time.length() + self.number_of_time_units.length()
-    }
-}
-
-impl Encode for MsValidityInformation {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.units_of_time.encode_to(writer));
-        tri!(self.number_of_time_units.encode_to(writer));
-
-        Ok(())
     }
 }
 

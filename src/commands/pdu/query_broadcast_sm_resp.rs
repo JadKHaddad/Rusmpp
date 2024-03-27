@@ -12,42 +12,43 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct QueryBroadcastSmResp {
-    /// Message ID of the queried message. This must be the MC
-    /// assigned Message ID allocated to the original short message
-    /// when submitted to the MC by the broadcast_sm, command, and
-    /// returned in the broadcast_sm_resp PDU by the MC.
-    pub message_id: COctetString<1, 65>,
-    /// [`TLVValue::MessageState`].
-    ///
-    /// This field indicates the current status of the broadcast message.
-    message_state: TLV,
-    /// [`TLVValue::BroadcastAreaIdentifier`].
-    ///
-    /// Identifies one or more target Broadcast Area(s) for which the
-    /// status information applies.
-    ///
-    /// The number of instances of this parameter will be exactly equal
-    /// to the number of occurrences of the broadcast_area_identifiers
-    /// parameter in the corresponding broadcast_sm.
-    broadcast_area_identifier: TLV,
-    /// [`TLVValue::BroadcastAreaSuccess`].
-    ///
-    /// The success rate indicator, defined as the ratio of the
-    /// number of BTSs that accepted the message and the total
-    /// number of BTSs that should have accepted the message, for
-    /// a particular broadcast_area_identifier.
-    broadcast_area_success: TLV,
-    /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
-    tlvs: Vec<TLV>,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct QueryBroadcastSmResp {
+        /// Message ID of the queried message. This must be the MC
+        /// assigned Message ID allocated to the original short message
+        /// when submitted to the MC by the broadcast_sm, command, and
+        /// returned in the broadcast_sm_resp PDU by the MC.
+        pub message_id: COctetString<1, 65>,
+        /// [`TLVValue::MessageState`].
+        ///
+        /// This field indicates the current status of the broadcast message.
+        message_state: TLV,
+        /// [`TLVValue::BroadcastAreaIdentifier`].
+        ///
+        /// Identifies one or more target Broadcast Area(s) for which the
+        /// status information applies.
+        ///
+        /// The number of instances of this parameter will be exactly equal
+        /// to the number of occurrences of the broadcast_area_identifiers
+        /// parameter in the corresponding broadcast_sm.
+        broadcast_area_identifier: TLV,
+        /// [`TLVValue::BroadcastAreaSuccess`].
+        ///
+        /// The success rate indicator, defined as the ratio of the
+        /// number of BTSs that accepted the message and the total
+        /// number of BTSs that should have accepted the message, for
+        /// a particular broadcast_area_identifier.
+        broadcast_area_success: TLV,
+        /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
+        tlvs: Vec<TLV>,
+    }
 }
 
 impl QueryBroadcastSmResp {
@@ -148,28 +149,6 @@ impl Default for QueryBroadcastSmResp {
             broadcast_area_success: TLV::new(TLVValue::BroadcastAreaSuccess(Default::default())),
             tlvs: Default::default(),
         }
-    }
-}
-
-impl Length for QueryBroadcastSmResp {
-    fn length(&self) -> usize {
-        self.message_id.length()
-            + self.message_state.length()
-            + self.broadcast_area_identifier.length()
-            + self.broadcast_area_success.length()
-            + self.tlvs.length()
-    }
-}
-
-impl Encode for QueryBroadcastSmResp {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.message_state.encode_to(writer));
-        tri!(self.broadcast_area_identifier.encode_to(writer));
-        tri!(self.broadcast_area_success.encode_to(writer));
-        tri!(self.tlvs.encode_to(writer));
-
-        Ok(())
     }
 }
 

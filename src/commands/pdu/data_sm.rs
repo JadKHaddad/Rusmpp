@@ -8,66 +8,67 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-/// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
-/// mobile-terminated message. However, data_sm is intended for packet-based applications
-/// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
-/// packet-based applications.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct DataSm {
-    /// The service_type parameter can be used to indicate the
-    /// SMS Application service associated with the message.
-    /// Specifying the service_type allows the ESME to avail of
-    /// enhanced messaging services such as “replace by
-    /// service_type” or control the teleservice used on the air
-    /// interface.
-    ///
-    /// Set to NULL for default MC
-    /// settings.
-    pub serivce_type: ServiceType,
-    /// Type of Number for source
-    /// address.
-    ///
-    /// If not known, set to NULL
-    /// (Unknown).
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Indicator for
-    /// source address.
-    ///
-    /// If not known, set to NULL
-    /// (Unknown).
-    pub source_addr_npi: Npi,
-    /// Address of SME which
-    /// originated this message.
-    ///
-    /// If not known, set to NULL
-    /// (Unknown).
-    pub source_addr: COctetString<1, 21>,
-    /// Type of Number for destination.
-    pub dest_addr_ton: Ton,
-    /// Numbering Plan Indicator for destination.
-    pub dest_addr_npi: Npi,
-    /// Destination address of this short message For mobile
-    /// terminated messages, this is the directory number of the
-    /// recipient MS.
-    pub destination_addr: COctetString<1, 21>,
-    /// Indicates Message Mode and Message Type.
-    pub esm_class: EsmClass,
-    /// Indicator to signify if a MC
-    /// delivery receipt or an SME
-    /// acknowledgement is required.
-    pub registered_delivery: RegisteredDelivery,
-    /// Defines the encoding scheme
-    /// of the short message user data.
-    pub data_coding: DataCoding,
-    /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
-    tlvs: Vec<TLV>,
+impl_length_encode! {
+    /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
+    /// mobile-terminated message. However, data_sm is intended for packet-based applications
+    /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
+    /// packet-based applications.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct DataSm {
+        /// The service_type parameter can be used to indicate the
+        /// SMS Application service associated with the message.
+        /// Specifying the service_type allows the ESME to avail of
+        /// enhanced messaging services such as “replace by
+        /// service_type” or control the teleservice used on the air
+        /// interface.
+        ///
+        /// Set to NULL for default MC
+        /// settings.
+        pub serivce_type: ServiceType,
+        /// Type of Number for source
+        /// address.
+        ///
+        /// If not known, set to NULL
+        /// (Unknown).
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Indicator for
+        /// source address.
+        ///
+        /// If not known, set to NULL
+        /// (Unknown).
+        pub source_addr_npi: Npi,
+        /// Address of SME which
+        /// originated this message.
+        ///
+        /// If not known, set to NULL
+        /// (Unknown).
+        pub source_addr: COctetString<1, 21>,
+        /// Type of Number for destination.
+        pub dest_addr_ton: Ton,
+        /// Numbering Plan Indicator for destination.
+        pub dest_addr_npi: Npi,
+        /// Destination address of this short message For mobile
+        /// terminated messages, this is the directory number of the
+        /// recipient MS.
+        pub destination_addr: COctetString<1, 21>,
+        /// Indicates Message Mode and Message Type.
+        pub esm_class: EsmClass,
+        /// Indicator to signify if a MC
+        /// delivery receipt or an SME
+        /// acknowledgement is required.
+        pub registered_delivery: RegisteredDelivery,
+        /// Defines the encoding scheme
+        /// of the short message user data.
+        pub data_coding: DataCoding,
+        /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
+        tlvs: Vec<TLV>,
+    }
 }
 
 impl DataSm {
@@ -119,40 +120,6 @@ impl DataSm {
 
     pub fn builder() -> DataSmBuilder {
         DataSmBuilder::new()
-    }
-}
-
-impl Length for DataSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-            + self.esm_class.length()
-            + self.registered_delivery.length()
-            + self.data_coding.length()
-            + self.tlvs.length()
-    }
-}
-
-impl Encode for DataSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.serivce_type.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.dest_addr_ton.encode_to(writer));
-        tri!(self.dest_addr_npi.encode_to(writer));
-        tri!(self.destination_addr.encode_to(writer));
-        tri!(self.esm_class.encode_to(writer));
-        tri!(self.registered_delivery.encode_to(writer));
-        tri!(self.data_coding.encode_to(writer));
-        tri!(self.tlvs.encode_to(writer));
-
-        Ok(())
     }
 }
 

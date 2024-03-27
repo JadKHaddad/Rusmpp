@@ -61,7 +61,6 @@ pub mod ende;
 
 pub mod types;
 
-#[macro_use]
-pub(crate) mod macros;
+mod macros;
 
 pub(crate) mod utils;

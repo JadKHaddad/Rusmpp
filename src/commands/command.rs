@@ -42,27 +42,28 @@ use super::{
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::u32::EndeU32,
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct Command {
-    /// See [`CommandId`]
-    command_id: CommandId,
-    /// See [`CommandStatus`]
-    pub command_status: CommandStatus,
-    /// The sequence_number represents a means of uniquely
-    /// identifying each PDU within a SMPP session. It also provides a means of correlating request
-    /// and response PDUs based on matching sequence number.
-    pub sequence_number: u32,
-    /// See [`Pdu`]
-    ///
-    /// Optional because incoming commands may not have a PDU.
-    pdu: Option<Pdu>,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct Command {
+        /// See [`CommandId`]
+        command_id: CommandId,
+        /// See [`CommandStatus`]
+        pub command_status: CommandStatus,
+        /// The sequence_number represents a means of uniquely
+        /// identifying each PDU within a SMPP session. It also provides a means of correlating request
+        /// and response PDUs based on matching sequence number.
+        pub sequence_number: u32,
+        /// See [`Pdu`]
+        ///
+        /// Optional because incoming commands may not have a PDU.
+        pdu: Option<Pdu>,
+    }
 }
 
 impl Command {
@@ -103,26 +104,6 @@ impl Command {
                 pdu: None,
             },
         }
-    }
-}
-
-impl Length for Command {
-    fn length(&self) -> usize {
-        self.command_id.length()
-            + self.command_status.length()
-            + self.sequence_number.length()
-            + self.pdu.length()
-    }
-}
-
-impl Encode for Command {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.command_id.encode_to(writer));
-        tri!(self.command_status.encode_to(writer));
-        tri!(self.sequence_number.encode_to(writer));
-        tri!(self.pdu.encode_to(writer));
-
-        Ok(())
     }
 }
 

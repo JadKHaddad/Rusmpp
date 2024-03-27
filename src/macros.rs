@@ -109,7 +109,7 @@ macro_rules! impl_length_encode {
         }
 
         impl $crate::ende::encode::Encode for $struct_ident {
-            fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), crate::ende::encode::EncodeError> {
+            fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), $crate::ende::encode::EncodeError> {
                 $(
                     tri!(self.$field_ident.encode_to(writer));
                 )*

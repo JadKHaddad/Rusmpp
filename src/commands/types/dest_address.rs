@@ -5,7 +5,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -92,21 +92,23 @@ impl Decode for DestAddress {
     }
 }
 
-/// SME Format Destination Address.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct SmeAddress {
-    /// 0x01 (SME Address).
-    ///
-    /// Can't and shouldn't be updated
-    dest_flag: DestFlag,
-    /// Type of Number for destination.
-    pub dest_addr_ton: Ton,
-    /// Numbering Plan Indicator for destination.
-    pub dest_addr_npi: Npi,
-    /// Destination address of this short message. For mobile
-    /// terminated messages, this is the directory number of the
-    /// recipient MS.
-    pub destination_addr: COctetString<1, 21>,
+impl_length_encode! {
+    /// SME Format Destination Address.
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct SmeAddress {
+        /// 0x01 (SME Address).
+        ///
+        /// Can't and shouldn't be updated
+        dest_flag: DestFlag,
+        /// Type of Number for destination.
+        pub dest_addr_ton: Ton,
+        /// Numbering Plan Indicator for destination.
+        pub dest_addr_npi: Npi,
+        /// Destination address of this short message. For mobile
+        /// terminated messages, this is the directory number of the
+        /// recipient MS.
+        pub destination_addr: COctetString<1, 21>,
+    }
 }
 
 impl SmeAddress {
@@ -128,26 +130,6 @@ impl SmeAddress {
     }
 }
 
-impl Length for SmeAddress {
-    fn length(&self) -> usize {
-        self.dest_flag.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-    }
-}
-
-impl Encode for SmeAddress {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.dest_flag.encode_to(writer));
-        tri!(self.dest_addr_ton.encode_to(writer));
-        tri!(self.dest_addr_npi.encode_to(writer));
-        tri!(self.destination_addr.encode_to(writer));
-
-        Ok(())
-    }
-}
-
 impl Decode for SmeAddress {
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
         // flag is already read
@@ -159,15 +141,17 @@ impl Decode for SmeAddress {
     }
 }
 
-/// Distribution List Format Destination Address.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct DistributionListName {
-    /// 0x02 (Distribution List).
-    ///
-    /// Can't and shouldn't be updated.
-    dest_flag: DestFlag,
-    /// Name of Distribution List.
-    pub dl_name: COctetString<1, 21>,
+impl_length_encode! {
+    /// Distribution List Format Destination Address.
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct DistributionListName {
+        /// 0x02 (Distribution List).
+        ///
+        /// Can't and shouldn't be updated.
+        dest_flag: DestFlag,
+        /// Name of Distribution List.
+        pub dl_name: COctetString<1, 21>,
+    }
 }
 
 impl DistributionListName {
@@ -180,21 +164,6 @@ impl DistributionListName {
 
     pub fn dest_flag(&self) -> DestFlag {
         self.dest_flag
-    }
-}
-
-impl Length for DistributionListName {
-    fn length(&self) -> usize {
-        self.dest_flag.length() + self.dl_name.length()
-    }
-}
-
-impl Encode for DistributionListName {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.dest_flag.encode_to(writer));
-        tri!(self.dl_name.encode_to(writer));
-
-        Ok(())
     }
 }
 

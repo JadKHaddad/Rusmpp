@@ -1,24 +1,22 @@
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u32::EndeU32, u8::EndeU8},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct UnsuccessSme {
-    /// Type of number for destination.
-    pub dest_addr_ton: Ton,
-    /// Numbering Plan Indicator for destination.
-    pub dest_addr_npi: Npi,
-    /// Destination Address of SME.
-    pub destination_addr: COctetString<1, 21>,
-    /// Indicates the success or failure of the [`Pdu::SubmitMulti`](type@crate::commands::pdu::Pdu::SubmitMulti) request to this SME address.
-    pub error_status_code: CommandStatus,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct UnsuccessSme {
+        /// Type of number for destination.
+        pub dest_addr_ton: Ton,
+        /// Numbering Plan Indicator for destination.
+        pub dest_addr_npi: Npi,
+        /// Destination Address of SME.
+        pub destination_addr: COctetString<1, 21>,
+        /// Indicates the success or failure of the [`Pdu::SubmitMulti`](type@crate::commands::pdu::Pdu::SubmitMulti) request to this SME address.
+        pub error_status_code: CommandStatus,
+    }
 }
 
 impl UnsuccessSme {
@@ -34,26 +32,6 @@ impl UnsuccessSme {
             destination_addr,
             error_status_code,
         }
-    }
-}
-
-impl Length for UnsuccessSme {
-    fn length(&self) -> usize {
-        self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-            + self.error_status_code.length()
-    }
-}
-
-impl Encode for UnsuccessSme {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.dest_addr_ton.encode_to(writer));
-        tri!(self.dest_addr_npi.encode_to(writer));
-        tri!(self.destination_addr.encode_to(writer));
-        tri!(self.error_status_code.encode_to(writer));
-
-        Ok(())
     }
 }
 

@@ -1,37 +1,20 @@
 use crate::{
-    ende::{
-        decode::{DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{DecodeError, DecodeWithLength},
+    impl_length_encode, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct Subaddress {
-    pub tag: SubaddressTag,
-    pub addr: OctetString<1, 22>,
+impl_length_encode! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct Subaddress {
+        pub tag: SubaddressTag,
+        pub addr: OctetString<1, 22>,
+    }
 }
 
 impl Subaddress {
     pub fn new(tag: SubaddressTag, addr: OctetString<1, 22>) -> Self {
         Self { tag, addr }
-    }
-}
-
-impl Length for Subaddress {
-    fn length(&self) -> usize {
-        self.tag.length() + self.addr.length()
-    }
-}
-
-impl Encode for Subaddress {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.tag.encode_to(writer));
-        tri!(self.addr.encode_to(writer));
-
-        Ok(())
     }
 }
 

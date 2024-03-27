@@ -2,10 +2,9 @@ use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithKey},
-        encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::u16::EndeU16,
 };
 
@@ -18,12 +17,14 @@ pub mod message_submission_request;
 pub mod message_submission_response;
 pub mod query_broadcast_response;
 
-/// See module level documentation
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct TLV {
-    tag: TLVTag,
-    value_length: u16,
-    value: Option<TLVValue>,
+impl_length_encode! {
+    /// See module level documentation
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct TLV {
+        tag: TLVTag,
+        value_length: u16,
+        value: Option<TLVValue>,
+    }
 }
 
 impl TLV {
@@ -74,22 +75,6 @@ impl From<TLVTag> for TLV {
             value_length: 0,
             value: None,
         }
-    }
-}
-
-impl Length for TLV {
-    fn length(&self) -> usize {
-        self.tag.length() + self.value_length.length() + self.value.length()
-    }
-}
-
-impl Encode for TLV {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.tag.encode_to(writer));
-        tri!(self.value_length.encode_to(writer));
-        tri!(self.value.encode_to(writer));
-
-        Ok(())
     }
 }
 

@@ -1,10 +1,6 @@
 use crate::{
-    ende::{
-        decode::{DecodeError, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{DecodeError, DecodeWithLength},
+    impl_length_encode, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
 
@@ -42,36 +38,23 @@ impl From<BroadcastAreaFormat> for u8 {
 
 impl EndeU8 for BroadcastAreaFormat {}
 
-/// Identifies one or more target Broadcast Area(s) for which the
-/// status information applies.
-///
-/// The number of instances of this parameter will be exactly equal
-/// to the number of occurrences of the broadcast_area_identifiers
-/// parameter in the corresponding broadcast_sm.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct BroadcastAreaIdentifier {
-    pub format: BroadcastAreaFormat,
-    pub area: OctetString<0, 100>,
+impl_length_encode! {
+    /// Identifies one or more target Broadcast Area(s) for which the
+    /// status information applies.
+    ///
+    /// The number of instances of this parameter will be exactly equal
+    /// to the number of occurrences of the broadcast_area_identifiers
+    /// parameter in the corresponding broadcast_sm.
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct BroadcastAreaIdentifier {
+        pub format: BroadcastAreaFormat,
+        pub area: OctetString<0, 100>,
+    }
 }
 
 impl BroadcastAreaIdentifier {
     pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
         Self { format, area }
-    }
-}
-
-impl Length for BroadcastAreaIdentifier {
-    fn length(&self) -> usize {
-        self.format.length() + self.area.length()
-    }
-}
-
-impl Encode for BroadcastAreaIdentifier {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.format.encode_to(writer));
-        tri!(self.area.encode_to(writer));
-
-        Ok(())
     }
 }
 

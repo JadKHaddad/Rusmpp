@@ -1,16 +1,14 @@
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct ItsSessionInfo {
-    pub session_number: u8,
-    pub sequence_number: u8,
+impl_length_encode! {
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct ItsSessionInfo {
+        pub session_number: u8,
+        pub sequence_number: u8,
+    }
 }
 
 impl ItsSessionInfo {
@@ -19,21 +17,6 @@ impl ItsSessionInfo {
             session_number,
             sequence_number,
         }
-    }
-}
-
-impl Length for ItsSessionInfo {
-    fn length(&self) -> usize {
-        self.session_number.length() + self.sequence_number.length()
-    }
-}
-
-impl Encode for ItsSessionInfo {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.session_number.encode_to(writer));
-        tri!(self.sequence_number.encode_to(writer));
-
-        Ok(())
     }
 }
 

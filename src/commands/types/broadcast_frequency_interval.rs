@@ -1,10 +1,6 @@
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    ende::decode::{Decode, DecodeError},
+    impl_length_encode, tri,
     types::u8::EndeU8,
 };
 
@@ -57,32 +53,19 @@ impl From<UnitOfTime> for u8 {
 
 impl EndeU8 for UnitOfTime {}
 
-/// This field indicates the frequency interval at which
-/// the broadcasts of a message should be repeated.
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct BroadcastFrequencyInterval {
-    pub unit: UnitOfTime,
-    pub value: u16,
+impl_length_encode! {
+    /// This field indicates the frequency interval at which
+    /// the broadcasts of a message should be repeated.
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct BroadcastFrequencyInterval {
+        pub unit: UnitOfTime,
+        pub value: u16,
+    }
 }
 
 impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
-    }
-}
-
-impl Length for BroadcastFrequencyInterval {
-    fn length(&self) -> usize {
-        self.unit.length() + self.value.length()
-    }
-}
-
-impl Encode for BroadcastFrequencyInterval {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.unit.encode_to(writer));
-        tri!(self.value.encode_to(writer));
-
-        Ok(())
     }
 }
 

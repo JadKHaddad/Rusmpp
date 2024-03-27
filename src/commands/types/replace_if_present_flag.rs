@@ -1,4 +1,5 @@
 use crate::types::u8::EndeU8;
+
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum ReplaceIfPresentFlag {

@@ -3,7 +3,7 @@ use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     ende::{
         decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
+        encode::{Encode},
         length::Length,
     },
     impl_length_encode, tri,

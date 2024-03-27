@@ -3,7 +3,6 @@ use crate::{
     commands::tlvs::tlv::{broadcast_response::BroadcastResponseTLV, TLV},
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::Encode,
         length::Length,
     },
     impl_length_encode, tri,

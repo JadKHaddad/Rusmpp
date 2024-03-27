@@ -6,7 +6,6 @@ use crate::{
     },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
-        encode::{Encode},
         length::Length,
     },
     impl_length_encode, tri,

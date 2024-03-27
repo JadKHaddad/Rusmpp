@@ -11,7 +11,74 @@ macro_rules! tri {
     };
 }
 
-/// Implement the `Length` and `Encode` traits for a struct.
+/// Implement the [`Length`](crate::ende::length::Length) and [`Encode`](crate::ende::encode::Encode) traits for a struct.
+///
+/// # Help
+///
+/// ```ignore
+/// impl_length_encode! {
+///    /// This is a doc comment
+///    ///
+///    /// More comments
+///    #[derive(Debug, Clone)]
+///    pub struct Foo  {
+///        /// Identifies the ESME system
+///        /// requesting to bind with the MC.
+///        pub system_id: COctetString<1, 16>,
+///        /// Identifies the version of the SMPP
+///        /// protocol supported by the ESME.
+///        pub interface_version: InterfaceVersion,
+///        /// Type of Number (TON) for ESME
+///        /// address(es) served via this SMPP session.
+///        ///
+///        /// Set to NULL (Unknown) if not known.
+///        pub addr_ton: Ton,
+///    }
+/// }
+/// ```
+/// expands to:
+///
+/// ```ignore
+/// /// This is a doc comment
+/// ///
+/// /// More comments
+/// #[derive(Debug, Clone)]
+/// pub struct Foo  {
+///     /// Identifies the ESME system
+///     /// requesting to bind with the MC.
+///     pub system_id: COctetString<1, 16>,
+///     /// Identifies the version of the SMPP
+///     /// protocol supported by the ESME.
+///     pub interface_version: InterfaceVersion,
+///     /// Type of Number (TON) for ESME
+///     /// address(es) served via this SMPP session.
+///     ///
+///     /// Set to NULL (Unknown) if not known.
+///     pub addr_ton: Ton,
+/// }
+///
+/// impl crate::ende::length::Length for Foo {
+///     fn length(&self) -> usize {
+///         let mut length = 0;
+///
+///         length += self.system_id.length();
+///         length += self.interface_version.length();
+///         length += self.addr_ton.length();
+///
+///         length
+///     }
+/// }
+///
+/// impl crate::ende::encode::Encode for Foo {
+///     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), crate::ende::encode::EncodeError> {
+///         tri!(self.system_id.encode_to(writer));
+///         tri!(self.interface_version.encode_to(writer));
+///         tri!(self.addr_ton.encode_to(writer));
+///
+///         Ok(())
+///     }
+/// }
+/// ```
 #[macro_export]
 macro_rules! impl_length_encode {
     (
@@ -54,65 +121,5 @@ macro_rules! impl_length_encode {
 }
 
 /*
-impl_length_encode! {
-    /// This is a doc comment
-    ///
-    /// More comments
-    #[derive(Debug, Clone)]
-    pub struct Foo  {
-        /// Identifies the ESME system
-        /// requesting to bind with the MC.
-        pub system_id: COctetString<1, 16>,
-        /// Identifies the version of the SMPP
-        /// protocol supported by the ESME.
-        pub interface_version: InterfaceVersion,
-        /// Type of Number (TON) for ESME
-        /// address(es) served via this SMPP session.
-        ///
-        /// Set to NULL (Unknown) if not known.
-        pub addr_ton: Ton,
-    }
-}
 
-expands to:
-
-/// This is a doc comment
-///
-/// More comments
-#[derive(Debug, Clone)]
-pub struct Foo  {
-    /// Identifies the ESME system
-    /// requesting to bind with the MC.
-    pub system_id: COctetString<1, 16>,
-    /// Identifies the version of the SMPP
-    /// protocol supported by the ESME.
-    pub interface_version: InterfaceVersion,
-    /// Type of Number (TON) for ESME
-    /// address(es) served via this SMPP session.
-    ///
-    /// Set to NULL (Unknown) if not known.
-    pub addr_ton: Ton,
-}
-
-impl crate::ende::length::Length for Foo {
-    fn length(&self) -> usize {
-        let mut length = 0;
-
-        length += self.system_id.length();
-        length += self.interface_version.length();
-        length += self.addr_ton.length();
-
-        length
-    }
-}
-
-impl crate::ende::encode::Encode for Foo {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), crate::ende::encode::EncodeError> {
-        tri!(self.system_id.encode_to(writer));
-        tri!(self.interface_version.encode_to(writer));
-        tri!(self.addr_ton.encode_to(writer));
-
-        Ok(())
-    }
-}
 */

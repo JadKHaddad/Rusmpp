@@ -16,85 +16,87 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString, u8::EndeU8,
     },
 };
 
-/// This operation is used by an ESME to submit a short message to the MC for onward
-/// transmission to a specified short message entity (SME).
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct DeliverSm {
-    /// The service_type parameter can be used to
-    /// indicate the SMS Application service
-    /// associated with the message. Specifying the
-    /// service_type allows the ESME to avail of enhanced
-    /// messaging services such as “replace by service_type”
-    /// or to control the teleservice used on the
-    /// air interface.  
-    ///
-    /// Set to NULL for default MC settings.
-    pub serivce_type: ServiceType,
-    /// Type of Number for source address.
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Indicator for source address.
-    pub source_addr_npi: Npi,
-    /// Address of SME which originated this message.
-    pub source_addr: COctetString<1, 21>,
-    /// Type of Number for destination.
-    pub dest_addr_ton: Ton,
-    /// Numbering Plan Indicator for destination.
-    pub dest_addr_npi: Npi,
-    /// Destination address of this
-    /// short message For mobile
-    /// terminated messages, this
-    /// is the directory number of
-    /// the recipient MS
-    pub destination_addr: COctetString<1, 21>,
-    /// Indicates Message Mode
-    /// and Message Type.
-    pub esm_class: EsmClass,
-    /// Protocol Identifier.
-    /// Network specific field.
-    pub protocol_id: u8,
-    /// Designates the priority level of the message.
-    pub priority_flag: PriorityFlag,
-    /// The short message is to be
-    /// scheduled by the MC for delivery.
-    ///
-    /// Set to NULL for immediate message delivery.
-    pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
-    /// The validity period of this message.  
-    ///
-    /// Set to NULL to request the MC default validity period.
-    ///
-    /// Note: this is superseded by the qos_time_to_live TLV if
-    /// specified.
-    pub validity_period: EmptyOrFullCOctetString<17>,
-    /// Indicator to signify if a MC delivery receipt, manual
-    /// ACK, delivery ACK or an intermediate notification is required.
-    pub registered_delivery: RegisteredDelivery,
-    /// Flag indicating if the submitted message should replace an existing message.
-    pub replace_if_present_flag: ReplaceIfPresentFlag,
-    // Defines the encoding scheme of the short message user data.
-    pub data_coding: DataCoding,
-    /// Indicates the short message to send from a list of pre- defined (‘canned’)
-    /// short messages stored on the MC. If not using a MC canned message, set to NULL.
-    pub sm_default_msg_id: u8,
-    /// Length in octets of the short_message user data.
-    sm_length: u8,
-    /// Up to 255 octets of short message user data.
-    ///
-    /// The exact physical limit for short_message size may
-    /// vary according to the underlying network  
-    ///
-    /// Note: this field is superceded by the message_payload TLV if
-    /// specified.
-    short_message: OctetString<0, 255>,
-    /// Message delivery request TLVs ([`MessageDeliveryRequestTLV`])
-    tlvs: Vec<TLV>,
+impl_length_encode! {
+    /// This operation is used by an ESME to submit a short message to the MC for onward
+    /// transmission to a specified short message entity (SME).
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct DeliverSm {
+        /// The service_type parameter can be used to
+        /// indicate the SMS Application service
+        /// associated with the message. Specifying the
+        /// service_type allows the ESME to avail of enhanced
+        /// messaging services such as “replace by service_type”
+        /// or to control the teleservice used on the
+        /// air interface.
+        ///
+        /// Set to NULL for default MC settings.
+        pub serivce_type: ServiceType,
+        /// Type of Number for source address.
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Indicator for source address.
+        pub source_addr_npi: Npi,
+        /// Address of SME which originated this message.
+        pub source_addr: COctetString<1, 21>,
+        /// Type of Number for destination.
+        pub dest_addr_ton: Ton,
+        /// Numbering Plan Indicator for destination.
+        pub dest_addr_npi: Npi,
+        /// Destination address of this
+        /// short message For mobile
+        /// terminated messages, this
+        /// is the directory number of
+        /// the recipient MS
+        pub destination_addr: COctetString<1, 21>,
+        /// Indicates Message Mode
+        /// and Message Type.
+        pub esm_class: EsmClass,
+        /// Protocol Identifier.
+        /// Network specific field.
+        pub protocol_id: u8,
+        /// Designates the priority level of the message.
+        pub priority_flag: PriorityFlag,
+        /// The short message is to be
+        /// scheduled by the MC for delivery.
+        ///
+        /// Set to NULL for immediate message delivery.
+        pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
+        /// The validity period of this message.
+        ///
+        /// Set to NULL to request the MC default validity period.
+        ///
+        /// Note: this is superseded by the qos_time_to_live TLV if
+        /// specified.
+        pub validity_period: EmptyOrFullCOctetString<17>,
+        /// Indicator to signify if a MC delivery receipt, manual
+        /// ACK, delivery ACK or an intermediate notification is required.
+        pub registered_delivery: RegisteredDelivery,
+        /// Flag indicating if the submitted message should replace an existing message.
+        pub replace_if_present_flag: ReplaceIfPresentFlag,
+        // Defines the encoding scheme of the short message user data.
+        pub data_coding: DataCoding,
+        /// Indicates the short message to send from a list of pre- defined (‘canned’)
+        /// short messages stored on the MC. If not using a MC canned message, set to NULL.
+        pub sm_default_msg_id: u8,
+        /// Length in octets of the short_message user data.
+        sm_length: u8,
+        /// Up to 255 octets of short message user data.
+        ///
+        /// The exact physical limit for short_message size may
+        /// vary according to the underlying network
+        ///
+        /// Note: this field is superceded by the message_payload TLV if
+        /// specified.
+        short_message: OctetString<0, 255>,
+        /// Message delivery request TLVs ([`MessageDeliveryRequestTLV`])
+        tlvs: Vec<TLV>,
+    }
 }
 
 impl DeliverSm {
@@ -217,55 +219,6 @@ impl DeliverSm {
 
     pub fn into_deliver_sm(self) -> Pdu {
         Pdu::DeliverSm(self)
-    }
-}
-
-impl Length for DeliverSm {
-    fn length(&self) -> usize {
-        self.serivce_type.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.dest_addr_ton.length()
-            + self.dest_addr_npi.length()
-            + self.destination_addr.length()
-            + self.esm_class.length()
-            + self.protocol_id.length()
-            + self.priority_flag.length()
-            + self.schedule_delivery_time.length()
-            + self.validity_period.length()
-            + self.registered_delivery.length()
-            + self.replace_if_present_flag.length()
-            + self.data_coding.length()
-            + self.sm_default_msg_id.length()
-            + self.sm_length.length()
-            + self.tlvs.length()
-    }
-}
-
-impl Encode for DeliverSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.serivce_type.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.dest_addr_ton.encode_to(writer));
-        tri!(self.dest_addr_npi.encode_to(writer));
-        tri!(self.destination_addr.encode_to(writer));
-        tri!(self.esm_class.encode_to(writer));
-        tri!(self.protocol_id.encode_to(writer));
-        tri!(self.priority_flag.encode_to(writer));
-        tri!(self.schedule_delivery_time.encode_to(writer));
-        tri!(self.validity_period.encode_to(writer));
-        tri!(self.registered_delivery.encode_to(writer));
-        tri!(self.replace_if_present_flag.encode_to(writer));
-        tri!(self.data_coding.encode_to(writer));
-        tri!(self.sm_default_msg_id.encode_to(writer));
-        tri!(self.sm_length.encode_to(writer));
-        tri!(self.short_message.encode_to(writer));
-        tri!(self.tlvs.encode_to(writer));
-
-        Ok(())
     }
 }
 

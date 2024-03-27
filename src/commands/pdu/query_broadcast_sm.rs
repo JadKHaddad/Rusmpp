@@ -9,49 +9,51 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-/// This command is issued by the ESME to query the status of a previously submitted
-/// broadcast message. The message can be queried either on the basis of the Message Center
-/// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
-/// assigned message reference number user_message_reference as indicated in the
-/// broadcast_sm operation associated with that message.
-///
-/// Note:  Where the broadcast is queried on the basis of the ESME assigned message
-/// reference user_message_reference this should be qualified within the service by the
-/// system_id and/or the system_type associated with the query_broadcast_sm operation
-/// (specified in the bind operation). If more than one message with the same
-/// user_message_reference value is present in the Message Center, the details of the most
-/// recently submitted message with the specified user_message_reference value will be
-/// returned in the query_broadcast_sm_resp.
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct QueryBroadcastSm {
-    /// Message ID of the message to be queried. This must be
-    /// the MC assigned Message ID allocated to the original
-    /// short message when submitted to the MC by the
-    /// broadcast_sm command, and returned in the response
-    /// PDU by the MC.  
+impl_length_encode! {
+    /// This command is issued by the ESME to query the status of a previously submitted
+    /// broadcast message. The message can be queried either on the basis of the Message Center
+    /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
+    /// assigned message reference number user_message_reference as indicated in the
+    /// broadcast_sm operation associated with that message.
     ///
-    /// Set to NULL if setting user_message_reference.
-    pub message_id: COctetString<1, 65>,
-    /// Type of Number for source address.
-    ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Indicator for source address.
-    ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr_npi: Npi,
-    /// Address of SME which originated this message.
-    ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr: COctetString<1, 21>,
-    /// [`TLVValue::UserMessageReference`].
-    ///
-    /// ESME assigned message reference number.
-    user_message_reference: Option<TLV>,
+    /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
+    /// reference user_message_reference this should be qualified within the service by the
+    /// system_id and/or the system_type associated with the query_broadcast_sm operation
+    /// (specified in the bind operation). If more than one message with the same
+    /// user_message_reference value is present in the Message Center, the details of the most
+    /// recently submitted message with the specified user_message_reference value will be
+    /// returned in the query_broadcast_sm_resp.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct QueryBroadcastSm {
+        /// Message ID of the message to be queried. This must be
+        /// the MC assigned Message ID allocated to the original
+        /// short message when submitted to the MC by the
+        /// broadcast_sm command, and returned in the response
+        /// PDU by the MC.
+        ///
+        /// Set to NULL if setting user_message_reference.
+        pub message_id: COctetString<1, 65>,
+        /// Type of Number for source address.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Indicator for source address.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr_npi: Npi,
+        /// Address of SME which originated this message.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr: COctetString<1, 21>,
+        /// [`TLVValue::UserMessageReference`].
+        ///
+        /// ESME assigned message reference number.
+        user_message_reference: Option<TLV>,
+    }
 }
 
 impl QueryBroadcastSm {
@@ -89,28 +91,6 @@ impl QueryBroadcastSm {
 
     pub fn into_query_broadcast_sm(self) -> Pdu {
         Pdu::QueryBroadcastSm(self)
-    }
-}
-
-impl Length for QueryBroadcastSm {
-    fn length(&self) -> usize {
-        self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.user_message_reference.length()
-    }
-}
-
-impl Encode for QueryBroadcastSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.user_message_reference.encode_to(writer));
-
-        Ok(())
     }
 }
 

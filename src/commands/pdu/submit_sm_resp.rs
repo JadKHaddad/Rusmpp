@@ -6,18 +6,20 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
 
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct SubmitSmResp {
-    /// This field contains the MC message ID of the submitted message.
-    /// It may be used at a later stage to query the status of a message,
-    /// cancel or replace the message.
-    message_id: COctetString<1, 65>,
-    /// Message submission response TLVs ([`MessageSubmissionResponseTLV`])
-    tlvs: Vec<TLV>,
+impl_length_encode! {
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct SubmitSmResp {
+        /// This field contains the MC message ID of the submitted message.
+        /// It may be used at a later stage to query the status of a message,
+        /// cancel or replace the message.
+        message_id: COctetString<1, 65>,
+        /// Message submission response TLVs ([`MessageSubmissionResponseTLV`])
+        tlvs: Vec<TLV>,
+    }
 }
 
 impl SubmitSmResp {
@@ -56,21 +58,6 @@ impl SubmitSmResp {
 
     pub fn into_submit_sm_resp(self) -> Pdu {
         Pdu::SubmitSmResp(self)
-    }
-}
-
-impl Length for SubmitSmResp {
-    fn length(&self) -> usize {
-        self.message_id.length() + self.tlvs.length()
-    }
-}
-
-impl Encode for SubmitSmResp {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.tlvs.encode_to(writer));
-
-        Ok(())
     }
 }
 

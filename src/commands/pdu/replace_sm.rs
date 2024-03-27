@@ -9,7 +9,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    tri,
+    impl_length_encode, tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString,
         empty_or_full_c_octet_string::EmptyOrFullCOctetString, octet_string::OctetString,
@@ -17,69 +17,71 @@ use crate::{
     },
 };
 
-/// This command is issued by the ESME to replace a previously submitted short message that
-/// is pending delivery. The matching mechanism is based on the message_id and source
-/// address of the original message.
-///
-/// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
-/// address in the replace_sm command should also be NULL.  
-#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct ReplaceSm {
-    /// Message ID of the message to be replaced.
-    /// This must be the MC assigned Message ID
-    /// allocated to the original short message when
-    /// submitted to the MC by the submit_sm, data_sm or
-    /// submit_multi command, and returned in the
-    /// response PDU by the MC.
-    pub message_id: COctetString<1, 65>,
-    /// Type of Number of message originator. This is used for
-    /// verification purposes, and must match that supplied in
-    /// the original request PDU (e.g. submit_sm).
+impl_length_encode! {
+    /// This command is issued by the ESME to replace a previously submitted short message that
+    /// is pending delivery. The matching mechanism is based on the message_id and source
+    /// address of the original message.
     ///
-    /// If not known, set to NULL.
-    pub source_addr_ton: Ton,
-    /// Numbering Plan Indicator for source address of
-    /// original message.
-    ///
-    /// If not known, set to NULL (Unknown).
-    pub source_addr_npi: Npi,
-    /// Address of SME, which originated this message.
-    /// If not known, set to NULL (Unknown).
-    pub source_addr: COctetString<1, 21>,
-    /// New scheduled delivery time for the short message.
-    // Set to NULL to preserve the original scheduled
-    // delivery time.
-    pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
-    /// New expiry time for the short message.  
-    ///
-    /// Set to NULL to preserve
-    /// the original validity period
-    /// setting.
-    pub validity_period: EmptyOrFullCOctetString<17>,
-    /// Indicator to signify if a MC delivery receipt,
-    /// user/manual or delivery ACK or intermediate
-    /// notification is required.
-    pub registered_delivery: RegisteredDelivery,
-    /// Indicates the short message to send from a list
-    /// of predefined (‘canned’) short messages stored on
-    /// the MC.
-    ///
-    /// If not using a MC canned message, set to NULL.
-    pub sm_default_msg_id: u8,
-    /// Length in octets of the short_message user data.
-    sm_length: u8,
-    /// Up to 255 octets of short message user data.
-    /// The exact physical limit for short_message size may
-    /// vary according to the underlying network
-    ///
-    /// Note: this field is superceded by the message_payload TLV if specified.
-    ///
-    /// Applications which need to send messages longer than
-    /// 255 octets should use the message_payload TLV. In
-    /// this case the sm_length field should be set to zero.
-    short_message: OctetString<0, 255>,
-    /// Message replacement request TLVs.
-    message_payload: Option<TLV>,
+    /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
+    /// address in the replace_sm command should also be NULL.
+    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct ReplaceSm {
+        /// Message ID of the message to be replaced.
+        /// This must be the MC assigned Message ID
+        /// allocated to the original short message when
+        /// submitted to the MC by the submit_sm, data_sm or
+        /// submit_multi command, and returned in the
+        /// response PDU by the MC.
+        pub message_id: COctetString<1, 65>,
+        /// Type of Number of message originator. This is used for
+        /// verification purposes, and must match that supplied in
+        /// the original request PDU (e.g. submit_sm).
+        ///
+        /// If not known, set to NULL.
+        pub source_addr_ton: Ton,
+        /// Numbering Plan Indicator for source address of
+        /// original message.
+        ///
+        /// If not known, set to NULL (Unknown).
+        pub source_addr_npi: Npi,
+        /// Address of SME, which originated this message.
+        /// If not known, set to NULL (Unknown).
+        pub source_addr: COctetString<1, 21>,
+        /// New scheduled delivery time for the short message.
+        // Set to NULL to preserve the original scheduled
+        // delivery time.
+        pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
+        /// New expiry time for the short message.
+        ///
+        /// Set to NULL to preserve
+        /// the original validity period
+        /// setting.
+        pub validity_period: EmptyOrFullCOctetString<17>,
+        /// Indicator to signify if a MC delivery receipt,
+        /// user/manual or delivery ACK or intermediate
+        /// notification is required.
+        pub registered_delivery: RegisteredDelivery,
+        /// Indicates the short message to send from a list
+        /// of predefined (‘canned’) short messages stored on
+        /// the MC.
+        ///
+        /// If not using a MC canned message, set to NULL.
+        pub sm_default_msg_id: u8,
+        /// Length in octets of the short_message user data.
+        sm_length: u8,
+        /// Up to 255 octets of short message user data.
+        /// The exact physical limit for short_message size may
+        /// vary according to the underlying network
+        ///
+        /// Note: this field is superceded by the message_payload TLV if specified.
+        ///
+        /// Applications which need to send messages longer than
+        /// 255 octets should use the message_payload TLV. In
+        /// this case the sm_length field should be set to zero.
+        short_message: OctetString<0, 255>,
+        /// Message replacement request TLVs.
+        message_payload: Option<TLV>,
+    }
 }
 
 impl ReplaceSm {
@@ -169,40 +171,6 @@ impl ReplaceSm {
 
     pub fn into_replace_sm(self) -> Pdu {
         Pdu::ReplaceSm(self)
-    }
-}
-
-impl Length for ReplaceSm {
-    fn length(&self) -> usize {
-        self.message_id.length()
-            + self.source_addr_ton.length()
-            + self.source_addr_npi.length()
-            + self.source_addr.length()
-            + self.schedule_delivery_time.length()
-            + self.validity_period.length()
-            + self.registered_delivery.length()
-            + self.sm_default_msg_id.length()
-            + self.sm_length.length()
-            + self.short_message.length()
-            + self.message_payload.length()
-    }
-}
-
-impl Encode for ReplaceSm {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        tri!(self.message_id.encode_to(writer));
-        tri!(self.source_addr_ton.encode_to(writer));
-        tri!(self.source_addr_npi.encode_to(writer));
-        tri!(self.source_addr.encode_to(writer));
-        tri!(self.schedule_delivery_time.encode_to(writer));
-        tri!(self.validity_period.encode_to(writer));
-        tri!(self.registered_delivery.encode_to(writer));
-        tri!(self.sm_default_msg_id.encode_to(writer));
-        tri!(self.sm_length.encode_to(writer));
-        tri!(self.short_message.encode_to(writer));
-        tri!(self.message_payload.encode_to(writer));
-
-        Ok(())
     }
 }
 

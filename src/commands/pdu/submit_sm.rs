@@ -237,6 +237,7 @@ impl Length for SubmitSm {
             + self.data_coding.length()
             + self.sm_default_msg_id.length()
             + self.sm_length.length()
+            + self.short_message.length()
             + self.tlvs.length()
     }
 }

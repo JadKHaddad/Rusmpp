@@ -71,9 +71,9 @@ macro_rules! tri {
 ///
 /// impl crate::ende::encode::Encode for Foo {
 ///     fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), crate::ende::encode::EncodeError> {
-///         tri!(self.system_id.encode_to(writer));
-///         tri!(self.interface_version.encode_to(writer));
-///         tri!(self.addr_ton.encode_to(writer));
+///         crate::tri!(self.system_id.encode_to(writer));
+///         crate::tri!(self.interface_version.encode_to(writer));
+///         crate::tri!(self.addr_ton.encode_to(writer));
 ///
 ///         Ok(())
 ///     }
@@ -111,7 +111,7 @@ macro_rules! impl_length_encode {
         impl $crate::ende::encode::Encode for $struct_ident {
             fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), $crate::ende::encode::EncodeError> {
                 $(
-                    tri!(self.$field_ident.encode_to(writer));
+                    $crate::tri!(self.$field_ident.encode_to(writer));
                 )*
 
                 Ok(())
@@ -119,7 +119,3 @@ macro_rules! impl_length_encode {
         }
     };
 }
-
-/*
-
-*/

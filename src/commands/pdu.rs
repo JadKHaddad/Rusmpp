@@ -444,6 +444,10 @@ impl DecodeWithKeyOptional for Pdu {
             CommandId::CancelBroadcastSm => {
                 Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
             }
+            CommandId::Other(_) => Pdu::Other {
+                command_id: key,
+                body: tri!(AnyOctetString::decode_from(reader, length)),
+            },
             // Length is not 0 and still have to decode the body. This is an invalid PDU.
             CommandId::Unbind
             | CommandId::UnbindResp
@@ -453,10 +457,6 @@ impl DecodeWithKeyOptional for Pdu {
             | CommandId::CancelSmResp
             | CommandId::ReplaceSmResp
             | CommandId::CancelBroadcastSmResp => return Ok(None),
-            CommandId::Other(_) => Pdu::Other {
-                command_id: key,
-                body: tri!(AnyOctetString::decode_from(reader, length)),
-            },
         };
 
         Ok(Some(body))

@@ -270,7 +270,7 @@ impl HasCommandId for Pdu {
             Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty pdus.
-            // The reason they exist it to force the creation of a command with the correct command_id using a pdu.
+            // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
             Pdu::Unbind => CommandId::Unbind,
             Pdu::UnbindResp => CommandId::UnbindResp,
             Pdu::EnquireLink => CommandId::EnquireLink,

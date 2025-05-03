@@ -33,7 +33,7 @@ impl_length_encode! {
         /// interface.
         ///
         /// Set to NULL for default MC settings.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Type of Number for source address.
         ///
         /// If not known, set to NULL (Unknown).
@@ -109,7 +109,7 @@ impl_length_encode! {
 impl SubmitMulti {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
@@ -135,7 +135,7 @@ impl SubmitMulti {
             .collect::<Vec<TLV>>();
 
         let mut submit_multi = Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -250,7 +250,7 @@ impl DecodeWithLength for SubmitMulti {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
@@ -272,7 +272,7 @@ impl DecodeWithLength for SubmitMulti {
         let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
 
         let tlvs_length = length
-            .saturating_sub(serivce_type.length())
+            .saturating_sub(service_type.length())
             .saturating_sub(source_addr_ton.length())
             .saturating_sub(source_addr_npi.length())
             .saturating_sub(source_addr.length())
@@ -293,7 +293,7 @@ impl DecodeWithLength for SubmitMulti {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -325,8 +325,8 @@ impl SubmitMultiBuilder {
         Default::default()
     }
 
-    pub fn serivce_type(mut self, serivce_type: ServiceType) -> Self {
-        self.inner.serivce_type = serivce_type;
+    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+        self.inner.service_type = service_type;
         self
     }
 

@@ -74,7 +74,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         CommandStatus::EsmeRok,
         2,
         SubmitSm::builder()
-            .serivce_type(ServiceType::default())
+            .service_type(ServiceType::default())
             .source_addr_ton(Ton::Unknown)
             .source_addr_npi(Npi::Unknown)
             .source_addr(COctetString::from_str("A-Source")?)

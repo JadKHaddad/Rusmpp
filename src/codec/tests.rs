@@ -75,7 +75,7 @@ async fn do_codec() {
         CommandStatus::EsmeRok,
         2,
         SubmitSm::builder()
-            .serivce_type(ServiceType::default())
+            .service_type(ServiceType::default())
             .source_addr_ton(Ton::Unknown)
             .source_addr_npi(Npi::Unknown)
             .source_addr(COctetString::from_str("some_source").expect("Failed to create source"))

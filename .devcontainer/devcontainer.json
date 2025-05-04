@@ -1,0 +1,11 @@
+{
+	"name": "Rust-Rusmpp",
+	"image": "mcr.microsoft.com/devcontainers/rust:latest",
+	"mounts": [
+		{
+			"source": "devcontainer-cargo-cache-${devcontainerId}",
+			"target": "/usr/local/cargo",
+			"type": "volume"
+		}
+	]
+}

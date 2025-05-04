@@ -54,7 +54,7 @@ async fn do_codec() {
         1,
         Bind::builder()
             .system_id(
-                COctetString::from_str("NfDfddEKVI0NCxO").expect("Failed to create system_id"),
+                COctetString::from_str("NfDfddEKVI0NCxO").expect("Failed to create system_id"), // cspell:disable-line
             )
             .password(COctetString::from_str("rEZYMq5j").expect("Failed to create password"))
             .system_type(COctetString::empty())

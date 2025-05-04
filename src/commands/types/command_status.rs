@@ -133,7 +133,7 @@ pub enum CommandStatus {
     /// Invalid Service Type.
     ///
     /// Service type is rejected either because it
-    /// is not recognised by the MC or because
+    /// is not recognized by the MC or because
     /// its length is not within the defined range.
     EsmeRinvsertyp = 0x00000015,
     /// Invalid number of destinations.

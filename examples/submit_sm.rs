@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         CommandStatus::EsmeRok,
         1,
         Bind::builder()
-            .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?)
+            .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
             .password(COctetString::from_str("rEZYMq5j")?)
             .system_type(COctetString::empty())
             .interface_version(InterfaceVersion::Smpp5_0)

@@ -19,7 +19,7 @@ use tokio_util::{
 /// Only available when the `tokio-codec` feature is enabled.
 ///
 /// # Usage
-/// ```rust, ignore
+/// ```rust
 /// use futures::{SinkExt, StreamExt};
 /// use rusmpp::{
 ///     codec::command_codec::CommandCodec,
@@ -29,12 +29,42 @@ use tokio_util::{
 ///         types::{command_id::CommandId, command_status::CommandStatus},
 ///     },
 /// };
-/// use tokio::net::TcpStream;
+/// use std::net::SocketAddr;
+/// use tokio::net::{TcpListener, TcpStream};
 /// use tokio_util::codec::{FramedRead, FramedWrite};
 ///
+/// async fn launch_server() -> Result<(), Box<dyn std::error::Error>> {
+///     let addr: SocketAddr = "127.0.0.1:2775".parse()?;
+///     let listener = TcpListener::bind(addr).await?;
+///     tokio::spawn(async move {
+///         loop {
+///             match listener.accept().await {
+///                 Ok((socket, _)) => {
+///                     tokio::spawn(async move {
+///                         let (reader, writer) = socket.into_split();
+///                         let mut framed_read = FramedRead::new(reader, CommandCodec {});
+///                         let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///
+///                         while let Some(Ok(command)) = framed_read.next().await {
+///                             if let CommandId::EnquireLink = command.command_id() {
+///                                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
+///                                 framed_write.send(&response).await.unwrap();
+///                                 break;
+///                             }
+///                         }
+///                     });
+///                 }
+///                 Err(e) => {}
+///             }
+///         }
+///     });
+///     Ok(())
+/// }
+/// 
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let stream = TcpStream::connect("34.242.18.250:2775").await?;
+///     launch_server().await?;
+///     let stream = TcpStream::connect("127.0.0.1:2775").await?;
 ///
 ///     let (reader, writer) = stream.into_split();
 ///     let mut framed_read = FramedRead::new(reader, CommandCodec {});

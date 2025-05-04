@@ -29,53 +29,40 @@ use tokio_util::{
 ///         types::{command_id::CommandId, command_status::CommandStatus},
 ///     },
 /// };
-/// use std::net::SocketAddr;
-/// use tokio::net::{TcpListener, TcpStream};
-/// use tokio_util::codec::{FramedRead, FramedWrite};
+/// use tokio::io::DuplexStream;
+/// use tokio_util::codec::Framed;
 ///
-/// async fn launch_server() -> Result<(), Box<dyn std::error::Error>> {
-///     let addr: SocketAddr = "127.0.0.1:2775".parse()?;
-///     let listener = TcpListener::bind(addr).await?;
+/// async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
 ///     tokio::spawn(async move {
-///         loop {
-///             match listener.accept().await {
-///                 Ok((socket, _)) => {
-///                     tokio::spawn(async move {
-///                         let (reader, writer) = socket.into_split();
-///                         let mut framed_read = FramedRead::new(reader, CommandCodec {});
-///                         let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///         let mut framed = Framed::new(server_stream, CommandCodec {});
 ///
-///                         while let Some(Ok(command)) = framed_read.next().await {
-///                             if let CommandId::EnquireLink = command.command_id() {
-///                                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
-///                                 framed_write.send(&response).await.unwrap();
-///                                 break;
-///                             }
-///                         }
-///                     });
-///                 }
-///                 Err(e) => {}
+///         while let Some(Ok(command)) = framed.next().await {
+///             if let CommandId::EnquireLink = command.command_id() {
+///                 println!("Server: EnquireLink received");
+///                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
+///                 framed.send(&response).await.unwrap();
+///                 println!("Server: EnquireLink response sent");
+///                 break;
 ///             }
 ///         }
 ///     });
 ///     Ok(())
 /// }
-/// 
+///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     launch_server().await?;
-///     let stream = TcpStream::connect("127.0.0.1:2775").await?;
+///     let (server_stream, client_stream) = tokio::io::duplex(4096);
+///     launch_server(server_stream).await?;
 ///
-///     let (reader, writer) = stream.into_split();
-///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
-///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///     let mut framed = Framed::new(client_stream, CommandCodec {});
 ///
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+///     println!("Client: EnquireLink sent");
+///     framed.send(&enquire_link_command).await?;
 ///
-///     framed_write.send(&enquire_link_command).await?;
-///
-///     while let Some(Ok(command)) = framed_read.next().await {
+///     while let Some(Ok(command)) = framed.next().await {
 ///         if let CommandId::EnquireLinkResp = command.command_id() {
+///             println!("Client: EnquireLink response received");
 ///             break;
 ///         }
 ///     }

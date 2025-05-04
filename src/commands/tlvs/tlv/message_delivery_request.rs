@@ -8,7 +8,7 @@ use crate::{
             its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
             language_indicator::LanguageIndicator, message_state::MessageState,
             network_error_code::NetworkErrorCode, payload_type::PayloadType,
-            privacy_indicator::PrivacyIndicator, subaddress::Subaddress,
+            privacy_indicator::PrivacyIndicator, sub_address::Subaddress,
             ussd_service_op::UssdServiceOp,
         },
     },

@@ -120,8 +120,8 @@ pub use service_type::ServiceType;
 pub mod set_dpf;
 pub use set_dpf::SetDpf;
 
-pub mod subaddress;
-pub use subaddress::Subaddress;
+pub mod sub_address;
+pub use sub_address::Subaddress;
 
 pub mod ton;
 pub use ton::Ton;

@@ -35,7 +35,7 @@ pub enum CommandStatus {
     EsmeRinvcmdlen = 0x00000002,
     /// Invalid Command ID.
     ///
-    /// Command ID is not recognised, either
+    /// Command ID is not recognized, either
     /// because the operation is not supported
     /// or unknown.
     EsmeRinvcmdid = 0x00000003,
@@ -133,7 +133,7 @@ pub enum CommandStatus {
     /// Invalid Service Type.
     ///
     /// Service type is rejected either because it
-    /// is not recognised by the MC or because
+    /// is not recognized by the MC or because
     /// its length is not within the defined range.
     EsmeRinvsertyp = 0x00000015,
     /// Invalid number of destinations.
@@ -326,7 +326,7 @@ pub enum CommandStatus {
     ///
     /// Some unexpected error has occurred.
     EsmeRunknownerr = 0x000000FF,
-    /// ESME Not authorised to use specified
+    /// ESME Not authorized to use specified
     /// service_type.
     ///
     /// Specific service_type has been denied
@@ -335,7 +335,7 @@ pub enum CommandStatus {
     /// ESME Prohibited from using specified
     /// operation.
     ///  
-    /// The PDU request was recognised but is
+    /// The PDU request was recognized but is
     /// denied to the ESME.
     EsmeRprohibited = 0x00000101,
     /// Specified service_type is unavailable.

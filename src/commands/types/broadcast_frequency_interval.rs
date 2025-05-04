@@ -8,7 +8,7 @@ use crate::{
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum UnitOfTime {
     #[default]
-    AsFrquentlyAsPossible = 0x00,
+    AsFrequentlyAsPossible = 0x00,
     Seconds = 0x08,
     Minutes = 0x09,
     Hours = 0x0A,
@@ -22,7 +22,7 @@ pub enum UnitOfTime {
 impl From<u8> for UnitOfTime {
     fn from(value: u8) -> Self {
         match value {
-            0x00 => UnitOfTime::AsFrquentlyAsPossible,
+            0x00 => UnitOfTime::AsFrequentlyAsPossible,
             0x08 => UnitOfTime::Seconds,
             0x09 => UnitOfTime::Minutes,
             0x0A => UnitOfTime::Hours,
@@ -38,7 +38,7 @@ impl From<u8> for UnitOfTime {
 impl From<UnitOfTime> for u8 {
     fn from(value: UnitOfTime) -> Self {
         match value {
-            UnitOfTime::AsFrquentlyAsPossible => 0x00,
+            UnitOfTime::AsFrequentlyAsPossible => 0x00,
             UnitOfTime::Seconds => 0x08,
             UnitOfTime::Minutes => 0x09,
             UnitOfTime::Hours => 0x0A,

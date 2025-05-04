@@ -11,7 +11,7 @@ use crate::{
             ms_msg_wait_facilities::MsMsgWaitFacilities, ms_validity::MsValidity,
             network_type::NetworkType, number_of_messages::NumberOfMessages,
             payload_type::PayloadType, privacy_indicator::PrivacyIndicator, set_dpf::SetDpf,
-            subaddress::Subaddress, ussd_service_op::UssdServiceOp,
+            sub_address::Subaddress, ussd_service_op::UssdServiceOp,
         },
     },
     types::{

@@ -24,7 +24,7 @@ impl_length_encode! {
         /// the specified number of unsuccessful SMEs, each
         /// specified in a unsuccess_sme field.
         no_unsuccess: u8,
-        /// Unsucessful SME.
+        /// Unsuccessful SME.
         ///
         /// (Composite Field).
         unsuccess_sme: Vec<UnsuccessSme>,
@@ -103,7 +103,7 @@ impl DecodeWithLength for SubmitMultiResp {
     {
         let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
         let no_unsuccess = tri!(u8::decode_from(reader));
-        let unsuccess_sme = tri!(UnsuccessSme::vecorized_decode_from(
+        let unsuccess_sme = tri!(UnsuccessSme::vectorized_decode_from(
             reader,
             no_unsuccess as usize
         ));

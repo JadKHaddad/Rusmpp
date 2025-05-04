@@ -38,7 +38,7 @@ impl Outbind {
         OutbindBuilder::new()
     }
 
-    pub fn into_outnbind(self) -> Pdu {
+    pub fn into_outbind(self) -> Pdu {
         Pdu::Outbind(self)
     }
 }

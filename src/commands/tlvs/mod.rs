@@ -3,16 +3,16 @@
 //! A Tagged Length Value Field is a special composite field
 //! that comprises of three parts:
 //! * A 2-octet Integer (Tag)
-//! The tag identifies the parameter.
+//!   The tag identifies the parameter.
 //!
 //! * A 2-octet Integer (Length)
-//! The length field indicates the length of the value
-//! field in octets. Note that this length does not
-//! include the length of the tag and length fields.
+//!   The length field indicates the length of the value
+//!   field in octets. Note that this length does not
+//!   include the length of the tag and length fields.
 //!
 //! * An Octet String (Value)
-//! The value field contains the actual data for the
-//! TLV field.
+//!   The value field contains the actual data for the
+//!   TLV field.
 //!
 //! The Tag identifies the parameter. The Length indicates
 //! the size of the Value field in octets.

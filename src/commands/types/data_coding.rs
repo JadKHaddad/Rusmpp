@@ -4,7 +4,7 @@ use crate::types::u8::EndeU8;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum DataCoding {
     #[default]
-    McSpesific = 0b00000000,
+    McSpecific = 0b00000000,
     Ia5 = 0b00000001,
     OctetUnspecified = 0b00000010,
     Latin1 = 0b00000011,
@@ -26,7 +26,7 @@ pub enum DataCoding {
 impl From<u8> for DataCoding {
     fn from(value: u8) -> Self {
         match value {
-            0b00000000 => DataCoding::McSpesific,
+            0b00000000 => DataCoding::McSpecific,
             0b00000001 => DataCoding::Ia5,
             0b00000010 => DataCoding::OctetUnspecified,
             0b00000011 => DataCoding::Latin1,
@@ -50,7 +50,7 @@ impl From<u8> for DataCoding {
 impl From<DataCoding> for u8 {
     fn from(value: DataCoding) -> Self {
         match value {
-            DataCoding::McSpesific => 0b00000000,
+            DataCoding::McSpecific => 0b00000000,
             DataCoding::Ia5 => 0b00000001,
             DataCoding::OctetUnspecified => 0b00000010,
             DataCoding::Latin1 => 0b00000011,

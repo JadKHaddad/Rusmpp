@@ -7,18 +7,18 @@ use crate::{
 impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidity {
-        pub validity_behaviour: MsValidityBehaviour,
+        pub validity_behavior: MsValidityBehavior,
         pub validity_information: Option<MsValidityInformation>,
     }
 }
 
 impl MsValidity {
     pub fn new(
-        validity_behaviour: MsValidityBehaviour,
+        validity_behavior: MsValidityBehavior,
         validity_information: Option<MsValidityInformation>,
     ) -> Self {
         Self {
-            validity_behaviour,
+            validity_behavior,
             validity_information,
         }
     }
@@ -29,9 +29,9 @@ impl DecodeWithLength for MsValidity {
     where
         Self: Sized,
     {
-        let validity_behaviour = tri!(MsValidityBehaviour::decode_from(reader));
+        let validity_behavior = tri!(MsValidityBehavior::decode_from(reader));
 
-        let validity_information_length = length.saturating_sub(validity_behaviour.length());
+        let validity_information_length = length.saturating_sub(validity_behavior.length());
 
         let validity_information = tri!(MsValidityInformation::length_checked_decode_from(
             reader,
@@ -39,7 +39,7 @@ impl DecodeWithLength for MsValidity {
         ));
 
         Ok(Self {
-            validity_behaviour,
+            validity_behavior,
             validity_information,
         })
     }
@@ -79,7 +79,7 @@ impl Decode for MsValidityInformation {
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MsValidityBehaviour {
+pub enum MsValidityBehavior {
     #[default]
     StoreIndefinitely = 0,
     PowerDown = 1,
@@ -89,33 +89,33 @@ pub enum MsValidityBehaviour {
     Other(u8),
 }
 
-impl From<u8> for MsValidityBehaviour {
+impl From<u8> for MsValidityBehavior {
     fn from(value: u8) -> Self {
         match value {
-            0 => MsValidityBehaviour::StoreIndefinitely,
-            1 => MsValidityBehaviour::PowerDown,
-            2 => MsValidityBehaviour::ValidUntilRegistrationAreaChanges,
-            3 => MsValidityBehaviour::DisplayOnly,
-            4 => MsValidityBehaviour::RelativeTimePeriod,
-            value => MsValidityBehaviour::Other(value),
+            0 => MsValidityBehavior::StoreIndefinitely,
+            1 => MsValidityBehavior::PowerDown,
+            2 => MsValidityBehavior::ValidUntilRegistrationAreaChanges,
+            3 => MsValidityBehavior::DisplayOnly,
+            4 => MsValidityBehavior::RelativeTimePeriod,
+            value => MsValidityBehavior::Other(value),
         }
     }
 }
 
-impl From<MsValidityBehaviour> for u8 {
-    fn from(value: MsValidityBehaviour) -> Self {
+impl From<MsValidityBehavior> for u8 {
+    fn from(value: MsValidityBehavior) -> Self {
         match value {
-            MsValidityBehaviour::StoreIndefinitely => 0,
-            MsValidityBehaviour::PowerDown => 1,
-            MsValidityBehaviour::ValidUntilRegistrationAreaChanges => 2,
-            MsValidityBehaviour::DisplayOnly => 3,
-            MsValidityBehaviour::RelativeTimePeriod => 4,
-            MsValidityBehaviour::Other(value) => value,
+            MsValidityBehavior::StoreIndefinitely => 0,
+            MsValidityBehavior::PowerDown => 1,
+            MsValidityBehavior::ValidUntilRegistrationAreaChanges => 2,
+            MsValidityBehavior::DisplayOnly => 3,
+            MsValidityBehavior::RelativeTimePeriod => 4,
+            MsValidityBehavior::Other(value) => value,
         }
     }
 }
 
-impl EndeU8 for MsValidityBehaviour {}
+impl EndeU8 for MsValidityBehavior {}
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]

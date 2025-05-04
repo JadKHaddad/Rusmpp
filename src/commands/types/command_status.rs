@@ -35,7 +35,7 @@ pub enum CommandStatus {
     EsmeRinvcmdlen = 0x00000002,
     /// Invalid Command ID.
     ///
-    /// Command ID is not recognised, either
+    /// Command ID is not recognized, either
     /// because the operation is not supported
     /// or unknown.
     EsmeRinvcmdid = 0x00000003,
@@ -326,7 +326,7 @@ pub enum CommandStatus {
     ///
     /// Some unexpected error has occurred.
     EsmeRunknownerr = 0x000000FF,
-    /// ESME Not authorised to use specified
+    /// ESME Not authorized to use specified
     /// service_type.
     ///
     /// Specific service_type has been denied

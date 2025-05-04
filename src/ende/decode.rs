@@ -28,7 +28,7 @@ pub trait Decode: std::fmt::Debug {
     }
 
     /// Decode a vector of values from a reader
-    fn vecorized_decode_from<R: std::io::Read>(
+    fn vectorized_decode_from<R: std::io::Read>(
         reader: &mut R,
         count: usize,
     ) -> Result<Vec<Self>, DecodeError>

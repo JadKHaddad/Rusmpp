@@ -71,8 +71,8 @@ impl EndeU8 for Presentation {}
 pub enum Screening {
     #[default]
     NotScreened = 0b00000000,
-    VerivfiedAndPassed = 0b00000100,
-    VerivfiedAndFailed = 0b00001000,
+    VerifiedAndPassed = 0b00000100,
+    VerifiedAndFailed = 0b00001000,
     NetworkProvided = 0b00001100,
     Other(u8),
 }
@@ -81,8 +81,8 @@ impl From<u8> for Screening {
     fn from(value: u8) -> Self {
         match value {
             0b00000000 => Screening::NotScreened,
-            0b00000100 => Screening::VerivfiedAndPassed,
-            0b00001000 => Screening::VerivfiedAndFailed,
+            0b00000100 => Screening::VerifiedAndPassed,
+            0b00001000 => Screening::VerifiedAndFailed,
             0b00001100 => Screening::NetworkProvided,
             value => Screening::Other(value),
         }
@@ -93,8 +93,8 @@ impl From<Screening> for u8 {
     fn from(value: Screening) -> Self {
         match value {
             Screening::NotScreened => 0b00000000,
-            Screening::VerivfiedAndPassed => 0b00000100,
-            Screening::VerivfiedAndFailed => 0b00001000,
+            Screening::VerifiedAndPassed => 0b00000100,
+            Screening::VerifiedAndFailed => 0b00001000,
             Screening::NetworkProvided => 0b00001100,
             Screening::Other(value) => value,
         }
@@ -111,7 +111,7 @@ mod tests {
     fn to_u8() {
         let callback_num_pres_ind = CallbackNumPresInd {
             presentation: Presentation::PresentationRestricted,
-            screening: Screening::VerivfiedAndFailed,
+            screening: Screening::VerifiedAndFailed,
         };
 
         assert_eq!(u8::from(callback_num_pres_ind), 0b00001001);
@@ -125,7 +125,7 @@ mod tests {
             callback_num_pres_ind,
             CallbackNumPresInd {
                 presentation: Presentation::PresentationRestricted,
-                screening: Screening::VerivfiedAndFailed,
+                screening: Screening::VerifiedAndFailed,
             }
         );
     }

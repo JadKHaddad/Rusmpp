@@ -86,7 +86,7 @@ impl From<MessagingMode> for u8 {
 pub enum MessageType {
     #[default]
     Default = 0b00000000,
-    ShortMessageContainsMCDeliveryReceip = 0b00000100,
+    ShortMessageContainsMCDeliveryReceipt = 0b00000100,
     ShortMessageContainsIntermediateDeliveryNotification = 0b00001000,
     Other(u8),
 }
@@ -95,7 +95,7 @@ impl From<u8> for MessageType {
     fn from(value: u8) -> Self {
         match value {
             0b00000000 => MessageType::Default,
-            0b00000100 => MessageType::ShortMessageContainsMCDeliveryReceip,
+            0b00000100 => MessageType::ShortMessageContainsMCDeliveryReceipt,
             0b00001000 => MessageType::ShortMessageContainsIntermediateDeliveryNotification,
             _ => MessageType::Other(value),
         }
@@ -106,7 +106,7 @@ impl From<MessageType> for u8 {
     fn from(value: MessageType) -> Self {
         match value {
             MessageType::Default => 0b00000000,
-            MessageType::ShortMessageContainsMCDeliveryReceip => 0b00000100,
+            MessageType::ShortMessageContainsMCDeliveryReceipt => 0b00000100,
             MessageType::ShortMessageContainsIntermediateDeliveryNotification => 0b00001000,
             MessageType::Other(value) => value,
         }
@@ -118,7 +118,7 @@ impl From<MessageType> for u8 {
 pub enum Ansi41Specific {
     #[default]
     ShortMessageContainsDeliveryAcknowledgement = 0b00010000,
-    ShortMessageContainsUserAcknowlegment = 0b00100000,
+    ShortMessageContainsUserAcknowledgment = 0b00100000,
     ShortMessageContainsConversationAbort = 0b00110000,
     Other(u8),
 }
@@ -127,7 +127,7 @@ impl From<u8> for Ansi41Specific {
     fn from(value: u8) -> Self {
         match value {
             0b00010000 => Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement,
-            0b00100000 => Ansi41Specific::ShortMessageContainsUserAcknowlegment,
+            0b00100000 => Ansi41Specific::ShortMessageContainsUserAcknowledgment,
             0b00110000 => Ansi41Specific::ShortMessageContainsConversationAbort,
             _ => Ansi41Specific::Other(value),
         }
@@ -138,7 +138,7 @@ impl From<Ansi41Specific> for u8 {
     fn from(value: Ansi41Specific) -> Self {
         match value {
             Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement => 0b00010000,
-            Ansi41Specific::ShortMessageContainsUserAcknowlegment => 0b00100000,
+            Ansi41Specific::ShortMessageContainsUserAcknowledgment => 0b00100000,
             Ansi41Specific::ShortMessageContainsConversationAbort => 0b00110000,
             Ansi41Specific::Other(value) => value,
         }

@@ -1,0 +1,33 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "asref",
+        "Atag",
+        "CDMA",
+        "Datagram",
+        "ende",
+        "ESME",
+        "Haddad",
+        "libfuzzer",
+        "nocapture",
+        "Nsap",
+        "Outbind",
+        "Pssd",
+        "Pssr",
+        "repr",
+        "Rusmpp",
+        "SMPP",
+        "Subaddress",
+        "superceded",
+        "TDMA",
+        "Telematics",
+        "teleservice",
+        "tlvs",
+        "Ussd",
+        "Ussn"
+    ],
+    "ignorePaths": [
+        "target"
+    ]
+}

@@ -2,7 +2,7 @@ use crate::types::u8::EndeU8;
 
 /// The ms_availability_status parameter is used in the alert_notification operation to indicate the
 /// availability state of the MS to the ESME.
-
+///
 /// If the MC does not include the parameter in the alert_notification operation, the ESME should
 /// assume that the MS is in an “available” state.
 #[repr(u8)]

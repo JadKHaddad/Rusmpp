@@ -255,7 +255,7 @@ impl DecodeWithLength for SubmitMulti {
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
         let number_of_dests = tri!(u8::decode_from(reader));
-        let dest_address = tri!(DestAddress::vecorized_decode_from(
+        let dest_address = tri!(DestAddress::vectorized_decode_from(
             reader,
             number_of_dests as usize
         ));

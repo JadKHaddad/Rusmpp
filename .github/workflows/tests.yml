@@ -49,6 +49,7 @@ jobs:
         with:
           command: clippy
           args: --all --all-features -- -D warnings
+        continue-on-error: ${{ matrix.rust != 'stable' }}
 
       - name: Run tests
         uses: actions-rs/cargo@v1

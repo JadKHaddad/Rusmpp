@@ -31,10 +31,10 @@ impl From<std::io::Error> for DecodeError {
 impl std::fmt::Display for DecodeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            DecodeError::IoError(e) => write!(f, "I/O error: {}", e),
-            DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {}", e),
-            DecodeError::OctetStringDecodeError(e) => write!(f, "OctetString error: {}", e),
-            DecodeError::UnsupportedKey { key } => write!(f, "Unsupported key: {}", key),
+            DecodeError::IoError(e) => write!(f, "I/O error: {e}"),
+            DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
+            DecodeError::OctetStringDecodeError(e) => write!(f, "OctetString error: {e}"),
+            DecodeError::UnsupportedKey { key } => write!(f, "Unsupported key: {key}"),
         }
     }
 }
@@ -58,7 +58,7 @@ impl std::fmt::Display for COctetStringDecodeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             COctetStringDecodeError::TooFewBytes { actual, min } => {
-                write!(f, "Too few bytes. actual: {}, min: {}", actual, min)
+                write!(f, "Too few bytes. actual: {actual}, min: {min}")
             }
             COctetStringDecodeError::NotAscii => write!(f, "Not ASCII"),
             COctetStringDecodeError::NotNullTerminated => write!(f, "Not null terminated"),
@@ -72,10 +72,10 @@ impl std::fmt::Display for OctetStringDecodeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             OctetStringDecodeError::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {}, max: {}", actual, max)
+                write!(f, "Too many bytes. actual: {actual}, max: {max}")
             }
             OctetStringDecodeError::TooFewBytes { actual, min } => {
-                write!(f, "Too few bytes. actual: {}, min: {}", actual, min)
+                write!(f, "Too few bytes. actual: {actual}, min: {min}")
             }
         }
     }

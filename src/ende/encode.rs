@@ -16,7 +16,7 @@ impl From<std::io::Error> for EncodeError {
 impl std::fmt::Display for EncodeError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            EncodeError::IoError(e) => write!(f, "I/O error: {}", e),
+            EncodeError::IoError(e) => write!(f, "I/O error: {e}"),
         }
     }
 }

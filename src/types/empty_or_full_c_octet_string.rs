@@ -19,10 +19,10 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {}, max: {}", actual, max)
+                write!(f, "Too many bytes. actual: {actual}, max: {max}")
             }
             Self::TooFewBytes { actual } => {
-                write!(f, "Too few bytes. actual: {}, min: 1", actual)
+                write!(f, "Too few bytes. actual: {actual}, min: 1")
             }
             Self::NotNullTerminated => write!(f, "Not null terminated"),
             Self::NotAscii => write!(f, "Not ASCII"),

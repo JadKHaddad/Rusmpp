@@ -16,10 +16,10 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {}, max: {}", actual, max)
+                write!(f, "Too many bytes. actual: {actual}, max: {max}")
             }
             Self::TooFewBytes { actual, min } => {
-                write!(f, "Too few bytes. actual: {}, min: {}", actual, min)
+                write!(f, "Too few bytes. actual: {actual}, min: {min}")
             }
         }
     }

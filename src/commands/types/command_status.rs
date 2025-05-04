@@ -335,7 +335,7 @@ pub enum CommandStatus {
     /// ESME Prohibited from using specified
     /// operation.
     ///  
-    /// The PDU request was recognised but is
+    /// The PDU request was recognized but is
     /// denied to the ESME.
     EsmeRprohibited = 0x00000101,
     /// Specified service_type is unavailable.

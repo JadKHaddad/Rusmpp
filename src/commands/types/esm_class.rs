@@ -150,9 +150,9 @@ impl From<Ansi41Specific> for u8 {
 pub enum GsmFeatures {
     #[default]
     NotSelected = 0b00000000,
-    UDHIIndicator = 0b01000000,
+    UdhiIndicator = 0b01000000,
     SetReplyPath = 0b10000000,
-    SetUDHIAndReplyPath = 0b11000000,
+    SetUdhiAndReplyPath = 0b11000000,
     Other(u8),
 }
 
@@ -160,9 +160,9 @@ impl From<u8> for GsmFeatures {
     fn from(value: u8) -> Self {
         match value {
             0b00000000 => GsmFeatures::NotSelected,
-            0b01000000 => GsmFeatures::UDHIIndicator,
+            0b01000000 => GsmFeatures::UdhiIndicator,
             0b10000000 => GsmFeatures::SetReplyPath,
-            0b11000000 => GsmFeatures::SetUDHIAndReplyPath,
+            0b11000000 => GsmFeatures::SetUdhiAndReplyPath,
             _ => GsmFeatures::Other(value),
         }
     }
@@ -172,9 +172,9 @@ impl From<GsmFeatures> for u8 {
     fn from(value: GsmFeatures) -> Self {
         match value {
             GsmFeatures::NotSelected => 0b00000000,
-            GsmFeatures::UDHIIndicator => 0b01000000,
+            GsmFeatures::UdhiIndicator => 0b01000000,
             GsmFeatures::SetReplyPath => 0b10000000,
-            GsmFeatures::SetUDHIAndReplyPath => 0b11000000,
+            GsmFeatures::SetUdhiAndReplyPath => 0b11000000,
             GsmFeatures::Other(value) => value,
         }
     }

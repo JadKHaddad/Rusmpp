@@ -36,7 +36,7 @@ impl_length_encode! {
         /// air interface.
         ///
         /// Set to NULL for default MC settings.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Type of Number for source address.
         pub source_addr_ton: Ton,
         /// Numbering Plan Indicator for source address.
@@ -101,7 +101,7 @@ impl_length_encode! {
 impl DeliverSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
@@ -128,7 +128,7 @@ impl DeliverSm {
         let sm_length = short_message.length() as u8;
 
         let mut submit_sm = Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -226,7 +226,7 @@ impl DecodeWithLength for DeliverSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
@@ -246,7 +246,7 @@ impl DecodeWithLength for DeliverSm {
         let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
 
         let tlvs_length = length.saturating_sub(
-            serivce_type.length()
+            service_type.length()
                 + source_addr_ton.length()
                 + source_addr_npi.length()
                 + source_addr.length()
@@ -269,7 +269,7 @@ impl DecodeWithLength for DeliverSm {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -302,8 +302,8 @@ impl DeliverSmBuilder {
         Self::default()
     }
 
-    pub fn serivce_type(mut self, serivce_type: ServiceType) -> Self {
-        self.inner.serivce_type = serivce_type;
+    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+        self.inner.service_type = service_type;
         self
     }
 

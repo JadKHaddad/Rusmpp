@@ -37,7 +37,7 @@ impl_length_encode! {
         /// messages is desired.
         ///
         /// Otherwise set to NULL.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Message ID of the message to be cancelled. This must
         /// be the MC assigned Message ID of the original message.
         ///
@@ -70,7 +70,7 @@ impl_length_encode! {
 
 impl CancelBroadcastSm {
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         message_id: COctetString<1, 65>,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
@@ -83,7 +83,7 @@ impl CancelBroadcastSm {
             .collect::<Vec<TLV>>();
 
         Self {
-            serivce_type,
+            service_type,
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -125,14 +125,14 @@ impl DecodeWithLength for CancelBroadcastSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let message_id = tri!(COctetString::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
 
         let tlvs_length = length.saturating_sub(
-            serivce_type.length()
+            service_type.length()
                 + message_id.length()
                 + source_addr_ton.length()
                 + source_addr_npi.length()
@@ -142,7 +142,7 @@ impl DecodeWithLength for CancelBroadcastSm {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -162,8 +162,8 @@ impl CancelBroadcastSmBuilder {
         Self::default()
     }
 
-    pub fn serivce_type(mut self, serivce_type: ServiceType) -> Self {
-        self.inner.serivce_type = serivce_type;
+    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+        self.inner.service_type = service_type;
         self
     }
 

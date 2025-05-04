@@ -38,7 +38,7 @@ impl_length_encode! {
         /// interface.
         ///
         /// Set to NULL for default MC settings.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Type of Number for source address.
         ///
         /// If not known, set to NULL (Unknown).
@@ -125,7 +125,7 @@ impl_length_encode! {
 impl BroadcastSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
@@ -160,7 +160,7 @@ impl BroadcastSm {
         ));
 
         Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -252,7 +252,7 @@ impl BroadcastSm {
 impl Default for BroadcastSm {
     fn default() -> Self {
         Self {
-            serivce_type: Default::default(),
+            service_type: Default::default(),
             source_addr_ton: Default::default(),
             source_addr_npi: Default::default(),
             source_addr: Default::default(),
@@ -281,7 +281,7 @@ impl DecodeWithLength for BroadcastSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
@@ -298,7 +298,7 @@ impl DecodeWithLength for BroadcastSm {
         let broadcast_frequency_interval = tri!(TLV::decode_from(reader));
 
         let tlvs_length = length
-            .saturating_sub(serivce_type.length())
+            .saturating_sub(service_type.length())
             .saturating_sub(source_addr_ton.length())
             .saturating_sub(source_addr_npi.length())
             .saturating_sub(source_addr.length())
@@ -317,7 +317,7 @@ impl DecodeWithLength for BroadcastSm {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -347,8 +347,8 @@ impl BroadcastSmBuilder {
         Self::default()
     }
 
-    pub fn serivce_type(mut self, serivce_type: ServiceType) -> Self {
-        self.inner.serivce_type = serivce_type;
+    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+        self.inner.service_type = service_type;
         self
     }
 

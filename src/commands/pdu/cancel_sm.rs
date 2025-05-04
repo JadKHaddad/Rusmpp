@@ -25,7 +25,7 @@ impl_length_encode! {
         /// if cancellation of a group of application
         /// service messages is desired.
         /// Otherwise set to NULL.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Message ID of the message to be
         /// cancelled. This must be the MC
         /// assigned Message ID of the original
@@ -98,7 +98,7 @@ impl_length_encode! {
 impl CancelSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         message_id: COctetString<1, 65>,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
@@ -108,7 +108,7 @@ impl CancelSm {
         destination_addr: COctetString<1, 21>,
     ) -> Self {
         Self {
-            serivce_type,
+            service_type,
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -133,7 +133,7 @@ impl Decode for CancelSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let message_id = tri!(COctetString::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
@@ -143,7 +143,7 @@ impl Decode for CancelSm {
         let destination_addr = tri!(COctetString::decode_from(reader));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             message_id,
             source_addr_ton,
             source_addr_npi,
@@ -166,7 +166,7 @@ impl CancelSmBuilder {
     }
 
     pub fn service_type(mut self, service_type: ServiceType) -> Self {
-        self.inner.serivce_type = service_type;
+        self.inner.service_type = service_type;
         self
     }
 

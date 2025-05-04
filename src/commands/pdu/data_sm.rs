@@ -30,7 +30,7 @@ impl_length_encode! {
         ///
         /// Set to NULL for default MC
         /// settings.
-        pub serivce_type: ServiceType,
+        pub service_type: ServiceType,
         /// Type of Number for source
         /// address.
         ///
@@ -74,7 +74,7 @@ impl_length_encode! {
 impl DataSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        serivce_type: ServiceType,
+        service_type: ServiceType,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
@@ -92,7 +92,7 @@ impl DataSm {
             .collect::<Vec<TLV>>();
 
         Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -128,7 +128,7 @@ impl DecodeWithLength for DataSm {
     where
         Self: Sized,
     {
-        let serivce_type = tri!(ServiceType::decode_from(reader));
+        let service_type = tri!(ServiceType::decode_from(reader));
         let source_addr_ton = tri!(Ton::decode_from(reader));
         let source_addr_npi = tri!(Npi::decode_from(reader));
         let source_addr = tri!(COctetString::decode_from(reader));
@@ -140,7 +140,7 @@ impl DecodeWithLength for DataSm {
         let data_coding = tri!(DataCoding::decode_from(reader));
 
         let tlvs_length = length.saturating_sub(
-            serivce_type.length()
+            service_type.length()
                 + source_addr_ton.length()
                 + source_addr_npi.length()
                 + source_addr.length()
@@ -155,7 +155,7 @@ impl DecodeWithLength for DataSm {
         let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
 
         Ok(Self {
-            serivce_type,
+            service_type,
             source_addr_ton,
             source_addr_npi,
             source_addr,
@@ -181,7 +181,7 @@ impl DataSmBuilder {
     }
 
     pub fn service_type(mut self, service_type: ServiceType) -> Self {
-        self.inner.serivce_type = service_type;
+        self.inner.service_type = service_type;
         self
     }
 

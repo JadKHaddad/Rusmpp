@@ -53,7 +53,21 @@ use tokio_util::{
 ///     Ok(())
 /// }
 /// ```
+#[derive(Debug, Clone)]
 pub struct CommandCodec;
+
+impl CommandCodec {
+    #[inline]
+    pub const fn new() -> Self {
+        Self
+    }
+}
+
+impl Default for CommandCodec {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Encoder<&Command> for CommandCodec {
     type Error = EncodeError;

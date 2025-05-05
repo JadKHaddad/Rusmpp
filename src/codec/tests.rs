@@ -183,8 +183,8 @@ async fn default_encode_decode() {
 
     let (server, client) = tokio::io::duplex(1024);
 
-    let mut framed_server = Framed::new(server, CommandCodec {});
-    let mut framed_client = Framed::new(client, CommandCodec {});
+    let mut framed_server = Framed::new(server, CommandCodec::new());
+    let mut framed_client = Framed::new(client, CommandCodec::new());
 
     let server_commands = commands.clone();
     tokio::spawn(async move {
@@ -229,8 +229,8 @@ async fn do_codec() {
         .expect("Failed to connect");
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
+    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     tokio::spawn(async move {
         while let Some(command) = framed_read.next().await {

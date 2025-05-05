@@ -1,5 +1,3 @@
-// TODO: The doc test in failing on `ConnectionRefused` error. Create a Mock server to allow doc tests to pass. Remove the `ignore` tag.
-
 //! # Rusmpp
 //!
 //! Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.

@@ -1,6 +1,11 @@
 use std::str::FromStr;
 
 use futures::{SinkExt, StreamExt};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    runners::AsyncRunner,
+    GenericImage,
+};
 use tokio::net::TcpStream;
 use tokio_util::codec::{Framed, FramedRead, FramedWrite};
 use tracing_test::traced_test;
@@ -204,7 +209,22 @@ async fn default_encode_decode() {
 #[tokio::test]
 #[ignore = "integration test"]
 async fn do_codec() {
-    let stream = TcpStream::connect("34.242.18.250:2775")
+    // See https://github.com/JadKHaddad/smpp-smsc-simulator
+    let container = GenericImage::new("jadkhaddad/smpp-smsc-simulator", "1.0.0")
+        .with_wait_for(WaitFor::message_on_stdout(
+            "Listening for SMPP on port 2775",
+        ))
+        .with_exposed_port(ContainerPort::Tcp(2775))
+        .start()
+        .await
+        .expect("Failed to start smpp-smsc-simulator");
+
+    let port = container
+        .get_host_port_ipv4(2775)
+        .await
+        .expect("Failed to get container port");
+
+    let stream = TcpStream::connect(format!("127.0.0.1:{port}"))
         .await
         .expect("Failed to connect");
 

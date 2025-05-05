@@ -23,10 +23,8 @@
 //!
 //!         while let Some(Ok(command)) = framed.next().await {
 //!             if let CommandId::EnquireLink = command.command_id() {
-//!                 println!("Server: EnquireLink received");
 //!                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
 //!                 framed.send(&response).await.unwrap();
-//!                 println!("Server: EnquireLink response sent");
 //!                 break;
 //!             }
 //!         }
@@ -42,12 +40,10 @@
 //!     let mut framed = Framed::new(client_stream, CommandCodec {});
 //!
 //!     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
-//!     println!("Client: EnquireLink sent");
 //!     framed.send(&enquire_link_command).await?;
 //!
 //!     while let Some(Ok(command)) = framed.next().await {
 //!         if let CommandId::EnquireLinkResp = command.command_id() {
-//!             println!("Client: EnquireLink response received");
 //!             break;
 //!         }
 //!     }

@@ -41,9 +41,15 @@
 //! }
 //! ```
 
-#![cfg_attr(not(feature = "std"), no_std)]
+#![no_std]
 #![forbid(unsafe_code)]
 // #![deny(missing_docs)]
+
+#[cfg(feature = "std")]
+extern crate std;
+
+#[cfg(feature = "alloc")]
+extern crate alloc;
 
 #[cfg(feature = "tokio-codec")]
 pub mod codec;
@@ -68,4 +74,8 @@ mod macros;
 
 pub(crate) mod utils;
 
-mod io;
+#[cfg(feature = "std")]
+use std::io;
+
+#[cfg(not(feature = "std"))]
+pub mod io;

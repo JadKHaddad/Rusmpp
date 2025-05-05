@@ -1,3 +1,10 @@
+#[cfg(feature = "alloc")]
+use ::alloc::{
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::ende::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
@@ -48,6 +55,9 @@ pub struct OctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
+    const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
+        assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
+
     /// Create a new empty [`OctetString`].
     ///
     /// Equivalent to [`OctetString::empty`].
@@ -59,8 +69,11 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     /// Create a new empty [`OctetString`].
     #[inline]
     pub fn empty() -> Self {
+        #[allow(path_statements)]
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
         #[cfg(feature = "alloc")]
-        return Self { bytes: vec![] };
+        return Self { bytes: Vec::new() };
 
         #[cfg(not(feature = "alloc"))]
         Self {
@@ -78,6 +91,9 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        #[allow(path_statements)]
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
         let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
@@ -202,6 +218,9 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
     where
         Self: Sized,
     {
+        #[allow(path_statements)]
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
         if length > MAX {
             return Err(DecodeError::OctetStringDecodeError(
                 OctetStringDecodeError::TooManyBytes {

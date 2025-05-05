@@ -1,4 +1,4 @@
-/// Our custom `try!` macro aka `?`, to get rid of [`std::convert::From`]/[`std::convert::Into`] used by the `?` operator.
+/// Our custom `try!` macro aka `?`, to get rid of [`core::convert::From`]/[`core::convert::Into`] used by the `?` operator.
 #[macro_export]
 macro_rules! tri {
     ($e:expr $(,)?) => {
@@ -109,7 +109,7 @@ macro_rules! impl_length_encode {
         }
 
         impl $crate::ende::encode::Encode for $struct_ident {
-            fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), $crate::ende::encode::EncodeError> {
+            fn encode_to<W: $crate::io::Write>(&self, writer: &mut W) -> Result<(), $crate::ende::encode::EncodeError> {
                 $(
                     $crate::tri!(self.$field_ident.encode_to(writer));
                 )*

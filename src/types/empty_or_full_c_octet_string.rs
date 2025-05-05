@@ -1,3 +1,10 @@
+#[cfg(feature = "alloc")]
+use ::alloc::{
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::ende::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, EncodeError},
@@ -42,9 +49,9 @@ pub struct EmptyOrFullCOctetString<const N: usize> {
     bytes: heapless::Vec<u8, N>,
 }
 
-// TODO: what happens if N is 0?
-
 impl<const N: usize> EmptyOrFullCOctetString<N> {
+    const _ASSERT_NON_ZERO: () = assert!(N > 0, "N must be greater than 0");
+
     /// Create a new empty [`EmptyOrFullCOctetString`].
     ///
     /// Equivalent to [`EmptyOrFullCOctetString::empty`].
@@ -56,13 +63,16 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     /// Create a new empty [`EmptyOrFullCOctetString`].
     #[inline]
     pub fn empty() -> Self {
+        #[allow(path_statements)]
+        Self::_ASSERT_NON_ZERO;
+
         #[cfg(feature = "alloc")]
         return Self { bytes: vec![0] };
 
         #[cfg(not(feature = "alloc"))]
         Self {
-            // TODO
-            bytes: heapless::Vec::from_slice(&[0]).expect("TODO"),
+            bytes: heapless::Vec::from_slice(&[0])
+                .expect("Must have been checked by Self::_ASSERT_NON_ZERO"),
         }
     }
 
@@ -77,6 +87,9 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
 
     /// Create a new [`EmptyOrFullCOctetString`] from a sequence of bytes.
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        #[allow(path_statements)]
+        Self::_ASSERT_NON_ZERO;
+
         let bytes = bytes.as_ref();
 
         if bytes[bytes.len() - 1] != 0 {
@@ -170,6 +183,9 @@ impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        #[allow(path_statements)]
+        Self::_ASSERT_NON_ZERO;
+
         let bytes = s.as_bytes();
 
         if bytes.len() + 1 > 1 {
@@ -255,6 +271,11 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
     where
         Self: Sized,
     {
+        use crate::io::Read;
+
+        #[allow(path_statements)]
+        Self::_ASSERT_NON_ZERO;
+
         #[cfg(feature = "alloc")]
         let mut bytes = Vec::with_capacity(N);
 

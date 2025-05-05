@@ -1,12 +1,14 @@
+//! Mirror of the `std::io` module where `std` feature is not enabled.
+
 #[derive(Debug)]
 pub enum Error {
-    EOF,
+    Eof,
 }
 
 impl core::fmt::Display for Error {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Error::EOF => write!(f, "EOF"),
+            Error::Eof => write!(f, "EOF"),
         }
     }
 }
@@ -20,7 +22,7 @@ pub trait Write {
         while !buf.is_empty() {
             match self.write(buf) {
                 Ok(0) => {
-                    return Err(Error::EOF);
+                    return Err(Error::Eof);
                 }
                 Ok(n) => buf = &buf[n..],
                 Err(e) => return Err(e),
@@ -44,13 +46,13 @@ pub trait Read {
             }
         }
         if !buf.is_empty() {
-            Err(Error::EOF)
+            Err(Error::Eof)
         } else {
             Ok(())
         }
     }
 
-    fn bytes(&mut self) -> Bytes<&mut Self>
+    fn bytes(self) -> Bytes<Self>
     where
         Self: Sized,
     {
@@ -67,12 +69,11 @@ impl<R: Read> Iterator for Bytes<R> {
 
     fn next(&mut self) -> Option<Result<u8, Error>> {
         let mut byte = 0;
-        loop {
-            return match self.inner.read(core::slice::from_mut(&mut byte)) {
-                Ok(0) => None,
-                Ok(..) => Some(Ok(byte)),
-                Err(e) => Some(Err(e)),
-            };
+
+        match self.inner.read(core::slice::from_mut(&mut byte)) {
+            Ok(0) => None,
+            Ok(..) => Some(Ok(byte)),
+            Err(e) => Some(Err(e)),
         }
     }
 }
@@ -114,7 +115,17 @@ impl Write for &mut [u8] {
     }
 }
 
-pub struct Cursor<T> {
+#[cfg(feature = "alloc")]
+impl Write for ::alloc::vec::Vec<u8> {
+    #[inline]
+    fn write(&mut self, buf: &[u8]) -> Result<usize, Error> {
+        self.extend_from_slice(buf);
+
+        Ok(buf.len())
+    }
+}
+
+pub(crate) struct Cursor<T> {
     inner: T,
     pos: u64,
 }
@@ -122,22 +133,6 @@ pub struct Cursor<T> {
 impl<T> Cursor<T> {
     pub const fn new(inner: T) -> Cursor<T> {
         Cursor { pos: 0, inner }
-    }
-
-    pub fn into_inner(self) -> T {
-        self.inner
-    }
-
-    pub const fn get_ref(&self) -> &T {
-        &self.inner
-    }
-
-    pub const fn get_mut(&mut self) -> &mut T {
-        &mut self.inner
-    }
-
-    pub const fn position(&self) -> u64 {
-        self.pos
     }
 
     pub const fn set_position(&mut self, pos: u64) {

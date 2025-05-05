@@ -1,3 +1,10 @@
+#[cfg(feature = "alloc")]
+use ::alloc::{
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::ende::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, EncodeError},
@@ -68,6 +75,16 @@ pub struct COctetString<const MIN: usize, const MAX: usize> {
 }
 
 impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
+    const _ASSERT_MIN_NON_ZERO: () = assert!(MIN > 0, "MIN must be greater than 0");
+    const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
+        assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
+
+    #[allow(path_statements)]
+    const _ASSERT_VALID: () = {
+        Self::_ASSERT_MIN_NON_ZERO;
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+    };
+
     /// Create a new empty [`COctetString`].
     ///
     /// Equivalent to [`COctetString::empty`].
@@ -79,13 +96,16 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     /// Create a new empty [`COctetString`].
     #[inline]
     pub fn empty() -> Self {
+        #[allow(path_statements)]
+        Self::_ASSERT_VALID;
+
         #[cfg(feature = "alloc")]
         return Self { bytes: vec![0] };
 
         #[cfg(not(feature = "alloc"))]
         Self {
-            // TODO
-            bytes: heapless::Vec::from_slice(&[0]).expect("TODO"),
+            bytes: heapless::Vec::from_slice(&[0])
+                .expect("Must have been checked by Self::_ASSERT_VALID"),
         }
     }
 
@@ -100,6 +120,9 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
 
     /// Create a new [`COctetString`] from a sequence of bytes.
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        #[allow(path_statements)]
+        Self::_ASSERT_VALID;
+
         let bytes = bytes.as_ref();
 
         if bytes[bytes.len() - 1] != 0 {
@@ -148,6 +171,9 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     /// Create a new [`COctetString`] from a sequence of bytes without checking the length and null termination.
     #[inline]
     pub(crate) fn new_unchecked(bytes: impl AsRef<[u8]>) -> Self {
+        #[allow(path_statements)]
+        Self::_ASSERT_VALID;
+
         #[cfg(feature = "alloc")]
         let bytes = bytes.as_ref().to_vec();
 
@@ -212,6 +238,9 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        #[allow(path_statements)]
+        Self::_ASSERT_VALID;
+
         let bytes = s.as_bytes();
 
         if bytes.len() + 1 > MAX {
@@ -296,6 +325,11 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
     where
         Self: Sized,
     {
+        use crate::io::Read;
+
+        #[allow(path_statements)]
+        Self::_ASSERT_VALID;
+
         #[cfg(feature = "alloc")]
         let mut bytes = Vec::with_capacity(MAX);
 

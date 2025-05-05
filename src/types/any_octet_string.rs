@@ -1,3 +1,9 @@
+use ::alloc::{
+    string::{String, ToString},
+    vec,
+    vec::Vec,
+};
+
 use crate::ende::{
     decode::{DecodeError, DecodeWithLength},
     encode::{Encode, EncodeError},
@@ -22,7 +28,7 @@ impl AnyOctetString {
     /// Create a new empty [`AnyOctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![] }
+        Self { bytes: Vec::new() }
     }
 
     /// Check if an [`AnyOctetString`] is empty.
@@ -55,7 +61,6 @@ impl AnyOctetString {
     }
 
     /// Convert an [`AnyOctetString`] to a [`Vec`] of [`u8`].
-    #[cfg(feature = "alloc")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes

@@ -1,5 +1,7 @@
 //! [`Length`], [`Encode`] and [`DecodeWithLength`] implementation for [`Vec`]
 
+use ::alloc::vec::Vec;
+
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},

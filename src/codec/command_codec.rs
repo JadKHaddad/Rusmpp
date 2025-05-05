@@ -16,8 +16,6 @@ use tokio_util::{
 
 /// A codec for encoding and decoding SMPP PDUs.
 ///
-/// Only available when the `tokio-codec` feature is enabled.
-///
 /// # Usage
 /// ```rust, ignore
 /// use futures::{SinkExt, StreamExt};

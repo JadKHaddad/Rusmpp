@@ -30,13 +30,13 @@ pub trait Decode: core::fmt::Debug {
     fn vectorized_decode_from<R: crate::io::Read>(
         reader: &mut R,
         count: usize,
-    ) -> Result<Vec<Self>, DecodeError>
+    ) -> Result<::alloc::vec::Vec<Self>, DecodeError>
     where
         Self: Sized,
     {
         use crate::tri;
 
-        let mut vec = Vec::new();
+        let mut vec = ::alloc::vec::Vec::new();
 
         for _ in 0..count {
             let v = tri!(Self::decode_from(reader));

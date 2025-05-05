@@ -39,8 +39,8 @@ pub trait Encode: Length {
 
     #[cfg(feature = "alloc")]
     /// Encode a value into a vector
-    fn encode_into_vec(&self) -> Result<Vec<u8>, EncodeError> {
-        let mut buf = Vec::with_capacity(self.length());
+    fn encode_into_vec(&self) -> Result<::alloc::vec::Vec<u8>, EncodeError> {
+        let mut buf = ::alloc::vec::Vec::with_capacity(self.length());
 
         tri!(self.encode_to(&mut buf));
 

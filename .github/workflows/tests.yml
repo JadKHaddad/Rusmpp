@@ -51,8 +51,14 @@ jobs:
           args: --all --all-features -- -D warnings
         continue-on-error: ${{ matrix.rust != 'stable' }}
 
-      - name: Run tests
+      - name: Run tests --all-features
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features
+
+      - name: Run tests --features tokio-codec
+        uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --features tokio-codec

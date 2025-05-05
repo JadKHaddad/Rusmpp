@@ -83,14 +83,6 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
             return Err(Error::NotNullTerminated);
         }
 
-        if !bytes.is_ascii() {
-            return Err(Error::NotAscii);
-        }
-
-        if bytes[..bytes.len() - 1].contains(&0) {
-            return Err(Error::NullByteFound);
-        }
-
         if bytes.len() > 1 {
             if bytes.len() < N {
                 return Err(Error::TooFewBytes {
@@ -104,6 +96,14 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
                     max: N,
                 });
             }
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
+        }
+
+        if bytes[..bytes.len() - 1].contains(&0) {
+            return Err(Error::NullByteFound);
         }
 
         #[cfg(feature = "alloc")]
@@ -170,31 +170,55 @@ impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let bytes = s.as_bytes();
+
+        if bytes.len() + 1 > 1 {
+            if bytes.len() + 1 < N {
+                return Err(Error::TooFewBytes {
+                    actual: bytes.len() + 1,
+                });
+            }
+
+            if bytes.len() + 1 > N {
+                return Err(Error::TooManyBytes {
+                    actual: bytes.len() + 1,
+                    max: N,
+                });
+            }
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
+        }
+
+        if bytes[..bytes.len()].contains(&0) {
+            return Err(Error::NullByteFound);
+        }
+
         #[cfg(feature = "alloc")]
-        {
-            let mut bytes = s.as_bytes().to_vec();
+        let bytes = {
+            let mut bytes = bytes.to_vec();
             bytes.push(0);
 
-            return Self::new(bytes);
-        }
-
-        #[cfg(not(feature = "alloc"))] // TODO: fix
-        {
-            let mut bytes = heapless::Vec::<u8, N>::new();
             bytes
-                .extend_from_slice(s.as_bytes())
-                .map_err(|_| Error::TooManyBytes {
-                    actual: s.as_bytes().len() + 1,
-                    max: N,
-                })?;
+        };
 
-            bytes.push(0).map_err(|_| Error::TooManyBytes {
-                actual: s.as_bytes().len() + 1,
-                max: N,
-            })?;
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, N>::new();
 
-            return Self::new(bytes);
-        }
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must have been checked");
+
+            heapless_bytes
+                .push(0)
+                .expect("bytes.len() must have been checked");
+
+            heapless_bytes
+        };
+
+        Ok(Self { bytes })
     }
 }
 
@@ -244,7 +268,7 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
                 bytes.push(byte);
 
                 #[cfg(not(feature = "alloc"))]
-                bytes.push(byte).expect("Loop must exceed N");
+                bytes.push(byte).expect("Loop must not exceed N");
 
                 if byte == 0 {
                     break;
@@ -315,7 +339,7 @@ mod tests {
         #[test]
         fn null_byte_found() {
             let bytes = b"Hel\0lo\0";
-            let error = EmptyOrFullCOctetString::<6>::new(bytes).unwrap_err();
+            let error = EmptyOrFullCOctetString::<7>::new(bytes).unwrap_err();
             assert!(matches!(error, Error::NullByteFound));
         }
 
@@ -372,9 +396,7 @@ mod tests {
         #[test]
         fn null_byte_found() {
             let string = "Hel\0lo";
-            let error = EmptyOrFullCOctetString::<6>::from_str(string).unwrap_err();
-            extern crate std;
-            std::println!("error: {error:?}");
+            let error = EmptyOrFullCOctetString::<7>::from_str(string).unwrap_err();
             assert!(matches!(error, Error::NullByteFound));
         }
 

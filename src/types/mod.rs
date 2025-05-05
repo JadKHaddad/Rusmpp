@@ -6,14 +6,15 @@ pub use c_octet_string::COctetString;
 pub mod empty_or_full_c_octet_string;
 pub use empty_or_full_c_octet_string::EmptyOrFullCOctetString;
 
+#[cfg(feature = "alloc")]
 pub mod any_octet_string;
+#[cfg(feature = "alloc")]
 pub use any_octet_string::AnyOctetString;
 
 pub mod octet_string;
 pub use octet_string::OctetString;
 
-#[allow(rustdoc::private_intra_doc_links)]
-pub mod option;
+mod option;
 
 pub mod u16;
 

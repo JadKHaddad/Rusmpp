@@ -7,12 +7,7 @@ use crate::ende::{
 /// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString)
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct AnyOctetString {
-    #[cfg(feature = "alloc")]
     bytes: Vec<u8>,
-
-    // TODO: what about this 255
-    #[cfg(not(feature = "alloc"))]
-    bytes: heapless::Vec<u8, 255>,
 }
 
 impl AnyOctetString {
@@ -27,13 +22,7 @@ impl AnyOctetString {
     /// Create a new empty [`AnyOctetString`].
     #[inline]
     pub fn empty() -> Self {
-        #[cfg(feature = "alloc")]
-        return Self { bytes: vec![] };
-
-        #[cfg(not(feature = "alloc"))]
-        Self {
-            bytes: heapless::Vec::new(),
-        }
+        Self { bytes: vec![] }
     }
 
     /// Check if an [`AnyOctetString`] is empty.
@@ -48,22 +37,7 @@ impl AnyOctetString {
     /// Create a new [`AnyOctetString`] from a sequence of bytes.
     #[inline]
     pub fn new(bytes: impl AsRef<[u8]>) -> Self {
-        let bytes = bytes.as_ref();
-
-        #[cfg(feature = "alloc")]
-        let bytes = bytes.to_vec();
-
-        // TODO: This must return an error
-        #[cfg(not(feature = "alloc"))]
-        let bytes = {
-            let mut heapless_bytes = heapless::Vec::<u8, 255>::new();
-
-            heapless_bytes
-                .extend_from_slice(bytes)
-                .expect("bytes.len() must not be greater than 255");
-
-            heapless_bytes
-        };
+        let bytes = bytes.as_ref().to_vec();
 
         Self { bytes }
     }
@@ -90,17 +64,9 @@ impl AnyOctetString {
 
 impl core::fmt::Debug for AnyOctetString {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        #[cfg(feature = "alloc")]
-        {
-            f.debug_struct("AnyOctetString")
-                .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-                .field("string", &self.to_string())
-                .finish()
-        }
-
-        #[cfg(not(feature = "alloc"))]
         f.debug_struct("AnyOctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+            .field("string", &self.to_string())
             .finish()
     }
 }
@@ -119,7 +85,6 @@ impl core::str::FromStr for AnyOctetString {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl core::fmt::Display for AnyOctetString {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(&self.bytes))
@@ -150,13 +115,7 @@ impl DecodeWithLength for AnyOctetString {
     where
         Self: Sized,
     {
-        // TODO: must use length.
-
-        #[cfg(feature = "alloc")]
         let mut bytes = vec![0; length];
-
-        #[cfg(not(feature = "alloc"))]
-        let mut bytes = heapless::Vec::<u8, 255>::new();
 
         reader.read_exact(&mut bytes)?;
 

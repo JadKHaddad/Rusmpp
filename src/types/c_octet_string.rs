@@ -3,7 +3,6 @@ use crate::ende::{
     encode::{Encode, EncodeError},
     length::Length,
 };
-use crate::io::Read;
 
 /// An Error that can occur when creating a [`COctetString`]
 #[derive(Debug)]
@@ -103,22 +102,22 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         let bytes = bytes.as_ref();
 
-        if bytes.as_ref().len() > MAX {
+        if bytes[bytes.len() - 1] != 0 {
+            return Err(Error::NotNullTerminated);
+        }
+
+        if bytes.len() > MAX {
             return Err(Error::TooManyBytes {
                 actual: bytes.len(),
                 max: MAX,
             });
         }
 
-        if bytes.as_ref().len() < MIN {
+        if bytes.len() < MIN {
             return Err(Error::TooFewBytes {
                 actual: bytes.len(),
                 min: MIN,
             });
-        }
-
-        if bytes[bytes.len() - 1] != 0 {
-            return Err(Error::NotNullTerminated);
         }
 
         if !bytes.is_ascii() {
@@ -213,31 +212,54 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let bytes = s.as_bytes();
+
+        if bytes.len() + 1 > MAX {
+            return Err(Error::TooManyBytes {
+                actual: bytes.len() + 1,
+                max: MAX,
+            });
+        }
+
+        if bytes.len() + 1 < MIN {
+            return Err(Error::TooFewBytes {
+                actual: bytes.len() + 1,
+                min: MIN,
+            });
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
+        }
+
+        if bytes[..bytes.len()].contains(&0) {
+            return Err(Error::NullByteFound);
+        }
+
         #[cfg(feature = "alloc")]
-        {
-            let mut bytes = s.as_bytes().to_vec();
+        let bytes = {
+            let mut bytes = bytes.to_vec();
             bytes.push(0);
 
-            return Self::new(bytes);
-        }
-
-        #[cfg(not(feature = "alloc"))] // TODO: fix
-        {
-            let mut bytes = heapless::Vec::<u8, MAX>::new();
             bytes
-                .extend_from_slice(s.as_bytes())
-                .map_err(|_| Error::TooManyBytes {
-                    actual: s.as_bytes().len() + 1,
-                    max: MAX,
-                })?;
+        };
 
-            bytes.push(0).map_err(|_| Error::TooManyBytes {
-                actual: s.as_bytes().len() + 1,
-                max: MAX,
-            })?;
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, MAX>::new();
 
-            return Self::new(bytes);
-        }
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must have been checked");
+
+            heapless_bytes
+                .push(0)
+                .expect("bytes.len() must have been checked");
+
+            heapless_bytes
+        };
+
+        Ok(Self { bytes })
     }
 }
 

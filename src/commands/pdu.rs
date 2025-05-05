@@ -3,12 +3,11 @@
 use super::types::command_id::{CommandId, HasCommandId};
 use crate::{
     ende::{
-        decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
+        decode::{Decode, DecodeError, DecodeWithKeyOptional},
         encode::{Encode, EncodeError},
         length::Length,
     },
     tri,
-    types::any_octet_string::AnyOctetString,
 };
 
 // pub mod alert_notification;

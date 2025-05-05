@@ -1,4 +1,3 @@
-use super::any_octet_string::AnyOctetString;
 use crate::ende::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
@@ -176,7 +175,10 @@ impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for AnyOctetString {
+#[cfg(feature = "alloc")]
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>>
+    for super::any_octet_string::AnyOctetString
+{
     fn from(octet_string: OctetString<MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }
@@ -219,12 +221,28 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         }
 
         #[cfg(feature = "alloc")]
-        let mut bytes = vec![0; length];
+        let bytes = {
+            let mut bytes = vec![0; length];
+
+            reader.read_exact(&mut bytes)?;
+
+            bytes
+        };
 
         #[cfg(not(feature = "alloc"))]
-        let mut bytes: heapless::Vec<u8, MAX> = heapless::Vec::new();
+        let bytes = {
+            let mut temp = [0u8; MAX];
 
-        reader.read_exact(&mut bytes)?;
+            reader.read_exact(&mut temp[..length])?;
+
+            let mut bytes: heapless::Vec<u8, MAX> = heapless::Vec::new();
+
+            bytes
+                .extend_from_slice(&temp[..length])
+                .expect("length must have been checked");
+
+            bytes
+        };
 
         Ok(Self { bytes })
     }

@@ -4,39 +4,40 @@ use super::length::Length;
 
 #[derive(Debug)]
 pub enum EncodeError {
-    IoError(std::io::Error),
+    IoError(crate::io::Error),
 }
 
-impl From<std::io::Error> for EncodeError {
-    fn from(e: std::io::Error) -> Self {
+impl From<crate::io::Error> for EncodeError {
+    fn from(e: crate::io::Error) -> Self {
         EncodeError::IoError(e)
     }
 }
 
-impl std::fmt::Display for EncodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for EncodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             EncodeError::IoError(e) => write!(f, "I/O error: {e}"),
         }
     }
 }
 
-impl std::error::Error for EncodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for EncodeError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
             EncodeError::IoError(e) => Some(e),
         }
     }
 
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn cause(&self) -> Option<&dyn core::error::Error> {
         self.source()
     }
 }
 
 pub trait Encode: Length {
     /// Encode a value to a writer
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError>;
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError>;
 
+    #[cfg(feature = "alloc")]
     /// Encode a value into a vector
     fn encode_into_vec(&self) -> Result<Vec<u8>, EncodeError> {
         let mut buf = Vec::with_capacity(self.length());

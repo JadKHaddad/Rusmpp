@@ -3,7 +3,7 @@ use crate::ende::{
     encode::{Encode, EncodeError},
     length::Length,
 };
-use std::io::Read;
+use crate::io::Read;
 
 /// An Error that can occur when creating a [`COctetString`]
 #[derive(Debug)]
@@ -15,8 +15,8 @@ pub enum Error {
     NullByteFound,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Error::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -31,7 +31,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 /// A [`COctetString`] is a sequence of ASCII characters
 /// terminated with a NULL octet (0x00).
@@ -61,7 +61,11 @@ impl std::error::Error for Error {}
 /// A NULL string “” is encoded as 0x00
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct COctetString<const MIN: usize, const MAX: usize> {
+    #[cfg(feature = "alloc")]
     bytes: Vec<u8>,
+
+    #[cfg(not(feature = "alloc"))]
+    bytes: heapless::Vec<u8, MAX>,
 }
 
 impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
@@ -76,7 +80,14 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     /// Create a new empty [`COctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![0] }
+        #[cfg(feature = "alloc")]
+        return Self { bytes: vec![0] };
+
+        #[cfg(not(feature = "alloc"))]
+        Self {
+            // TODO
+            bytes: heapless::Vec::from_slice(&[0]).expect("TODO"),
+        }
     }
 
     /// Check if a [`COctetString`] is empty.
@@ -118,23 +129,47 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
             return Err(Error::NullByteFound);
         }
 
-        Ok(Self {
-            bytes: bytes.to_vec(),
-        })
+        #[cfg(feature = "alloc")]
+        let bytes = bytes.to_vec();
+
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, MAX>::new();
+
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must not be greater than MAX");
+
+            heapless_bytes
+        };
+
+        Ok(Self { bytes })
     }
 
     /// Create a new [`COctetString`] from a sequence of bytes without checking the length and null termination.
     #[inline]
     pub(crate) fn new_unchecked(bytes: impl AsRef<[u8]>) -> Self {
-        Self {
-            bytes: bytes.as_ref().to_vec(),
-        }
+        #[cfg(feature = "alloc")]
+        let bytes = bytes.as_ref().to_vec();
+
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, MAX>::new();
+
+            heapless_bytes
+                .extend_from_slice(bytes.as_ref())
+                .expect("bytes.len() must not be greater than MAX");
+
+            heapless_bytes
+        };
+
+        Self { bytes }
     }
 
     /// Convert a [`COctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
     /// Get the bytes of a [`COctetString`].
@@ -144,6 +179,7 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     }
 
     /// Convert a [`COctetString`] to a [`Vec`] of [`u8`].
+    #[cfg(feature = "alloc")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
@@ -156,28 +192,58 @@ impl<const MIN: usize, const MAX: usize> Default for COctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Debug for COctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const MIN: usize, const MAX: usize> core::fmt::Debug for COctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #[cfg(feature = "alloc")]
+        {
+            f.debug_struct("COctetString")
+                .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+                .field("string", &self.to_string())
+                .finish()
+        }
+
+        #[cfg(not(feature = "alloc"))]
         f.debug_struct("COctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-            .field("string", &self.to_string())
             .finish()
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::str::FromStr for COctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN, MAX> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut bytes = s.as_bytes().to_vec();
-        bytes.push(0);
+        #[cfg(feature = "alloc")]
+        {
+            let mut bytes = s.as_bytes().to_vec();
+            bytes.push(0);
 
-        Self::new(bytes)
+            return Self::new(bytes);
+        }
+
+        #[cfg(not(feature = "alloc"))] // TODO: fix
+        {
+            let mut bytes = heapless::Vec::<u8, MAX>::new();
+            bytes
+                .extend_from_slice(s.as_bytes())
+                .map_err(|_| Error::TooManyBytes {
+                    actual: s.as_bytes().len() + 1,
+                    max: MAX,
+                })?;
+
+            bytes.push(0).map_err(|_| Error::TooManyBytes {
+                actual: s.as_bytes().len() + 1,
+                max: MAX,
+            })?;
+
+            return Self::new(bytes);
+        }
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Display for COctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+#[cfg(feature = "alloc")]
+impl<const MIN: usize, const MAX: usize> core::fmt::Display for COctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(
             &self.bytes[..self.bytes.len() - 1],
         ))
@@ -197,23 +263,31 @@ impl<const MIN: usize, const MAX: usize> Length for COctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Encode for COctetString<MIN, MAX> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
 impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
+        #[cfg(feature = "alloc")]
         let mut bytes = Vec::with_capacity(MAX);
+
+        #[cfg(not(feature = "alloc"))]
+        let mut bytes = heapless::Vec::<u8, MAX>::new();
 
         let mut reader_bytes = reader.bytes();
         for _ in 0..MAX {
             if let Some(Ok(byte)) = reader_bytes.next() {
+                #[cfg(feature = "alloc")]
                 bytes.push(byte);
+
+                #[cfg(not(feature = "alloc"))]
+                bytes.push(byte).expect("Loop must exceed MAX");
 
                 if byte == 0 {
                     break;
@@ -320,7 +394,7 @@ mod tests {
     }
 
     mod from_str {
-        use std::str::FromStr;
+        use core::str::FromStr;
 
         use super::*;
 

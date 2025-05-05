@@ -7,7 +7,12 @@ use crate::ende::{
 /// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString)
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct AnyOctetString {
+    #[cfg(feature = "alloc")]
     bytes: Vec<u8>,
+
+    // TODO: what about this 255
+    #[cfg(not(feature = "alloc"))]
+    bytes: heapless::Vec<u8, 255>,
 }
 
 impl AnyOctetString {
@@ -22,7 +27,13 @@ impl AnyOctetString {
     /// Create a new empty [`AnyOctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![] }
+        #[cfg(feature = "alloc")]
+        return Self { bytes: vec![] };
+
+        #[cfg(not(feature = "alloc"))]
+        Self {
+            bytes: heapless::Vec::new(),
+        }
     }
 
     /// Check if an [`AnyOctetString`] is empty.
@@ -39,15 +50,28 @@ impl AnyOctetString {
     pub fn new(bytes: impl AsRef<[u8]>) -> Self {
         let bytes = bytes.as_ref();
 
-        Self {
-            bytes: bytes.to_vec(),
-        }
+        #[cfg(feature = "alloc")]
+        let bytes = bytes.to_vec();
+
+        // TODO: This must return an error
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, 255>::new();
+
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must not be greater than 255");
+
+            heapless_bytes
+        };
+
+        Self { bytes }
     }
 
     /// Convert an [`AnyOctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes)
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`AnyOctetString`].
@@ -57,17 +81,26 @@ impl AnyOctetString {
     }
 
     /// Convert an [`AnyOctetString`] to a [`Vec`] of [`u8`].
+    #[cfg(feature = "alloc")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
 }
 
-impl std::fmt::Debug for AnyOctetString {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for AnyOctetString {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #[cfg(feature = "alloc")]
+        {
+            f.debug_struct("AnyOctetString")
+                .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+                .field("string", &self.to_string())
+                .finish()
+        }
+
+        #[cfg(not(feature = "alloc"))]
         f.debug_struct("AnyOctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-            .field("string", &self.to_string())
             .finish()
     }
 }
@@ -78,16 +111,17 @@ impl Default for AnyOctetString {
     }
 }
 
-impl std::str::FromStr for AnyOctetString {
-    type Err = std::convert::Infallible;
+impl core::str::FromStr for AnyOctetString {
+    type Err = core::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self::new(s.as_bytes()))
     }
 }
 
-impl std::fmt::Display for AnyOctetString {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+#[cfg(feature = "alloc")]
+impl core::fmt::Display for AnyOctetString {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
@@ -105,18 +139,25 @@ impl Length for AnyOctetString {
 }
 
 impl Encode for AnyOctetString {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
 impl DecodeWithLength for AnyOctetString {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
+        // TODO: must use length.
+
+        #[cfg(feature = "alloc")]
         let mut bytes = vec![0; length];
+
+        #[cfg(not(feature = "alloc"))]
+        let mut bytes = heapless::Vec::<u8, 255>::new();
+
         reader.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })

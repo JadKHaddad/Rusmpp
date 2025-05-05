@@ -25,7 +25,7 @@ impl MsValidity {
 }
 
 impl DecodeWithLength for MsValidity {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
@@ -63,7 +63,7 @@ impl MsValidityInformation {
 }
 
 impl Decode for MsValidityInformation {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

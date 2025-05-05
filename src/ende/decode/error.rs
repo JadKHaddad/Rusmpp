@@ -1,7 +1,7 @@
 /// An error that can occur when decoding a [`Command`](struct@crate::commands::command::Command)
 #[derive(Debug)]
 pub enum DecodeError {
-    IoError(std::io::Error),
+    IoError(crate::io::Error),
     COctetStringDecodeError(COctetStringDecodeError),
     OctetStringDecodeError(OctetStringDecodeError),
     UnsupportedKey { key: u32 },
@@ -22,14 +22,14 @@ pub enum OctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
 }
 
-impl From<std::io::Error> for DecodeError {
-    fn from(e: std::io::Error) -> Self {
+impl From<crate::io::Error> for DecodeError {
+    fn from(e: crate::io::Error) -> Self {
         DecodeError::IoError(e)
     }
 }
 
-impl std::fmt::Display for DecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for DecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             DecodeError::IoError(e) => write!(f, "I/O error: {e}"),
             DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
@@ -39,8 +39,8 @@ impl std::fmt::Display for DecodeError {
     }
 }
 
-impl std::error::Error for DecodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for DecodeError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
             DecodeError::IoError(e) => Some(e),
             DecodeError::COctetStringDecodeError(e) => Some(e),
@@ -49,13 +49,13 @@ impl std::error::Error for DecodeError {
         }
     }
 
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn cause(&self) -> Option<&dyn core::error::Error> {
         self.source()
     }
 }
 
-impl std::fmt::Display for COctetStringDecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for COctetStringDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             COctetStringDecodeError::TooFewBytes { actual, min } => {
                 write!(f, "Too few bytes. actual: {actual}, min: {min}")
@@ -66,10 +66,10 @@ impl std::fmt::Display for COctetStringDecodeError {
     }
 }
 
-impl std::error::Error for COctetStringDecodeError {}
+impl core::error::Error for COctetStringDecodeError {}
 
-impl std::fmt::Display for OctetStringDecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for OctetStringDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             OctetStringDecodeError::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -81,4 +81,4 @@ impl std::fmt::Display for OctetStringDecodeError {
     }
 }
 
-impl std::error::Error for OctetStringDecodeError {}
+impl core::error::Error for OctetStringDecodeError {}

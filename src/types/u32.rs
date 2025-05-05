@@ -19,7 +19,7 @@ impl Length for u32 {
 }
 
 impl Encode for u32 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         writer.write_all(self.to_be_bytes().as_ref())?;
 
         Ok(())
@@ -27,7 +27,7 @@ impl Encode for u32 {
 }
 
 impl Decode for u32 {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
@@ -50,11 +50,11 @@ where
         4
     }
 
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         u32::from(*self).encode_to(writer)
     }
 
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

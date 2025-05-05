@@ -79,7 +79,7 @@ impl From<TLVTag> for TLV {
 }
 
 impl Decode for TLV {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

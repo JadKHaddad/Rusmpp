@@ -5,6 +5,7 @@
 //! ```
 //!
 
+use core::str::FromStr;
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     commands::{
@@ -15,12 +16,11 @@ use rusmpp::{
     types::{AnyOctetString, COctetString, OctetString},
     Command, CommandCodec, CommandId, CommandStatus, Pdu, TLVTag,
 };
-use std::str::FromStr;
 use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn core::error::Error>> {
     // Set up powerful logging.
     if std::env::var_os("RUST_LOG").is_none() {
         std::env::set_var(

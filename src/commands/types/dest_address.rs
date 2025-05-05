@@ -64,7 +64,7 @@ impl Length for DestAddress {
 }
 
 impl Encode for DestAddress {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         match self {
             Self::SmeAddress(sa) => sa.encode_to(writer),
             Self::DistributionListName(dlm) => dlm.encode_to(writer),
@@ -73,7 +73,7 @@ impl Encode for DestAddress {
 }
 
 impl Decode for DestAddress {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
         let flag = tri!(DestFlag::decode_from(reader));
 
         match flag {
@@ -131,7 +131,7 @@ impl SmeAddress {
 }
 
 impl Decode for SmeAddress {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
         // flag is already read
         let dest_addr_ton = tri!(Ton::decode_from(reader));
         let dest_addr_npi = tri!(Npi::decode_from(reader));
@@ -168,7 +168,7 @@ impl DistributionListName {
 }
 
 impl Decode for DistributionListName {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
         // flag is already read
         let dl_name = tri!(COctetString::decode_from(reader));
 

@@ -3,7 +3,6 @@ use crate::ende::{
     encode::{Encode, EncodeError},
     length::Length,
 };
-use std::io::Read;
 
 /// An error that can occur when creating a [`EmptyOrFullCOctetString`]
 #[derive(Debug)]
@@ -15,8 +14,8 @@ pub enum Error {
     NullByteFound,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -31,13 +30,19 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 /// Empty or full [`COctetString`](struct@crate::types::c_octet_string::COctetString)
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct EmptyOrFullCOctetString<const N: usize> {
+    #[cfg(feature = "alloc")]
     bytes: Vec<u8>,
+
+    #[cfg(not(feature = "alloc"))]
+    bytes: heapless::Vec<u8, N>,
 }
+
+// TODO: what happens if N is 0?
 
 impl<const N: usize> EmptyOrFullCOctetString<N> {
     /// Create a new empty [`EmptyOrFullCOctetString`].
@@ -51,7 +56,14 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     /// Create a new empty [`EmptyOrFullCOctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![0] }
+        #[cfg(feature = "alloc")]
+        return Self { bytes: vec![0] };
+
+        #[cfg(not(feature = "alloc"))]
+        Self {
+            // TODO
+            bytes: heapless::Vec::from_slice(&[0]).expect("TODO"),
+        }
     }
 
     /// Check if an [`EmptyOrFullCOctetString`] is empty.
@@ -94,15 +106,27 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
             }
         }
 
-        Ok(Self {
-            bytes: bytes.to_vec(),
-        })
+        #[cfg(feature = "alloc")]
+        let bytes = bytes.to_vec();
+
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, N>::new();
+
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must not be greater than N");
+
+            heapless_bytes
+        };
+
+        Ok(Self { bytes })
     }
 
     /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
     /// Get the bytes of an [`EmptyOrFullCOctetString`].
@@ -112,17 +136,26 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     }
 
     /// Convert an [`EmptyOrFullCOctetString`] to a [`Vec`] of [`u8`].
+    #[cfg(feature = "alloc")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
 }
 
-impl<const N: usize> std::fmt::Debug for EmptyOrFullCOctetString<N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const N: usize> core::fmt::Debug for EmptyOrFullCOctetString<N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #[cfg(feature = "alloc")]
+        {
+            f.debug_struct("OctetString")
+                .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+                .field("string", &self.to_string())
+                .finish()
+        }
+
+        #[cfg(not(feature = "alloc"))]
         f.debug_struct("OctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-            .field("string", &self.to_string())
             .finish()
     }
 }
@@ -133,19 +166,41 @@ impl<const N: usize> Default for EmptyOrFullCOctetString<N> {
     }
 }
 
-impl<const N: usize> std::str::FromStr for EmptyOrFullCOctetString<N> {
+impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut bytes = s.as_bytes().to_vec();
-        bytes.push(0);
+        #[cfg(feature = "alloc")]
+        {
+            let mut bytes = s.as_bytes().to_vec();
+            bytes.push(0);
 
-        Self::new(bytes)
+            return Self::new(bytes);
+        }
+
+        #[cfg(not(feature = "alloc"))] // TODO: fix
+        {
+            let mut bytes = heapless::Vec::<u8, N>::new();
+            bytes
+                .extend_from_slice(s.as_bytes())
+                .map_err(|_| Error::TooManyBytes {
+                    actual: s.as_bytes().len() + 1,
+                    max: N,
+                })?;
+
+            bytes.push(0).map_err(|_| Error::TooManyBytes {
+                actual: s.as_bytes().len() + 1,
+                max: N,
+            })?;
+
+            return Self::new(bytes);
+        }
     }
 }
 
-impl<const N: usize> std::fmt::Display for EmptyOrFullCOctetString<N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+#[cfg(feature = "alloc")]
+impl<const N: usize> core::fmt::Display for EmptyOrFullCOctetString<N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(
             &self.bytes[..self.bytes.len() - 1],
         ))
@@ -165,23 +220,31 @@ impl<const N: usize> Length for EmptyOrFullCOctetString<N> {
 }
 
 impl<const N: usize> Encode for EmptyOrFullCOctetString<N> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
 impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
+        #[cfg(feature = "alloc")]
         let mut bytes = Vec::with_capacity(N);
+
+        #[cfg(not(feature = "alloc"))]
+        let mut bytes = heapless::Vec::<u8, N>::new();
 
         let mut reader_bytes = reader.bytes();
         for _ in 0..N {
             if let Some(Ok(byte)) = reader_bytes.next() {
+                #[cfg(feature = "alloc")]
                 bytes.push(byte);
+
+                #[cfg(not(feature = "alloc"))]
+                bytes.push(byte).expect("Loop must exceed N");
 
                 if byte == 0 {
                     break;
@@ -288,7 +351,7 @@ mod tests {
     }
 
     mod from_str {
-        use std::str::FromStr;
+        use core::str::FromStr;
 
         use super::*;
 
@@ -310,6 +373,8 @@ mod tests {
         fn null_byte_found() {
             let string = "Hel\0lo";
             let error = EmptyOrFullCOctetString::<6>::from_str(string).unwrap_err();
+            extern crate std;
+            std::println!("error: {error:?}");
             assert!(matches!(error, Error::NullByteFound));
         }
 

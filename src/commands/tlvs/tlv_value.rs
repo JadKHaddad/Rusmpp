@@ -281,7 +281,7 @@ impl Length for TLVValue {
 }
 
 impl Encode for TLVValue {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         match self {
             TLVValue::AdditionalStatusInfoText(value) => value.encode_to(writer),
             TLVValue::AlertOnMessageDelivery(value) => value.encode_to(writer),
@@ -355,7 +355,7 @@ impl Encode for TLVValue {
 impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 
-    fn decode_from<R: std::io::Read>(
+    fn decode_from<R: crate::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,

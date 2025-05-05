@@ -12,8 +12,8 @@ pub enum Error {
     TooFewBytes { actual: usize, min: usize },
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -25,7 +25,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 /// An [`OctetString`] is a sequence of octets not necessarily
 /// terminated with a NULL octet. Such fields using Octet
@@ -41,7 +41,11 @@ impl std::error::Error for Error {}
 /// field that indicates its length should be set to zero.
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
+    #[cfg(feature = "alloc")]
     bytes: Vec<u8>,
+
+    #[cfg(not(feature = "alloc"))]
+    bytes: heapless::Vec<u8, MAX>,
 }
 
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
@@ -56,7 +60,13 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     /// Create a new empty [`OctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![] }
+        #[cfg(feature = "alloc")]
+        return Self { bytes: vec![] };
+
+        #[cfg(not(feature = "alloc"))]
+        Self {
+            bytes: heapless::Vec::new(),
+        }
     }
 
     /// Check if an [`OctetString`] is empty.
@@ -85,15 +95,27 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
             });
         }
 
-        Ok(Self {
-            bytes: bytes.to_vec(),
-        })
+        #[cfg(feature = "alloc")]
+        let bytes = bytes.to_vec();
+
+        #[cfg(not(feature = "alloc"))]
+        let bytes = {
+            let mut heapless_bytes = heapless::Vec::<u8, MAX>::new();
+
+            heapless_bytes
+                .extend_from_slice(bytes)
+                .expect("bytes.len() must not be greater than MAX");
+
+            heapless_bytes
+        };
+
+        Ok(Self { bytes })
     }
 
     /// Convert an [`OctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes)
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`OctetString`].
@@ -103,17 +125,26 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 
     /// Convert an [`OctetString`] to a [`Vec`] of [`u8`].
+    #[cfg(feature = "alloc")]
     #[inline]
     pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Debug for OctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #[cfg(feature = "alloc")]
+        {
+            f.debug_struct("OctetString")
+                .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+                .field("string", &self.to_string())
+                .finish()
+        }
+
+        #[cfg(not(feature = "alloc"))]
         f.debug_struct("OctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-            .field("string", &self.to_string())
             .finish()
     }
 }
@@ -124,7 +155,7 @@ impl<const MIN: usize, const MAX: usize> Default for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::str::FromStr for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> core::str::FromStr for OctetString<MIN, MAX> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -132,8 +163,9 @@ impl<const MIN: usize, const MAX: usize> std::str::FromStr for OctetString<MIN, 
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Display for OctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+#[cfg(feature = "alloc")]
+impl<const MIN: usize, const MAX: usize> core::fmt::Display for OctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
@@ -157,14 +189,14 @@ impl<const MIN: usize, const MAX: usize> Length for OctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         writer.write_all(&self.bytes)?;
         Ok(())
     }
 }
 
 impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {
@@ -186,7 +218,12 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
             ));
         }
 
+        #[cfg(feature = "alloc")]
         let mut bytes = vec![0; length];
+
+        #[cfg(not(feature = "alloc"))]
+        let mut bytes: heapless::Vec<u8, MAX> = heapless::Vec::new();
+
         reader.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })

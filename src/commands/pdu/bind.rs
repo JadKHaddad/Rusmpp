@@ -69,17 +69,17 @@ impl Bind {
         Pdu::BindTransmitter(self)
     }
 
-    pub fn into_bind_receiver(self) -> Pdu {
-        Pdu::BindReceiver(self)
-    }
+    // pub fn into_bind_receiver(self) -> Pdu {
+    //     Pdu::BindReceiver(self)
+    // }
 
-    pub fn into_bind_transceiver(self) -> Pdu {
-        Pdu::BindTransceiver(self)
-    }
+    // pub fn into_bind_transceiver(self) -> Pdu {
+    //     Pdu::BindTransceiver(self)
+    // }
 }
 
 impl Decode for Bind {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

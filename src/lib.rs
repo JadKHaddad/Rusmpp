@@ -18,7 +18,7 @@
 //! use tokio_util::codec::{FramedRead, FramedWrite};
 //!
 //! #[tokio::main]
-//! async fn main() -> Result<(), Box<dyn std::error::Error>> {
+//! async fn main() -> Result<(), Box<dyn core::error::Error>> {
 //!     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 //!
 //!     let (reader, writer) = stream.into_split();
@@ -41,6 +41,7 @@
 //! }
 //! ```
 
+#![cfg_attr(not(feature = "std"), no_std)]
 #![forbid(unsafe_code)]
 // #![deny(missing_docs)]
 
@@ -66,3 +67,5 @@ pub mod types;
 mod macros;
 
 pub(crate) mod utils;
+
+mod io;

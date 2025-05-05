@@ -21,7 +21,7 @@ impl ItsSessionInfo {
 }
 
 impl Decode for ItsSessionInfo {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

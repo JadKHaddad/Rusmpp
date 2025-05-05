@@ -1,19 +1,17 @@
 mod error;
 
-use crate::tri;
-
 pub use self::error::*;
 
-pub trait Decode: std::fmt::Debug {
+pub trait Decode: core::fmt::Debug {
     /// Decode a value from a reader
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where
         Self: Sized;
 
     /// Decode a value from a reader
     ///
     /// If the length is 0, return `None`
-    fn length_checked_decode_from<R: std::io::Read>(
+    fn length_checked_decode_from<R: crate::io::Read>(
         reader: &mut R,
         length: usize,
     ) -> Result<Option<Self>, DecodeError>
@@ -27,14 +25,17 @@ pub trait Decode: std::fmt::Debug {
         Self::decode_from(reader).map(Some)
     }
 
+    #[cfg(feature = "alloc")]
     /// Decode a vector of values from a reader
-    fn vectorized_decode_from<R: std::io::Read>(
+    fn vectorized_decode_from<R: crate::io::Read>(
         reader: &mut R,
         count: usize,
     ) -> Result<Vec<Self>, DecodeError>
     where
         Self: Sized,
     {
+        use crate::tri;
+
         let mut vec = Vec::new();
 
         for _ in 0..count {
@@ -57,7 +58,7 @@ pub trait Decode: std::fmt::Debug {
 
 pub trait DecodeWithLength {
     /// Decode a value from a reader, with a specified length
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized;
 
@@ -75,7 +76,7 @@ pub trait DecodeWithKey {
     type Key;
 
     /// Decode a value from a reader, using a key to determine the type
-    fn decode_from<R: std::io::Read>(
+    fn decode_from<R: crate::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,
@@ -86,7 +87,7 @@ pub trait DecodeWithKey {
     /// Decode a value from a reader, using a key to determine the type
     ///
     /// If the length is 0, return `None`
-    fn optional_length_checked_decode_from<R: std::io::Read>(
+    fn optional_length_checked_decode_from<R: crate::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,
@@ -106,7 +107,7 @@ pub trait DecodeWithKeyOptional {
     type Key;
 
     /// Decode a value from a reader, using a key to determine the type
-    fn decode_from<R: std::io::Read>(
+    fn decode_from<R: crate::io::Read>(
         key: Self::Key,
         reader: &mut R,
         length: usize,

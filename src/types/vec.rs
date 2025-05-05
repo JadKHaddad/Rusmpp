@@ -22,7 +22,7 @@ impl<T> Encode for Vec<T>
 where
     T: Encode,
 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         for item in self {
             tri!(item.encode_to(writer));
         }
@@ -35,7 +35,7 @@ impl<T> DecodeWithLength for Vec<T>
 where
     T: Decode + Length,
 {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
+    fn decode_from<R: crate::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
     where
         Self: Sized,
     {

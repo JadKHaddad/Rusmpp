@@ -21,7 +21,7 @@ impl<T> Encode for Option<T>
 where
     T: Encode,
 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode_to<W: crate::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
         match self {
             Some(value) => value.encode_to(writer),
             None => Ok(()),

@@ -76,6 +76,14 @@ impl Encoder<&Command> for CommandCodec {
     }
 }
 
+impl Encoder<Command> for CommandCodec {
+    type Error = EncodeError;
+
+    fn encode(&mut self, command: Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
+        self.encode(&command, dst)
+    }
+}
+
 impl Decoder for CommandCodec {
     type Item = Command;
     type Error = DecodeError;

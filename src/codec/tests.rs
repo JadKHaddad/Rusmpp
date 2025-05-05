@@ -188,7 +188,7 @@ async fn default_encode_decode() {
 
     let server_commands = commands.clone();
     tokio::spawn(async move {
-        for command in server_commands.iter() {
+        for command in server_commands {
             framed_server
                 .send(command)
                 .await

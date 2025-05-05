@@ -29,6 +29,11 @@ tokio-codec = [
 tracing = ["dep:tracing"] # Enables tracing support.
 
 [[example]]
+name = "client_server"
+path = "examples/client_server.rs"
+required-features = ["tokio-codec"]
+
+[[example]]
 name = "readme_example"
 path = "examples/readme_example.rs"
 required-features = ["tokio-codec"]

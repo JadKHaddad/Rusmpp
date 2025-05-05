@@ -15,9 +15,7 @@ use crate::{
     commands::{
         command::Command,
         pdu::{bind::Bind, submit_sm::SubmitSm, Pdu},
-        tlvs::tlv::message_submission_request::{
-            MessageSubmissionRequestTLV, MessageSubmissionRequestTLVValue,
-        },
+        tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{
             command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
             interface_version::InterfaceVersion, npi::Npi, registered_delivery::RegisteredDelivery,
@@ -288,13 +286,11 @@ async fn do_codec() {
                 OctetString::from_str("Hi, I am a short message. I will be overridden :(")
                     .expect("Failed to create short message"),
             )
-            .push_tlv(MessageSubmissionRequestTLV::new(
-                MessageSubmissionRequestTLVValue::MessagePayload(
-                    AnyOctetString::from_str(
-                        "Hi, I am a very long message that will override the short message :D",
-                    )
-                    .expect("Failed to create message_payload"),
-                ),
+            .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
+                AnyOctetString::from_str(
+                    "Hi, I am a very long message that will override the short message :D",
+                )
+                .expect("Failed to create message_payload"),
             ))
             .build()
             .into_submit_sm(),

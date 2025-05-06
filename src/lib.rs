@@ -5,7 +5,7 @@
 //! ```rust
 //! use futures::{SinkExt, StreamExt};
 //! use rusmpp::{
-//!     codec::command_codec::CommandCodec,
+//!     codec::CommandCodec,
 //!     commands::{
 //!         command::Command,
 //!         pdu::Pdu,
@@ -55,12 +55,7 @@
 #![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
 
-#[cfg(feature = "tokio-codec")]
-#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod codec;
-#[cfg(feature = "tokio-codec")]
-#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
-pub use codec::command_codec::CommandCodec;
 
 pub mod commands;
 pub use commands::command::Command;

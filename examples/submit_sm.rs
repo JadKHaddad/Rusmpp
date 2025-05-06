@@ -7,13 +7,14 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
+    codec::CommandCodec,
     commands::{
         tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
     pdu::{Bind, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandCodec, CommandId, CommandStatus, Pdu, TLVTag,
+    Command, CommandId, CommandStatus, Pdu, TLVTag,
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;

@@ -23,9 +23,9 @@ tracing = { version = "0.1.40", optional = true }
 
 [features]
 default = []
-# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F]
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
-# Enables the use of tokio's codec for SMPP PDUs.
+# Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
 tokio-codec = ["dep:tokio-util"]
 # Enables tracing support.
 tracing = ["dep:tracing"]

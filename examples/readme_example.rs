@@ -7,7 +7,7 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
-    codec::command_codec::CommandCodec,
+    codec::CommandCodec,
     commands::{
         command::Command,
         pdu::Pdu,

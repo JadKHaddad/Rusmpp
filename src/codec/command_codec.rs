@@ -66,26 +66,55 @@ use tokio_util::{
 ///     Ok(())
 /// }
 /// ```
+#[derive(Debug, Clone)]
 pub struct CommandCodec;
+
+impl CommandCodec {
+    #[inline]
+    pub const fn new() -> Self {
+        Self
+    }
+}
+
+impl Default for CommandCodec {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Encoder<&Command> for CommandCodec {
     type Error = EncodeError;
 
     fn encode(&mut self, command: &Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
         let command_length = 4 + command.length();
-        let encoded = tri!(command.encode_into_vec());
 
         dst.reserve(command_length);
         dst.put_u32(command_length as u32);
-        dst.put_slice(&encoded);
 
+        // tested with cargo test --features tokio-codec
+        #[cfg(not(feature = "tracing"))]
+        tri!(command.encode_to(&mut dst.writer()));
+
+        // tested with cargo test --features tokio-codec tracing
         #[cfg(feature = "tracing")]
         {
+            let encoded = tri!(command.encode_into_vec());
+
+            dst.put_slice(&encoded);
+
             tracing::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
             tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&encoded));
         }
 
         Ok(())
+    }
+}
+
+impl Encoder<Command> for CommandCodec {
+    type Error = EncodeError;
+
+    fn encode(&mut self, command: Command, dst: &mut BytesMut) -> Result<(), Self::Error> {
+        self.encode(&command, dst)
     }
 }
 

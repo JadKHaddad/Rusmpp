@@ -1,39 +1,234 @@
 use std::str::FromStr;
 
 use futures::{SinkExt, StreamExt};
+use testcontainers::{
+    core::{ContainerPort, WaitFor},
+    runners::AsyncRunner,
+    GenericImage,
+};
 use tokio::net::TcpStream;
-use tokio_util::codec::{FramedRead, FramedWrite};
+use tokio_util::codec::{Framed, FramedRead, FramedWrite};
+use tracing_test::traced_test;
 
 use crate::{
     codec::command_codec::CommandCodec,
     commands::{
         command::Command,
         pdu::{bind::Bind, submit_sm::SubmitSm, Pdu},
-        tlvs::tlv::message_submission_request::{
-            MessageSubmissionRequestTLV, MessageSubmissionRequestTLVValue,
-        },
+        tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{
             command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
             interface_version::InterfaceVersion, npi::Npi, registered_delivery::RegisteredDelivery,
             replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
         },
     },
+    pdu::{
+        AlertNotification, BindResp, BroadcastSm, BroadcastSmResp, CancelBroadcastSm, CancelSm,
+        DataSm, DeliverSm, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp,
+        ReplaceSm, SmResp, SubmitMulti, SubmitMultiResp, SubmitSmResp,
+    },
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
     },
+    CommandId,
 };
+
+#[tokio::test]
+#[traced_test]
+async fn default_encode_decode() {
+    let commands = vec![
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindTransmitter(Bind::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindTransmitterResp(BindResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindReceiver(Bind::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindReceiverResp(BindResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindTransceiver(Bind::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BindTransceiverResp(BindResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::Outbind(Outbind::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::AlertNotification(AlertNotification::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::SubmitSm(SubmitSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::SubmitSmResp(SubmitSmResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::QuerySm(QuerySm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::QuerySmResp(QuerySmResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::DeliverSm(DeliverSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::DataSm(DataSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::DataSmResp(SmResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::CancelSm(CancelSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::ReplaceSm(ReplaceSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::SubmitMulti(SubmitMulti::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::SubmitMultiResp(SubmitMultiResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BroadcastSm(BroadcastSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::BroadcastSmResp(BroadcastSmResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::QueryBroadcastSm(QueryBroadcastSm::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::QueryBroadcastSmResp(QueryBroadcastSmResp::default()),
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::CancelBroadcastSm(CancelBroadcastSm::default()),
+        ),
+        Command::new(Default::default(), Default::default(), Pdu::Unbind),
+        Command::new(Default::default(), Default::default(), Pdu::UnbindResp),
+        Command::new(Default::default(), Default::default(), Pdu::EnquireLink),
+        Command::new(Default::default(), Default::default(), Pdu::EnquireLinkResp),
+        Command::new(Default::default(), Default::default(), Pdu::GenericNack),
+        Command::new(Default::default(), Default::default(), Pdu::CancelSmResp),
+        Command::new(Default::default(), Default::default(), Pdu::ReplaceSmResp),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::CancelBroadcastSmResp,
+        ),
+        Command::new(
+            Default::default(),
+            Default::default(),
+            Pdu::Other {
+                command_id: CommandId::Other(100),
+                body: AnyOctetString::new(b"SMPP"),
+            },
+        ),
+    ];
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    let mut framed_server = Framed::new(server, CommandCodec::new());
+    let mut framed_client = Framed::new(client, CommandCodec::new());
+
+    let server_commands = commands.clone();
+    tokio::spawn(async move {
+        for command in server_commands {
+            framed_server
+                .send(command)
+                .await
+                .expect("Failed to send PDU");
+        }
+    });
+
+    let mut client_commands = Vec::new();
+
+    while let Some(Ok(command)) = framed_client.next().await {
+        client_commands.push(command);
+    }
+
+    assert_eq!(client_commands.last(), commands.last());
+}
 
 // cargo test do_codec --features tokio-codec -- --ignored --nocapture
 #[tokio::test]
 #[ignore = "integration test"]
 async fn do_codec() {
-    let stream = TcpStream::connect("34.242.18.250:2775")
+    // See https://github.com/JadKHaddad/smpp-smsc-simulator
+    let container = GenericImage::new("jadkhaddad/smpp-smsc-simulator", "1.0.0")
+        .with_wait_for(WaitFor::message_on_stdout(
+            "Listening for SMPP on port 2775",
+        ))
+        .with_exposed_port(ContainerPort::Tcp(2775))
+        .start()
+        .await
+        .expect("Failed to start smpp-smsc-simulator");
+
+    let port = container
+        .get_host_port_ipv4(2775)
+        .await
+        .expect("Failed to get container port");
+
+    let stream = TcpStream::connect(format!("127.0.0.1:{port}"))
         .await
         .expect("Failed to connect");
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
+    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     tokio::spawn(async move {
         while let Some(command) = framed_read.next().await {
@@ -91,13 +286,11 @@ async fn do_codec() {
                 OctetString::from_str("Hi, I am a short message. I will be overridden :(")
                     .expect("Failed to create short message"),
             )
-            .push_tlv(MessageSubmissionRequestTLV::new(
-                MessageSubmissionRequestTLVValue::MessagePayload(
-                    AnyOctetString::from_str(
-                        "Hi, I am a very long message that will override the short message :D",
-                    )
-                    .expect("Failed to create message_payload"),
-                ),
+            .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
+                AnyOctetString::from_str(
+                    "Hi, I am a very long message that will override the short message :D",
+                )
+                .expect("Failed to create message_payload"),
             ))
             .build()
             .into_submit_sm(),

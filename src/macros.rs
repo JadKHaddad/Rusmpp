@@ -3,9 +3,9 @@
 macro_rules! tri {
     ($e:expr $(,)?) => {
         match $e {
-            core::result::Result::Ok(value) => value,
-            core::result::Result::Err(err) => {
-                return core::result::Result::Err(err);
+            ::core::result::Result::Ok(value) => value,
+            ::core::result::Result::Err(err) => {
+                return ::core::result::Result::Err(err);
             }
         }
     };

@@ -84,12 +84,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .short_message(OctetString::from_str(
                 "Hi, I am a short message. I will be overridden :(",
             )?)
-            .push_tlv(
-                MessageSubmissionRequestTLVValue::MessagePayload(AnyOctetString::from_str(
+            .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
+                AnyOctetString::from_str(
                     "Hi, I am a very long message. I will override the short message :D",
-                )?)
-                .into(),
-            )
+                )?,
+            ))
             .build()
             .into_submit_sm(),
     );

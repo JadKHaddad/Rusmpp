@@ -246,9 +246,11 @@ impl BroadcastSm {
     pub fn builder() -> BroadcastSmBuilder {
         BroadcastSmBuilder::new()
     }
+}
 
-    pub fn into_broadcast_sm(self) -> Pdu {
-        Pdu::BroadcastSm(self)
+impl From<BroadcastSm> for Pdu {
+    fn from(value: BroadcastSm) -> Self {
+        Self::BroadcastSm(value)
     }
 }
 

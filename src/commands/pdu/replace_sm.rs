@@ -167,9 +167,11 @@ impl ReplaceSm {
     pub fn builder() -> ReplaceSmBuilder {
         ReplaceSmBuilder::new()
     }
+}
 
-    pub fn into_replace_sm(self) -> Pdu {
-        Pdu::ReplaceSm(self)
+impl From<ReplaceSm> for Pdu {
+    fn from(value: ReplaceSm) -> Self {
+        Self::ReplaceSm(value)
     }
 }
 

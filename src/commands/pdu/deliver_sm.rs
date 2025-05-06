@@ -218,9 +218,11 @@ impl DeliverSm {
     pub fn builder() -> DeliverSmBuilder {
         DeliverSmBuilder::new()
     }
+}
 
-    pub fn into_deliver_sm(self) -> Pdu {
-        Pdu::DeliverSm(self)
+impl From<DeliverSm> for Pdu {
+    fn from(value: DeliverSm) -> Self {
+        Self::DeliverSm(value)
     }
 }
 

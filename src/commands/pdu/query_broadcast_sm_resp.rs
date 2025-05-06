@@ -135,9 +135,11 @@ impl QueryBroadcastSmResp {
     pub fn builder() -> QueryBroadcastSmRespBuilder {
         QueryBroadcastSmRespBuilder::new()
     }
+}
 
-    pub fn into_query_broadcast_sm_resp(self) -> Pdu {
-        Pdu::QueryBroadcastSmResp(self)
+impl From<QueryBroadcastSmResp> for Pdu {
+    fn from(value: QueryBroadcastSmResp) -> Self {
+        Self::QueryBroadcastSmResp(value)
     }
 }
 

@@ -59,9 +59,11 @@ impl SubmitSmResp {
     pub fn builder() -> SubmitSmRespBuilder {
         SubmitSmRespBuilder::new()
     }
+}
 
-    pub fn into_submit_sm_resp(self) -> Pdu {
-        Pdu::SubmitSmResp(self)
+impl From<SubmitSmResp> for Pdu {
+    fn from(value: SubmitSmResp) -> Self {
+        Self::SubmitSmResp(value)
     }
 }
 

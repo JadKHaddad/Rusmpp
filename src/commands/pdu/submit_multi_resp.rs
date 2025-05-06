@@ -95,9 +95,11 @@ impl SubmitMultiResp {
     pub fn builder() -> SubmitMultiRespBuilder {
         SubmitMultiRespBuilder::new()
     }
+}
 
-    pub fn into_submit_multi_resp(self) -> Pdu {
-        Pdu::SubmitMultiResp(self)
+impl From<SubmitMultiResp> for Pdu {
+    fn from(value: SubmitMultiResp) -> Self {
+        Self::SubmitMultiResp(value)
     }
 }
 

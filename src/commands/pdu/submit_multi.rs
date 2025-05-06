@@ -242,9 +242,11 @@ impl SubmitMulti {
     pub fn builder() -> SubmitMultiBuilder {
         SubmitMultiBuilder::new()
     }
+}
 
-    pub fn into_submit_multi(self) -> Pdu {
-        Pdu::SubmitMulti(self)
+impl From<SubmitMulti> for Pdu {
+    fn from(value: SubmitMulti) -> Self {
+        Self::SubmitMulti(value)
     }
 }
 

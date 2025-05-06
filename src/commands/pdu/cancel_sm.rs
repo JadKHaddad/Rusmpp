@@ -122,9 +122,11 @@ impl CancelSm {
     pub fn builder() -> CancelSmBuilder {
         CancelSmBuilder::new()
     }
+}
 
-    pub fn into_cancel_sm(self) -> Pdu {
-        Pdu::CancelSm(self)
+impl From<CancelSm> for Pdu {
+    fn from(value: CancelSm) -> Self {
+        Self::CancelSm(value)
     }
 }
 

@@ -59,9 +59,11 @@ impl BroadcastSmResp {
     pub fn builder() -> BroadcastSmRespBuilder {
         BroadcastSmRespBuilder::new()
     }
+}
 
-    pub fn into_broadcast_sm_resp(self) -> Pdu {
-        Pdu::BroadcastSmResp(self)
+impl From<BroadcastSmResp> for Pdu {
+    fn from(value: BroadcastSmResp) -> Self {
+        Self::BroadcastSmResp(value)
     }
 }
 

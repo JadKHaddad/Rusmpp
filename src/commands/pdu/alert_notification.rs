@@ -80,9 +80,11 @@ impl AlertNotification {
     pub fn builder() -> AlertNotificationBuilder {
         AlertNotificationBuilder::new()
     }
+}
 
-    pub fn into_alert_notification(self) -> Pdu {
-        Pdu::AlertNotification(self)
+impl From<AlertNotification> for Pdu {
+    fn from(value: AlertNotification) -> Self {
+        Self::AlertNotification(value)
     }
 }
 

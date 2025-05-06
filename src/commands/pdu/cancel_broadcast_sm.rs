@@ -117,9 +117,11 @@ impl CancelBroadcastSm {
     pub fn builder() -> CancelBroadcastSmBuilder {
         CancelBroadcastSmBuilder::new()
     }
+}
 
-    pub fn into_cancel_broadcast_sm(self) -> Pdu {
-        Pdu::CancelBroadcastSm(self)
+impl From<CancelBroadcastSm> for Pdu {
+    fn from(value: CancelBroadcastSm) -> Self {
+        Self::CancelBroadcastSm(value)
     }
 }
 

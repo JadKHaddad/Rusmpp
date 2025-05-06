@@ -54,7 +54,7 @@
 #![forbid(unsafe_code)]
 // #![deny(missing_docs)]
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", test))]
 extern crate std;
 
 #[cfg(feature = "alloc")]
@@ -83,8 +83,8 @@ mod macros;
 
 pub(crate) mod utils;
 
-#[cfg(feature = "std")]
+#[cfg(any(feature = "std", test))]
 use std::io;
 
-#[cfg(not(feature = "std"))]
+#[cfg(all(not(feature = "std"), not(test)))]
 pub mod io;

@@ -1,10 +1,11 @@
 use core::fmt::Debug;
 
+use crate::io::Cursor;
+
 use super::{
     decode::{Decode, DecodeWithLength},
     encode::Encode,
 };
-use crate::io::Cursor;
 
 /// Test encoding and decoding of a type.
 ///
@@ -15,7 +16,7 @@ where
 {
     let original = T::default();
 
-    let mut curser = Cursor::new([0; 1024]);
+    let mut curser = Cursor::new([0; 4096]);
 
     original.encode_to(&mut curser).expect("Failed to encode");
 
@@ -35,7 +36,7 @@ where
 {
     let original = T::default();
 
-    let mut curser = Cursor::new([0; 1024]);
+    let mut curser = Cursor::new([0; 4096]);
 
     original.encode_to(&mut curser).expect("Failed to encode");
 

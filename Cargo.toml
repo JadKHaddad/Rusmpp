@@ -23,7 +23,7 @@ tracing = { version = "0.1.40", default-features = false, optional = true }
 heapless = { version = "0.8.0" }
 
 [features]
-default = ["std"]
+default = []
 std = ["alloc", "tracing?/std"]
 alloc = []
 pretty-hex-fmt = [

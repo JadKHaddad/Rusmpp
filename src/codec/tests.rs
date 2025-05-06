@@ -26,9 +26,10 @@ mod tokio {
             },
         },
         pdu::{
-            AlertNotification, BindResp, BroadcastSm, BroadcastSmResp, CancelBroadcastSm, CancelSm,
-            DataSm, DeliverSm, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm,
-            QuerySmResp, ReplaceSm, SmResp, SubmitMulti, SubmitMultiResp, SubmitSmResp,
+            AlertNotification, BindReceiverResp, BindTransceiverResp, BindTransmitterResp,
+            BroadcastSm, BroadcastSmResp, CancelBroadcastSm, CancelSm, DataSm, DeliverSm, Outbind,
+            QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp, ReplaceSm, SmResp,
+            SubmitMulti, SubmitMultiResp, SubmitSmResp,
         },
         types::{
             any_octet_string::AnyOctetString, c_octet_string::COctetString,
@@ -49,7 +50,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindTransmitterResp(BindResp::default()),
+                Pdu::BindTransmitterResp(BindTransmitterResp::default()),
             ),
             Command::new(
                 Default::default(),
@@ -59,7 +60,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindReceiverResp(BindResp::default()),
+                Pdu::BindReceiverResp(BindReceiverResp::default()),
             ),
             Command::new(
                 Default::default(),
@@ -69,7 +70,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindTransceiverResp(BindResp::default()),
+                Pdu::BindTransceiverResp(BindTransceiverResp::default()),
             ),
             Command::new(
                 Default::default(),

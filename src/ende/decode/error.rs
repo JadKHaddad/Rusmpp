@@ -4,6 +4,7 @@ pub enum DecodeError {
     IoError(crate::io::Error),
     COctetStringDecodeError(COctetStringDecodeError),
     OctetStringDecodeError(OctetStringDecodeError),
+    VecCapacityError(VecCapacityError),
     UnsupportedKey { key: u32 },
 }
 
@@ -22,6 +23,11 @@ pub enum OctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
 }
 
+#[derive(Debug)]
+pub struct VecCapacityError {
+    pub capacity: usize,
+}
+
 impl From<crate::io::Error> for DecodeError {
     fn from(e: crate::io::Error) -> Self {
         DecodeError::IoError(e)
@@ -34,6 +40,7 @@ impl core::fmt::Display for DecodeError {
             DecodeError::IoError(e) => write!(f, "I/O error: {e}"),
             DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
             DecodeError::OctetStringDecodeError(e) => write!(f, "OctetString error: {e}"),
+            DecodeError::VecCapacityError(e) => write!(f, "Vector capacity error: {e}"),
             DecodeError::UnsupportedKey { key } => write!(f, "Unsupported key: {key}"),
         }
     }
@@ -45,6 +52,7 @@ impl core::error::Error for DecodeError {
             DecodeError::IoError(e) => Some(e),
             DecodeError::COctetStringDecodeError(e) => Some(e),
             DecodeError::OctetStringDecodeError(e) => Some(e),
+            DecodeError::VecCapacityError(e) => Some(e),
             DecodeError::UnsupportedKey { .. } => None,
         }
     }
@@ -82,3 +90,11 @@ impl core::fmt::Display for OctetStringDecodeError {
 }
 
 impl core::error::Error for OctetStringDecodeError {}
+
+impl core::fmt::Display for VecCapacityError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "Vector capacity error. capacity: {}", self.capacity)
+    }
+}
+
+impl core::error::Error for VecCapacityError {}

@@ -38,8 +38,8 @@ impl TLV {
         Self::from(tag)
     }
 
-    pub fn tag(&self) -> &TLVTag {
-        &self.tag
+    pub fn tag(&self) -> TLVTag {
+        self.tag
     }
 
     pub fn value_length(&self) -> u16 {

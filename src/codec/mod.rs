@@ -1,6 +1,7 @@
-//! Tokio codec for encoding and decoding SMPP PDUs.
-//! Only available when the `tokio-codec` feature is enabled.
+//! A codec for encoding and decoding SMPP PDUs.
 
-pub mod command_codec;
+mod command_codec;
+pub use command_codec::CommandCodec;
+
 #[cfg(test)]
 mod tests;

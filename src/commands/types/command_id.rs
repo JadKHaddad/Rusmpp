@@ -1,9 +1,5 @@
 use crate::types::u32::EndeU32;
 
-pub trait HasCommandId {
-    fn command_id(&self) -> CommandId;
-}
-
 /// The [`CommandId`] identifies the SMPP operation e.g. submit_sm, bind_transmitter etc. The
 /// [`CommandId`] is encoded as a 4-octet integer value.
 ///

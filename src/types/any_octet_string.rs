@@ -22,7 +22,7 @@ impl AnyOctetString {
     /// Create a new empty [`AnyOctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![] }
+        Self { bytes: Vec::new() }
     }
 
     /// Check if an [`AnyOctetString`] is empty.
@@ -37,17 +37,15 @@ impl AnyOctetString {
     /// Create a new [`AnyOctetString`] from a sequence of bytes.
     #[inline]
     pub fn new(bytes: impl AsRef<[u8]>) -> Self {
-        let bytes = bytes.as_ref();
+        let bytes = bytes.as_ref().to_vec();
 
-        Self {
-            bytes: bytes.to_vec(),
-        }
+        Self { bytes }
     }
 
     /// Convert an [`AnyOctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes)
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`AnyOctetString`].
@@ -63,8 +61,8 @@ impl AnyOctetString {
     }
 }
 
-impl std::fmt::Debug for AnyOctetString {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Debug for AnyOctetString {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("AnyOctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
@@ -78,16 +76,16 @@ impl Default for AnyOctetString {
     }
 }
 
-impl std::str::FromStr for AnyOctetString {
-    type Err = std::convert::Infallible;
+impl core::str::FromStr for AnyOctetString {
+    type Err = core::convert::Infallible;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(Self::new(s.as_bytes()))
     }
 }
 
-impl std::fmt::Display for AnyOctetString {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for AnyOctetString {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
@@ -117,6 +115,7 @@ impl DecodeWithLength for AnyOctetString {
         Self: Sized,
     {
         let mut bytes = vec![0; length];
+
         reader.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })

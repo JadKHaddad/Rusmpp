@@ -7,13 +7,14 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
+    codec::CommandCodec,
     commands::{
         tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
-    pdu::{Bind, SubmitSm},
+    pdu::{BindTransceiver, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandCodec, CommandId, CommandStatus, Pdu, TLVTag,
+    Command, CommandId, CommandStatus, Pdu, TLVTag,
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;
@@ -36,24 +37,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+
+    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
+    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     // Build commands. Omitted values will be set to default.
-    let bind_transceiver_command = Command::new(
-        CommandStatus::EsmeRok,
-        1,
-        Bind::builder()
-            .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
-            .password(COctetString::from_str("rEZYMq5j")?)
-            .system_type(COctetString::empty())
-            .interface_version(InterfaceVersion::Smpp5_0)
-            .addr_ton(Ton::Unknown)
-            .addr_npi(Npi::Unknown)
-            .address_range(COctetString::empty())
-            .build()
-            .into_bind_transceiver(),
-    );
+    let bind_transceiver_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(1)
+        .pdu(
+            BindTransceiver::builder()
+                .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
+                .password(COctetString::from_str("rEZYMq5j")?)
+                .system_type(COctetString::empty())
+                .interface_version(InterfaceVersion::Smpp5_0)
+                .addr_ton(Ton::Unknown)
+                .addr_npi(Npi::Unknown)
+                .address_range(COctetString::empty())
+                .build(),
+        );
 
     // Send commands.
     framed_write.send(&bind_transceiver_command).await?;
@@ -89,8 +91,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "Hi, I am a very long message. I will override the short message :D",
                 )?,
             ))
-            .build()
-            .into_submit_sm(),
+            .build(),
     );
 
     framed_write.send(&submit_sm_command).await?;

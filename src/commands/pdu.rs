@@ -1,6 +1,6 @@
 //! SMPP PDUs.
 
-use super::types::command_id::{CommandId, HasCommandId};
+use super::types::command_id::CommandId;
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
@@ -15,10 +15,10 @@ pub mod alert_notification;
 pub use alert_notification::AlertNotification;
 
 pub mod bind;
-pub use bind::Bind;
+pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
 
 pub mod bind_resp;
-pub use bind_resp::BindResp;
+pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
 
 pub mod cancel_sm;
 pub use cancel_sm::CancelSm;
@@ -42,7 +42,7 @@ pub mod replace_sm;
 pub use replace_sm::ReplaceSm;
 
 pub mod sm_resp;
-pub use sm_resp::SmResp;
+pub use sm_resp::{DataSmResp, DeliverSmResp};
 
 pub mod submit_sm;
 pub use submit_sm::SubmitSm;
@@ -71,52 +71,36 @@ pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
 pub mod cancel_broadcast_sm;
 pub use cancel_broadcast_sm::CancelBroadcastSm;
 
-// TODO: create BindTransmitter and BindReceiver and BindTransceiver. All of them have Bind intern. We can then impl From/Into and get rid of these:
-/*
-pub fn into_bind_transmitter(self) -> Pdu {
-        Pdu::BindTransmitter(self)
-    }
-
-    pub fn into_bind_receiver(self) -> Pdu {
-        Pdu::BindReceiver(self)
-    }
-
-    pub fn into_bind_transceiver(self) -> Pdu {
-        Pdu::BindTransceiver(self)
-    }
- */
-// And then we can make the command like this: pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) in the submit_sm.rs: imp Into<Pdu>
-
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
     /// the Message Centre. The PDU contains identification
     /// information and an access password for the ESME.
-    BindTransmitter(Bind),
+    BindTransmitter(BindTransmitter),
     /// Message Centre response to a bind_transmitter PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transmitter.
-    BindTransmitterResp(BindResp),
+    BindTransmitterResp(BindTransmitterResp),
     /// Authentication PDU used by a receiver ESME to bind to the
     /// Message Centre. The PDU contains identification information,
     /// an access password for the ESME and may also contain
     /// routing information specifying the range of addresses
     /// serviced by the ESME.
-    BindReceiver(Bind),
+    BindReceiver(BindReceiver),
     /// Message Centre response to a bind_receiver PDU. This PDU
     /// indicates the success or failure of the ESME’s attempt to bind
     /// as a receiver.
-    BindReceiverResp(BindResp),
+    BindReceiverResp(BindReceiverResp),
     /// Authentication PDU used by a transceiver ESME to bind to
     /// the Message Centre. The PDU contains identification
     /// information, an access password for the ESME and may also
     /// contain routing information specifying the range of addresses
     /// serviced by the ESME.
-    BindTransceiver(Bind),
+    BindTransceiver(BindTransceiver),
     /// Message Centre response to a bind_transceiver PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transceiver.
-    BindTransceiverResp(BindResp),
+    BindTransceiverResp(BindTransceiverResp),
     /// Authentication PDU used by a Message Centre to Outbind to
     /// an ESME to inform it that messages are present in the MC.
     /// The PDU contains identification, and access password for the
@@ -148,13 +132,13 @@ pub enum Pdu {
     /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
     /// the MC may route a short message to the ESME for delivery.
     DeliverSm(DeliverSm),
-    DeliverSmResp(SmResp),
+    DeliverSmResp(DeliverSmResp),
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
     /// packet-based applications.
     DataSm(DataSm),
-    DataSmResp(SmResp),
+    DataSmResp(DataSmResp),
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.
@@ -256,8 +240,8 @@ pub enum Pdu {
     },
 }
 
-impl HasCommandId for Pdu {
-    fn command_id(&self) -> CommandId {
+impl Pdu {
+    pub const fn command_id(&self) -> CommandId {
         match self {
             Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
             Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
@@ -409,17 +393,21 @@ impl DecodeWithKeyOptional for Pdu {
         }
 
         let body = match key {
-            CommandId::BindTransmitter => Pdu::BindTransmitter(tri!(Bind::decode_from(reader))),
+            CommandId::BindTransmitter => {
+                Pdu::BindTransmitter(tri!(BindTransmitter::decode_from(reader)))
+            }
             CommandId::BindTransmitterResp => {
-                Pdu::BindTransmitterResp(tri!(BindResp::decode_from(reader, length)))
+                Pdu::BindTransmitterResp(tri!(BindTransmitterResp::decode_from(reader, length)))
             }
-            CommandId::BindReceiver => Pdu::BindReceiver(tri!(Bind::decode_from(reader))),
+            CommandId::BindReceiver => Pdu::BindReceiver(tri!(BindReceiver::decode_from(reader))),
             CommandId::BindReceiverResp => {
-                Pdu::BindReceiverResp(tri!(BindResp::decode_from(reader, length)))
+                Pdu::BindReceiverResp(tri!(BindReceiverResp::decode_from(reader, length)))
             }
-            CommandId::BindTransceiver => Pdu::BindTransceiver(tri!(Bind::decode_from(reader))),
+            CommandId::BindTransceiver => {
+                Pdu::BindTransceiver(tri!(BindTransceiver::decode_from(reader)))
+            }
             CommandId::BindTransceiverResp => {
-                Pdu::BindTransceiverResp(tri!(BindResp::decode_from(reader, length)))
+                Pdu::BindTransceiverResp(tri!(BindTransceiverResp::decode_from(reader, length)))
             }
             CommandId::Outbind => Pdu::Outbind(tri!(Outbind::decode_from(reader))),
             CommandId::AlertNotification => {
@@ -433,10 +421,10 @@ impl DecodeWithKeyOptional for Pdu {
             CommandId::QuerySmResp => Pdu::QuerySmResp(tri!(QuerySmResp::decode_from(reader))),
             CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode_from(reader, length))),
             CommandId::DeliverSmResp => {
-                Pdu::DeliverSmResp(tri!(SmResp::decode_from(reader, length)))
+                Pdu::DeliverSmResp(tri!(DeliverSmResp::decode_from(reader, length)))
             }
             CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode_from(reader, length))),
-            CommandId::DataSmResp => Pdu::DataSmResp(tri!(SmResp::decode_from(reader, length))),
+            CommandId::DataSmResp => Pdu::DataSmResp(tri!(DataSmResp::decode_from(reader, length))),
             CommandId::CancelSm => Pdu::CancelSm(tri!(CancelSm::decode_from(reader))),
             CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
             CommandId::SubmitMulti => {

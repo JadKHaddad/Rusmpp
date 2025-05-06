@@ -37,9 +37,11 @@ impl Outbind {
     pub fn builder() -> OutbindBuilder {
         OutbindBuilder::new()
     }
+}
 
-    pub fn into_outbind(self) -> Pdu {
-        Pdu::Outbind(self)
+impl From<Outbind> for Pdu {
+    fn from(value: Outbind) -> Self {
+        Self::Outbind(value)
     }
 }
 
@@ -58,7 +60,7 @@ impl Decode for Outbind {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct OutbindBuilder {
     inner: Outbind,
 }

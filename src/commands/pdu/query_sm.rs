@@ -66,9 +66,11 @@ impl QuerySm {
     pub fn builder() -> QuerySmBuilder {
         QuerySmBuilder::new()
     }
+}
 
-    pub fn into_query_sm(self) -> Pdu {
-        Pdu::QuerySm(self)
+impl From<QuerySm> for Pdu {
+    fn from(value: QuerySm) -> Self {
+        Self::QuerySm(value)
     }
 }
 
@@ -91,7 +93,7 @@ impl Decode for QuerySm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct QuerySmBuilder {
     inner: QuerySm,
 }

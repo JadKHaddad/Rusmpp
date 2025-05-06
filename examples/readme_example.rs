@@ -7,7 +7,7 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
-    codec::command_codec::CommandCodec,
+    codec::CommandCodec,
     commands::{
         command::Command,
         pdu::Pdu,
@@ -22,8 +22,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
+    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 

@@ -14,10 +14,6 @@ jobs:
     name: Tests
     strategy:
       matrix:
-        rust:
-          - stable
-          - beta
-          - nightly
         os:
           - macos-latest
           - ubuntu-latest
@@ -31,7 +27,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: ${{ matrix.rust }}
+          toolchain: stable
           override: true
           components: rustfmt, clippy
 
@@ -49,7 +45,6 @@ jobs:
         with:
           command: clippy
           args: --all --all-features -- -D warnings
-        continue-on-error: ${{ matrix.rust != 'stable' }}
 
       - name: Run tests --all-features
         uses: actions-rs/cargo@v1

@@ -1,4 +1,5 @@
-use super::any_octet_string::AnyOctetString;
+#![allow(path_statements)]
+
 use crate::ende::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
     encode::{Encode, EncodeError},
@@ -12,8 +13,8 @@ pub enum Error {
     TooFewBytes { actual: usize, min: usize },
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -25,7 +26,7 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 /// An [`OctetString`] is a sequence of octets not necessarily
 /// terminated with a NULL octet. Such fields using Octet
@@ -39,12 +40,25 @@ impl std::error::Error for Error {}
 ///
 /// A NULL [`OctetString`] is not encoded. The explicit length
 /// field that indicates its length should be set to zero.
+///
+/// # Notes
+///
+/// `MIN` must be less than or equal to `MAX`.
+/// ```rust, compile_fail
+/// use rusmpp::types::EmptyOrFullCOctetString;
+///
+/// // does not compile
+/// let string = EmptyOrFullCOctetString::<10,5>::new(b"Hello");
+/// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
     bytes: Vec<u8>,
 }
 
 impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
+    const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
+        assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
+
     /// Create a new empty [`OctetString`].
     ///
     /// Equivalent to [`OctetString::empty`].
@@ -56,7 +70,9 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     /// Create a new empty [`OctetString`].
     #[inline]
     pub fn empty() -> Self {
-        Self { bytes: vec![] }
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
+        Self { bytes: Vec::new() }
     }
 
     /// Check if an [`OctetString`] is empty.
@@ -69,6 +85,8 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
         let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
@@ -85,15 +103,15 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
             });
         }
 
-        Ok(Self {
-            bytes: bytes.to_vec(),
-        })
+        let bytes = bytes.to_vec();
+
+        Ok(Self { bytes })
     }
 
     /// Convert an [`OctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes)
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`OctetString`].
@@ -109,8 +127,8 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Debug for OctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("OctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
@@ -124,7 +142,7 @@ impl<const MIN: usize, const MAX: usize> Default for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::str::FromStr for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> core::str::FromStr for OctetString<MIN, MAX> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -132,8 +150,8 @@ impl<const MIN: usize, const MAX: usize> std::str::FromStr for OctetString<MIN, 
     }
 }
 
-impl<const MIN: usize, const MAX: usize> std::fmt::Display for OctetString<MIN, MAX> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const MIN: usize, const MAX: usize> core::fmt::Display for OctetString<MIN, MAX> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
@@ -144,7 +162,9 @@ impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for AnyOctetString {
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>>
+    for super::any_octet_string::AnyOctetString
+{
     fn from(octet_string: OctetString<MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }
@@ -168,6 +188,9 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
     where
         Self: Sized,
     {
+        #[allow(path_statements)]
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
         if length > MAX {
             return Err(DecodeError::OctetStringDecodeError(
                 OctetStringDecodeError::TooManyBytes {
@@ -187,6 +210,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         }
 
         let mut bytes = vec![0; length];
+
         reader.read_exact(&mut bytes)?;
 
         Ok(Self { bytes })
@@ -227,6 +251,17 @@ mod tests {
             let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
             assert_eq!(octet_string.bytes.len(), 13);
             assert_eq!(octet_string.length(), 13);
+        }
+    }
+
+    mod to_str {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.to_str().unwrap(), "Hello\0World!\0");
         }
     }
 

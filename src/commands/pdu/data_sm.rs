@@ -84,11 +84,12 @@ impl DataSm {
         esm_class: EsmClass,
         registered_delivery: RegisteredDelivery,
         data_coding: DataCoding,
-        tlvs: Vec<MessageSubmissionRequestTLV>,
+        tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         Self {
@@ -110,12 +111,15 @@ impl DataSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
-        self.tlvs = tlvs.into_iter().map(|v| v.into()).collect();
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
-    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) {
+        let tlv: MessageSubmissionRequestTLV = tlv.into();
+        let tlv: TLV = tlv.into();
+
+        self.tlvs.push(tlv);
     }
 
     pub fn builder() -> DataSmBuilder {
@@ -170,7 +174,7 @@ impl DecodeWithLength for DataSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct DataSmBuilder {
     inner: DataSm,
 }
@@ -230,12 +234,12 @@ impl DataSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: MessageSubmissionRequestTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

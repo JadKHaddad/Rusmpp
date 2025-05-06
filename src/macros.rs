@@ -1,5 +1,4 @@
 /// Our custom `try!` macro aka `?`, to get rid of [`std::convert::From`]/[`std::convert::Into`] used by the `?` operator.
-#[macro_export]
 macro_rules! tri {
     ($e:expr $(,)?) => {
         match $e {
@@ -10,6 +9,8 @@ macro_rules! tri {
         }
     };
 }
+
+pub(super) use tri;
 
 /// Implement the [`Length`](crate::ende::length::Length) and [`Encode`](crate::ende::encode::Encode) traits for a struct.
 ///
@@ -79,7 +80,6 @@ macro_rules! tri {
 ///     }
 /// }
 /// ```
-#[macro_export]
 macro_rules! impl_length_encode {
     (
         $(#[$struct_meta:meta])*
@@ -119,3 +119,5 @@ macro_rules! impl_length_encode {
         }
     };
 }
+
+pub(super) use impl_length_encode;

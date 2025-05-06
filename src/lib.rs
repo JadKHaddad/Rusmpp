@@ -5,7 +5,7 @@
 //! ```rust
 //! use futures::{SinkExt, StreamExt};
 //! use rusmpp::{
-//!     codec::command_codec::CommandCodec,
+//!     codec::CommandCodec,
 //!     commands::{
 //!         command::Command,
 //!         pdu::Pdu,
@@ -17,7 +17,7 @@
 //!
 //! async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
 //!     tokio::spawn(async move {
-//!         let mut framed = Framed::new(server_stream, CommandCodec {});
+//!         let mut framed = Framed::new(server_stream, CommandCodec::new());
 //!
 //!         while let Some(Ok(command)) = framed.next().await {
 //!             if let CommandId::EnquireLink = command.command_id() {
@@ -35,7 +35,7 @@
 //!     let (server_stream, client_stream) = tokio::io::duplex(4096);
 //!     launch_server(server_stream).await?;
 //!
-//!     let mut framed = Framed::new(client_stream, CommandCodec {});
+//!     let mut framed = Framed::new(client_stream, CommandCodec::new());
 //!
 //!     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 //!     framed.send(&enquire_link_command).await?;
@@ -51,12 +51,11 @@
 //! ```
 
 #![forbid(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
 
-#[cfg(feature = "tokio-codec")]
 pub mod codec;
-#[cfg(feature = "tokio-codec")]
-pub use codec::command_codec::CommandCodec;
 
 pub mod commands;
 pub use commands::command::Command;
@@ -75,3 +74,5 @@ pub mod types;
 mod macros;
 
 pub(crate) mod utils;
+
+use macros::{impl_length_encode, tri};

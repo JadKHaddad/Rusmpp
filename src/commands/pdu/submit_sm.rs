@@ -216,9 +216,11 @@ impl SubmitSm {
     pub fn builder() -> SubmitSmBuilder {
         SubmitSmBuilder::new()
     }
+}
 
-    pub fn into_submit_sm(self) -> Pdu {
-        Pdu::SubmitSm(self)
+impl From<SubmitSm> for Pdu {
+    fn from(value: SubmitSm) -> Self {
+        Self::SubmitSm(value)
     }
 }
 
@@ -293,7 +295,7 @@ impl DecodeWithLength for SubmitSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SubmitSmBuilder {
     inner: SubmitSm,
 }

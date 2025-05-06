@@ -75,11 +75,12 @@ impl CancelBroadcastSm {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        tlvs: Vec<CancelBroadcastTLV>,
+        tlvs: Vec<impl Into<CancelBroadcastTLV>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         Self {
@@ -96,17 +97,19 @@ impl CancelBroadcastSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<CancelBroadcastTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTLV>>) {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: CancelBroadcastTLV) {
-        let tlv = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTLV>) {
+        let tlv: CancelBroadcastTLV = tlv.into();
+        let tlv: TLV = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -187,12 +190,12 @@ impl CancelBroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<CancelBroadcastTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: CancelBroadcastTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<CancelBroadcastTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

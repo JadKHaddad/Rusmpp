@@ -57,11 +57,12 @@ impl QueryBroadcastSmResp {
         message_state: MessageState,
         broadcast_area_identifier: BroadcastAreaIdentifier,
         broadcast_area_success: BroadcastAreaSuccess,
-        tlvs: Vec<QueryBroadcastResponseTLV>,
+        tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         let message_state = TLV::new(TLVValue::MessageState(message_state));
@@ -114,17 +115,19 @@ impl QueryBroadcastSmResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<QueryBroadcastResponseTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>) {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: QueryBroadcastResponseTLV) {
-        let tlv = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<QueryBroadcastResponseTLV>) {
+        let tlv: QueryBroadcastResponseTLV = tlv.into();
+        let tlv: TLV = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -215,12 +218,12 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<QueryBroadcastResponseTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: QueryBroadcastResponseTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<QueryBroadcastResponseTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

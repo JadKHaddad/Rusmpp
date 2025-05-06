@@ -36,8 +36,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec {});
-    let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
+    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     // Build commands. Omitted values will be set to default.
     let bind_transceiver_command = Command::new(

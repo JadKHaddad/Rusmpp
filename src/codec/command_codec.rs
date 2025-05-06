@@ -34,7 +34,7 @@ use tokio_util::{
 ///
 /// async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
 ///     tokio::spawn(async move {
-///         let mut framed = Framed::new(server_stream, CommandCodec {});
+///         let mut framed = Framed::new(server_stream, CommandCodec::new());
 ///
 ///         while let Some(Ok(command)) = framed.next().await {
 ///             if let CommandId::EnquireLink = command.command_id() {
@@ -52,7 +52,7 @@ use tokio_util::{
 ///     let (server_stream, client_stream) = tokio::io::duplex(4096);
 ///     launch_server(server_stream).await?;
 ///
-///     let mut framed = Framed::new(client_stream, CommandCodec {});
+///     let mut framed = Framed::new(client_stream, CommandCodec::new());
 ///
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
 ///     framed.send(&enquire_link_command).await?;
@@ -66,13 +66,15 @@ use tokio_util::{
 ///     Ok(())
 /// }
 /// ```
-#[derive(Debug, Clone)]
-pub struct CommandCodec;
+#[derive(Debug)]
+pub struct CommandCodec {
+    _private: (),
+}
 
 impl CommandCodec {
     #[inline]
     pub const fn new() -> Self {
-        Self
+        Self { _private: () }
     }
 }
 

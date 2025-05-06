@@ -258,7 +258,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
 
             bytes
                 .extend_from_slice(&temp[..length])
-                .expect("length must have been checked");
+                .expect("length must not be greater than MAX");
 
             bytes
         };

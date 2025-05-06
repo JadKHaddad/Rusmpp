@@ -279,11 +279,11 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
 
             heapless_bytes
                 .extend_from_slice(bytes)
-                .expect("bytes.len() must have been checked");
+                .expect("bytes.len() + 1 must not be greater than MAX");
 
             heapless_bytes
                 .push(0)
-                .expect("bytes.len() must have been checked");
+                .expect("bytes.len() + 1 must not be greater than MAX");
 
             heapless_bytes
         };

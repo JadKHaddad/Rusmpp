@@ -1,6 +1,6 @@
 //! SMPP PDUs.
 
-use super::types::command_id::{CommandId, HasCommandId};
+use super::types::command_id::CommandId;
 use crate::{
     ende::{
         decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
@@ -256,8 +256,8 @@ pub enum Pdu {
     },
 }
 
-impl HasCommandId for Pdu {
-    fn command_id(&self) -> CommandId {
+impl Pdu {
+    pub const fn command_id(&self) -> CommandId {
         match self {
             Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
             Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,

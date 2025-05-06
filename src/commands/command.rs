@@ -34,10 +34,7 @@
 
 use super::{
     pdu::Pdu,
-    types::{
-        command_id::{CommandId, HasCommandId},
-        command_status::CommandStatus,
-    },
+    types::{command_id::CommandId, command_status::CommandStatus},
 };
 use crate::{
     ende::{
@@ -67,7 +64,9 @@ impl_length_encode! {
 }
 
 impl Command {
-    pub fn new(command_status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {
+    pub fn new(command_status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
+        let pdu = pdu.into();
+
         let command_id = pdu.command_id();
 
         Self {
@@ -78,11 +77,22 @@ impl Command {
         }
     }
 
-    pub fn command_id(&self) -> CommandId {
+    pub const fn new_const(command_status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {
+        let command_id = pdu.command_id();
+
+        Self {
+            command_id,
+            command_status,
+            sequence_number,
+            pdu: Some(pdu),
+        }
+    }
+
+    pub const fn command_id(&self) -> CommandId {
         self.command_id
     }
 
-    pub fn pdu(&self) -> Option<&Pdu> {
+    pub const fn pdu(&self) -> Option<&Pdu> {
         self.pdu.as_ref()
     }
 
@@ -91,7 +101,7 @@ impl Command {
         self.pdu = Some(pdu);
     }
 
-    pub fn builder() -> CommandStatusBuilder {
+    pub const fn builder() -> CommandStatusBuilder {
         CommandStatusBuilder {
             inner: Command {
                 command_id: CommandId::BindTransmitter,

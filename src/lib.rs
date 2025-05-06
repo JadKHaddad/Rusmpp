@@ -75,3 +75,5 @@ pub mod types;
 mod macros;
 
 pub(crate) mod utils;
+
+use macros::{impl_length_encode, tri};

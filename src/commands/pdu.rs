@@ -15,7 +15,7 @@ pub mod alert_notification;
 pub use alert_notification::AlertNotification;
 
 pub mod bind;
-pub use bind::Bind;
+pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
 
 pub mod bind_resp;
 pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
@@ -91,7 +91,7 @@ pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
     /// the Message Centre. The PDU contains identification
     /// information and an access password for the ESME.
-    BindTransmitter(Bind),
+    BindTransmitter(BindTransmitter),
     /// Message Centre response to a bind_transmitter PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transmitter.
@@ -101,7 +101,7 @@ pub enum Pdu {
     /// an access password for the ESME and may also contain
     /// routing information specifying the range of addresses
     /// serviced by the ESME.
-    BindReceiver(Bind),
+    BindReceiver(BindReceiver),
     /// Message Centre response to a bind_receiver PDU. This PDU
     /// indicates the success or failure of the ESME’s attempt to bind
     /// as a receiver.
@@ -111,7 +111,7 @@ pub enum Pdu {
     /// information, an access password for the ESME and may also
     /// contain routing information specifying the range of addresses
     /// serviced by the ESME.
-    BindTransceiver(Bind),
+    BindTransceiver(BindTransceiver),
     /// Message Centre response to a bind_transceiver PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transceiver.
@@ -408,15 +408,19 @@ impl DecodeWithKeyOptional for Pdu {
         }
 
         let body = match key {
-            CommandId::BindTransmitter => Pdu::BindTransmitter(tri!(Bind::decode_from(reader))),
+            CommandId::BindTransmitter => {
+                Pdu::BindTransmitter(tri!(BindTransmitter::decode_from(reader)))
+            }
             CommandId::BindTransmitterResp => {
                 Pdu::BindTransmitterResp(tri!(BindTransmitterResp::decode_from(reader, length)))
             }
-            CommandId::BindReceiver => Pdu::BindReceiver(tri!(Bind::decode_from(reader))),
+            CommandId::BindReceiver => Pdu::BindReceiver(tri!(BindReceiver::decode_from(reader))),
             CommandId::BindReceiverResp => {
                 Pdu::BindReceiverResp(tri!(BindReceiverResp::decode_from(reader, length)))
             }
-            CommandId::BindTransceiver => Pdu::BindTransceiver(tri!(Bind::decode_from(reader))),
+            CommandId::BindTransceiver => {
+                Pdu::BindTransceiver(tri!(BindTransceiver::decode_from(reader)))
+            }
             CommandId::BindTransceiverResp => {
                 Pdu::BindTransceiverResp(tri!(BindTransceiverResp::decode_from(reader, length)))
             }

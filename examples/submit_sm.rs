@@ -12,7 +12,7 @@ use rusmpp::{
         tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
-    pdu::{Bind, SubmitSm},
+    pdu::{BindTransceiver, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
     Command, CommandId, CommandStatus, Pdu, TLVTag,
 };
@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let bind_transceiver_command = Command::new(
         CommandStatus::EsmeRok,
         1,
-        Bind::builder()
+        BindTransceiver::builder()
             .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
             .password(COctetString::from_str("rEZYMq5j")?)
             .system_type(COctetString::empty())
@@ -52,8 +52,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .addr_ton(Ton::Unknown)
             .addr_npi(Npi::Unknown)
             .address_range(COctetString::empty())
-            .build()
-            .into_bind_transceiver(),
+            .build(),
     );
 
     // Send commands.

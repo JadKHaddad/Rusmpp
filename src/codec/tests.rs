@@ -16,7 +16,7 @@ mod tokio {
         codec::command_codec::CommandCodec,
         commands::{
             command::Command,
-            pdu::{bind::Bind, submit_sm::SubmitSm, Pdu},
+            pdu::{submit_sm::SubmitSm, Pdu},
             tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
             types::{
                 command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
@@ -26,8 +26,9 @@ mod tokio {
             },
         },
         pdu::{
-            AlertNotification, BindReceiverResp, BindTransceiverResp, BindTransmitterResp,
-            BroadcastSm, BroadcastSmResp, CancelBroadcastSm, CancelSm, DataSm, DeliverSm, Outbind,
+            AlertNotification, BindReceiver, BindReceiverResp, BindTransceiver,
+            BindTransceiverResp, BindTransmitter, BindTransmitterResp, BroadcastSm,
+            BroadcastSmResp, CancelBroadcastSm, CancelSm, DataSm, DeliverSm, Outbind,
             QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp, ReplaceSm, SmResp,
             SubmitMulti, SubmitMultiResp, SubmitSmResp,
         },
@@ -45,7 +46,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindTransmitter(Bind::default()),
+                Pdu::BindTransmitter(BindTransmitter::default()),
             ),
             Command::new(
                 Default::default(),
@@ -55,7 +56,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindReceiver(Bind::default()),
+                Pdu::BindReceiver(BindReceiver::default()),
             ),
             Command::new(
                 Default::default(),
@@ -65,7 +66,7 @@ mod tokio {
             Command::new(
                 Default::default(),
                 Default::default(),
-                Pdu::BindTransceiver(Bind::default()),
+                Pdu::BindTransceiver(BindTransceiver::default()),
             ),
             Command::new(
                 Default::default(),
@@ -252,7 +253,7 @@ mod tokio {
         let bind_transceiver_command = Command::new(
             CommandStatus::EsmeRok,
             1,
-            Bind::builder()
+            BindTransceiver::builder()
                 .system_id(
                     COctetString::from_str("NfDfddEKVI0NCxO").expect("Failed to create system_id"), // cspell:disable-line
                 )
@@ -262,8 +263,7 @@ mod tokio {
                 .addr_ton(Ton::Unknown)
                 .addr_npi(Npi::Unknown)
                 .address_range(COctetString::empty())
-                .build()
-                .into_bind_transceiver(),
+                .build(),
         );
 
         framed_write

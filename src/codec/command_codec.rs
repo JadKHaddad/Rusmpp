@@ -19,7 +19,7 @@ use tokio_util::{
 /// Only available when the `tokio-codec` feature is enabled.
 ///
 /// # Usage
-/// ```rust, ignore
+/// ```rust
 /// use futures::{SinkExt, StreamExt};
 /// use rusmpp::{
 ///     codec::command_codec::CommandCodec,
@@ -29,22 +29,35 @@ use tokio_util::{
 ///         types::{command_id::CommandId, command_status::CommandStatus},
 ///     },
 /// };
-/// use tokio::net::TcpStream;
-/// use tokio_util::codec::{FramedRead, FramedWrite};
+/// use tokio::io::DuplexStream;
+/// use tokio_util::codec::Framed;
+///
+/// async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
+///     tokio::spawn(async move {
+///         let mut framed = Framed::new(server_stream, CommandCodec {});
+///
+///         while let Some(Ok(command)) = framed.next().await {
+///             if let CommandId::EnquireLink = command.command_id() {
+///                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
+///                 framed.send(&response).await.unwrap();
+///                 break;
+///             }
+///         }
+///     });
+///     Ok(())
+/// }
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let stream = TcpStream::connect("34.242.18.250:2775").await?;
+///     let (server_stream, client_stream) = tokio::io::duplex(4096);
+///     launch_server(server_stream).await?;
 ///
-///     let (reader, writer) = stream.into_split();
-///     let mut framed_read = FramedRead::new(reader, CommandCodec {});
-///     let mut framed_write = FramedWrite::new(writer, CommandCodec {});
+///     let mut framed = Framed::new(client_stream, CommandCodec {});
 ///
 ///     let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+///     framed.send(&enquire_link_command).await?;
 ///
-///     framed_write.send(&enquire_link_command).await?;
-///
-///     while let Some(Ok(command)) = framed_read.next().await {
+///     while let Some(Ok(command)) = framed.next().await {
 ///         if let CommandId::EnquireLinkResp = command.command_id() {
 ///             break;
 ///         }

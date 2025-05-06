@@ -22,10 +22,14 @@ impl_length_encode! {
 }
 
 impl BroadcastSmResp {
-    pub fn new(message_id: COctetString<1, 65>, tlvs: Vec<BroadcastResponseTLV>) -> Self {
+    pub fn new(
+        message_id: COctetString<1, 65>,
+        tlvs: Vec<impl Into<BroadcastResponseTLV>>,
+    ) -> Self {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         Self { message_id, tlvs }
@@ -35,17 +39,19 @@ impl BroadcastSmResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<BroadcastResponseTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastResponseTLV>>) {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: BroadcastResponseTLV) {
-        let tlv = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastResponseTLV>) {
+        let tlv: BroadcastResponseTLV = tlv.into();
+        let tlv: TLV = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -89,12 +95,12 @@ impl BroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<BroadcastResponseTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastResponseTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: BroadcastResponseTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<BroadcastResponseTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

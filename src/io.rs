@@ -115,6 +115,7 @@ impl Write for &mut [u8] {
     }
 }
 
+// Used for Encode::encode_to_vec()
 #[cfg(feature = "alloc")]
 impl Write for ::alloc::vec::Vec<u8> {
     #[inline]

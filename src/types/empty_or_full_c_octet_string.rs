@@ -1,9 +1,10 @@
+#![allow(path_statements)]
+
 use crate::ende::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, EncodeError},
     length::Length,
 };
-use std::io::Read;
 
 /// An error that can occur when creating a [`EmptyOrFullCOctetString`]
 #[derive(Debug)]
@@ -15,8 +16,8 @@ pub enum Error {
     NullByteFound,
 }
 
-impl std::fmt::Display for Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for Error {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")
@@ -31,15 +32,27 @@ impl std::fmt::Display for Error {
     }
 }
 
-impl std::error::Error for Error {}
+impl core::error::Error for Error {}
 
 /// Empty or full [`COctetString`](struct@crate::types::c_octet_string::COctetString)
+///
+/// # Notes
+///
+/// `N` must be greater than 0.
+/// ```rust, compile_fail
+/// use rusmpp::types::EmptyOrFullCOctetString;
+///
+/// // does not compile
+/// let string = EmptyOrFullCOctetString::<0>::new(b"Hello\0");
+/// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct EmptyOrFullCOctetString<const N: usize> {
     bytes: Vec<u8>,
 }
 
 impl<const N: usize> EmptyOrFullCOctetString<N> {
+    const _ASSERT_NON_ZERO: () = assert!(N > 0, "N must be greater than 0");
+
     /// Create a new empty [`EmptyOrFullCOctetString`].
     ///
     /// Equivalent to [`EmptyOrFullCOctetString::empty`].
@@ -51,6 +64,8 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     /// Create a new empty [`EmptyOrFullCOctetString`].
     #[inline]
     pub fn empty() -> Self {
+        Self::_ASSERT_NON_ZERO;
+
         Self { bytes: vec![0] }
     }
 
@@ -65,18 +80,12 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
 
     /// Create a new [`EmptyOrFullCOctetString`] from a sequence of bytes.
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        Self::_ASSERT_NON_ZERO;
+
         let bytes = bytes.as_ref();
 
         if bytes[bytes.len() - 1] != 0 {
             return Err(Error::NotNullTerminated);
-        }
-
-        if !bytes.is_ascii() {
-            return Err(Error::NotAscii);
-        }
-
-        if bytes[..bytes.len() - 1].contains(&0) {
-            return Err(Error::NullByteFound);
         }
 
         if bytes.len() > 1 {
@@ -94,15 +103,23 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
             }
         }
 
-        Ok(Self {
-            bytes: bytes.to_vec(),
-        })
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
+        }
+
+        if bytes[..bytes.len() - 1].contains(&0) {
+            return Err(Error::NullByteFound);
+        }
+
+        let bytes = bytes.to_vec();
+
+        Ok(Self { bytes })
     }
 
     /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`].
     #[inline]
-    pub fn to_str(&self) -> Result<&str, std::str::Utf8Error> {
-        std::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
+    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+        core::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
     /// Get the bytes of an [`EmptyOrFullCOctetString`].
@@ -118,8 +135,8 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     }
 }
 
-impl<const N: usize> std::fmt::Debug for EmptyOrFullCOctetString<N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const N: usize> core::fmt::Debug for EmptyOrFullCOctetString<N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("OctetString")
             .field("bytes", &crate::utils::HexFormatter(&self.bytes))
             .field("string", &self.to_string())
@@ -133,19 +150,47 @@ impl<const N: usize> Default for EmptyOrFullCOctetString<N> {
     }
 }
 
-impl<const N: usize> std::str::FromStr for EmptyOrFullCOctetString<N> {
+impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let mut bytes = s.as_bytes().to_vec();
+        Self::_ASSERT_NON_ZERO;
+
+        let bytes = s.as_bytes();
+
+        if bytes.len() + 1 > 1 {
+            if bytes.len() + 1 < N {
+                return Err(Error::TooFewBytes {
+                    actual: bytes.len() + 1,
+                });
+            }
+
+            if bytes.len() + 1 > N {
+                return Err(Error::TooManyBytes {
+                    actual: bytes.len() + 1,
+                    max: N,
+                });
+            }
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
+        }
+
+        if bytes[..bytes.len()].contains(&0) {
+            return Err(Error::NullByteFound);
+        }
+
+        let mut bytes = bytes.to_vec();
+
         bytes.push(0);
 
-        Self::new(bytes)
+        Ok(Self { bytes })
     }
 }
 
-impl<const N: usize> std::fmt::Display for EmptyOrFullCOctetString<N> {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl<const N: usize> core::fmt::Display for EmptyOrFullCOctetString<N> {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.write_str(&String::from_utf8_lossy(
             &self.bytes[..self.bytes.len() - 1],
         ))
@@ -176,9 +221,14 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
     where
         Self: Sized,
     {
+        use std::io::Read;
+
+        Self::_ASSERT_NON_ZERO;
+
         let mut bytes = Vec::with_capacity(N);
 
         let mut reader_bytes = reader.bytes();
+
         for _ in 0..N {
             if let Some(Ok(byte)) = reader_bytes.next() {
                 bytes.push(byte);
@@ -252,7 +302,7 @@ mod tests {
         #[test]
         fn null_byte_found() {
             let bytes = b"Hel\0lo\0";
-            let error = EmptyOrFullCOctetString::<6>::new(bytes).unwrap_err();
+            let error = EmptyOrFullCOctetString::<7>::new(bytes).unwrap_err();
             assert!(matches!(error, Error::NullByteFound));
         }
 
@@ -288,7 +338,7 @@ mod tests {
     }
 
     mod from_str {
-        use std::str::FromStr;
+        use core::str::FromStr;
 
         use super::*;
 
@@ -309,7 +359,7 @@ mod tests {
         #[test]
         fn null_byte_found() {
             let string = "Hel\0lo";
-            let error = EmptyOrFullCOctetString::<6>::from_str(string).unwrap_err();
+            let error = EmptyOrFullCOctetString::<7>::from_str(string).unwrap_err();
             assert!(matches!(error, Error::NullByteFound));
         }
 
@@ -343,6 +393,18 @@ mod tests {
             let string = EmptyOrFullCOctetString::<6>::from_str(string).unwrap();
             assert_eq!(string.bytes.len(), 1);
             assert_eq!(string.length(), 1);
+        }
+    }
+
+    mod to_str {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0";
+            let string = EmptyOrFullCOctetString::<6>::new(bytes).unwrap();
+            assert_eq!(string.to_str().unwrap(), "Hello");
+            assert_eq!(string.to_string(), "Hello");
         }
     }
 

@@ -42,7 +42,7 @@ pub mod replace_sm;
 pub use replace_sm::ReplaceSm;
 
 pub mod sm_resp;
-pub use sm_resp::SmResp;
+pub use sm_resp::{DataSmResp, DeliverSmResp};
 
 pub mod submit_sm;
 pub use submit_sm::SubmitSm;
@@ -70,21 +70,6 @@ pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
 
 pub mod cancel_broadcast_sm;
 pub use cancel_broadcast_sm::CancelBroadcastSm;
-
-// TODO: create BindTransmitter and BindReceiver and BindTransceiver. All of them have Bind intern. We can then impl From/Into and get rid of these:
-/*
-pub fn into_bind_transmitter(self) -> Pdu {
-        Pdu::BindTransmitter(self)
-    }
-
-    pub fn into_bind_receiver(self) -> Pdu {
-        Pdu::BindReceiver(self)
-    }
-
-    pub fn into_bind_transceiver(self) -> Pdu {
-        Pdu::BindTransceiver(self)
-    }
- */
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {
@@ -147,13 +132,13 @@ pub enum Pdu {
     /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
     /// the MC may route a short message to the ESME for delivery.
     DeliverSm(DeliverSm),
-    DeliverSmResp(SmResp),
+    DeliverSmResp(DeliverSmResp),
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
     /// packet-based applications.
     DataSm(DataSm),
-    DataSmResp(SmResp),
+    DataSmResp(DataSmResp),
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.
@@ -436,10 +421,10 @@ impl DecodeWithKeyOptional for Pdu {
             CommandId::QuerySmResp => Pdu::QuerySmResp(tri!(QuerySmResp::decode_from(reader))),
             CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode_from(reader, length))),
             CommandId::DeliverSmResp => {
-                Pdu::DeliverSmResp(tri!(SmResp::decode_from(reader, length)))
+                Pdu::DeliverSmResp(tri!(DeliverSmResp::decode_from(reader, length)))
             }
             CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode_from(reader, length))),
-            CommandId::DataSmResp => Pdu::DataSmResp(tri!(SmResp::decode_from(reader, length))),
+            CommandId::DataSmResp => Pdu::DataSmResp(tri!(DataSmResp::decode_from(reader, length))),
             CommandId::CancelSm => Pdu::CancelSm(tri!(CancelSm::decode_from(reader))),
             CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
             CommandId::SubmitMulti => {

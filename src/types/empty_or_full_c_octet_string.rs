@@ -454,6 +454,20 @@ mod tests {
         }
     }
 
+    mod to_str {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0";
+            let string = EmptyOrFullCOctetString::<6>::new(bytes).unwrap();
+            assert_eq!(string.to_str().unwrap(), "Hello");
+
+            #[cfg(feature = "alloc")]
+            assert_eq!(string.to_string(), "Hello");
+        }
+    }
+
     mod decode {
         use super::*;
 

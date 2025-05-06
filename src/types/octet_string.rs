@@ -304,6 +304,17 @@ mod tests {
         }
     }
 
+    mod to_str {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0World!\0";
+            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.to_str().unwrap(), "Hello\0World!\0");
+        }
+    }
+
     mod decode {
         use super::*;
 

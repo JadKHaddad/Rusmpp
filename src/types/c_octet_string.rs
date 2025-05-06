@@ -476,6 +476,13 @@ mod tests {
         }
 
         #[test]
+        fn null_byte_found_at_the_end() {
+            let string = "Hell\0";
+            let error = COctetString::<1, 6>::from_str(string).unwrap_err();
+            assert!(matches!(error, Error::NullByteFound));
+        }
+
+        #[test]
         fn ok() {
             let string = "Hello";
             let bytes = b"Hello\0";
@@ -505,6 +512,20 @@ mod tests {
             let string = COctetString::<1, 6>::from_str(string).unwrap();
             assert_eq!(string.bytes.len(), 1);
             assert_eq!(string.length(), 1);
+        }
+    }
+
+    mod to_str {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let bytes = b"Hello\0";
+            let string = COctetString::<1, 6>::new(bytes).unwrap();
+            assert_eq!(string.to_str().unwrap(), "Hello");
+
+            #[cfg(feature = "alloc")]
+            assert_eq!(string.to_string(), "Hello");
         }
     }
 

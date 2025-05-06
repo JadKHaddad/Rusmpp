@@ -140,11 +140,12 @@ impl BroadcastSm {
         broadcast_content_type: BroadcastContentType,
         broadcast_rep_num: u16,
         broadcast_frequency_interval: BroadcastFrequencyInterval,
-        tlvs: Vec<BroadcastRequestTLV>,
+        tlvs: Vec<impl Into<BroadcastRequestTLV>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         let broadcast_area_identifier =
@@ -225,17 +226,19 @@ impl BroadcastSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<BroadcastRequestTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTLV>>) {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: BroadcastRequestTLV) {
-        let tlv = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastRequestTLV>) {
+        let tlv: BroadcastRequestTLV = tlv.into();
+        let tlv: TLV = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -437,12 +440,12 @@ impl BroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<BroadcastRequestTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: BroadcastRequestTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<BroadcastRequestTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

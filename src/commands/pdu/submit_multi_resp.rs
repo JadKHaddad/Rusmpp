@@ -37,13 +37,14 @@ impl SubmitMultiResp {
     pub fn new(
         message_id: COctetString<1, 65>,
         unsuccess_sme: Vec<UnsuccessSme>,
-        tlvs: Vec<MessageSubmissionResponseTLV>,
+        tlvs: Vec<impl Into<MessageSubmissionResponseTLV>>,
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         Self {
@@ -76,15 +77,19 @@ impl SubmitMultiResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionResponseTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTLV>>) {
         self.tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
     }
 
-    pub fn push_tlv(&mut self, tlv: MessageSubmissionResponseTLV) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTLV>) {
+        let tlv: MessageSubmissionResponseTLV = tlv.into();
+        let tlv: TLV = tlv.into();
+
+        self.tlvs.push(tlv);
     }
 
     pub fn builder() -> SubmitMultiRespBuilder {
@@ -149,12 +154,12 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionResponseTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: MessageSubmissionResponseTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionResponseTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

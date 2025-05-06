@@ -85,7 +85,6 @@ pub fn into_bind_transmitter(self) -> Pdu {
         Pdu::BindTransceiver(self)
     }
  */
-// And then we can make the command like this: pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) in the submit_sm.rs: imp Into<Pdu>
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Pdu {

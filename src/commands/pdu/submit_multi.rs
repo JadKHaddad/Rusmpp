@@ -124,14 +124,15 @@ impl SubmitMulti {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<MessageSubmissionRequestTLV>,
+        tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
         let number_of_dests = dest_address.len() as u8;
 
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         let mut submit_multi = Self {
@@ -201,18 +202,20 @@ impl SubmitMulti {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<MessageSubmissionRequestTLV>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) {
         let tlvs = tlvs
             .into_iter()
-            .map(|value| value.into())
+            .map(Into::into)
+            .map(From::from)
             .collect::<Vec<TLV>>();
 
         self.tlvs = tlvs;
         self.clear_short_message_if_message_payload_exists();
     }
 
-    pub fn push_tlv(&mut self, tlv: MessageSubmissionRequestTLV) {
-        let tlv = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) {
+        let tlv: MessageSubmissionRequestTLV = tlv.into();
+        let tlv: TLV = tlv.into();
 
         self.tlvs.push(tlv);
         self.clear_short_message_if_message_payload_exists();
@@ -416,12 +419,12 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: MessageSubmissionRequestTLV) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTLV>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

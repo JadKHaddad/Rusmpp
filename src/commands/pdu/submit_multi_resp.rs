@@ -124,7 +124,7 @@ impl DecodeWithLength for SubmitMultiResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SubmitMultiRespBuilder {
     inner: SubmitMultiResp,
 }

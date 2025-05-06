@@ -152,7 +152,7 @@ impl DecodeWithLength for CancelBroadcastSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct CancelBroadcastSmBuilder {
     inner: CancelBroadcastSm,
 }

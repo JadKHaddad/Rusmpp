@@ -223,7 +223,7 @@ impl DecodeWithLength for ReplaceSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct ReplaceSmBuilder {
     inner: ReplaceSm,
 }

@@ -155,7 +155,7 @@ impl Decode for CancelSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct CancelSmBuilder {
     inner: CancelSm,
 }

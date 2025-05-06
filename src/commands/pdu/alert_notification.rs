@@ -124,7 +124,7 @@ impl DecodeWithLength for AlertNotification {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct AlertNotificationBuilder {
     inner: AlertNotification,
 }

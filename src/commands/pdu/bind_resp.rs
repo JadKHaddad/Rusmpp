@@ -85,7 +85,7 @@ impl DecodeWithLength for BindResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct BindRespBuilder {
     inner: BindResp,
 }

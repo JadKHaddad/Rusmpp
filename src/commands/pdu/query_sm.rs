@@ -91,7 +91,7 @@ impl Decode for QuerySm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct QuerySmBuilder {
     inner: QuerySm,
 }

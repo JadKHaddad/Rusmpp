@@ -58,7 +58,7 @@ impl Decode for Outbind {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct OutbindBuilder {
     inner: Outbind,
 }

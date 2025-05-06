@@ -78,7 +78,7 @@ impl Decode for QuerySmResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct QuerySmRespBuilder {
     inner: QuerySmResp,
 }

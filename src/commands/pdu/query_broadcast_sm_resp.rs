@@ -180,7 +180,7 @@ impl DecodeWithLength for QueryBroadcastSmResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct QueryBroadcastSmRespBuilder {
     inner: QueryBroadcastSmResp,
 }

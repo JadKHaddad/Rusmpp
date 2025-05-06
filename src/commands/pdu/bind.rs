@@ -103,7 +103,7 @@ impl Decode for Bind {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct BindBuilder {
     inner: Bind,
 }

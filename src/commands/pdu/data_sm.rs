@@ -170,7 +170,7 @@ impl DecodeWithLength for DataSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct DataSmBuilder {
     inner: DataSm,
 }

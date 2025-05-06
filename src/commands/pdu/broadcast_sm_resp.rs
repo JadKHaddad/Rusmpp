@@ -74,7 +74,7 @@ impl DecodeWithLength for BroadcastSmResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct BroadcastSmRespBuilder {
     inner: BroadcastSmResp,
 }

@@ -75,7 +75,7 @@ impl DecodeWithLength for SubmitSmResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SubmitSmRespBuilder {
     inner: SubmitSmResp,
 }

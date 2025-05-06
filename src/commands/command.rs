@@ -127,6 +127,7 @@ impl DecodeWithLength for Command {
     }
 }
 
+#[derive(Debug)]
 pub struct CommandStatusBuilder {
     inner: Command,
 }
@@ -139,6 +140,7 @@ impl CommandStatusBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct SequenceNumberBuilder {
     inner: Command,
 }
@@ -151,6 +153,7 @@ impl SequenceNumberBuilder {
     }
 }
 
+#[derive(Debug)]
 pub struct PduBuilder {
     inner: Command,
 }

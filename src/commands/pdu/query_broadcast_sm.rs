@@ -124,7 +124,7 @@ impl DecodeWithLength for QueryBroadcastSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct QueryBroadcastSmBuilder {
     inner: QueryBroadcastSm,
 }

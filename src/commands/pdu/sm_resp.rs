@@ -79,7 +79,7 @@ impl DecodeWithLength for SmResp {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SmRespBuilder {
     inner: SmResp,
 }

@@ -292,7 +292,7 @@ impl DecodeWithLength for DeliverSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct DeliverSmBuilder {
     inner: DeliverSm,
 }

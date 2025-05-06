@@ -293,7 +293,7 @@ impl DecodeWithLength for SubmitSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SubmitSmBuilder {
     inner: SubmitSm,
 }

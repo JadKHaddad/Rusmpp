@@ -315,7 +315,7 @@ impl DecodeWithLength for SubmitMulti {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct SubmitMultiBuilder {
     inner: SubmitMulti,
 }

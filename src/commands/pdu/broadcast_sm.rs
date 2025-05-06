@@ -337,7 +337,7 @@ impl DecodeWithLength for BroadcastSm {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct BroadcastSmBuilder {
     inner: BroadcastSm,
 }

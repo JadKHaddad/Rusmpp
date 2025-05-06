@@ -14,9 +14,7 @@ use crate::{
             sub_address::Subaddress, ussd_service_op::UssdServiceOp,
         },
     },
-    types::{
-        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-    },
+    types::{c_octet_string::COctetString, octet_string::OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -140,7 +138,10 @@ pub enum MessageSubmissionRequestTLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    #[cfg(feature = "alloc")]
+    MessagePayload(crate::types::AnyOctetString),
+    #[cfg(not(feature = "alloc"))]
+    MessagePayload(OctetString<1, 256>),
     MoreMessagesToSend(MoreMessagesToSend),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     MsValidity(MsValidity),

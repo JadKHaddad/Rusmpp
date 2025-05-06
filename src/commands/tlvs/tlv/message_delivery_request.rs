@@ -12,9 +12,7 @@ use crate::{
             ussd_service_op::UssdServiceOp,
         },
     },
-    types::{
-        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-    },
+    types::{c_octet_string::COctetString, octet_string::OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -109,7 +107,10 @@ pub enum MessageDeliveryRequestTLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    #[cfg(feature = "alloc")]
+    MessagePayload(crate::types::AnyOctetString),
+    #[cfg(not(feature = "alloc"))]
+    MessagePayload(OctetString<1, 256>),
     MessageState(MessageState),
     NetworkErrorCode(NetworkErrorCode),
     PayloadType(PayloadType),

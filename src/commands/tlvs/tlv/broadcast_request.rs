@@ -12,7 +12,7 @@ use crate::{
             sub_address::Subaddress,
         },
     },
-    types::{any_octet_string::AnyOctetString, octet_string::OctetString},
+    types::octet_string::OctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -85,7 +85,10 @@ pub enum BroadcastRequestTLVValue {
     DestPort(u16),
     DisplayTime(DisplayTime),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    #[cfg(feature = "alloc")]
+    MessagePayload(crate::types::AnyOctetString),
+    #[cfg(not(feature = "alloc"))]
+    MessagePayload(OctetString<1, 256>),
     MsValidity(MsValidity),
     PayloadType(PayloadType),
     PrivacyIndicator(PrivacyIndicator),

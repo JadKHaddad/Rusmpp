@@ -26,3 +26,5 @@ pub mod u8;
 
 #[cfg(feature = "alloc")]
 mod vec;
+
+mod heapless_vec;

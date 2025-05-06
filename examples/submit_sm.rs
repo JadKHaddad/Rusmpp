@@ -89,8 +89,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "Hi, I am a very long message. I will override the short message :D",
                 )?,
             ))
-            .build()
-            .into_submit_sm(),
+            .build(),
     );
 
     framed_write.send(&submit_sm_command).await?;

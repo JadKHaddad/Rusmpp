@@ -292,8 +292,7 @@ async fn do_codec() {
                 )
                 .expect("Failed to create message_payload"),
             ))
-            .build()
-            .into_submit_sm(),
+            .build(),
     );
 
     framed_write

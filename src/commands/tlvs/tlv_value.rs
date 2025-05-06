@@ -26,10 +26,7 @@ use crate::{
         length::Length,
     },
     tri,
-    types::{
-        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-        u32::EndeU32, u8::EndeU8,
-    },
+    types::{c_octet_string::COctetString, octet_string::OctetString, u32::EndeU32, u8::EndeU8},
 };
 
 /// See module level documentation
@@ -99,7 +96,10 @@ pub enum TLVValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    #[cfg(feature = "alloc")]
+    MessagePayload(crate::types::AnyOctetString),
+    #[cfg(not(feature = "alloc"))]
+    MessagePayload(OctetString<1, 256>),
     /// This field indicates the current status of the broadcast message.
     MessageState(MessageState),
     MoreMessagesToSend(MoreMessagesToSend),
@@ -132,7 +132,10 @@ pub enum TLVValue {
     UssdServiceOp(UssdServiceOp),
     Other {
         tag: TLVTag,
-        value: AnyOctetString,
+        #[cfg(feature = "alloc")]
+        value: crate::types::AnyOctetString,
+        #[cfg(not(feature = "alloc"))]
+        value: OctetString<1, 256>,
     },
 }
 
@@ -458,7 +461,7 @@ impl DecodeWithKey for TLVValue {
                 TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode_from(reader)))
             }
             TLVTag::MessagePayload => {
-                TLVValue::MessagePayload(tri!(AnyOctetString::decode_from(reader, length)))
+                TLVValue::MessagePayload(tri!(DecodeWithLength::decode_from(reader, length)))
             }
             TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode_from(reader))),
             TLVTag::MoreMessagesToSend => {
@@ -525,7 +528,7 @@ impl DecodeWithKey for TLVValue {
                 TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode_from(reader)))
             }
             other => {
-                let value = tri!(AnyOctetString::decode_from(reader, length));
+                let value = tri!(DecodeWithLength::decode_from(reader, length));
                 TLVValue::Other { tag: other, value }
             }
         };

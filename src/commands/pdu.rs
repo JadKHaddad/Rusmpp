@@ -22,11 +22,11 @@ pub use bind_resp::BindResp;
 pub mod cancel_sm;
 pub use cancel_sm::CancelSm;
 
-pub mod data_sm;
-pub use data_sm::DataSm;
+// pub mod data_sm;
+// pub use data_sm::DataSm;
 
-pub mod deliver_sm;
-pub use deliver_sm::DeliverSm;
+// pub mod deliver_sm;
+// pub use deliver_sm::DeliverSm;
 
 pub mod outbind;
 pub use outbind::Outbind;
@@ -37,38 +37,38 @@ pub use query_sm::QuerySm;
 pub mod query_sm_resp;
 pub use query_sm_resp::QuerySmResp;
 
-pub mod replace_sm;
-pub use replace_sm::ReplaceSm;
+// pub mod replace_sm;
+// pub use replace_sm::ReplaceSm;
 
-pub mod sm_resp;
-pub use sm_resp::SmResp;
+// pub mod sm_resp;
+// pub use sm_resp::SmResp;
 
-pub mod submit_sm;
-pub use submit_sm::SubmitSm;
+// pub mod submit_sm;
+// pub use submit_sm::SubmitSm;
 
-pub mod submit_sm_resp;
-pub use submit_sm_resp::SubmitSmResp;
+// pub mod submit_sm_resp;
+// pub use submit_sm_resp::SubmitSmResp;
 
-pub mod submit_multi;
-pub use submit_multi::SubmitMulti;
+// pub mod submit_multi;
+// pub use submit_multi::SubmitMulti;
 
-pub mod submit_multi_resp;
-pub use submit_multi_resp::SubmitMultiResp;
+// pub mod submit_multi_resp;
+// pub use submit_multi_resp::SubmitMultiResp;
 
-pub mod broadcast_sm;
-pub use broadcast_sm::BroadcastSm;
+// pub mod broadcast_sm;
+// pub use broadcast_sm::BroadcastSm;
 
 pub mod broadcast_sm_resp;
 pub use broadcast_sm_resp::BroadcastSmResp;
 
-pub mod query_broadcast_sm;
-pub use query_broadcast_sm::QueryBroadcastSm;
+// pub mod query_broadcast_sm;
+// pub use query_broadcast_sm::QueryBroadcastSm;
 
-pub mod query_broadcast_sm_resp;
-pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
+// pub mod query_broadcast_sm_resp;
+// pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
 
-pub mod cancel_broadcast_sm;
-pub use cancel_broadcast_sm::CancelBroadcastSm;
+// pub mod cancel_broadcast_sm;
+// pub use cancel_broadcast_sm::CancelBroadcastSm;
 
 // TODO: create BindTransmitter and BindReceiver and BindTransceiver. All of them have Bind intern. We can then impl From/Into and get rid of these:
 /*
@@ -133,10 +133,10 @@ pub enum Pdu {
     ///
     /// Note: There is no associated alert_notification_resp PDU.
     AlertNotification(AlertNotification),
-    /// This operation is used by an ESME to submit a short message to the MC for onward
-    /// transmission to a specified short message entity (SME).
-    SubmitSm(SubmitSm),
-    SubmitSmResp(SubmitSmResp),
+    // /// This operation is used by an ESME to submit a short message to the MC for onward
+    // /// transmission to a specified short message entity (SME).
+    // SubmitSm(SubmitSm),
+    // SubmitSmResp(SubmitSmResp),
     /// This command is issued by the ESME to query the status of a previously submitted short
     /// message.
     /// The matching mechanism is based on the MC assigned message_id and source address.
@@ -144,16 +144,16 @@ pub enum Pdu {
     /// NULL, then the source address in the query_sm command should also be set to NULL.
     QuerySm(QuerySm),
     QuerySmResp(QuerySmResp),
-    /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
-    /// the MC may route a short message to the ESME for delivery.
-    DeliverSm(DeliverSm),
-    DeliverSmResp(SmResp),
-    /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
-    /// mobile-terminated message. However, data_sm is intended for packet-based applications
-    /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
-    /// packet-based applications.
-    DataSm(DataSm),
-    DataSmResp(SmResp),
+    // /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
+    // /// the MC may route a short message to the ESME for delivery.
+    // DeliverSm(DeliverSm),
+    // DeliverSmResp(SmResp),
+    // /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
+    // /// mobile-terminated message. However, data_sm is intended for packet-based applications
+    // /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
+    // /// packet-based applications.
+    // DataSm(DataSm),
+    // DataSmResp(SmResp),
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.
@@ -167,55 +167,55 @@ pub enum Pdu {
     /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
     /// NULL, then the source address in the cancel_sm command should also be NULL.
     CancelSm(CancelSm),
-    /// This command is issued by the ESME to replace a previously submitted short message that
-    /// is pending delivery. The matching mechanism is based on the message_id and source
-    /// address of the original message.
-    ///
-    /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
-    /// address in the replace_sm command should also be NULL.
-    ReplaceSm(ReplaceSm),
-    /// The submit_multi operation is an enhanced variation of submit_sm designed to support up to
-    /// 255 different destinations instead of the default single destination. It provides an efficient
-    /// means of sending the same message to several different subscribers at the same time.
-    SubmitMulti(SubmitMulti),
-    SubmitMultiResp(SubmitMultiResp),
-    /// This operation is issued by the ESME to submit a message to the Message Centre for
-    /// broadcast to a specified geographical area or set of geographical areas.
-    BroadcastSm(BroadcastSm),
+    // /// This command is issued by the ESME to replace a previously submitted short message that
+    // /// is pending delivery. The matching mechanism is based on the message_id and source
+    // /// address of the original message.
+    // ///
+    // /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
+    // /// address in the replace_sm command should also be NULL.
+    // ReplaceSm(ReplaceSm),
+    // /// The submit_multi operation is an enhanced variation of submit_sm designed to support up to
+    // /// 255 different destinations instead of the default single destination. It provides an efficient
+    // /// means of sending the same message to several different subscribers at the same time.
+    // SubmitMulti(SubmitMulti),
+    // SubmitMultiResp(SubmitMultiResp),
+    // /// This operation is issued by the ESME to submit a message to the Message Centre for
+    // /// broadcast to a specified geographical area or set of geographical areas.
+    // BroadcastSm(BroadcastSm),
     BroadcastSmResp(BroadcastSmResp),
-    /// This command is issued by the ESME to query the status of a previously submitted
-    /// broadcast message. The message can be queried either on the basis of the Message Center
-    /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
-    /// assigned message reference number user_message_reference as indicated in the
-    /// broadcast_sm operation associated with that message.
-    ///
-    /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
-    /// reference user_message_reference this should be qualified within the service by the
-    /// system_id and/or the system_type associated with the query_broadcast_sm operation
-    /// (specified in the bind operation). If more than one message with the same
-    /// user_message_reference value is present in the Message Center, the details of the most
-    /// recently submitted message with the specified user_message_reference value will be
-    /// returned in the query_broadcast_sm_resp.
-    QueryBroadcastSm(QueryBroadcastSm),
-    QueryBroadcastSmResp(QueryBroadcastSmResp),
-    /// This command is issued by the ESME to cancel a broadcast message which has been
-    /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
-    /// pending delivery.
-    ///
-    /// If the message_id is set to the ID of a previously submitted message, then provided the
-    /// source address supplied by the ESME matches that of the stored message, that message
-    /// will be cancelled.
-    ///
-    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
-    /// destination addresses (and service_type if specified) are cancelled.
-    ///
-    /// If the user_message_reference is set to the ESME-assigned reference of a previously
-    /// submitted message, then provided the source address supplied by the ESME matches that of
-    /// the stored message, that message will be cancelled.
-    ///
-    /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
-    /// address in the cancel_broadcast_sm command should also be NULL.
-    CancelBroadcastSm(CancelBroadcastSm),
+    // /// This command is issued by the ESME to query the status of a previously submitted
+    // /// broadcast message. The message can be queried either on the basis of the Message Center
+    // /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
+    // /// assigned message reference number user_message_reference as indicated in the
+    // /// broadcast_sm operation associated with that message.
+    // ///
+    // /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
+    // /// reference user_message_reference this should be qualified within the service by the
+    // /// system_id and/or the system_type associated with the query_broadcast_sm operation
+    // /// (specified in the bind operation). If more than one message with the same
+    // /// user_message_reference value is present in the Message Center, the details of the most
+    // /// recently submitted message with the specified user_message_reference value will be
+    // /// returned in the query_broadcast_sm_resp.
+    // QueryBroadcastSm(QueryBroadcastSm),
+    // QueryBroadcastSmResp(QueryBroadcastSmResp),
+    // /// This command is issued by the ESME to cancel a broadcast message which has been
+    // /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
+    // /// pending delivery.
+    // ///
+    // /// If the message_id is set to the ID of a previously submitted message, then provided the
+    // /// source address supplied by the ESME matches that of the stored message, that message
+    // /// will be cancelled.
+    // ///
+    // /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    // /// destination addresses (and service_type if specified) are cancelled.
+    // ///
+    // /// If the user_message_reference is set to the ESME-assigned reference of a previously
+    // /// submitted message, then provided the source address supplied by the ESME matches that of
+    // /// the stored message, that message will be cancelled.
+    // ///
+    // /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
+    // /// address in the cancel_broadcast_sm command should also be NULL.
+    // CancelBroadcastSm(CancelBroadcastSm),
     /// This PDU can be sent by the ESME or MC as a means of
     /// initiating the termination of a SMPP session.
     Unbind,
@@ -270,23 +270,23 @@ impl HasCommandId for Pdu {
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             Pdu::Outbind(_) => CommandId::Outbind,
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
-            Pdu::SubmitSm(_) => CommandId::SubmitSm,
-            Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
+            // Pdu::SubmitSm(_) => CommandId::SubmitSm,
+            // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             Pdu::QuerySm(_) => CommandId::QuerySm,
             Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
-            Pdu::DeliverSm(_) => CommandId::DeliverSm,
-            Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
-            Pdu::DataSm(_) => CommandId::DataSm,
-            Pdu::DataSmResp(_) => CommandId::DataSmResp,
+            // Pdu::DeliverSm(_) => CommandId::DeliverSm,
+            // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            // Pdu::DataSm(_) => CommandId::DataSm,
+            // Pdu::DataSmResp(_) => CommandId::DataSmResp,
             Pdu::CancelSm(_) => CommandId::CancelSm,
-            Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
-            Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
-            Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
-            Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
+            // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
+            // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
+            // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
+            // Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
-            Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
-            Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
-            Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
+            // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
+            // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty pdus.
             // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
@@ -313,23 +313,23 @@ impl Length for Pdu {
             Pdu::BindTransceiverResp(body) => body.length(),
             Pdu::Outbind(body) => body.length(),
             Pdu::AlertNotification(body) => body.length(),
-            Pdu::SubmitSm(body) => body.length(),
-            Pdu::SubmitSmResp(body) => body.length(),
+            // Pdu::SubmitSm(body) => body.length(),
+            // Pdu::SubmitSmResp(body) => body.length(),
             Pdu::QuerySm(body) => body.length(),
             Pdu::QuerySmResp(body) => body.length(),
-            Pdu::DeliverSm(body) => body.length(),
-            Pdu::DeliverSmResp(body) => body.length(),
-            Pdu::DataSm(body) => body.length(),
-            Pdu::DataSmResp(body) => body.length(),
+            // Pdu::DeliverSm(body) => body.length(),
+            // Pdu::DeliverSmResp(body) => body.length(),
+            // Pdu::DataSm(body) => body.length(),
+            // Pdu::DataSmResp(body) => body.length(),
             Pdu::CancelSm(body) => body.length(),
-            Pdu::ReplaceSm(body) => body.length(),
-            Pdu::SubmitMulti(body) => body.length(),
-            Pdu::SubmitMultiResp(body) => body.length(),
-            Pdu::BroadcastSm(body) => body.length(),
+            // Pdu::ReplaceSm(body) => body.length(),
+            // Pdu::SubmitMulti(body) => body.length(),
+            // Pdu::SubmitMultiResp(body) => body.length(),
+            // Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
-            Pdu::QueryBroadcastSm(body) => body.length(),
-            Pdu::QueryBroadcastSmResp(body) => body.length(),
-            Pdu::CancelBroadcastSm(body) => body.length(),
+            // Pdu::QueryBroadcastSm(body) => body.length(),
+            // Pdu::QueryBroadcastSmResp(body) => body.length(),
+            // Pdu::CancelBroadcastSm(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -354,23 +354,23 @@ impl Encode for Pdu {
             Pdu::BindTransceiverResp(body) => body.encode_to(writer),
             Pdu::Outbind(body) => body.encode_to(writer),
             Pdu::AlertNotification(body) => body.encode_to(writer),
-            Pdu::SubmitSm(body) => body.encode_to(writer),
-            Pdu::SubmitSmResp(body) => body.encode_to(writer),
+            // Pdu::SubmitSm(body) => body.encode_to(writer),
+            // Pdu::SubmitSmResp(body) => body.encode_to(writer),
             Pdu::QuerySm(body) => body.encode_to(writer),
             Pdu::QuerySmResp(body) => body.encode_to(writer),
-            Pdu::DeliverSm(body) => body.encode_to(writer),
-            Pdu::DeliverSmResp(body) => body.encode_to(writer),
-            Pdu::DataSm(body) => body.encode_to(writer),
-            Pdu::DataSmResp(body) => body.encode_to(writer),
+            // Pdu::DeliverSm(body) => body.encode_to(writer),
+            // Pdu::DeliverSmResp(body) => body.encode_to(writer),
+            // Pdu::DataSm(body) => body.encode_to(writer),
+            // Pdu::DataSmResp(body) => body.encode_to(writer),
             Pdu::CancelSm(body) => body.encode_to(writer),
-            Pdu::ReplaceSm(body) => body.encode_to(writer),
-            Pdu::SubmitMulti(body) => body.encode_to(writer),
-            Pdu::SubmitMultiResp(body) => body.encode_to(writer),
-            Pdu::BroadcastSm(body) => body.encode_to(writer),
+            // Pdu::ReplaceSm(body) => body.encode_to(writer),
+            // Pdu::SubmitMulti(body) => body.encode_to(writer),
+            // Pdu::SubmitMultiResp(body) => body.encode_to(writer),
+            // Pdu::BroadcastSm(body) => body.encode_to(writer),
             Pdu::BroadcastSmResp(body) => body.encode_to(writer),
-            Pdu::QueryBroadcastSm(body) => body.encode_to(writer),
-            Pdu::QueryBroadcastSmResp(body) => body.encode_to(writer),
-            Pdu::CancelBroadcastSm(body) => body.encode_to(writer),
+            // Pdu::QueryBroadcastSm(body) => body.encode_to(writer),
+            // Pdu::QueryBroadcastSmResp(body) => body.encode_to(writer),
+            // Pdu::CancelBroadcastSm(body) => body.encode_to(writer),
             Pdu::Unbind => Ok(()),
             Pdu::UnbindResp => Ok(()),
             Pdu::EnquireLink => Ok(()),
@@ -428,41 +428,41 @@ impl DecodeWithKeyOptional for Pdu {
             CommandId::AlertNotification => {
                 Pdu::AlertNotification(tri!(AlertNotification::decode_from(reader, length)))
             }
-            CommandId::SubmitSm => Pdu::SubmitSm(tri!(SubmitSm::decode_from(reader, length))),
-            CommandId::SubmitSmResp => {
-                Pdu::SubmitSmResp(tri!(SubmitSmResp::decode_from(reader, length)))
-            }
+            // CommandId::SubmitSm => Pdu::SubmitSm(tri!(SubmitSm::decode_from(reader, length))),
+            // CommandId::SubmitSmResp => {
+            //     Pdu::SubmitSmResp(tri!(SubmitSmResp::decode_from(reader, length)))
+            // }
             CommandId::QuerySm => Pdu::QuerySm(tri!(QuerySm::decode_from(reader))),
             CommandId::QuerySmResp => Pdu::QuerySmResp(tri!(QuerySmResp::decode_from(reader))),
-            CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode_from(reader, length))),
-            CommandId::DeliverSmResp => {
-                Pdu::DeliverSmResp(tri!(SmResp::decode_from(reader, length)))
-            }
-            CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode_from(reader, length))),
-            CommandId::DataSmResp => Pdu::DataSmResp(tri!(SmResp::decode_from(reader, length))),
+            // CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode_from(reader, length))),
+            // CommandId::DeliverSmResp => {
+            //     Pdu::DeliverSmResp(tri!(SmResp::decode_from(reader, length)))
+            // }
+            // CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode_from(reader, length))),
+            // CommandId::DataSmResp => Pdu::DataSmResp(tri!(SmResp::decode_from(reader, length))),
             CommandId::CancelSm => Pdu::CancelSm(tri!(CancelSm::decode_from(reader))),
-            CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
-            CommandId::SubmitMulti => {
-                Pdu::SubmitMulti(tri!(SubmitMulti::decode_from(reader, length)))
-            }
-            CommandId::SubmitMultiResp => {
-                Pdu::SubmitMultiResp(tri!(SubmitMultiResp::decode_from(reader, length)))
-            }
-            CommandId::BroadcastSm => {
-                Pdu::BroadcastSm(tri!(BroadcastSm::decode_from(reader, length)))
-            }
+            // CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
+            // CommandId::SubmitMulti => {
+            //     Pdu::SubmitMulti(tri!(SubmitMulti::decode_from(reader, length)))
+            // }
+            // CommandId::SubmitMultiResp => {
+            //     Pdu::SubmitMultiResp(tri!(SubmitMultiResp::decode_from(reader, length)))
+            // }
+            // CommandId::BroadcastSm => {
+            //     Pdu::BroadcastSm(tri!(BroadcastSm::decode_from(reader, length)))
+            // }
             CommandId::BroadcastSmResp => {
                 Pdu::BroadcastSmResp(tri!(BroadcastSmResp::decode_from(reader, length)))
             }
-            CommandId::QueryBroadcastSm => {
-                Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode_from(reader, length)))
-            }
-            CommandId::QueryBroadcastSmResp => {
-                Pdu::QueryBroadcastSmResp(tri!(QueryBroadcastSmResp::decode_from(reader, length)))
-            }
-            CommandId::CancelBroadcastSm => {
-                Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
-            }
+            // CommandId::QueryBroadcastSm => {
+            //     Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode_from(reader, length)))
+            // }
+            // CommandId::QueryBroadcastSmResp => {
+            //     Pdu::QueryBroadcastSmResp(tri!(QueryBroadcastSmResp::decode_from(reader, length)))
+            // }
+            // CommandId::CancelBroadcastSm => {
+            //     Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
+            // }
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
                 body: tri!(DecodeWithLength::decode_from(reader, length)),
@@ -476,6 +476,8 @@ impl DecodeWithKeyOptional for Pdu {
             | CommandId::CancelSmResp
             | CommandId::ReplaceSmResp
             | CommandId::CancelBroadcastSmResp => return Ok(None),
+            // TODO: remove after implementing the all PDUs.
+            _ => return Ok(None),
         };
 
         Ok(Some(body))

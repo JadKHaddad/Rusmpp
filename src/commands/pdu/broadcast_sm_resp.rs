@@ -1,6 +1,10 @@
 use super::Pdu;
+
 use crate::{
-    commands::tlvs::tlv::{broadcast_response::BroadcastResponseTLV, TLV},
+    commands::tlvs::{
+        tlv::{broadcast_response::BroadcastResponseTLV, TLV},
+        TLVVec as Vec,
+    },
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
         length::Length,
@@ -44,10 +48,18 @@ impl BroadcastSmResp {
         self.tlvs = tlvs;
     }
 
+    #[cfg(not(feature = "alloc"))]
+    pub fn push_tlv(&mut self, tlv: BroadcastResponseTLV) -> Result<(), TLV> {
+        let tlv = tlv.into();
+
+        self.tlvs.push(tlv)
+    }
+
+    #[cfg(feature = "alloc")]
     pub fn push_tlv(&mut self, tlv: BroadcastResponseTLV) {
         let tlv = tlv.into();
 
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv)
     }
 
     pub fn builder() -> BroadcastSmRespBuilder {
@@ -94,6 +106,14 @@ impl BroadcastSmRespBuilder {
         self
     }
 
+    #[cfg(not(feature = "alloc"))]
+    pub fn push_tlv(mut self, tlv: BroadcastResponseTLV) -> Result<Self, TLV> {
+        self.inner.push_tlv(tlv)?;
+
+        Ok(self)
+    }
+
+    #[cfg(feature = "alloc")]
     pub fn push_tlv(mut self, tlv: BroadcastResponseTLV) -> Self {
         self.inner.push_tlv(tlv);
         self

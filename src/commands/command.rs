@@ -86,10 +86,6 @@ impl Command {
         self.pdu.as_ref()
     }
 
-    pub fn take_pdu(&mut self) -> Option<Pdu> {
-        self.pdu.take()
-    }
-
     pub fn set_pdu(&mut self, pdu: Pdu) {
         self.command_id = pdu.command_id();
         self.pdu = Some(pdu);

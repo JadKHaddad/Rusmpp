@@ -51,11 +51,15 @@
 //! ```
 
 #![forbid(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+// #![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
 
 #[cfg(feature = "tokio-codec")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod codec;
 #[cfg(feature = "tokio-codec")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub use codec::command_codec::CommandCodec;
 
 pub mod commands;

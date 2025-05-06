@@ -83,8 +83,8 @@ mod macros;
 
 pub(crate) mod utils;
 
-#[cfg(any(feature = "std", test))]
+#[cfg(feature = "std")]
 use std::io;
 
-#[cfg(all(not(feature = "std"), not(test)))]
+#[cfg(not(feature = "std"))]
 pub mod io;

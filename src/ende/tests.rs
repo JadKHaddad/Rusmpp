@@ -16,7 +16,7 @@ where
 {
     let original = T::default();
 
-    let mut curser = Cursor::new([0; 4096]);
+    let mut curser = Cursor::new(::std::vec::Vec::new());
 
     original.encode_to(&mut curser).expect("Failed to encode");
 
@@ -36,7 +36,7 @@ where
 {
     let original = T::default();
 
-    let mut curser = Cursor::new([0; 4096]);
+    let mut curser = Cursor::new(::std::vec::Vec::new());
 
     original.encode_to(&mut curser).expect("Failed to encode");
 

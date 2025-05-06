@@ -1,4 +1,4 @@
-//! Mirror of the `std::io` module where `std` feature is not enabled.
+//! Mirror of the `std::io` module where `std` feature is disabled.
 
 #[derive(Debug)]
 pub enum Error {
@@ -123,5 +123,23 @@ impl Write for ::alloc::vec::Vec<u8> {
         self.extend_from_slice(buf);
 
         Ok(buf.len())
+    }
+}
+
+#[cfg(test)]
+pub use std::io::Cursor;
+
+#[cfg(test)]
+mod impl_std {
+    impl super::Write for ::std::io::Cursor<::std::vec::Vec<u8>> {
+        fn write(&mut self, buf: &[u8]) -> Result<usize, super::Error> {
+            Ok(::std::io::Write::write(self, buf).expect("std::io::Error"))
+        }
+    }
+
+    impl super::Read for ::std::io::Cursor<::std::vec::Vec<u8>> {
+        fn read(&mut self, buf: &mut [u8]) -> Result<usize, super::Error> {
+            Ok(::std::io::Read::read(self, buf).expect("std::io::Error"))
+        }
     }
 }

@@ -37,23 +37,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();
+
     let mut framed_read = FramedRead::new(reader, CommandCodec::new());
     let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
 
     // Build commands. Omitted values will be set to default.
-    let bind_transceiver_command = Command::new(
-        CommandStatus::EsmeRok,
-        1,
-        BindTransceiver::builder()
-            .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
-            .password(COctetString::from_str("rEZYMq5j")?)
-            .system_type(COctetString::empty())
-            .interface_version(InterfaceVersion::Smpp5_0)
-            .addr_ton(Ton::Unknown)
-            .addr_npi(Npi::Unknown)
-            .address_range(COctetString::empty())
-            .build(),
-    );
+    let bind_transceiver_command = Command::builder()
+        .command_status(CommandStatus::EsmeRok)
+        .sequence_number(1)
+        .pdu(
+            BindTransceiver::builder()
+                .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
+                .password(COctetString::from_str("rEZYMq5j")?)
+                .system_type(COctetString::empty())
+                .interface_version(InterfaceVersion::Smpp5_0)
+                .addr_ton(Ton::Unknown)
+                .addr_npi(Npi::Unknown)
+                .address_range(COctetString::empty())
+                .build(),
+        );
 
     // Send commands.
     framed_write.send(&bind_transceiver_command).await?;

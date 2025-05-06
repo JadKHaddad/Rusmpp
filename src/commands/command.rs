@@ -96,18 +96,21 @@ impl Command {
         self.pdu.as_ref()
     }
 
-    pub fn set_pdu(&mut self, pdu: Pdu) {
+    pub fn set_pdu(&mut self, pdu: impl Into<Pdu>) {
+        let pdu = pdu.into();
+
         self.command_id = pdu.command_id();
+
         self.pdu = Some(pdu);
     }
 
     pub const fn builder() -> CommandStatusBuilder {
         CommandStatusBuilder {
             inner: Command {
-                command_id: CommandId::BindTransmitter,
+                command_id: CommandId::EnquireLink,
                 command_status: CommandStatus::EsmeRok,
                 sequence_number: 0,
-                pdu: None,
+                pdu: Some(Pdu::EnquireLink),
             },
         }
     }
@@ -169,12 +172,8 @@ pub struct PduBuilder {
 }
 
 impl PduBuilder {
-    pub fn pdu(mut self, pdu: Pdu) -> Self {
+    pub fn pdu(mut self, pdu: impl Into<Pdu>) -> Command {
         self.inner.set_pdu(pdu);
-        self
-    }
-
-    pub fn build(self) -> Command {
         self.inner
     }
 }

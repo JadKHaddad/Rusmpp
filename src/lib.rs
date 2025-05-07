@@ -69,6 +69,9 @@ pub use commands::types::command_status::CommandStatus;
 
 pub mod ende;
 
+pub mod session;
+pub use session::session_state::SessionState;
+
 pub mod types;
 
 mod macros;

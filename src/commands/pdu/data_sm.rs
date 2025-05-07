@@ -14,6 +14,8 @@ use crate::{
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
+use super::Pdu;
+
 impl_length_encode! {
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
@@ -124,6 +126,12 @@ impl DataSm {
 
     pub fn builder() -> DataSmBuilder {
         DataSmBuilder::new()
+    }
+}
+
+impl From<DataSm> for Pdu {
+    fn from(value: DataSm) -> Self {
+        Self::DataSm(value)
     }
 }
 

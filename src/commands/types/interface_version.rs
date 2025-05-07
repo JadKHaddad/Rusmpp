@@ -1,4 +1,4 @@
-use crate::types::u8::EndeU8;
+use crate::{types::u8::EndeU8, TLVValue, TLV};
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -8,6 +8,21 @@ pub enum InterfaceVersion {
     Smpp3_4 = 0x34,
     Smpp5_0 = 0x50,
     Other(u8),
+}
+
+impl InterfaceVersion {
+    #[inline]
+    pub fn downcast_from_tlv_value(value: &TLVValue) -> Option<Self> {
+        match value {
+            TLVValue::ScInterfaceVersion(interface_version) => Some(*interface_version),
+            _ => None,
+        }
+    }
+
+    #[inline]
+    pub fn downcast_from_tlv(tlv: &TLV) -> Option<Self> {
+        tlv.value().and_then(Self::downcast_from_tlv_value)
+    }
 }
 
 impl From<InterfaceVersion> for u8 {

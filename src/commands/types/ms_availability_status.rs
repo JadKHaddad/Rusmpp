@@ -1,4 +1,4 @@
-use crate::types::u8::EndeU8;
+use crate::{types::u8::EndeU8, TLVValue, TLV};
 
 /// The ms_availability_status parameter is used in the alert_notification operation to indicate the
 /// availability state of the MS to the ESME.
@@ -13,6 +13,21 @@ pub enum MsAvailabilityStatus {
     Denied = 1,
     Unavailable = 2,
     Other(u8),
+}
+
+impl MsAvailabilityStatus {
+    #[inline]
+    pub fn downcast_from_tlv_value(value: &TLVValue) -> Option<Self> {
+        match value {
+            TLVValue::MsAvailabilityStatus(ms_availability_status) => Some(*ms_availability_status),
+            _ => None,
+        }
+    }
+
+    #[inline]
+    pub fn downcast_from_tlv(tlv: &TLV) -> Option<Self> {
+        tlv.value().and_then(Self::downcast_from_tlv_value)
+    }
 }
 
 impl From<u8> for MsAvailabilityStatus {

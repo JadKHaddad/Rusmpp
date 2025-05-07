@@ -75,8 +75,17 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub fn user_message_reference(&self) -> Option<&TLV> {
+    pub const fn user_message_reference(&self) -> Option<&TLV> {
         self.user_message_reference.as_ref()
+    }
+
+    pub fn user_message_reference_downcast(&self) -> Option<u16> {
+        self.user_message_reference()
+            .and_then(TLV::value)
+            .and_then(|value| match value {
+                TLVValue::UserMessageReference(value) => Some(*value),
+                _ => None,
+            })
     }
 
     pub fn set_user_message_reference(&mut self, user_message_reference: Option<u16>) {

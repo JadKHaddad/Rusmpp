@@ -139,8 +139,17 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn message_payload(&self) -> Option<&TLV> {
+    pub const fn message_payload(&self) -> Option<&TLV> {
         self.message_payload.as_ref()
+    }
+
+    pub fn message_payload_downcast(&self) -> Option<&AnyOctetString> {
+        self.message_payload()
+            .and_then(TLV::value)
+            .and_then(|value| match value {
+                TLVValue::MessagePayload(value) => Some(value),
+                _ => None,
+            })
     }
 
     /// Sets the message payload.

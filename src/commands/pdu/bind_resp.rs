@@ -40,8 +40,13 @@ macro_rules! declare_bind_resp {
                 }
             }
 
-            pub fn sc_interface_version(&self) -> Option<&TLV> {
+            pub const fn sc_interface_version(&self) -> Option<&TLV> {
                 self.sc_interface_version.as_ref()
+            }
+
+            pub fn sc_interface_version_downcast(&self) -> Option<InterfaceVersion> {
+                self.sc_interface_version()
+                    .and_then(InterfaceVersion::downcast_from_tlv)
             }
 
             pub fn set_sc_interface_version(

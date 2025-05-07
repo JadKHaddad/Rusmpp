@@ -46,3 +46,11 @@ pub trait Encode: Length {
         Ok(buf)
     }
 }
+
+pub trait Encode2 {
+    fn encode(&self, dst: &mut [u8]) -> usize;
+
+    fn encode_move(&self, dst: &mut [u8], size: usize) -> usize {
+        size + self.encode(&mut dst[size..])
+    }
+}

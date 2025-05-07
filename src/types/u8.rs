@@ -61,3 +61,21 @@ where
         u8::decode_from(reader).map(Self::from)
     }
 }
+
+impl crate::ende::encode::Encode2 for u8 {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        dst[0] = *self;
+
+        1
+    }
+}
+
+impl crate::ende::decode::Decode2 for u8 {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+        if src.len() < 1 {
+            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+        }
+
+        Ok((src[0], 1))
+    }
+}

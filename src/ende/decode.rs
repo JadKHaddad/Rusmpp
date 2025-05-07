@@ -114,3 +114,38 @@ pub trait DecodeWithKeyOptional {
     where
         Self: Sized;
 }
+
+#[derive(Debug)]
+pub enum DecodeError2 {
+    UnexpectedEof,
+    COctetStringDecodeError(COctetStringDecodeError),
+    OctetStringDecodeError(OctetStringDecodeError),
+}
+
+pub trait Decode2: Sized {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError2>;
+
+    fn decode_move(src: &mut [u8], size: usize) -> Result<(Self, usize), DecodeError2> {
+        let (this, size_) = Self::decode(&mut src[size..])?;
+
+        let size = size + size_;
+
+        return Ok((this, size));
+    }
+}
+
+pub trait DecodeWithLength2: Sized {
+    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError2>;
+
+    fn decode_move(
+        src: &mut [u8],
+        length: usize,
+        size: usize,
+    ) -> Result<(Self, usize), DecodeError2> {
+        let (this, size_) = Self::decode(&mut src[size..], length)?;
+
+        let size = size + size_;
+
+        return Ok((this, size));
+    }
+}

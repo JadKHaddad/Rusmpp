@@ -122,6 +122,31 @@ impl DecodeWithLength for AnyOctetString {
     }
 }
 
+impl crate::ende::encode::Encode2 for AnyOctetString {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+
+        self.bytes.len()
+    }
+}
+
+impl crate::ende::decode::DecodeWithLength2 for AnyOctetString {
+    fn decode(
+        src: &mut [u8],
+        length: usize,
+    ) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+        if src.len() < length {
+            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+        }
+
+        let mut bytes = Vec::with_capacity(length);
+
+        bytes.extend_from_slice(&src[..length]);
+
+        return Ok((Self { bytes }, length));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -61,3 +61,32 @@ where
         u32::decode_from(reader).map(Self::from)
     }
 }
+
+impl crate::ende::encode::Encode2 for u32 {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        let bytes = self.to_be_bytes();
+
+        dst[0] = bytes[0];
+        dst[1] = bytes[1];
+        dst[2] = bytes[2];
+        dst[3] = bytes[3];
+
+        4
+    }
+}
+
+impl crate::ende::decode::Decode2 for u32 {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+        if src.len() < 4 {
+            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+        }
+
+        let mut bytes = [0; 4];
+
+        bytes.copy_from_slice(&src[..4]);
+
+        let value = u32::from_be_bytes(bytes);
+
+        Ok((value, 4))
+    }
+}

@@ -312,6 +312,57 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
     }
 }
 
+impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for COctetString<MIN, MAX> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+
+        self.bytes.len()
+    }
+}
+
+impl<const MIN: usize, const MAX: usize> crate::ende::decode::Decode2 for COctetString<MIN, MAX> {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+        use crate::ende::decode::{COctetStringDecodeError, DecodeError2};
+
+        Self::_ASSERT_VALID;
+
+        if src.len() < MIN {
+            return Err(DecodeError2::COctetStringDecodeError(
+                COctetStringDecodeError::TooFewBytes {
+                    actual: src.len(),
+                    min: MIN,
+                },
+            ));
+        }
+
+        let mut bytes = Vec::with_capacity(MAX);
+
+        for &byte in src.iter().take(MAX) {
+            bytes.push(byte);
+
+            if byte == 0 {
+                break;
+            }
+        }
+
+        if bytes.last() != Some(&0x00) {
+            return Err(DecodeError2::COctetStringDecodeError(
+                COctetStringDecodeError::NotNullTerminated,
+            ));
+        }
+
+        if !bytes.is_ascii() {
+            return Err(DecodeError2::COctetStringDecodeError(
+                COctetStringDecodeError::NotAscii,
+            ));
+        }
+
+        let size = bytes.len();
+
+        Ok((Self { bytes }, size))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

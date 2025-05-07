@@ -217,6 +217,54 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
     }
 }
 
+impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for OctetString<MIN, MAX> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+
+        self.bytes.len()
+    }
+}
+
+impl<const MIN: usize, const MAX: usize> crate::ende::decode::DecodeWithLength2
+    for OctetString<MIN, MAX>
+{
+    fn decode(
+        src: &mut [u8],
+        length: usize,
+    ) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+        use crate::ende::decode::{DecodeError2, OctetStringDecodeError};
+
+        #[allow(path_statements)]
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
+        if length > MAX {
+            return Err(DecodeError2::OctetStringDecodeError(
+                OctetStringDecodeError::TooManyBytes {
+                    actual: length,
+                    max: MAX,
+                },
+            ));
+        }
+
+        if length < MIN {
+            return Err(DecodeError2::OctetStringDecodeError(
+                OctetStringDecodeError::TooFewBytes {
+                    actual: length,
+                    min: MIN,
+                },
+            ));
+        }
+
+        if src.len() < length {
+            return Err(DecodeError2::UnexpectedEof);
+        }
+
+        let bytes = src[..length].to_vec();
+
+        Ok((Self { bytes }, length))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

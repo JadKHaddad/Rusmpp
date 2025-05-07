@@ -1,10 +1,10 @@
 use crate::{
     ende::{
-        decode::{Decode2, DecodeWithLength2},
+        decode::{Decode2, DecodeError2, DecodeWithLength2},
         encode::Encode2,
         length::Length,
     },
-    types::{AnyOctetString, COctetString, EmptyOrFullCOctetString},
+    types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
 #[derive(Debug)]
@@ -16,6 +16,8 @@ struct A {
     e: u32,
     c_octet: COctetString<1, 16>,
     emp: EmptyOrFullCOctetString<6>,
+    octet_string_size: u32,
+    octet_string: OctetString<0, 13>,
 }
 
 impl Length for A {
@@ -27,6 +29,8 @@ impl Length for A {
             + self.e.length()
             + self.c_octet.length()
             + self.emp.length()
+            + self.octet_string_size.length()
+            + self.octet_string.length()
     }
 }
 
@@ -41,22 +45,27 @@ impl crate::ende::encode::Encode2 for A {
         let size = self.e.encode_move(dst, size);
         let size = self.c_octet.encode_move(dst, size);
         let size = self.emp.encode_move(dst, size);
+        let size = self.octet_string_size.encode_move(dst, size);
+        let size = self.octet_string.encode_move(dst, size);
 
         size
     }
 }
 
-impl crate::ende::decode::Decode2 for A {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+impl Decode2 for A {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError2> {
         let size = 0;
 
-        let (b_size, size) = u32::decode_move(src, size)?;
-        let (b, size) = AnyOctetString::decode_move(src, b_size as usize, size)?;
-        let (c, size) = u8::decode_move(src, size)?;
-        let (d, size) = u16::decode_move(src, size)?;
-        let (e, size) = u32::decode_move(src, size)?;
-        let (c_octet, size) = COctetString::decode_move(src, size)?;
-        let (emp, size) = EmptyOrFullCOctetString::decode_move(src, size)?;
+        let (b_size, size) = Decode2::decode_move(src, size)?;
+        let (b, size) = DecodeWithLength2::decode_move(src, b_size as usize, size)?;
+        let (c, size) = Decode2::decode_move(src, size)?;
+        let (d, size) = Decode2::decode_move(src, size)?;
+        let (e, size) = Decode2::decode_move(src, size)?;
+        let (c_octet, size) = Decode2::decode_move(src, size)?;
+        let (emp, size) = Decode2::decode_move(src, size)?;
+        let (octet_string_size, size) = Decode2::decode_move(src, size)?;
+        let (octet_string, size) =
+            DecodeWithLength2::decode_move(src, octet_string_size as usize, size)?;
 
         Ok((
             A {
@@ -67,6 +76,8 @@ impl crate::ende::decode::Decode2 for A {
                 e,
                 c_octet,
                 emp,
+                octet_string_size,
+                octet_string,
             },
             size,
         ))
@@ -83,6 +94,8 @@ fn test() {
         e: 256,
         c_octet: COctetString::new(b"Hallo\0").unwrap(),
         emp: EmptyOrFullCOctetString::new(b"Hello\0").unwrap(),
+        octet_string_size: 13,
+        octet_string: OctetString::<0, 13>::new(b"Hello\0World!\0").unwrap(),
     };
 
     let mut dst = vec![0; a.length()];

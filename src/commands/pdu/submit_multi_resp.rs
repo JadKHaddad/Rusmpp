@@ -12,6 +12,8 @@ use crate::{
     types::c_octet_string::COctetString,
 };
 
+// TODO: vectorized_decode_from
+
 impl_length_encode! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMultiResp {

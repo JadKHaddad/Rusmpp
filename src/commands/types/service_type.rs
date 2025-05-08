@@ -1,8 +1,4 @@
-use crate::{
-    ende::decode::{Decode, DecodeError},
-    impl_length_encode, tri,
-    types::c_octet_string::COctetString,
-};
+use crate::{impl_length_encode, tri, types::c_octet_string::COctetString};
 
 /// Helper for creating a [`ServiceType`] with predefined values.
 ///
@@ -109,16 +105,5 @@ impl ServiceType {
 
     pub fn value(&self) -> &COctetString<1, 6> {
         &self.value
-    }
-}
-
-impl Decode for ServiceType {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let value = tri!(COctetString::decode_from(reader));
-
-        Ok(Self { value })
     }
 }

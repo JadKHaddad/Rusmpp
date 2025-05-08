@@ -1,5 +1,4 @@
 use crate::{
-    ende::decode::{DecodeError, DecodeWithLength},
     impl_length_encode, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
@@ -48,6 +47,7 @@ impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastAreaIdentifier {
         pub format: BroadcastAreaFormat,
+        @[length = unchecked]
         pub area: OctetString<0, 100>,
     }
 }
@@ -55,20 +55,5 @@ impl_length_encode! {
 impl BroadcastAreaIdentifier {
     pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
         Self { format, area }
-    }
-}
-
-impl DecodeWithLength for BroadcastAreaIdentifier {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let format = tri!(BroadcastAreaFormat::decode_from(reader));
-
-        let area_length = length.saturating_sub(format.length());
-
-        let area = tri!(OctetString::decode_from(reader, area_length));
-
-        Ok(Self { format, area })
     }
 }

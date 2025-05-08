@@ -1,8 +1,4 @@
-use crate::{
-    ende::decode::{Decode, DecodeError, DecodeWithLength},
-    impl_length_encode, tri,
-    types::u8::EndeU8,
-};
+use crate::{impl_length_encode, tri, types::u8::EndeU8};
 
 impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -24,27 +20,6 @@ impl MsValidity {
     }
 }
 
-impl DecodeWithLength for MsValidity {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let validity_behavior = tri!(MsValidityBehavior::decode_from(reader));
-
-        let validity_information_length = length.saturating_sub(validity_behavior.length());
-
-        let validity_information = tri!(MsValidityInformation::length_checked_decode_from(
-            reader,
-            validity_information_length
-        ));
-
-        Ok(Self {
-            validity_behavior,
-            validity_information,
-        })
-    }
-}
-
 impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidityInformation {
@@ -59,21 +34,6 @@ impl MsValidityInformation {
             units_of_time,
             number_of_time_units,
         }
-    }
-}
-
-impl Decode for MsValidityInformation {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let units_of_time = tri!(UnitsOfTime::decode_from(reader));
-        let number_of_time_units = tri!(u16::decode_from(reader));
-
-        Ok(Self {
-            units_of_time,
-            number_of_time_units,
-        })
     }
 }
 

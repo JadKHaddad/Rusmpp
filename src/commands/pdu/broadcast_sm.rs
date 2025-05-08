@@ -13,10 +13,6 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
@@ -118,10 +114,12 @@ impl_length_encode! {
         /// the broadcasts of a message should be repeated.
         broadcast_frequency_interval: TLV,
         /// Broadcast request TLVs ([`BroadcastRequestTLV`]).
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
 
+// TODO: add the downcast for these tlvs
 impl BroadcastSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -278,67 +276,6 @@ impl Default for BroadcastSm {
             )),
             tlvs: Default::default(),
         }
-    }
-}
-
-impl DecodeWithLength for BroadcastSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let service_type = tri!(ServiceType::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let message_id = tri!(COctetString::decode_from(reader));
-        let priority_flag = tri!(PriorityFlag::decode_from(reader));
-        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let replace_if_present_flag = tri!(ReplaceIfPresentFlag::decode_from(reader));
-        let data_coding = tri!(DataCoding::decode_from(reader));
-        let sm_default_msg_id = tri!(u8::decode_from(reader));
-        let broadcast_area_identifier = tri!(TLV::decode_from(reader));
-        let broadcast_content_type = tri!(TLV::decode_from(reader));
-        let broadcast_rep_num = tri!(TLV::decode_from(reader));
-        let broadcast_frequency_interval = tri!(TLV::decode_from(reader));
-
-        let tlvs_length = length
-            .saturating_sub(service_type.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length())
-            .saturating_sub(message_id.length())
-            .saturating_sub(priority_flag.length())
-            .saturating_sub(schedule_delivery_time.length())
-            .saturating_sub(validity_period.length())
-            .saturating_sub(replace_if_present_flag.length())
-            .saturating_sub(data_coding.length())
-            .saturating_sub(sm_default_msg_id.length())
-            .saturating_sub(broadcast_area_identifier.length())
-            .saturating_sub(broadcast_content_type.length())
-            .saturating_sub(broadcast_rep_num.length())
-            .saturating_sub(broadcast_frequency_interval.length());
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            service_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            message_id,
-            priority_flag,
-            schedule_delivery_time,
-            validity_period,
-            replace_if_present_flag,
-            data_coding,
-            sm_default_msg_id,
-            broadcast_area_identifier,
-            broadcast_content_type,
-            broadcast_rep_num,
-            broadcast_frequency_interval,
-            tlvs,
-        })
     }
 }
 

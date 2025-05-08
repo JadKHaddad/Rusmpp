@@ -80,12 +80,14 @@ pub(crate) mod utils;
 
 use macros::{impl_length_encode, tri};
 
-mod dev;
-
 // New stuff
 
 pub use ende::new::{
     Decode, DecodeWithKey, DecodeWithKeyOptional, DecodeWithLength, Encode, Length,
+};
+
+use ende::new::{
+    DecodeExt, DecodeWithKeyExt, DecodeWithKeyOptionalExt, DecodeWithLengthExt, EncodeExt,
 };
 
 pub mod errors {

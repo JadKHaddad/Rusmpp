@@ -1,5 +1,4 @@
 use crate::{
-    ende::decode::{Decode, DecodeError},
     impl_length_encode, tri,
     types::{u16::EndeU16, u8::EndeU8},
 };
@@ -213,20 +212,5 @@ impl BroadcastContentType {
             type_of_network,
             encoding_content_type,
         }
-    }
-}
-
-impl Decode for BroadcastContentType {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let type_of_network = tri!(TypeOfNetwork::decode_from(reader));
-        let encoding_content_type = tri!(EncodingContentType::decode_from(reader));
-
-        Ok(Self {
-            type_of_network,
-            encoding_content_type,
-        })
     }
 }

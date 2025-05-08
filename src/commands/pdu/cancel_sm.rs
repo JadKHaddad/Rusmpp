@@ -1,7 +1,6 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    ende::decode::{Decode, DecodeError},
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -127,33 +126,6 @@ impl CancelSm {
 impl From<CancelSm> for Pdu {
     fn from(value: CancelSm) -> Self {
         Self::CancelSm(value)
-    }
-}
-
-impl Decode for CancelSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let service_type = tri!(ServiceType::decode_from(reader));
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let dest_addr_ton = tri!(Ton::decode_from(reader));
-        let dest_addr_npi = tri!(Npi::decode_from(reader));
-        let destination_addr = tri!(COctetString::decode_from(reader));
-
-        Ok(Self {
-            service_type,
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-        })
     }
 }
 

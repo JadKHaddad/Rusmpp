@@ -4,10 +4,6 @@ use crate::{
         tlvs::tlv::{cancel_broadcast::CancelBroadcastTLV, TLV},
         types::{npi::Npi, service_type::ServiceType, ton::Ton},
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -64,6 +60,7 @@ impl_length_encode! {
         // If not known, set to NULL (Unknown).
         pub source_addr: COctetString<1, 21>,
         /// Cancel broadcast  TLVs ([`CancelBroadcastTLV`]).
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
@@ -122,38 +119,6 @@ impl CancelBroadcastSm {
 impl From<CancelBroadcastSm> for Pdu {
     fn from(value: CancelBroadcastSm) -> Self {
         Self::CancelBroadcastSm(value)
-    }
-}
-
-impl DecodeWithLength for CancelBroadcastSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let service_type = tri!(ServiceType::decode_from(reader));
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-
-        let tlvs_length = length.saturating_sub(
-            service_type.length()
-                + message_id.length()
-                + source_addr_ton.length()
-                + source_addr_npi.length()
-                + source_addr.length(),
-        );
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            service_type,
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            tlvs,
-        })
     }
 }
 

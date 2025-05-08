@@ -1,9 +1,5 @@
 use super::Pdu;
-use crate::{
-    ende::decode::{Decode, DecodeError},
-    impl_length_encode, tri,
-    types::c_octet_string::COctetString,
-};
+use crate::{impl_length_encode, tri, types::c_octet_string::COctetString};
 
 impl_length_encode! {
     /// Authentication PDU used by a Message Centre to Outbind to
@@ -42,21 +38,6 @@ impl Outbind {
 impl From<Outbind> for Pdu {
     fn from(value: Outbind) -> Self {
         Self::Outbind(value)
-    }
-}
-
-impl Decode for Outbind {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let system_id = tri!(COctetString::decode_from(reader));
-        let password = tri!(COctetString::decode_from(reader));
-
-        Ok(Self {
-            system_id,
-            password,
-        })
     }
 }
 

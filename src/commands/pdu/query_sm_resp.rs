@@ -1,7 +1,6 @@
 use super::Pdu;
 use crate::{
     commands::types::message_state::MessageState,
-    ende::decode::{Decode, DecodeError},
     impl_length_encode, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
@@ -58,25 +57,6 @@ impl QuerySmResp {
 impl From<QuerySmResp> for Pdu {
     fn from(value: QuerySmResp) -> Self {
         Self::QuerySmResp(value)
-    }
-}
-
-impl Decode for QuerySmResp {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-        let final_date = tri!(EmptyOrFullCOctetString::<17>::decode_from(reader));
-        let message_state = tri!(MessageState::decode_from(reader));
-        let error_code = tri!(u8::decode_from(reader));
-
-        Ok(Self {
-            message_id,
-            final_date,
-            message_state,
-            error_code,
-        })
     }
 }
 

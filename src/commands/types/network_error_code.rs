@@ -1,8 +1,4 @@
-use crate::{
-    ende::decode::{Decode, DecodeError},
-    impl_length_encode, tri,
-    types::u8::EndeU8,
-};
+use crate::{impl_length_encode, tri, types::u8::EndeU8};
 
 impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -18,21 +14,6 @@ impl NetworkErrorCode {
             network_type,
             error_code,
         }
-    }
-}
-
-impl Decode for NetworkErrorCode {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let network_type = tri!(ErrorCodeNetworkType::decode_from(reader));
-        let error_code = tri!(u16::decode_from(reader));
-
-        Ok(Self {
-            network_type,
-            error_code,
-        })
     }
 }
 

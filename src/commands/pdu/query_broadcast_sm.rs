@@ -4,10 +4,6 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, ton::Ton},
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -51,6 +47,7 @@ impl_length_encode! {
         /// [`TLVValue::UserMessageReference`].
         ///
         /// ESME assigned message reference number.
+        @[length = checked]
         user_message_reference: Option<TLV>,
     }
 }
@@ -101,37 +98,6 @@ impl QueryBroadcastSm {
 impl From<QueryBroadcastSm> for Pdu {
     fn from(value: QueryBroadcastSm) -> Self {
         Self::QueryBroadcastSm(value)
-    }
-}
-
-impl DecodeWithLength for QueryBroadcastSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::<1, 21>::decode_from(reader));
-
-        let user_message_reference_length = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(source_addr_ton.length())
-            .saturating_sub(source_addr_npi.length())
-            .saturating_sub(source_addr.length());
-
-        let user_message_reference = tri!(TLV::length_checked_decode_from(
-            reader,
-            user_message_reference_length
-        ));
-
-        Ok(Self {
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            user_message_reference,
-        })
     }
 }
 

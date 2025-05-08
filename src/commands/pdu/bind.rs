@@ -1,7 +1,6 @@
 use super::Pdu;
 use crate::{
     commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
-    ende::decode::{Decode, DecodeError},
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -65,31 +64,6 @@ macro_rules! declare_bind {
 
             pub fn builder() -> $builder_name {
                 $builder_name::new()
-            }
-        }
-
-        impl Decode for $name {
-            fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-            where
-                Self: Sized,
-            {
-                let system_id = tri!(COctetString::decode_from(reader));
-                let password = tri!(COctetString::decode_from(reader));
-                let system_type = tri!(COctetString::decode_from(reader));
-                let interface_version = tri!(InterfaceVersion::decode_from(reader));
-                let addr_ton = tri!(Ton::decode_from(reader));
-                let addr_npi = tri!(Npi::decode_from(reader));
-                let address_range = tri!(COctetString::decode_from(reader));
-
-                Ok(Self {
-                    system_id,
-                    password,
-                    system_type,
-                    interface_version,
-                    addr_ton,
-                    addr_npi,
-                    address_range,
-                })
             }
         }
 

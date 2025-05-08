@@ -11,10 +11,6 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
@@ -92,8 +88,10 @@ impl_length_encode! {
         ///
         /// Note: this field is superceded by the message_payload TLV if
         /// specified.
+        @[length = sm_length]
         short_message: OctetString<0, 255>,
         /// Message delivery request TLVs ([`MessageDeliveryRequestTLV`])
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
@@ -223,77 +221,6 @@ impl DeliverSm {
 impl From<DeliverSm> for Pdu {
     fn from(value: DeliverSm) -> Self {
         Self::DeliverSm(value)
-    }
-}
-
-impl DecodeWithLength for DeliverSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let service_type = tri!(ServiceType::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let dest_addr_ton = tri!(Ton::decode_from(reader));
-        let dest_addr_npi = tri!(Npi::decode_from(reader));
-        let destination_addr = tri!(COctetString::decode_from(reader));
-        let esm_class = tri!(EsmClass::decode_from(reader));
-        let protocol_id = tri!(u8::decode_from(reader));
-        let priority_flag = tri!(PriorityFlag::decode_from(reader));
-        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
-        let replace_if_present_flag = tri!(ReplaceIfPresentFlag::decode_from(reader));
-        let data_coding = tri!(DataCoding::decode_from(reader));
-        let sm_default_msg_id = tri!(u8::decode_from(reader));
-        let sm_length = tri!(u8::decode_from(reader));
-        let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
-
-        let tlvs_length = length.saturating_sub(
-            service_type.length()
-                + source_addr_ton.length()
-                + source_addr_npi.length()
-                + source_addr.length()
-                + dest_addr_ton.length()
-                + dest_addr_npi.length()
-                + destination_addr.length()
-                + esm_class.length()
-                + protocol_id.length()
-                + priority_flag.length()
-                + schedule_delivery_time.length()
-                + validity_period.length()
-                + registered_delivery.length()
-                + replace_if_present_flag.length()
-                + data_coding.length()
-                + sm_default_msg_id.length()
-                + sm_length.length()
-                + short_message.length(),
-        );
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            service_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-            esm_class,
-            protocol_id,
-            priority_flag,
-            schedule_delivery_time,
-            validity_period,
-            registered_delivery,
-            replace_if_present_flag,
-            data_coding,
-            sm_default_msg_id,
-            sm_length,
-            short_message,
-            tlvs,
-        })
     }
 }
 

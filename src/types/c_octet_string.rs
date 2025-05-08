@@ -1,9 +1,8 @@
 #![allow(path_statements)]
 
-use crate::ende::{
-    decode::{COctetStringDecodeError, Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    errors::{COctetStringDecodeError, DecodeError},
+    Decode, Encode, Length,
 };
 
 /// An Error that can occur when creating a [`COctetString`]
@@ -258,61 +257,6 @@ impl<const MIN: usize, const MAX: usize> Length for COctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Encode for COctetString<MIN, MAX> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        use std::io::Read;
-
-        Self::_ASSERT_VALID;
-
-        let mut bytes = Vec::with_capacity(MAX);
-
-        let mut reader_bytes = reader.bytes();
-
-        for _ in 0..MAX {
-            if let Some(Ok(byte)) = reader_bytes.next() {
-                bytes.push(byte);
-
-                if byte == 0 {
-                    break;
-                }
-            }
-        }
-
-        if bytes.last() != Some(&0x00) {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::NotNullTerminated,
-            ));
-        }
-
-        if bytes.len() < MIN {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::TooFewBytes {
-                    actual: bytes.len(),
-                    min: MIN,
-                },
-            ));
-        }
-
-        if !bytes.is_ascii() {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::NotAscii,
-            ));
-        }
-
-        Ok(Self { bytes })
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for COctetString<MIN, MAX> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
 
@@ -320,14 +264,12 @@ impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for COctet
     }
 }
 
-impl<const MIN: usize, const MAX: usize> crate::ende::decode::Decode2 for COctetString<MIN, MAX> {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
-        use crate::ende::decode::{COctetStringDecodeError, DecodeError2};
-
+impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_VALID;
 
         if src.len() < MIN {
-            return Err(DecodeError2::COctetStringDecodeError(
+            return Err(DecodeError::COctetStringDecodeError(
                 COctetStringDecodeError::TooFewBytes {
                     actual: src.len(),
                     min: MIN,
@@ -346,13 +288,13 @@ impl<const MIN: usize, const MAX: usize> crate::ende::decode::Decode2 for COctet
         }
 
         if bytes.last() != Some(&0x00) {
-            return Err(DecodeError2::COctetStringDecodeError(
+            return Err(DecodeError::COctetStringDecodeError(
                 COctetStringDecodeError::NotNullTerminated,
             ));
         }
 
         if !bytes.is_ascii() {
-            return Err(DecodeError2::COctetStringDecodeError(
+            return Err(DecodeError::COctetStringDecodeError(
                 COctetStringDecodeError::NotAscii,
             ));
         }

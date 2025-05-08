@@ -1,8 +1,4 @@
-use crate::{
-    ende::decode::{Decode, DecodeError},
-    impl_length_encode, tri,
-    types::u8::EndeU8,
-};
+use crate::{impl_length_encode, tri, types::u8::EndeU8};
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -66,17 +62,5 @@ impl_length_encode! {
 impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
-    }
-}
-
-impl Decode for BroadcastFrequencyInterval {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let unit = tri!(UnitOfTime::decode_from(reader));
-        let value = tri!(u16::decode_from(reader));
-
-        Ok(Self { unit, value })
     }
 }

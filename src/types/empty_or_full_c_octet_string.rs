@@ -1,9 +1,8 @@
 #![allow(path_statements)]
 
-use crate::ende::{
-    decode::{COctetStringDecodeError, Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    errors::{COctetStringDecodeError, DecodeError},
+    Decode, Encode, Length,
 };
 
 /// An error that can occur when creating a [`EmptyOrFullCOctetString`]
@@ -210,61 +209,6 @@ impl<const N: usize> Length for EmptyOrFullCOctetString<N> {
 }
 
 impl<const N: usize> Encode for EmptyOrFullCOctetString<N> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
-    }
-}
-
-impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        use std::io::Read;
-
-        Self::_ASSERT_NON_ZERO;
-
-        let mut bytes = Vec::with_capacity(N);
-
-        let mut reader_bytes = reader.bytes();
-
-        for _ in 0..N {
-            if let Some(Ok(byte)) = reader_bytes.next() {
-                bytes.push(byte);
-
-                if byte == 0 {
-                    break;
-                }
-            }
-        }
-
-        if bytes.last() != Some(&0x00) {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::NotNullTerminated,
-            ));
-        }
-
-        if bytes.len() > 1 && bytes.len() < N {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::TooFewBytes {
-                    actual: bytes.len(),
-                    min: N,
-                },
-            ));
-        }
-
-        if !bytes.is_ascii() {
-            return Err(DecodeError::COctetStringDecodeError(
-                COctetStringDecodeError::NotAscii,
-            ));
-        }
-
-        Ok(Self { bytes })
-    }
-}
-
-impl<const N: usize> crate::ende::encode::Encode2 for EmptyOrFullCOctetString<N> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
 
@@ -272,17 +216,15 @@ impl<const N: usize> crate::ende::encode::Encode2 for EmptyOrFullCOctetString<N>
     }
 }
 
-impl<const N: usize> crate::ende::decode::Decode2 for EmptyOrFullCOctetString<N> {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
-        use crate::ende::decode::{COctetStringDecodeError, DecodeError2};
-
+impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_NON_ZERO;
 
         let mut bytes = Vec::with_capacity(N);
 
         for i in 0..N {
             if i >= src.len() {
-                return Err(DecodeError2::UnexpectedEof);
+                return Err(DecodeError::UnexpectedEof);
             }
 
             let byte = src[i];
@@ -293,7 +235,7 @@ impl<const N: usize> crate::ende::decode::Decode2 for EmptyOrFullCOctetString<N>
                 let len = i + 1;
 
                 if bytes.len() > 1 && bytes.len() < N {
-                    return Err(DecodeError2::COctetStringDecodeError(
+                    return Err(DecodeError::COctetStringDecodeError(
                         COctetStringDecodeError::TooFewBytes {
                             actual: bytes.len(),
                             min: N,
@@ -302,7 +244,7 @@ impl<const N: usize> crate::ende::decode::Decode2 for EmptyOrFullCOctetString<N>
                 }
 
                 if !bytes.is_ascii() {
-                    return Err(DecodeError2::COctetStringDecodeError(
+                    return Err(DecodeError::COctetStringDecodeError(
                         COctetStringDecodeError::NotAscii,
                     ));
                 }
@@ -311,7 +253,7 @@ impl<const N: usize> crate::ende::decode::Decode2 for EmptyOrFullCOctetString<N>
             }
         }
 
-        Err(DecodeError2::COctetStringDecodeError(
+        Err(DecodeError::COctetStringDecodeError(
             COctetStringDecodeError::NotNullTerminated,
         ))
     }

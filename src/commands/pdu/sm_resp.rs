@@ -1,10 +1,6 @@
 use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{message_delivery_response::MessageDeliveryResponseTLV, TLV},
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
@@ -19,6 +15,7 @@ macro_rules! declare_sm_resp {
                 /// cancel or replace the message.
                 message_id: COctetString<1, 65>,
                 /// Message delivery response TLVs ([`MessageDeliveryResponseTLV`])
+                @[length = unchecked]
                 tlvs: Vec<TLV>,
             }
         }
@@ -60,24 +57,6 @@ macro_rules! declare_sm_resp {
 
             pub fn builder() -> $builder_name {
                 $builder_name::new()
-            }
-        }
-
-        impl DecodeWithLength for $name {
-            fn decode_from<R: std::io::Read>(
-                reader: &mut R,
-                length: usize,
-            ) -> Result<Self, DecodeError>
-            where
-                Self: Sized,
-            {
-                let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-
-                let tlvs_length = length.saturating_sub(message_id.length());
-
-                let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-                Ok(Self { message_id, tlvs })
             }
         }
 

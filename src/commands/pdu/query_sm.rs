@@ -1,7 +1,6 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, ton::Ton},
-    ende::decode::{Decode, DecodeError},
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -71,25 +70,6 @@ impl QuerySm {
 impl From<QuerySm> for Pdu {
     fn from(value: QuerySm) -> Self {
         Self::QuerySm(value)
-    }
-}
-
-impl Decode for QuerySm {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-
-        Ok(Self {
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-        })
     }
 }
 

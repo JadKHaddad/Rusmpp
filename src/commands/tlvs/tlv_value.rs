@@ -20,16 +20,13 @@ use crate::{
         privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, sub_address::Subaddress,
         ussd_service_op::UssdServiceOp,
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
+    errors::DecodeError,
     tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
         u32::EndeU32, u8::EndeU8,
     },
+    DecodeWithKey, Encode, Length,
 };
 
 /// See module level documentation
@@ -281,73 +278,73 @@ impl Length for TLVValue {
 }
 
 impl Encode for TLVValue {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
         match self {
-            TLVValue::AdditionalStatusInfoText(value) => value.encode_to(writer),
-            TLVValue::AlertOnMessageDelivery(value) => value.encode_to(writer),
-            TLVValue::BillingIdentification(value) => value.encode_to(writer),
-            TLVValue::BroadcastAreaIdentifier(value) => value.encode_to(writer),
-            TLVValue::BroadcastAreaSuccess(value) => value.encode_to(writer),
-            TLVValue::BroadcastContentTypeInfo(value) => value.encode_to(writer),
-            TLVValue::BroadcastChannelIndicator(value) => value.encode_to(writer),
-            TLVValue::BroadcastContentType(value) => value.encode_to(writer),
-            TLVValue::BroadcastEndTime(value) => value.encode_to(writer),
-            TLVValue::BroadcastErrorStatus(value) => value.encode_to(writer),
-            TLVValue::BroadcastFrequencyInterval(value) => value.encode_to(writer),
-            TLVValue::BroadcastMessageClass(value) => value.encode_to(writer),
-            TLVValue::BroadcastRepNum(value) => value.encode_to(writer),
-            TLVValue::BroadcastServiceGroup(value) => value.encode_to(writer),
-            TLVValue::CallbackNum(value) => value.encode_to(writer),
-            TLVValue::CallbackNumAtag(value) => value.encode_to(writer),
-            TLVValue::CallbackNumPresInd(value) => value.encode_to(writer),
-            TLVValue::CongestionState(value) => value.encode_to(writer),
-            TLVValue::DeliveryFailureReason(value) => value.encode_to(writer),
-            TLVValue::DestAddrNpCountry(value) => value.encode_to(writer),
-            TLVValue::DestAddrNpInformation(value) => value.encode_to(writer),
-            TLVValue::DestAddrNpResolution(value) => value.encode_to(writer),
-            TLVValue::DestAddrSubunit(value) => value.encode_to(writer),
-            TLVValue::DestBearerType(value) => value.encode_to(writer),
-            TLVValue::DestNetworkId(value) => value.encode_to(writer),
-            TLVValue::DestNetworkType(value) => value.encode_to(writer),
-            TLVValue::DestNodeId(value) => value.encode_to(writer),
-            TLVValue::DestSubaddress(value) => value.encode_to(writer),
-            TLVValue::DestTelematicsId(value) => value.encode_to(writer),
-            TLVValue::DestPort(value) => value.encode_to(writer),
-            TLVValue::DisplayTime(value) => value.encode_to(writer),
-            TLVValue::DpfResult(value) => value.encode_to(writer),
-            TLVValue::ItsReplyType(value) => value.encode_to(writer),
-            TLVValue::ItsSessionInfo(value) => value.encode_to(writer),
-            TLVValue::LanguageIndicator(value) => value.encode_to(writer),
-            TLVValue::MessagePayload(value) => value.encode_to(writer),
-            TLVValue::MessageState(value) => value.encode_to(writer),
-            TLVValue::MoreMessagesToSend(value) => value.encode_to(writer),
-            TLVValue::MsAvailabilityStatus(value) => value.encode_to(writer),
-            TLVValue::MsMsgWaitFacilities(value) => value.encode_to(writer),
-            TLVValue::MsValidity(value) => value.encode_to(writer),
-            TLVValue::NetworkErrorCode(value) => value.encode_to(writer),
-            TLVValue::NumberOfMessages(value) => value.encode_to(writer),
-            TLVValue::PayloadType(value) => value.encode_to(writer),
-            TLVValue::PrivacyIndicator(value) => value.encode_to(writer),
-            TLVValue::QosTimeToLive(value) => value.encode_to(writer),
-            TLVValue::ReceiptedMessageId(value) => value.encode_to(writer),
-            TLVValue::SarMsgRefNum(value) => value.encode_to(writer),
-            TLVValue::SarSegmentSeqnum(value) => value.encode_to(writer),
-            TLVValue::SarTotalSegments(value) => value.encode_to(writer),
-            TLVValue::ScInterfaceVersion(value) => value.encode_to(writer),
-            TLVValue::SetDpf(value) => value.encode_to(writer),
-            TLVValue::SmsSignal(value) => value.encode_to(writer),
-            TLVValue::SourceAddrSubunit(value) => value.encode_to(writer),
-            TLVValue::SourceBearerType(value) => value.encode_to(writer),
-            TLVValue::SourceNetworkId(value) => value.encode_to(writer),
-            TLVValue::SourceNetworkType(value) => value.encode_to(writer),
-            TLVValue::SourceNodeId(value) => value.encode_to(writer),
-            TLVValue::SourcePort(value) => value.encode_to(writer),
-            TLVValue::SourceSubaddress(value) => value.encode_to(writer),
-            TLVValue::SourceTelematicsId(value) => value.encode_to(writer),
-            TLVValue::UserMessageReference(value) => value.encode_to(writer),
-            TLVValue::UserResponseCode(value) => value.encode_to(writer),
-            TLVValue::UssdServiceOp(value) => value.encode_to(writer),
-            TLVValue::Other { value, .. } => value.encode_to(writer),
+            TLVValue::AdditionalStatusInfoText(value) => value.encode(dst),
+            TLVValue::AlertOnMessageDelivery(value) => value.encode(dst),
+            TLVValue::BillingIdentification(value) => value.encode(dst),
+            TLVValue::BroadcastAreaIdentifier(value) => value.encode(dst),
+            TLVValue::BroadcastAreaSuccess(value) => value.encode(dst),
+            TLVValue::BroadcastContentTypeInfo(value) => value.encode(dst),
+            TLVValue::BroadcastChannelIndicator(value) => value.encode(dst),
+            TLVValue::BroadcastContentType(value) => value.encode(dst),
+            TLVValue::BroadcastEndTime(value) => value.encode(dst),
+            TLVValue::BroadcastErrorStatus(value) => value.encode(dst),
+            TLVValue::BroadcastFrequencyInterval(value) => value.encode(dst),
+            TLVValue::BroadcastMessageClass(value) => value.encode(dst),
+            TLVValue::BroadcastRepNum(value) => value.encode(dst),
+            TLVValue::BroadcastServiceGroup(value) => value.encode(dst),
+            TLVValue::CallbackNum(value) => value.encode(dst),
+            TLVValue::CallbackNumAtag(value) => value.encode(dst),
+            TLVValue::CallbackNumPresInd(value) => value.encode(dst),
+            TLVValue::CongestionState(value) => value.encode(dst),
+            TLVValue::DeliveryFailureReason(value) => value.encode(dst),
+            TLVValue::DestAddrNpCountry(value) => value.encode(dst),
+            TLVValue::DestAddrNpInformation(value) => value.encode(dst),
+            TLVValue::DestAddrNpResolution(value) => value.encode(dst),
+            TLVValue::DestAddrSubunit(value) => value.encode(dst),
+            TLVValue::DestBearerType(value) => value.encode(dst),
+            TLVValue::DestNetworkId(value) => value.encode(dst),
+            TLVValue::DestNetworkType(value) => value.encode(dst),
+            TLVValue::DestNodeId(value) => value.encode(dst),
+            TLVValue::DestSubaddress(value) => value.encode(dst),
+            TLVValue::DestTelematicsId(value) => value.encode(dst),
+            TLVValue::DestPort(value) => value.encode(dst),
+            TLVValue::DisplayTime(value) => value.encode(dst),
+            TLVValue::DpfResult(value) => value.encode(dst),
+            TLVValue::ItsReplyType(value) => value.encode(dst),
+            TLVValue::ItsSessionInfo(value) => value.encode(dst),
+            TLVValue::LanguageIndicator(value) => value.encode(dst),
+            TLVValue::MessagePayload(value) => value.encode(dst),
+            TLVValue::MessageState(value) => value.encode(dst),
+            TLVValue::MoreMessagesToSend(value) => value.encode(dst),
+            TLVValue::MsAvailabilityStatus(value) => value.encode(dst),
+            TLVValue::MsMsgWaitFacilities(value) => value.encode(dst),
+            TLVValue::MsValidity(value) => value.encode(dst),
+            TLVValue::NetworkErrorCode(value) => value.encode(dst),
+            TLVValue::NumberOfMessages(value) => value.encode(dst),
+            TLVValue::PayloadType(value) => value.encode(dst),
+            TLVValue::PrivacyIndicator(value) => value.encode(dst),
+            TLVValue::QosTimeToLive(value) => value.encode(dst),
+            TLVValue::ReceiptedMessageId(value) => value.encode(dst),
+            TLVValue::SarMsgRefNum(value) => value.encode(dst),
+            TLVValue::SarSegmentSeqnum(value) => value.encode(dst),
+            TLVValue::SarTotalSegments(value) => value.encode(dst),
+            TLVValue::ScInterfaceVersion(value) => value.encode(dst),
+            TLVValue::SetDpf(value) => value.encode(dst),
+            TLVValue::SmsSignal(value) => value.encode(dst),
+            TLVValue::SourceAddrSubunit(value) => value.encode(dst),
+            TLVValue::SourceBearerType(value) => value.encode(dst),
+            TLVValue::SourceNetworkId(value) => value.encode(dst),
+            TLVValue::SourceNetworkType(value) => value.encode(dst),
+            TLVValue::SourceNodeId(value) => value.encode(dst),
+            TLVValue::SourcePort(value) => value.encode(dst),
+            TLVValue::SourceSubaddress(value) => value.encode(dst),
+            TLVValue::SourceTelematicsId(value) => value.encode(dst),
+            TLVValue::UserMessageReference(value) => value.encode(dst),
+            TLVValue::UserResponseCode(value) => value.encode(dst),
+            TLVValue::UssdServiceOp(value) => value.encode(dst),
+            TLVValue::Other { value, .. } => value.encode(dst),
         }
     }
 }
@@ -355,177 +352,142 @@ impl Encode for TLVValue {
 impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 
-    fn decode_from<R: std::io::Read>(
-        key: Self::Key,
-        reader: &mut R,
-        length: usize,
-    ) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
+    fn decode(key: Self::Key, src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
         let value = match key {
             TLVTag::AdditionalStatusInfoText => {
-                TLVValue::AdditionalStatusInfoText(tri!(COctetString::decode_from(reader)))
+                TLVValue::AdditionalStatusInfoText(tri!(COctetString::decode(src)))
             }
             TLVTag::AlertOnMessageDelivery => {
-                TLVValue::AlertOnMessageDelivery(tri!(AlertOnMsgDelivery::decode_from(reader)))
+                TLVValue::AlertOnMessageDelivery(tri!(AlertOnMsgDelivery::decode(src)))
             }
             TLVTag::BillingIdentification => {
-                TLVValue::BillingIdentification(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::BillingIdentification(tri!(OctetString::decode(src, length)))
             }
             TLVTag::BroadcastAreaIdentifier => TLVValue::BroadcastAreaIdentifier(tri!(
-                BroadcastAreaIdentifier::decode_from(reader, length)
+                BroadcastAreaIdentifier::decode(src, length)
             )),
             TLVTag::BroadcastAreaSuccess => {
-                TLVValue::BroadcastAreaSuccess(tri!(BroadcastAreaSuccess::decode_from(reader)))
+                TLVValue::BroadcastAreaSuccess(tri!(BroadcastAreaSuccess::decode(src)))
             }
             TLVTag::BroadcastContentTypeInfo => {
-                TLVValue::BroadcastContentTypeInfo(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::BroadcastContentTypeInfo(tri!(OctetString::decode(src, length)))
             }
-            TLVTag::BroadcastChannelIndicator => TLVValue::BroadcastChannelIndicator(tri!(
-                BroadcastChannelIndicator::decode_from(reader)
-            )),
+            TLVTag::BroadcastChannelIndicator => {
+                TLVValue::BroadcastChannelIndicator(tri!(BroadcastChannelIndicator::decode(src)))
+            }
             TLVTag::BroadcastContentType => {
-                TLVValue::BroadcastContentType(tri!(BroadcastContentType::decode_from(reader)))
+                TLVValue::BroadcastContentType(tri!(BroadcastContentType::decode(src)))
             }
             TLVTag::BroadcastEndTime => {
-                TLVValue::BroadcastEndTime(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::BroadcastEndTime(tri!(OctetString::decode(src, length)))
             }
             TLVTag::BroadcastErrorStatus => {
-                TLVValue::BroadcastErrorStatus(tri!(CommandStatus::decode_from(reader)))
+                TLVValue::BroadcastErrorStatus(tri!(CommandStatus::decode(src)))
             }
-            TLVTag::BroadcastFrequencyInterval => TLVValue::BroadcastFrequencyInterval(tri!(
-                BroadcastFrequencyInterval::decode_from(reader)
-            )),
+            TLVTag::BroadcastFrequencyInterval => {
+                TLVValue::BroadcastFrequencyInterval(tri!(BroadcastFrequencyInterval::decode(src)))
+            }
             TLVTag::BroadcastMessageClass => {
-                TLVValue::BroadcastMessageClass(tri!(BroadcastMessageClass::decode_from(reader)))
+                TLVValue::BroadcastMessageClass(tri!(BroadcastMessageClass::decode(src)))
             }
-            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(tri!(u16::decode_from(reader))),
+            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(tri!(u16::decode(src))),
             TLVTag::BroadcastServiceGroup => {
-                TLVValue::BroadcastServiceGroup(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::BroadcastServiceGroup(tri!(OctetString::decode(src, length)))
             }
-            TLVTag::CallbackNum => {
-                TLVValue::CallbackNum(tri!(OctetString::decode_from(reader, length)))
-            }
+            TLVTag::CallbackNum => TLVValue::CallbackNum(tri!(OctetString::decode(src, length))),
             TLVTag::CallbackNumAtag => {
-                TLVValue::CallbackNumAtag(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::CallbackNumAtag(tri!(OctetString::decode(src, length)))
             }
             TLVTag::CallbackNumPresInd => {
-                TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode_from(reader)))
+                TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode(src)))
             }
             TLVTag::CongestionState => {
-                TLVValue::CongestionState(tri!(CongestionState::decode_from(reader)))
+                TLVValue::CongestionState(tri!(CongestionState::decode(src)))
             }
             TLVTag::DeliveryFailureReason => {
-                TLVValue::DeliveryFailureReason(tri!(DeliveryFailureReason::decode_from(reader)))
+                TLVValue::DeliveryFailureReason(tri!(DeliveryFailureReason::decode(src)))
             }
             TLVTag::DestAddrNpCountry => {
-                TLVValue::DestAddrNpCountry(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::DestAddrNpCountry(tri!(OctetString::decode(src, length)))
             }
             TLVTag::DestAddrNpInformation => {
-                TLVValue::DestAddrNpInformation(tri!(OctetString::decode_from(reader, length)))
+                TLVValue::DestAddrNpInformation(tri!(OctetString::decode(src, length)))
             }
             TLVTag::DestAddrNpResolution => {
-                TLVValue::DestAddrNpResolution(tri!(DestAddrNpResolution::decode_from(reader)))
+                TLVValue::DestAddrNpResolution(tri!(DestAddrNpResolution::decode(src)))
             }
-            TLVTag::DestAddrSubunit => {
-                TLVValue::DestAddrSubunit(tri!(AddrSubunit::decode_from(reader)))
-            }
-            TLVTag::DestBearerType => {
-                TLVValue::DestBearerType(tri!(BearerType::decode_from(reader)))
-            }
-            TLVTag::DestNetworkId => {
-                TLVValue::DestNetworkId(tri!(COctetString::decode_from(reader)))
-            }
-            TLVTag::DestNetworkType => {
-                TLVValue::DestNetworkType(tri!(NetworkType::decode_from(reader)))
-            }
-            TLVTag::DestNodeId => {
-                TLVValue::DestNodeId(tri!(OctetString::decode_from(reader, length)))
-            }
+            TLVTag::DestAddrSubunit => TLVValue::DestAddrSubunit(tri!(AddrSubunit::decode(src))),
+            TLVTag::DestBearerType => TLVValue::DestBearerType(tri!(BearerType::decode(src))),
+            TLVTag::DestNetworkId => TLVValue::DestNetworkId(tri!(COctetString::decode(src))),
+            TLVTag::DestNetworkType => TLVValue::DestNetworkType(tri!(NetworkType::decode(src))),
+            TLVTag::DestNodeId => TLVValue::DestNodeId(tri!(OctetString::decode(src, length))),
             TLVTag::DestSubaddress => {
-                TLVValue::DestSubaddress(tri!(Subaddress::decode_from(reader, length)))
+                TLVValue::DestSubaddress(tri!(Subaddress::decode(src, length)))
             }
-            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(tri!(u16::decode_from(reader))),
-            TLVTag::DestPort => TLVValue::DestPort(tri!(u16::decode_from(reader))),
-            TLVTag::DisplayTime => TLVValue::DisplayTime(tri!(DisplayTime::decode_from(reader))),
-            TLVTag::DpfResult => TLVValue::DpfResult(tri!(DpfResult::decode_from(reader))),
-            TLVTag::ItsReplyType => TLVValue::ItsReplyType(tri!(ItsReplyType::decode_from(reader))),
-            TLVTag::ItsSessionInfo => {
-                TLVValue::ItsSessionInfo(tri!(ItsSessionInfo::decode_from(reader)))
-            }
+            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(tri!(u16::decode(src))),
+            TLVTag::DestPort => TLVValue::DestPort(tri!(u16::decode(src))),
+            TLVTag::DisplayTime => TLVValue::DisplayTime(tri!(DisplayTime::decode(src))),
+            TLVTag::DpfResult => TLVValue::DpfResult(tri!(DpfResult::decode(src))),
+            TLVTag::ItsReplyType => TLVValue::ItsReplyType(tri!(ItsReplyType::decode(src))),
+            TLVTag::ItsSessionInfo => TLVValue::ItsSessionInfo(tri!(ItsSessionInfo::decode(src))),
             TLVTag::LanguageIndicator => {
-                TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode_from(reader)))
+                TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode(src)))
             }
             TLVTag::MessagePayload => {
-                TLVValue::MessagePayload(tri!(AnyOctetString::decode_from(reader, length)))
+                TLVValue::MessagePayload(tri!(AnyOctetString::decode(src, length)))
             }
-            TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode_from(reader))),
+            TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode(src))),
             TLVTag::MoreMessagesToSend => {
-                TLVValue::MoreMessagesToSend(tri!(MoreMessagesToSend::decode_from(reader)))
+                TLVValue::MoreMessagesToSend(tri!(MoreMessagesToSend::decode(src)))
             }
             TLVTag::MsAvailabilityStatus => {
-                TLVValue::MsAvailabilityStatus(tri!(MsAvailabilityStatus::decode_from(reader)))
+                TLVValue::MsAvailabilityStatus(tri!(MsAvailabilityStatus::decode(src)))
             }
             TLVTag::MsMsgWaitFacilities => {
-                TLVValue::MsMsgWaitFacilities(tri!(MsMsgWaitFacilities::decode_from(reader)))
+                TLVValue::MsMsgWaitFacilities(tri!(MsMsgWaitFacilities::decode(src)))
             }
-            TLVTag::MsValidity => {
-                TLVValue::MsValidity(tri!(MsValidity::decode_from(reader, length)))
-            }
+            TLVTag::MsValidity => TLVValue::MsValidity(tri!(MsValidity::decode(src, length))),
             TLVTag::NetworkErrorCode => {
-                TLVValue::NetworkErrorCode(tri!(NetworkErrorCode::decode_from(reader)))
+                TLVValue::NetworkErrorCode(tri!(NetworkErrorCode::decode(src)))
             }
             TLVTag::NumberOfMessages => {
-                TLVValue::NumberOfMessages(tri!(NumberOfMessages::decode_from(reader)))
+                TLVValue::NumberOfMessages(tri!(NumberOfMessages::decode(src)))
             }
-            TLVTag::PayloadType => TLVValue::PayloadType(tri!(PayloadType::decode_from(reader))),
+            TLVTag::PayloadType => TLVValue::PayloadType(tri!(PayloadType::decode(src))),
             TLVTag::PrivacyIndicator => {
-                TLVValue::PrivacyIndicator(tri!(PrivacyIndicator::decode_from(reader)))
+                TLVValue::PrivacyIndicator(tri!(PrivacyIndicator::decode(src)))
             }
-            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(tri!(u32::decode_from(reader))),
+            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(tri!(u32::decode(src))),
             TLVTag::ReceiptedMessageId => {
-                TLVValue::ReceiptedMessageId(tri!(COctetString::decode_from(reader)))
+                TLVValue::ReceiptedMessageId(tri!(COctetString::decode(src)))
             }
-            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(tri!(u16::decode_from(reader))),
-            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(tri!(u8::decode_from(reader))),
-            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(tri!(u8::decode_from(reader))),
+            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(tri!(u16::decode(src))),
+            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(tri!(u8::decode(src))),
+            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(tri!(u8::decode(src))),
             TLVTag::ScInterfaceVersion => {
-                TLVValue::ScInterfaceVersion(tri!(InterfaceVersion::decode_from(reader)))
+                TLVValue::ScInterfaceVersion(tri!(InterfaceVersion::decode(src)))
             }
-            TLVTag::SetDpf => TLVValue::SetDpf(tri!(SetDpf::decode_from(reader))),
-            TLVTag::SmsSignal => TLVValue::SmsSignal(tri!(u16::decode_from(reader))),
+            TLVTag::SetDpf => TLVValue::SetDpf(tri!(SetDpf::decode(src))),
+            TLVTag::SmsSignal => TLVValue::SmsSignal(tri!(u16::decode(src))),
             TLVTag::SourceAddrSubunit => {
-                TLVValue::SourceAddrSubunit(tri!(AddrSubunit::decode_from(reader)))
+                TLVValue::SourceAddrSubunit(tri!(AddrSubunit::decode(src)))
             }
-            TLVTag::SourceBearerType => {
-                TLVValue::SourceBearerType(tri!(BearerType::decode_from(reader)))
-            }
-            TLVTag::SourceNetworkId => {
-                TLVValue::SourceNetworkId(tri!(COctetString::decode_from(reader)))
-            }
+            TLVTag::SourceBearerType => TLVValue::SourceBearerType(tri!(BearerType::decode(src))),
+            TLVTag::SourceNetworkId => TLVValue::SourceNetworkId(tri!(COctetString::decode(src))),
             TLVTag::SourceNetworkType => {
-                TLVValue::SourceNetworkType(tri!(NetworkType::decode_from(reader)))
+                TLVValue::SourceNetworkType(tri!(NetworkType::decode(src)))
             }
-            TLVTag::SourceNodeId => {
-                TLVValue::SourceNodeId(tri!(OctetString::decode_from(reader, length)))
-            }
-            TLVTag::SourcePort => TLVValue::SourcePort(tri!(u16::decode_from(reader))),
+            TLVTag::SourceNodeId => TLVValue::SourceNodeId(tri!(OctetString::decode(src, length))),
+            TLVTag::SourcePort => TLVValue::SourcePort(tri!(u16::decode(src))),
             TLVTag::SourceSubaddress => {
-                TLVValue::SourceSubaddress(tri!(Subaddress::decode_from(reader, length)))
+                TLVValue::SourceSubaddress(tri!(Subaddress::decode(src, length)))
             }
-            TLVTag::SourceTelematicsId => {
-                TLVValue::SourceTelematicsId(tri!(u16::decode_from(reader)))
-            }
-            TLVTag::UserMessageReference => {
-                TLVValue::UserMessageReference(tri!(u16::decode_from(reader)))
-            }
-            TLVTag::UserResponseCode => TLVValue::UserResponseCode(tri!(u8::decode_from(reader))),
-            TLVTag::UssdServiceOp => {
-                TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode_from(reader)))
-            }
+            TLVTag::SourceTelematicsId => TLVValue::SourceTelematicsId(tri!(u16::decode(src))),
+            TLVTag::UserMessageReference => TLVValue::UserMessageReference(tri!(u16::decode(src))),
+            TLVTag::UserResponseCode => TLVValue::UserResponseCode(tri!(u8::decode(src))),
+            TLVTag::UssdServiceOp => TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode(src))),
             other => {
-                let value = tri!(AnyOctetString::decode_from(reader, length));
+                let value = tri!(AnyOctetString::decode(src, length));
                 TLVValue::Other { tag: other, value }
             }
         };

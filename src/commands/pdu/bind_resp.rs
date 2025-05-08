@@ -4,10 +4,6 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::interface_version::InterfaceVersion,
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
@@ -24,6 +20,7 @@ macro_rules! declare_bind_resp {
                 /// [`TLVValue::ScInterfaceVersion`].
                 ///
                 /// `SMPP` version supported by MC.
+                @[length = checked]
                 sc_interface_version: Option<TLV>,
             }
         }
@@ -59,30 +56,6 @@ macro_rules! declare_bind_resp {
 
             pub fn builder() -> $builder_name {
                 $builder_name::new()
-            }
-        }
-
-        impl DecodeWithLength for $name {
-            fn decode_from<R: std::io::Read>(
-                reader: &mut R,
-                length: usize,
-            ) -> Result<Self, DecodeError>
-            where
-                Self: Sized,
-            {
-                let system_id = tri!(COctetString::decode_from(reader));
-
-                let sc_interface_version_length = length.saturating_sub(system_id.length());
-
-                let sc_interface_version = tri!(TLV::length_checked_decode_from(
-                    reader,
-                    sc_interface_version_length
-                ));
-
-                Ok(Self {
-                    system_id,
-                    sc_interface_version,
-                })
             }
         }
 

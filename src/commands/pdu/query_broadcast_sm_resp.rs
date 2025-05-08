@@ -10,10 +10,6 @@ use crate::{
             broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
         },
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::c_octet_string::COctetString,
 };
@@ -47,10 +43,12 @@ impl_length_encode! {
         /// a particular broadcast_area_identifier.
         broadcast_area_success: TLV,
         /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
 
+// TODO: add the downcast for these tlvs
 impl QueryBroadcastSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
@@ -154,34 +152,6 @@ impl Default for QueryBroadcastSmResp {
             broadcast_area_success: TLV::new(TLVValue::BroadcastAreaSuccess(Default::default())),
             tlvs: Default::default(),
         }
-    }
-}
-
-impl DecodeWithLength for QueryBroadcastSmResp {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-        let message_state = tri!(TLV::decode_from(reader));
-        let broadcast_area_identifier = tri!(TLV::decode_from(reader));
-        let broadcast_area_success = tri!(TLV::decode_from(reader));
-
-        let tlvs_length = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(message_state.length())
-            .saturating_sub(broadcast_area_identifier.length())
-            .saturating_sub(broadcast_area_success.length());
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            message_id,
-            message_state,
-            broadcast_area_identifier,
-            broadcast_area_success,
-            tlvs,
-        })
     }
 }
 

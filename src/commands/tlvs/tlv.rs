@@ -1,12 +1,5 @@
 use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
-use crate::{
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithKey},
-        length::Length,
-    },
-    impl_length_encode, tri,
-    types::u16::EndeU16,
-};
+use crate::{impl_length_encode, tri, types::u16::EndeU16};
 
 pub mod broadcast_request;
 pub mod broadcast_response;
@@ -23,6 +16,7 @@ impl_length_encode! {
     pub struct TLV {
         tag: TLVTag,
         value_length: u16,
+        @[key = tag, length = value_length]
         value: Option<TLVValue>,
     }
 }
@@ -75,27 +69,5 @@ impl From<TLVTag> for TLV {
             value_length: 0,
             value: None,
         }
-    }
-}
-
-impl Decode for TLV {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let tag = tri!(TLVTag::decode_from(reader));
-        let value_length = tri!(u16::decode_from(reader));
-
-        let value = tri!(TLVValue::optional_length_checked_decode_from(
-            tag,
-            reader,
-            value_length as usize
-        ));
-
-        Ok(Self {
-            tag,
-            value_length,
-            value,
-        })
     }
 }

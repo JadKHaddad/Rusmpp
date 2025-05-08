@@ -36,14 +36,7 @@ use super::{
     pdu::Pdu,
     types::{command_id::CommandId, command_status::CommandStatus},
 };
-use crate::{
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
-        length::Length,
-    },
-    impl_length_encode, tri,
-    types::u32::EndeU32,
-};
+use crate::{impl_length_encode, tri, types::u32::EndeU32};
 
 impl_length_encode! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -59,6 +52,7 @@ impl_length_encode! {
         /// See [`Pdu`]
         ///
         /// Optional because incoming commands may not have a PDU.
+        @[key = command_id, length = unchecked]
         pdu: Option<Pdu>,
     }
 }
@@ -113,30 +107,6 @@ impl Command {
                 pdu: Some(Pdu::EnquireLink),
             },
         }
-    }
-}
-
-impl DecodeWithLength for Command {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let command_id = tri!(CommandId::decode_from(reader));
-        let command_status = tri!(CommandStatus::decode_from(reader));
-        let sequence_number = tri!(u32::decode_from(reader));
-
-        let pdu_length = length.saturating_sub(
-            command_id.length() + command_status.length() + sequence_number.length(),
-        );
-
-        let pdu = tri!(Pdu::decode_from(command_id, reader, pdu_length),);
-
-        Ok(Self {
-            command_id,
-            command_status,
-            sequence_number,
-            pdu,
-        })
     }
 }
 

@@ -6,10 +6,6 @@ use crate::{
             registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
         },
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -69,6 +65,7 @@ impl_length_encode! {
         /// of the short message user data.
         pub data_coding: DataCoding,
         /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
@@ -132,53 +129,6 @@ impl DataSm {
 impl From<DataSm> for Pdu {
     fn from(value: DataSm) -> Self {
         Self::DataSm(value)
-    }
-}
-
-impl DecodeWithLength for DataSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let service_type = tri!(ServiceType::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let dest_addr_ton = tri!(Ton::decode_from(reader));
-        let dest_addr_npi = tri!(Npi::decode_from(reader));
-        let destination_addr = tri!(COctetString::decode_from(reader));
-        let esm_class = tri!(EsmClass::decode_from(reader));
-        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
-        let data_coding = tri!(DataCoding::decode_from(reader));
-
-        let tlvs_length = length.saturating_sub(
-            service_type.length()
-                + source_addr_ton.length()
-                + source_addr_npi.length()
-                + source_addr.length()
-                + dest_addr_ton.length()
-                + dest_addr_npi.length()
-                + destination_addr.length()
-                + esm_class.length()
-                + registered_delivery.length()
-                + data_coding.length(),
-        );
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            service_type,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            dest_addr_ton,
-            dest_addr_npi,
-            destination_addr,
-            esm_class,
-            registered_delivery,
-            data_coding,
-            tlvs,
-        })
     }
 }
 

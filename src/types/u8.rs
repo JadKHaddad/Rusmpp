@@ -6,11 +6,7 @@
 //! A 1-octet Integer with a value 5, would be encoded in a
 //! single octet with the value 0x05
 
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
-};
+use crate::{errors::DecodeError, Decode, DecodeWithLength, Encode, Length};
 
 impl Length for u8 {
     fn length(&self) -> usize {
@@ -18,51 +14,25 @@ impl Length for u8 {
     }
 }
 
-impl Encode for u8 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(self.to_be_bytes().as_ref())?;
-
-        Ok(())
-    }
-}
-
-impl Decode for u8 {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let mut bytes = [0; 1];
-        reader.read_exact(&mut bytes)?;
-
-        let value = u8::from_be_bytes(bytes);
-
-        Ok(value)
-    }
-}
-
 /// A trait for encoding and decoding a value as [`u8`]
-pub(crate) trait EndeU8
+pub(crate) trait EndeU8: Sized + Copy + From<u8>
 where
-    Self: From<u8> + Copy,
     u8: From<Self>,
 {
     fn length(&self) -> usize {
         1
     }
 
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u8::from(*self).encode_to(writer)
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u8::from(*self).encode(dst)
     }
 
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        u8::decode_from(reader).map(Self::from)
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+        u8::decode(src).map(Self::from)
     }
 }
 
-impl crate::ende::encode::Encode2 for u8 {
+impl Encode for u8 {
     fn encode(&self, dst: &mut [u8]) -> usize {
         dst[0] = *self;
 
@@ -70,10 +40,10 @@ impl crate::ende::encode::Encode2 for u8 {
     }
 }
 
-impl crate::ende::decode::Decode2 for u8 {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+impl Decode for u8 {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 1 {
-            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+            return Err(DecodeError::UnexpectedEof);
         }
 
         Ok((src[0], 1))

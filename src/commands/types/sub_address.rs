@@ -1,3 +1,5 @@
+// TODO manual implementation
+
 use crate::{
     ende::decode::{DecodeError, DecodeWithLength},
     impl_length_encode, tri,

@@ -4,10 +4,6 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString,
@@ -77,8 +73,10 @@ impl_length_encode! {
         /// Applications which need to send messages longer than
         /// 255 octets should use the message_payload TLV. In
         /// this case the sm_length field should be set to zero.
+        @[length = sm_length]
         short_message: OctetString<0, 255>,
         /// Message replacement request TLVs.
+        @[length = checked]
         message_payload: Option<TLV>,
     }
 }
@@ -181,56 +179,6 @@ impl ReplaceSm {
 impl From<ReplaceSm> for Pdu {
     fn from(value: ReplaceSm) -> Self {
         Self::ReplaceSm(value)
-    }
-}
-
-impl DecodeWithLength for ReplaceSm {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::decode_from(reader));
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let schedule_delivery_time = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let validity_period = tri!(EmptyOrFullCOctetString::decode_from(reader));
-        let registered_delivery = tri!(RegisteredDelivery::decode_from(reader));
-        let sm_default_msg_id = tri!(u8::decode_from(reader));
-        let sm_length = tri!(u8::decode_from(reader));
-        let short_message = tri!(OctetString::decode_from(reader, sm_length as usize));
-
-        let message_payload_length = length.saturating_sub(
-            message_id.length()
-                + source_addr_ton.length()
-                + source_addr_npi.length()
-                + source_addr.length()
-                + schedule_delivery_time.length()
-                + validity_period.length()
-                + registered_delivery.length()
-                + sm_default_msg_id.length()
-                + sm_length.length()
-                + short_message.length(),
-        );
-
-        let message_payload = tri!(TLV::length_checked_decode_from(
-            reader,
-            message_payload_length
-        ));
-
-        Ok(Self {
-            message_id,
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            schedule_delivery_time,
-            validity_period,
-            registered_delivery,
-            sm_default_msg_id,
-            sm_length,
-            short_message,
-            message_payload,
-        })
     }
 }
 

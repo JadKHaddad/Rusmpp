@@ -1,8 +1,4 @@
-use crate::ende::{
-    decode::{DecodeError, DecodeWithLength},
-    encode::{Encode, EncodeError},
-    length::Length,
-};
+use crate::{errors::DecodeError, DecodeWithLength, Encode, Length};
 
 /// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString)
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -103,26 +99,6 @@ impl Length for AnyOctetString {
 }
 
 impl Encode for AnyOctetString {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
-    }
-}
-
-impl DecodeWithLength for AnyOctetString {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let mut bytes = vec![0; length];
-
-        reader.read_exact(&mut bytes)?;
-
-        Ok(Self { bytes })
-    }
-}
-
-impl crate::ende::encode::Encode2 for AnyOctetString {
     fn encode(&self, dst: &mut [u8]) -> usize {
         _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
 
@@ -130,13 +106,10 @@ impl crate::ende::encode::Encode2 for AnyOctetString {
     }
 }
 
-impl crate::ende::decode::DecodeWithLength2 for AnyOctetString {
-    fn decode(
-        src: &mut [u8],
-        length: usize,
-    ) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+impl DecodeWithLength for AnyOctetString {
+    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
         if src.len() < length {
-            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+            return Err(DecodeError::UnexpectedEof);
         }
 
         let mut bytes = Vec::with_capacity(length);

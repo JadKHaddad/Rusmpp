@@ -2,13 +2,8 @@
 
 use super::types::command_id::CommandId;
 use crate::{
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
-    types::any_octet_string::AnyOctetString,
+    errors::DecodeError, tri, types::any_octet_string::AnyOctetString, DecodeWithKeyOptional,
+    Encode, Length,
 };
 
 pub mod alert_notification;
@@ -325,42 +320,42 @@ impl Length for Pdu {
 }
 
 impl Encode for Pdu {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
         match self {
-            Pdu::BindTransmitter(body) => body.encode_to(writer),
-            Pdu::BindTransmitterResp(body) => body.encode_to(writer),
-            Pdu::BindReceiver(body) => body.encode_to(writer),
-            Pdu::BindReceiverResp(body) => body.encode_to(writer),
-            Pdu::BindTransceiver(body) => body.encode_to(writer),
-            Pdu::BindTransceiverResp(body) => body.encode_to(writer),
-            Pdu::Outbind(body) => body.encode_to(writer),
-            Pdu::AlertNotification(body) => body.encode_to(writer),
-            Pdu::SubmitSm(body) => body.encode_to(writer),
-            Pdu::SubmitSmResp(body) => body.encode_to(writer),
-            Pdu::QuerySm(body) => body.encode_to(writer),
-            Pdu::QuerySmResp(body) => body.encode_to(writer),
-            Pdu::DeliverSm(body) => body.encode_to(writer),
-            Pdu::DeliverSmResp(body) => body.encode_to(writer),
-            Pdu::DataSm(body) => body.encode_to(writer),
-            Pdu::DataSmResp(body) => body.encode_to(writer),
-            Pdu::CancelSm(body) => body.encode_to(writer),
-            Pdu::ReplaceSm(body) => body.encode_to(writer),
-            Pdu::SubmitMulti(body) => body.encode_to(writer),
-            Pdu::SubmitMultiResp(body) => body.encode_to(writer),
-            Pdu::BroadcastSm(body) => body.encode_to(writer),
-            Pdu::BroadcastSmResp(body) => body.encode_to(writer),
-            Pdu::QueryBroadcastSm(body) => body.encode_to(writer),
-            Pdu::QueryBroadcastSmResp(body) => body.encode_to(writer),
-            Pdu::CancelBroadcastSm(body) => body.encode_to(writer),
-            Pdu::Unbind => Ok(()),
-            Pdu::UnbindResp => Ok(()),
-            Pdu::EnquireLink => Ok(()),
-            Pdu::EnquireLinkResp => Ok(()),
-            Pdu::GenericNack => Ok(()),
-            Pdu::CancelSmResp => Ok(()),
-            Pdu::ReplaceSmResp => Ok(()),
-            Pdu::CancelBroadcastSmResp => Ok(()),
-            Pdu::Other { body, .. } => body.encode_to(writer),
+            Pdu::BindTransmitter(body) => body.encode(dst),
+            Pdu::BindTransmitterResp(body) => body.encode(dst),
+            Pdu::BindReceiver(body) => body.encode(dst),
+            Pdu::BindReceiverResp(body) => body.encode(dst),
+            Pdu::BindTransceiver(body) => body.encode(dst),
+            Pdu::BindTransceiverResp(body) => body.encode(dst),
+            Pdu::Outbind(body) => body.encode(dst),
+            Pdu::AlertNotification(body) => body.encode(dst),
+            Pdu::SubmitSm(body) => body.encode(dst),
+            Pdu::SubmitSmResp(body) => body.encode(dst),
+            Pdu::QuerySm(body) => body.encode(dst),
+            Pdu::QuerySmResp(body) => body.encode(dst),
+            Pdu::DeliverSm(body) => body.encode(dst),
+            Pdu::DeliverSmResp(body) => body.encode(dst),
+            Pdu::DataSm(body) => body.encode(dst),
+            Pdu::DataSmResp(body) => body.encode(dst),
+            Pdu::CancelSm(body) => body.encode(dst),
+            Pdu::ReplaceSm(body) => body.encode(dst),
+            Pdu::SubmitMulti(body) => body.encode(dst),
+            Pdu::SubmitMultiResp(body) => body.encode(dst),
+            Pdu::BroadcastSm(body) => body.encode(dst),
+            Pdu::BroadcastSmResp(body) => body.encode(dst),
+            Pdu::QueryBroadcastSm(body) => body.encode(dst),
+            Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
+            Pdu::CancelBroadcastSm(body) => body.encode(dst),
+            Pdu::Unbind => {}
+            Pdu::UnbindResp => {}
+            Pdu::EnquireLink => {}
+            Pdu::EnquireLinkResp => {}
+            Pdu::GenericNack => {}
+            Pdu::CancelSmResp => {}
+            Pdu::ReplaceSmResp => {}
+            Pdu::CancelBroadcastSmResp => {}
+            Pdu::Other { body, .. } => body.encode(dst),
         }
     }
 }
@@ -368,14 +363,11 @@ impl Encode for Pdu {
 impl DecodeWithKeyOptional for Pdu {
     type Key = CommandId;
 
-    fn decode_from<R: std::io::Read>(
+    fn decode(
         key: Self::Key,
-        reader: &mut R,
+        src: &mut [u8],
         length: usize,
-    ) -> Result<Option<Self>, DecodeError>
-    where
-        Self: Sized,
-    {
+    ) -> Result<Option<(Self, usize)>, DecodeError> {
         if length == 0 {
             let body = match key {
                 CommandId::Unbind => Pdu::Unbind,
@@ -392,65 +384,55 @@ impl DecodeWithKeyOptional for Pdu {
             return Ok(Some(body));
         }
 
-        let body = match key {
-            CommandId::BindTransmitter => {
-                Pdu::BindTransmitter(tri!(BindTransmitter::decode_from(reader)))
-            }
+        let (body, size) = match key {
+            CommandId::BindTransmitter => Pdu::BindTransmitter(tri!(BindTransmitter::decode(src))),
             CommandId::BindTransmitterResp => {
-                Pdu::BindTransmitterResp(tri!(BindTransmitterResp::decode_from(reader, length)))
+                Pdu::BindTransmitterResp(tri!(BindTransmitterResp::decode(src, length)))
             }
-            CommandId::BindReceiver => Pdu::BindReceiver(tri!(BindReceiver::decode_from(reader))),
+            CommandId::BindReceiver => Pdu::BindReceiver(tri!(BindReceiver::decode(src))),
             CommandId::BindReceiverResp => {
-                Pdu::BindReceiverResp(tri!(BindReceiverResp::decode_from(reader, length)))
+                Pdu::BindReceiverResp(tri!(BindReceiverResp::decode(src, length)))
             }
-            CommandId::BindTransceiver => {
-                Pdu::BindTransceiver(tri!(BindTransceiver::decode_from(reader)))
-            }
+            CommandId::BindTransceiver => Pdu::BindTransceiver(tri!(BindTransceiver::decode(src))),
             CommandId::BindTransceiverResp => {
-                Pdu::BindTransceiverResp(tri!(BindTransceiverResp::decode_from(reader, length)))
+                Pdu::BindTransceiverResp(tri!(BindTransceiverResp::decode(src, length)))
             }
-            CommandId::Outbind => Pdu::Outbind(tri!(Outbind::decode_from(reader))),
+            CommandId::Outbind => Pdu::Outbind(tri!(Outbind::decode(src))),
             CommandId::AlertNotification => {
-                Pdu::AlertNotification(tri!(AlertNotification::decode_from(reader, length)))
+                Pdu::AlertNotification(tri!(AlertNotification::decode(src, length)))
             }
-            CommandId::SubmitSm => Pdu::SubmitSm(tri!(SubmitSm::decode_from(reader, length))),
-            CommandId::SubmitSmResp => {
-                Pdu::SubmitSmResp(tri!(SubmitSmResp::decode_from(reader, length)))
-            }
-            CommandId::QuerySm => Pdu::QuerySm(tri!(QuerySm::decode_from(reader))),
-            CommandId::QuerySmResp => Pdu::QuerySmResp(tri!(QuerySmResp::decode_from(reader))),
-            CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode_from(reader, length))),
+            CommandId::SubmitSm => Pdu::SubmitSm(tri!(SubmitSm::decode(src, length))),
+            CommandId::SubmitSmResp => Pdu::SubmitSmResp(tri!(SubmitSmResp::decode(src, length))),
+            CommandId::QuerySm => Pdu::QuerySm(tri!(QuerySm::decode(src))),
+            CommandId::QuerySmResp => Pdu::QuerySmResp(tri!(QuerySmResp::decode(src))),
+            CommandId::DeliverSm => Pdu::DeliverSm(tri!(DeliverSm::decode(src, length))),
             CommandId::DeliverSmResp => {
-                Pdu::DeliverSmResp(tri!(DeliverSmResp::decode_from(reader, length)))
+                Pdu::DeliverSmResp(tri!(DeliverSmResp::decode(src, length)))
             }
-            CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode_from(reader, length))),
-            CommandId::DataSmResp => Pdu::DataSmResp(tri!(DataSmResp::decode_from(reader, length))),
-            CommandId::CancelSm => Pdu::CancelSm(tri!(CancelSm::decode_from(reader))),
-            CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode_from(reader, length))),
-            CommandId::SubmitMulti => {
-                Pdu::SubmitMulti(tri!(SubmitMulti::decode_from(reader, length)))
-            }
+            CommandId::DataSm => Pdu::DataSm(tri!(DataSm::decode(src, length))),
+            CommandId::DataSmResp => Pdu::DataSmResp(tri!(DataSmResp::decode(src, length))),
+            CommandId::CancelSm => Pdu::CancelSm(tri!(CancelSm::decode(src))),
+            CommandId::ReplaceSm => Pdu::ReplaceSm(tri!(ReplaceSm::decode(src, length))),
+            CommandId::SubmitMulti => Pdu::SubmitMulti(tri!(SubmitMulti::decode(src, length))),
             CommandId::SubmitMultiResp => {
-                Pdu::SubmitMultiResp(tri!(SubmitMultiResp::decode_from(reader, length)))
+                Pdu::SubmitMultiResp(tri!(SubmitMultiResp::decode(src, length)))
             }
-            CommandId::BroadcastSm => {
-                Pdu::BroadcastSm(tri!(BroadcastSm::decode_from(reader, length)))
-            }
+            CommandId::BroadcastSm => Pdu::BroadcastSm(tri!(BroadcastSm::decode(src, length))),
             CommandId::BroadcastSmResp => {
-                Pdu::BroadcastSmResp(tri!(BroadcastSmResp::decode_from(reader, length)))
+                Pdu::BroadcastSmResp(tri!(BroadcastSmResp::decode(src, length)))
             }
             CommandId::QueryBroadcastSm => {
-                Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode_from(reader, length)))
+                Pdu::QueryBroadcastSm(tri!(QueryBroadcastSm::decode(src, length)))
             }
             CommandId::QueryBroadcastSmResp => {
-                Pdu::QueryBroadcastSmResp(tri!(QueryBroadcastSmResp::decode_from(reader, length)))
+                Pdu::QueryBroadcastSmResp(tri!(QueryBroadcastSmResp::decode(src, length)))
             }
             CommandId::CancelBroadcastSm => {
-                Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode_from(reader, length)))
+                Pdu::CancelBroadcastSm(tri!(CancelBroadcastSm::decode(src, length)))
             }
             CommandId::Other(_) => Pdu::Other {
                 command_id: key,
-                body: tri!(AnyOctetString::decode_from(reader, length)),
+                body: tri!(AnyOctetString::decode(src, length)),
             },
             // Length is not 0 and still have to decode the body. This is an invalid PDU.
             CommandId::Unbind
@@ -463,6 +445,8 @@ impl DecodeWithKeyOptional for Pdu {
             | CommandId::CancelBroadcastSmResp => return Ok(None),
         };
 
-        Ok(Some(body))
+        // Ok(Some(body))
+
+        todo!()
     }
 }

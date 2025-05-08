@@ -6,11 +6,7 @@
 //! A 2-octet integer with the decimal value of 41746 would
 //! be encoded as 2 octets with the value 0xA312
 
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
-};
+use crate::{errors::DecodeError, Decode, DecodeWithLength, Encode, Length};
 
 impl Length for u16 {
     fn length(&self) -> usize {
@@ -18,51 +14,25 @@ impl Length for u16 {
     }
 }
 
-impl Encode for u16 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(self.to_be_bytes().as_ref())?;
-
-        Ok(())
-    }
-}
-
-impl Decode for u16 {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let mut bytes = [0; 2];
-        reader.read_exact(&mut bytes)?;
-
-        let value = u16::from_be_bytes(bytes);
-
-        Ok(value)
-    }
-}
-
 /// A trait for encoding and decoding a value as [`u16`]
-pub(crate) trait EndeU16
+pub(crate) trait EndeU16: Sized + Copy + From<u16>
 where
-    Self: From<u16> + Copy,
     u16: From<Self>,
 {
     fn length(&self) -> usize {
         2
     }
 
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u16::from(*self).encode_to(writer)
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u16::from(*self).encode(dst)
     }
 
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        u16::decode_from(reader).map(Self::from)
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+        u16::decode(src).map(Self::from)
     }
 }
 
-impl crate::ende::encode::Encode2 for u16 {
+impl Encode for u16 {
     fn encode(&self, dst: &mut [u8]) -> usize {
         let bytes = self.to_be_bytes();
 
@@ -73,10 +43,10 @@ impl crate::ende::encode::Encode2 for u16 {
     }
 }
 
-impl crate::ende::decode::Decode2 for u16 {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+impl Decode for u16 {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 2 {
-            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+            return Err(DecodeError::UnexpectedEof);
         }
 
         let mut bytes = [0; 2];

@@ -1,9 +1,8 @@
 #![allow(path_statements)]
 
-use crate::ende::{
-    decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+use crate::{
+    errors::{DecodeError, OctetStringDecodeError},
+    DecodeWithLength, Encode, Length,
 };
 
 /// An error that can occur when creating an [`OctetString`]
@@ -177,47 +176,6 @@ impl<const MIN: usize, const MAX: usize> Length for OctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        #[allow(path_statements)]
-        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
-
-        if length > MAX {
-            return Err(DecodeError::OctetStringDecodeError(
-                OctetStringDecodeError::TooManyBytes {
-                    actual: length,
-                    max: MAX,
-                },
-            ));
-        }
-
-        if length < MIN {
-            return Err(DecodeError::OctetStringDecodeError(
-                OctetStringDecodeError::TooFewBytes {
-                    actual: length,
-                    min: MIN,
-                },
-            ));
-        }
-
-        let mut bytes = vec![0; length];
-
-        reader.read_exact(&mut bytes)?;
-
-        Ok(Self { bytes })
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for OctetString<MIN, MAX> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
 
@@ -225,20 +183,12 @@ impl<const MIN: usize, const MAX: usize> crate::ende::encode::Encode2 for OctetS
     }
 }
 
-impl<const MIN: usize, const MAX: usize> crate::ende::decode::DecodeWithLength2
-    for OctetString<MIN, MAX>
-{
-    fn decode(
-        src: &mut [u8],
-        length: usize,
-    ) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
-        use crate::ende::decode::{DecodeError2, OctetStringDecodeError};
-
-        #[allow(path_statements)]
+impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
+    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if length > MAX {
-            return Err(DecodeError2::OctetStringDecodeError(
+            return Err(DecodeError::OctetStringDecodeError(
                 OctetStringDecodeError::TooManyBytes {
                     actual: length,
                     max: MAX,
@@ -247,7 +197,7 @@ impl<const MIN: usize, const MAX: usize> crate::ende::decode::DecodeWithLength2
         }
 
         if length < MIN {
-            return Err(DecodeError2::OctetStringDecodeError(
+            return Err(DecodeError::OctetStringDecodeError(
                 OctetStringDecodeError::TooFewBytes {
                     actual: length,
                     min: MIN,
@@ -256,7 +206,7 @@ impl<const MIN: usize, const MAX: usize> crate::ende::decode::DecodeWithLength2
         }
 
         if src.len() < length {
-            return Err(DecodeError2::UnexpectedEof);
+            return Err(DecodeError::UnexpectedEof);
         }
 
         let bytes = src[..length].to_vec();

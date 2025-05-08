@@ -4,10 +4,6 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
     },
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
     impl_length_encode, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
@@ -39,6 +35,7 @@ impl_length_encode! {
         /// Address for ESME which requested the alert.
         pub esme_addr: COctetString<1, 65>,
         /// The status of the mobile station.
+        @[length = checked]
         ms_availability_status: Option<TLV>,
     }
 }
@@ -90,44 +87,6 @@ impl AlertNotification {
 impl From<AlertNotification> for Pdu {
     fn from(value: AlertNotification) -> Self {
         Self::AlertNotification(value)
-    }
-}
-
-impl DecodeWithLength for AlertNotification {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let source_addr_ton = tri!(Ton::decode_from(reader));
-        let source_addr_npi = tri!(Npi::decode_from(reader));
-        let source_addr = tri!(COctetString::decode_from(reader));
-        let esme_addr_ton = tri!(Ton::decode_from(reader));
-        let esme_addr_npi = tri!(Npi::decode_from(reader));
-        let esme_addr = tri!(COctetString::decode_from(reader));
-
-        let ms_availability_status_length = length.saturating_sub(
-            source_addr_ton.length()
-                + source_addr_npi.length()
-                + source_addr.length()
-                + esme_addr_ton.length()
-                + esme_addr_npi.length()
-                + esme_addr.length(),
-        );
-
-        let ms_availability_status = tri!(TLV::length_checked_decode_from(
-            reader,
-            ms_availability_status_length
-        ));
-
-        Ok(Self {
-            source_addr_ton,
-            source_addr_npi,
-            source_addr,
-            esme_addr_ton,
-            esme_addr_npi,
-            esme_addr,
-            ms_availability_status,
-        })
     }
 }
 

@@ -6,11 +6,7 @@
 //! A 4-octet integer with the decimal value of 31022623
 //! would be encoded as 4 octets with the value 0x1D95E1F
 
-use crate::ende::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
-};
+use crate::{errors::DecodeError, Decode, DecodeWithLength, Encode, Length};
 
 impl Length for u32 {
     fn length(&self) -> usize {
@@ -18,51 +14,25 @@ impl Length for u32 {
     }
 }
 
-impl Encode for u32 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(self.to_be_bytes().as_ref())?;
-
-        Ok(())
-    }
-}
-
-impl Decode for u32 {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let mut bytes = [0; 4];
-        reader.read_exact(&mut bytes)?;
-
-        let value = u32::from_be_bytes(bytes);
-
-        Ok(value)
-    }
-}
-
 /// A trait for encoding and decoding a value as [`u32`]
-pub(crate) trait EndeU32
+pub(crate) trait EndeU32: Sized + Copy + From<u32>
 where
-    Self: From<u32> + Copy,
     u32: From<Self>,
 {
     fn length(&self) -> usize {
         4
     }
 
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u32::from(*self).encode_to(writer)
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u32::from(*self).encode(dst)
     }
 
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        u32::decode_from(reader).map(Self::from)
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+        u32::decode(src).map(Self::from)
     }
 }
 
-impl crate::ende::encode::Encode2 for u32 {
+impl Encode for u32 {
     fn encode(&self, dst: &mut [u8]) -> usize {
         let bytes = self.to_be_bytes();
 
@@ -75,10 +45,10 @@ impl crate::ende::encode::Encode2 for u32 {
     }
 }
 
-impl crate::ende::decode::Decode2 for u32 {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::ende::decode::DecodeError2> {
+impl Decode for u32 {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 4 {
-            return Err(crate::ende::decode::DecodeError2::UnexpectedEof);
+            return Err(DecodeError::UnexpectedEof);
         }
 
         let mut bytes = [0; 4];

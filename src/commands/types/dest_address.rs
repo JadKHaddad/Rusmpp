@@ -1,13 +1,14 @@
-// TODO manual implementation
+// TODO manual implementation: add a @skip to skip a field
 
 use super::{npi::Npi, ton::Ton};
 use crate::{
+    create,
     ende::{
         decode::{Decode, DecodeError},
         encode::{Encode, EncodeError},
         length::Length,
     },
-    create, tri,
+    tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 

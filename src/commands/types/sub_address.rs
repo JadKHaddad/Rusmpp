@@ -1,7 +1,4 @@
-// TODO manual implementation
-
 use crate::{
-    ende::decode::{DecodeError, DecodeWithLength},
     create, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
@@ -10,6 +7,7 @@ create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct Subaddress {
         pub tag: SubaddressTag,
+        @[length = unchecked]
         pub addr: OctetString<1, 22>,
     }
 }
@@ -17,21 +15,6 @@ create! {
 impl Subaddress {
     pub fn new(tag: SubaddressTag, addr: OctetString<1, 22>) -> Self {
         Self { tag, addr }
-    }
-}
-
-impl DecodeWithLength for Subaddress {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let tag = SubaddressTag::decode_from(reader)?;
-
-        let addr_length = length.saturating_sub(tag.length());
-
-        let addr = tri!(OctetString::decode_from(reader, addr_length));
-
-        Ok(Self { tag, addr })
     }
 }
 

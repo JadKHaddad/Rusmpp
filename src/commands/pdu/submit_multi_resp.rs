@@ -5,15 +5,8 @@ use crate::{
         types::unsuccess_sme::UnsuccessSme,
     },
     create,
-    ende::{
-        decode::{Decode, DecodeError, DecodeWithLength},
-        length::Length,
-    },
-    tri,
     types::c_octet_string::COctetString,
 };
-
-// TODO: vectorized_decode_from
 
 create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -30,8 +23,10 @@ create! {
         /// Unsuccessful SME.
         ///
         /// (Composite Field).
+        @[count = no_unsuccess]
         unsuccess_sme: Vec<UnsuccessSme>,
         /// Message submission response TLVs ([`MessageSubmissionResponseTLV`])
+        @[length = unchecked]
         tlvs: Vec<TLV>,
     }
 }
@@ -103,34 +98,6 @@ impl SubmitMultiResp {
 impl From<SubmitMultiResp> for Pdu {
     fn from(value: SubmitMultiResp) -> Self {
         Self::SubmitMultiResp(value)
-    }
-}
-
-impl DecodeWithLength for SubmitMultiResp {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let message_id = tri!(COctetString::<1, 65>::decode_from(reader));
-        let no_unsuccess = tri!(u8::decode_from(reader));
-        let unsuccess_sme = tri!(UnsuccessSme::vectorized_decode_from(
-            reader,
-            no_unsuccess as usize
-        ));
-
-        let tlvs_length = length
-            .saturating_sub(message_id.length())
-            .saturating_sub(no_unsuccess.length())
-            .saturating_sub(unsuccess_sme.length());
-
-        let tlvs = tri!(Vec::<TLV>::decode_from(reader, tlvs_length));
-
-        Ok(Self {
-            message_id,
-            no_unsuccess,
-            unsuccess_sme,
-            tlvs,
-        })
     }
 }
 

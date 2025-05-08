@@ -347,14 +347,14 @@ impl Encode for Pdu {
             Pdu::QueryBroadcastSm(body) => body.encode(dst),
             Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
             Pdu::CancelBroadcastSm(body) => body.encode(dst),
-            Pdu::Unbind => {}
-            Pdu::UnbindResp => {}
-            Pdu::EnquireLink => {}
-            Pdu::EnquireLinkResp => {}
-            Pdu::GenericNack => {}
-            Pdu::CancelSmResp => {}
-            Pdu::ReplaceSmResp => {}
-            Pdu::CancelBroadcastSmResp => {}
+            Pdu::Unbind
+            | Pdu::UnbindResp
+            | Pdu::EnquireLink
+            | Pdu::EnquireLinkResp
+            | Pdu::GenericNack
+            | Pdu::CancelSmResp
+            | Pdu::ReplaceSmResp
+            | Pdu::CancelBroadcastSmResp => 0,
             Pdu::Other { body, .. } => body.encode(dst),
         }
     }

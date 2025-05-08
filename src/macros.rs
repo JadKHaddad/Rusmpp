@@ -127,6 +127,7 @@ macro_rules! create {
             $(
                 $(#[$field_attr:meta])*
                 $(@[length = $length:ident])?
+                $(@[count = $count:ident])?
                 $field_vis:vis $field_ident:ident: $field_ty:ty,
             )*
         }
@@ -148,6 +149,7 @@ macro_rules! create {
                     create!(@match_field
                         {
                             $(@[length = $length])?
+                            $(@[count = $count])?
                             $field_ident,
                             src, length, size
                         }
@@ -453,6 +455,17 @@ macro_rules! create {
         )?
         .map(|(this, size)| (Some(this), size))
         .unwrap_or((None, $size));
+    };
+
+    // Example: SubmitMultiResp
+    (@match_field {
+        @[count = $count:ident]
+        $field_ident:ident,
+        $src:ident, $len:ident, $size:ident
+    }) => {
+        let ($field_ident, size) = $crate::DecodeExt::counted_move(
+            $src, $count as usize, $size
+        )?;
     };
 
     // Example: CancelSm

@@ -6,7 +6,7 @@
 //! A 1-octet Integer with a value 5, would be encoded in a
 //! single octet with the value 0x05
 
-use crate::{errors::DecodeError, Decode, DecodeWithLength, Encode, Length};
+use crate::{errors::DecodeError, Decode, Encode, Length};
 
 impl Length for u8 {
     fn length(&self) -> usize {
@@ -28,7 +28,7 @@ where
     }
 
     fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
-        u8::decode(src).map(Self::from)
+        u8::decode(src).map(|(value, usize)| (Self::from(value), usize))
     }
 }
 

@@ -26,7 +26,7 @@ use crate::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
         u32::EndeU32, u8::EndeU8,
     },
-    DecodeWithKey, Encode, Length,
+    DecodeWithKey, DecodeWithLength, Encode, Length,
 };
 
 /// See module level documentation

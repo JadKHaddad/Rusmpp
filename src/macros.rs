@@ -121,6 +121,8 @@ pub(super) use tri;
 // }
 
 macro_rules! create {
+    // @skip: must be applied before the docs
+    // Every other attribute must be applied after the docs
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -165,6 +167,7 @@ macro_rules! create {
             }
         }
     };
+
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -197,6 +200,7 @@ macro_rules! create {
         });
 
     };
+
     // Example: SmeAddress
     (
         $(#[$struct_meta:meta])*
@@ -248,6 +252,33 @@ macro_rules! create {
             }
         }
     };
+
+    // Skip `impl Decode` generation for the whole struct
+    (
+        $(@[$skip:ident])?
+        $(#[$struct_meta:meta])*
+        $struct_vis:vis struct $struct_ident:ident {
+            $(
+                $(@[$skip0:ident])?
+                $(#[$field_attr:meta])*
+                $(@[length = $length:ident])?
+                $(@[count = $count:ident])?
+                $(@[key = $key:ident, length = $length0:ident])?
+                $field_vis:vis $field_ident:ident: $field_ty:ty,
+            )*
+        }
+    ) => {
+        create!(@create_struct {
+            $(#[$struct_meta])*
+            $struct_vis $struct_ident
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_ident $field_ty,
+            )*
+        });
+    };
+
+    // Default
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -476,5 +507,3 @@ macro_rules! create {
         let ($field_ident, size) = $crate::DecodeExt::decode_move($src, $size)?;
     };
 }
-
-pub(super) use create;

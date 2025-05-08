@@ -1,15 +1,10 @@
-// TODO manual implementation: add a @skip to skip a field
-
 use super::{npi::Npi, ton::Ton};
+
 use crate::{
     create,
-    ende::{
-        decode::{Decode, DecodeError},
-        encode::{Encode, EncodeError},
-        length::Length,
-    },
-    tri,
+    errors::DecodeError,
     types::{c_octet_string::COctetString, u8::EndeU8},
+    Decode, DecodeExt, Encode, Length,
 };
 
 #[repr(u8)]
@@ -67,28 +62,30 @@ impl Length for DestAddress {
 }
 
 impl Encode for DestAddress {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
         match self {
-            Self::SmeAddress(sa) => sa.encode_to(writer),
-            Self::DistributionListName(dlm) => dlm.encode_to(writer),
+            Self::SmeAddress(sa) => sa.encode(dst),
+            Self::DistributionListName(dlm) => dlm.encode(dst),
         }
     }
 }
 
 impl Decode for DestAddress {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
-        let flag = tri!(DestFlag::decode_from(reader));
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+        let size = 0;
+
+        let (flag, size) = DestFlag::decode_move(src, size)?;
 
         match flag {
             DestFlag::SmeAddress => {
-                let sa = tri!(SmeAddress::decode_from(reader));
+                let (sa, size) = SmeAddress::decode_move(src, size)?;
 
-                Ok(Self::SmeAddress(sa))
+                Ok((Self::SmeAddress(sa), size))
             }
             DestFlag::DistributionListName => {
-                let dlm = tri!(DistributionListName::decode_from(reader));
+                let (dlm, size) = DistributionListName::decode_move(src, size)?;
 
-                Ok(Self::DistributionListName(dlm))
+                Ok((Self::DistributionListName(dlm), size))
             }
             DestFlag::Other(flag) => Err(DecodeError::UnsupportedKey { key: flag.into() }),
         }
@@ -99,6 +96,7 @@ create! {
     /// SME Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SmeAddress {
+        @[skip]
         /// 0x01 (SME Address).
         ///
         /// Can't and shouldn't be updated
@@ -115,7 +113,7 @@ create! {
 }
 
 impl SmeAddress {
-    pub fn new(
+    pub const fn new(
         dest_addr_ton: Ton,
         dest_addr_npi: Npi,
         destination_addr: COctetString<1, 21>,
@@ -133,21 +131,11 @@ impl SmeAddress {
     }
 }
 
-impl Decode for SmeAddress {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
-        // flag is already read
-        let dest_addr_ton = tri!(Ton::decode_from(reader));
-        let dest_addr_npi = tri!(Npi::decode_from(reader));
-        let destination_addr = tri!(COctetString::decode_from(reader));
-
-        Ok(Self::new(dest_addr_ton, dest_addr_npi, destination_addr))
-    }
-}
-
 create! {
     /// Distribution List Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct DistributionListName {
+        @[skip]
         /// 0x02 (Distribution List).
         ///
         /// Can't and shouldn't be updated.
@@ -167,14 +155,5 @@ impl DistributionListName {
 
     pub fn dest_flag(&self) -> DestFlag {
         self.dest_flag
-    }
-}
-
-impl Decode for DistributionListName {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError> {
-        // flag is already read
-        let dl_name = tri!(COctetString::decode_from(reader));
-
-        Ok(Self::new(dl_name))
     }
 }

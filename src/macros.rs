@@ -136,7 +136,7 @@ macro_rules! create {
             $struct_vis $struct_ident
             $(
                 $(#[$field_attr])*
-                 $field_vis $field_ident $field_ty,
+                $field_vis $field_ident $field_ty,
             )*
         });
 
@@ -178,7 +178,7 @@ macro_rules! create {
             $struct_vis $struct_ident
             $(
                 $(#[$field_attr])*
-                 $field_vis $field_ident $field_ty,
+                $field_vis $field_ident $field_ty,
             )*
         });
 
@@ -195,6 +195,57 @@ macro_rules! create {
         });
 
     };
+    // Example: SmeAddress
+    (
+        $(#[$struct_meta:meta])*
+        $struct_vis:vis struct $struct_ident:ident {
+            $(
+                $(@[$skip:ident])?
+                $(#[$skipped_field_attr:meta])*
+                $skipped_field_vis:vis $skipped_field_ident:ident: $skipped_field_ty:ty,
+            )?
+            $(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_ident:ident: $field_ty:ty,
+            )*
+        }
+    ) => {
+        create!(@create_struct {
+            $(#[$struct_meta])*
+            $struct_vis $struct_ident
+            $(
+                $(#[$skipped_field_attr])*
+                $skipped_field_vis $skipped_field_ident $skipped_field_ty,
+            )*
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_ident $field_ty,
+            )*
+        });
+
+        impl $crate::Decode for $struct_ident {
+            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+                let size = 0;
+
+                $(
+                    create!(@match_field
+                        {
+                            $field_ident,
+                            src, length, size
+                        }
+                    );
+                )*
+
+                // If a struct contains a @skip field, it is required to have a `new` function, that does not take the skipped field as an argument.
+                Ok((
+                    Self::new(
+                        $($field_ident,)*
+                    ),
+                    size,
+                ))
+            }
+        }
+    };
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -209,7 +260,7 @@ macro_rules! create {
             $struct_vis $struct_ident
             $(
                 $(#[$field_attr])*
-                 $field_vis $field_ident $field_ty,
+                $field_vis $field_ident $field_ty,
             )*
         });
 

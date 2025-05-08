@@ -36,9 +36,9 @@ use super::{
     pdu::Pdu,
     types::{command_id::CommandId, command_status::CommandStatus},
 };
-use crate::{impl_length_encode, tri, types::u32::EndeU32};
+use crate::{create, tri, types::u32::EndeU32};
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct Command {
         /// See [`CommandId`]

@@ -1,6 +1,6 @@
-use crate::{impl_length_encode, tri, types::u8::EndeU8};
+use crate::{create, tri, types::u8::EndeU8};
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidity {
         pub validity_behavior: MsValidityBehavior,
@@ -20,7 +20,7 @@ impl MsValidity {
     }
 }
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidityInformation {
         pub units_of_time: UnitsOfTime,

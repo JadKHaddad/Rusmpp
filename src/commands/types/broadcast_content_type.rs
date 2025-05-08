@@ -1,5 +1,5 @@
 use crate::{
-    impl_length_encode, tri,
+    create, tri,
     types::{u16::EndeU16, u8::EndeU8},
 };
 
@@ -197,7 +197,7 @@ impl From<EncodingContentType> for u16 {
 
 impl EndeU16 for EncodingContentType {}
 
-impl_length_encode! {
+create! {
     /// Specifies the content type of the message.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastContentType {

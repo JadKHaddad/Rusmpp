@@ -1,14 +1,14 @@
 use super::Pdu;
 use crate::{
     commands::types::message_state::MessageState,
-    impl_length_encode, tri,
+    create, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         u8::EndeU8,
     },
 };
 
-impl_length_encode! {
+create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct QuerySmResp {
         /// MC Message ID of the message whose

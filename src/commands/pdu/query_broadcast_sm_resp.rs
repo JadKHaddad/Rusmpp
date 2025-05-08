@@ -10,11 +10,11 @@ use crate::{
             broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
         },
     },
-    impl_length_encode, tri,
+    create, tri,
     types::c_octet_string::COctetString,
 };
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct QueryBroadcastSmResp {
         /// Message ID of the queried message. This must be the MC

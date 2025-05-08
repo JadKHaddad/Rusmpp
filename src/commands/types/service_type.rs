@@ -1,4 +1,4 @@
-use crate::{impl_length_encode, tri, types::c_octet_string::COctetString};
+use crate::{create, tri, types::c_octet_string::COctetString};
 
 /// Helper for creating a [`ServiceType`] with predefined values.
 ///
@@ -66,7 +66,7 @@ impl From<GenericServiceType> for ServiceType {
     }
 }
 
-impl_length_encode! {
+create! {
     /// The service_type parameter can be used to indicate the SMS Application service associated
     /// with the message. Specifying the service_type allows the ESME to:
     ///

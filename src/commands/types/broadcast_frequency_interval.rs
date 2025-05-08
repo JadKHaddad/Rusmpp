@@ -1,4 +1,4 @@
-use crate::{impl_length_encode, tri, types::u8::EndeU8};
+use crate::{create, tri, types::u8::EndeU8};
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -49,7 +49,7 @@ impl From<UnitOfTime> for u8 {
 
 impl EndeU8 for UnitOfTime {}
 
-impl_length_encode! {
+create! {
     /// This field indicates the frequency interval at which
     /// the broadcasts of a message should be repeated.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]

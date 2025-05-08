@@ -2,11 +2,11 @@
 
 use crate::{
     ende::decode::{DecodeError, DecodeWithLength},
-    impl_length_encode, tri,
+    create, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct Subaddress {
         pub tag: SubaddressTag,

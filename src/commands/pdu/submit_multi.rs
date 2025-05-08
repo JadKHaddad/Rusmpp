@@ -11,14 +11,14 @@ use crate::{
             replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
         },
     },
-    impl_length_encode, tri,
+    create, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString, u8::EndeU8,
     },
 };
 
-impl_length_encode! {
+create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMulti {
         /// The service_type parameter can be used to indicate the

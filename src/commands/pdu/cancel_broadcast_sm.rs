@@ -4,11 +4,11 @@ use crate::{
         tlvs::tlv::{cancel_broadcast::CancelBroadcastTLV, TLV},
         types::{npi::Npi, service_type::ServiceType, ton::Ton},
     },
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-impl_length_encode! {
+create! {
     /// This command is issued by the ESME to cancel a broadcast message which has been
     /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
     /// pending delivery.

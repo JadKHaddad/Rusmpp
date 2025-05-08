@@ -17,7 +17,7 @@ pub(super) use tri;
 // /// # Help
 // ///
 // /// ```ignore
-// /// impl_length_encode! {
+// /// create! {
 // ///    /// This is a doc comment
 // ///    ///
 // ///    /// More comments
@@ -80,7 +80,7 @@ pub(super) use tri;
 // ///     }
 // /// }
 // /// ```
-// macro_rules! impl_length_encode {
+// macro_rules! create {
 //     (
 //         $(#[$struct_meta:meta])*
 //         $struct_vis:vis struct $struct_ident:ident {
@@ -120,7 +120,7 @@ pub(super) use tri;
 //     };
 // }
 
-macro_rules! impl_length_encode {
+macro_rules! create {
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -131,7 +131,7 @@ macro_rules! impl_length_encode {
             )*
         }
     ) => {
-        impl_length_encode!(@create_struct {
+        create!(@create_struct {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -145,7 +145,7 @@ macro_rules! impl_length_encode {
                 let size = 0;
 
                 $(
-                    impl_length_encode!(@match_field
+                    create!(@match_field
                         {
                             $(@[length = $length])?
                             $field_ident,
@@ -173,7 +173,7 @@ macro_rules! impl_length_encode {
             )*
         }
     ) => {
-        impl_length_encode!(@create_struct {
+        create!(@create_struct {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -185,7 +185,7 @@ macro_rules! impl_length_encode {
         // Implements DecodeWithLength or Decode depending on the length:
         // If it's unchecked, it implements DecodeWithLength.
         // If it's and ident of a field, it implements Decode.
-        impl_length_encode!(@create_decode_with_key {
+        create!(@create_decode_with_key {
             $struct_ident
             $(
                 $(#[$field_attr])*
@@ -204,7 +204,7 @@ macro_rules! impl_length_encode {
             )*
         }
     ) => {
-        impl_length_encode!(@create_struct {
+        create!(@create_struct {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -218,7 +218,7 @@ macro_rules! impl_length_encode {
                 let size = 0;
 
                 $(
-                    impl_length_encode!(@match_field
+                    create!(@match_field
                         {
                             $(#[$field_attr])*
                             $field_ident,
@@ -292,7 +292,7 @@ macro_rules! impl_length_encode {
                 let size = 0;
 
                 $(
-                    impl_length_encode!(@match_field
+                    create!(@match_field
                         {
                             $(@[key = $key, length = unchecked])?
                             $field_ident,
@@ -324,7 +324,7 @@ macro_rules! impl_length_encode {
                 let size = 0;
 
                 $(
-                    impl_length_encode!(@match_field
+                    create!(@match_field
                         {
                             $(@[key = $key, length = $length])?
                             $field_ident,
@@ -413,4 +413,4 @@ macro_rules! impl_length_encode {
     };
 }
 
-pub(super) use impl_length_encode;
+pub(super) use create;

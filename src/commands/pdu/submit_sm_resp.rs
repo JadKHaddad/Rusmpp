@@ -1,11 +1,11 @@
 use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{message_submission_response::MessageSubmissionResponseTLV, TLV},
-    impl_length_encode, tri,
+    create, tri,
     types::c_octet_string::COctetString,
 };
 
-impl_length_encode! {
+create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitSmResp {
         /// This field contains the MC message ID of the submitted message.

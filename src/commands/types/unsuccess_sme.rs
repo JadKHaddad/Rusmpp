@@ -1,10 +1,10 @@
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
 use crate::{
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u32::EndeU32, u8::EndeU8},
 };
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct UnsuccessSme {
         /// Type of number for destination.

@@ -1,11 +1,11 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-impl_length_encode! {
+create! {
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.

@@ -4,13 +4,13 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::interface_version::InterfaceVersion,
     },
-    impl_length_encode, tri,
+    create, tri,
     types::c_octet_string::COctetString,
 };
 
 macro_rules! declare_bind_resp {
     ($name:ident, $builder_name:ident) => {
-        impl_length_encode! {
+        create! {
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             pub struct $name {
                 /// MC identifier.

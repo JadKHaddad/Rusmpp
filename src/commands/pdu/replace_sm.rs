@@ -4,7 +4,7 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
-    impl_length_encode, tri,
+    create, tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString,
         empty_or_full_c_octet_string::EmptyOrFullCOctetString, octet_string::OctetString,
@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-impl_length_encode! {
+create! {
     /// This command is issued by the ESME to replace a previously submitted short message that
     /// is pending delivery. The matching mechanism is based on the message_id and source
     /// address of the original message.

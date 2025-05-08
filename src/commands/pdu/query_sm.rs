@@ -1,11 +1,11 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, ton::Ton},
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
-impl_length_encode! {
+create! {
     /// This command is issued by the ESME to query the status of a previously submitted short
     /// message.
     /// The matching mechanism is based on the MC assigned message_id and source address.

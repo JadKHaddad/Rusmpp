@@ -1,13 +1,13 @@
 use super::Pdu;
 use crate::{
     commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
 macro_rules! declare_bind {
     ($name:ident, $builder_name:ident) => {
-        impl_length_encode! {
+        create! {
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             pub struct $name {
                 /// Identifies the ESME system

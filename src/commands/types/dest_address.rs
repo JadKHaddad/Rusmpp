@@ -7,7 +7,7 @@ use crate::{
         encode::{Encode, EncodeError},
         length::Length,
     },
-    impl_length_encode, tri,
+    create, tri,
     types::{c_octet_string::COctetString, u8::EndeU8},
 };
 
@@ -94,7 +94,7 @@ impl Decode for DestAddress {
     }
 }
 
-impl_length_encode! {
+create! {
     /// SME Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SmeAddress {
@@ -143,7 +143,7 @@ impl Decode for SmeAddress {
     }
 }
 
-impl_length_encode! {
+create! {
     /// Distribution List Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct DistributionListName {

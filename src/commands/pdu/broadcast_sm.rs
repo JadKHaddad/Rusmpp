@@ -13,14 +13,14 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    impl_length_encode, tri,
+    create, tri,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         u8::EndeU8,
     },
 };
 
-impl_length_encode! {
+create! {
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

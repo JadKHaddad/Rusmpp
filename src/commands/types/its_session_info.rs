@@ -1,6 +1,6 @@
-use crate::{impl_length_encode, tri};
+use crate::{create, tri};
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct ItsSessionInfo {
         pub session_number: u8,

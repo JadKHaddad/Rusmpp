@@ -4,17 +4,18 @@ use crate::{
         tlvs::tlv::{message_submission_response::MessageSubmissionResponseTLV, TLV},
         types::unsuccess_sme::UnsuccessSme,
     },
+    create,
     ende::{
         decode::{Decode, DecodeError, DecodeWithLength},
         length::Length,
     },
-    impl_length_encode, tri,
+    tri,
     types::c_octet_string::COctetString,
 };
 
 // TODO: vectorized_decode_from
 
-impl_length_encode! {
+create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMultiResp {
         /// This field contains the MC message ID of the submitted

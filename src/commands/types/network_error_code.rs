@@ -1,6 +1,6 @@
-use crate::{impl_length_encode, tri, types::u8::EndeU8};
+use crate::{create, tri, types::u8::EndeU8};
 
-impl_length_encode! {
+create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct NetworkErrorCode {
         pub network_type: ErrorCodeNetworkType,

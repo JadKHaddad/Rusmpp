@@ -1,5 +1,5 @@
 use crate::{
-    impl_length_encode, tri,
+    create, tri,
     types::{octet_string::OctetString, u8::EndeU8},
 };
 
@@ -37,7 +37,7 @@ impl From<BroadcastAreaFormat> for u8 {
 
 impl EndeU8 for BroadcastAreaFormat {}
 
-impl_length_encode! {
+create! {
     /// Identifies one or more target Broadcast Area(s) for which the
     /// status information applies.
     ///

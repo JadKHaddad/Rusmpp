@@ -78,7 +78,7 @@ mod macros;
 
 pub(crate) mod utils;
 
-use macros::{impl_length_encode, tri};
+use macros::{create, tri};
 
 // New stuff
 

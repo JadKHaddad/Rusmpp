@@ -1,4 +1,4 @@
-//! Demonstrate a SMPP server and a client sending an EnquireLink
+//! Demonstrate a `SMPP`` server and a client sending an EnquireLink
 //! Run with
 //!
 //! ```not_rust

@@ -23,7 +23,7 @@ macro_rules! declare_bind_resp {
                 pub system_id: COctetString<1, 16>,
                 /// [`TLVValue::ScInterfaceVersion`].
                 ///
-                /// SMPP version supported by MC.
+                /// `SMPP` version supported by MC.
                 sc_interface_version: Option<TLV>,
             }
         }

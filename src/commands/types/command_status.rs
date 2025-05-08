@@ -4,12 +4,12 @@ use crate::types::u32::EndeU32;
 /// to its peer. This field is only relevant in response PDUs. Thus PDU requests always have this
 /// field set to NULL (0x00000000).
 ///
-/// The [`CommandStatus`] field of a SMPP message response indicates the success or failure of
-/// a SMPP request. It is relevant only in the SMPP response message and should be set to
-/// NULL in SMPP request messages.
+/// The [`CommandStatus`] field of a `SMPP` message response indicates the success or failure of
+/// a `SMPP` request. It is relevant only in the `SMPP` response message and should be set to
+/// NULL in `SMPP` request messages.
 ///
-/// The SMPP Error status codes are returned by the MC in the [`CommandStatus`] field of the
-/// SMPP message header and in the error_status_code field of a submit_multi_resp message.
+/// The `SMPP` Error status codes are returned by the MC in the [`CommandStatus`] field of the
+/// `SMPP` message header and in the error_status_code field of a submit_multi_resp message.
 #[repr(u32)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum CommandStatus {

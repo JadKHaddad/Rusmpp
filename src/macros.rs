@@ -26,11 +26,11 @@ pub(super) use tri;
 ///        /// Identifies the ESME system
 ///        /// requesting to bind with the MC.
 ///        pub system_id: COctetString<1, 16>,
-///        /// Identifies the version of the SMPP
+///        /// Identifies the version of the `SMPP`
 ///        /// protocol supported by the ESME.
 ///        pub interface_version: InterfaceVersion,
 ///        /// Type of Number (TON) for ESME
-///        /// address(es) served via this SMPP session.
+///        /// address(es) served via this `SMPP` session.
 ///        ///
 ///        /// Set to NULL (Unknown) if not known.
 ///        pub addr_ton: Ton,
@@ -48,11 +48,11 @@ pub(super) use tri;
 ///     /// Identifies the ESME system
 ///     /// requesting to bind with the MC.
 ///     pub system_id: COctetString<1, 16>,
-///     /// Identifies the version of the SMPP
+///     /// Identifies the version of the `SMPP`
 ///     /// protocol supported by the ESME.
 ///     pub interface_version: InterfaceVersion,
 ///     /// Type of Number (TON) for ESME
-///     /// address(es) served via this SMPP session.
+///     /// address(es) served via this `SMPP` session.
 ///     ///
 ///     /// Set to NULL (Unknown) if not known.
 ///     pub addr_ton: Ton,

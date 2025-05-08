@@ -41,7 +41,7 @@ impl core::error::Error for Error {}
 ///
 /// 0x48656C6C6F00
 ///
-/// Two special variants exist for use within SMPP. These
+/// Two special variants exist for use within `SMPP`. These
 /// are [`COctetString`] (Decimal) and [`COctetString`]
 /// (Hexadecimal), which are used to carry decimal and
 /// hexadecimal digit sequences respectively. These fields

@@ -1,4 +1,4 @@
-/// A codec for encoding and decoding SMPP PDUs.
+/// A codec for encoding and decoding `SMPP` PDUs.
 ///
 /// # Usage
 /// ```rust

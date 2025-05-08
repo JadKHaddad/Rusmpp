@@ -1,4 +1,4 @@
-//! SMPP PDUs.
+//! `SMPP` PDUs.
 
 use super::types::command_id::CommandId;
 use crate::{
@@ -202,7 +202,7 @@ pub enum Pdu {
     /// address in the cancel_broadcast_sm command should also be NULL.
     CancelBroadcastSm(CancelBroadcastSm),
     /// This PDU can be sent by the ESME or MC as a means of
-    /// initiating the termination of a SMPP session.
+    /// initiating the termination of a `SMPP` session.
     Unbind,
     /// This PDU can be sent by the ESME or MC as a means of
     /// acknowledging the receipt of an unbind request. After

@@ -10,7 +10,7 @@ pub enum MessageState {
     /// A message submitted with a scheduled
     /// delivery time may return this state when
     /// queried. This value was added for V5.0 of
-    /// SMPP and V3.4 and earlier MCs are likely to
+    /// `SMPP` and V3.4 and earlier MCs are likely to
     /// return ENROUTE for scheduled messages.
     #[default]
     Scheduled = 0,

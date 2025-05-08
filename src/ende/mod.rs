@@ -1,4 +1,4 @@
-//! Encode and decode SMPP PDUs.
+//! Encode and decode `SMPP` PDUs.
 
 pub mod decode;
 pub mod encode;
@@ -6,3 +6,5 @@ pub mod length;
 
 #[cfg(test)]
 pub(crate) mod tests;
+
+pub mod new;

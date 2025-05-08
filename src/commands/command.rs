@@ -1,6 +1,6 @@
-//! SMPP commands.
+//! `SMPP` commands.
 //!
-//! The following PDU example illustrates how a SMPP PDU is decoded:
+//! The following PDU example illustrates how a `SMPP` PDU is decoded:
 //!
 //! Sample PDU (Values are shown in Hex format):
 //!
@@ -53,7 +53,7 @@ impl_length_encode! {
         /// See [`CommandStatus`]
         pub command_status: CommandStatus,
         /// The sequence_number represents a means of uniquely
-        /// identifying each PDU within a SMPP session. It also provides a means of correlating request
+        /// identifying each PDU within a `SMPP` session. It also provides a means of correlating request
         /// and response PDUs based on matching sequence number.
         pub sequence_number: u32,
         /// See [`Pdu`]

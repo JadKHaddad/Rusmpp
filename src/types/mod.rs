@@ -1,4 +1,4 @@
-//! Core SMPP types.
+//! Core `SMPP` types.
 
 pub mod c_octet_string;
 pub use c_octet_string::COctetString;

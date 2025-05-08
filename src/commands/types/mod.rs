@@ -1,4 +1,4 @@
-//! Abstraction for types used in the SMPP protocol.
+//! Abstraction for types used in the `SMPP` protocol.
 
 pub mod addr_subunit;
 pub use addr_subunit::AddrSubunit;

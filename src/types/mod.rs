@@ -15,6 +15,3 @@ pub use octet_string::OctetString;
 pub mod u16;
 pub mod u32;
 pub mod u8;
-
-mod option;
-mod vec;

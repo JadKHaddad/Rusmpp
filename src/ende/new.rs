@@ -1,5 +1,4 @@
-#[derive(Debug)]
-pub enum DecodeError {}
+use error::DecodeError;
 
 pub trait Length {
     fn length(&self) -> usize;

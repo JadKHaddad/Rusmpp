@@ -52,6 +52,33 @@ pub trait DecodeExt: Decode {
         Self::decode(&mut src[size..]).map(|(this, size_)| (this, size + size_))
     }
 
+    // TODO: test this
+    /// Decode a vector of values from a slice with a specified count
+    fn counted(src: &mut [u8], count: usize) -> Result<(Vec<Self>, usize), DecodeError> {
+        let mut size = 0;
+
+        let mut vec = Vec::with_capacity(count);
+
+        for _ in 0..count {
+            let (item, size_) = Self::decode(&mut src[size..])?;
+
+            size += size_;
+
+            vec.push(item);
+        }
+
+        Ok((vec, size))
+    }
+
+    // TODO: test this
+    fn counted_move(
+        src: &mut [u8],
+        count: usize,
+        size: usize,
+    ) -> Result<(Vec<Self>, usize), DecodeError> {
+        Self::counted(&mut src[size..], count).map(|(vec, size_)| (vec, size + size_))
+    }
+
     /// Decode a value from a slice
     ///
     /// If the length is 0, return `None`
@@ -258,7 +285,7 @@ const _: () = {
         }
     }
 
-    // TODO: I do not like this rework
+    // TODO: test this
     impl<T: Decode> DecodeWithLength for Vec<T> {
         fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
             let mut size = 0;
@@ -266,7 +293,7 @@ const _: () = {
             let mut vec = Vec::with_capacity(length);
 
             for _ in 0..length {
-                let (item, size_) = T::decode_move(src, size)?;
+                let (item, size_) = T::decode(&mut src[size..])?;
 
                 size += size_;
 

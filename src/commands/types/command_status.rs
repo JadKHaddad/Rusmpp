@@ -584,4 +584,9 @@ mod tests {
         let status = CommandStatus::from(0x00000115);
         assert_eq!(status, CommandStatus::Other(0x00000115));
     }
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<CommandStatus>();
+    }
 }

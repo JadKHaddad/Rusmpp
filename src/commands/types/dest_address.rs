@@ -151,3 +151,15 @@ impl DistributionListName {
         self.dest_flag
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<DestFlag>();
+    }
+
+    // TODO: a lot of encode/decode vector of values
+}

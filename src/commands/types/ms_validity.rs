@@ -123,3 +123,16 @@ impl From<UnitsOfTime> for u8 {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode_with_length::<MsValidity>();
+        crate::ende::tests::default_encode_decode::<MsValidityInformation>();
+        crate::ende::tests::default_encode_decode::<MsValidityBehavior>();
+        crate::ende::tests::default_encode_decode::<UnitsOfTime>();
+    }
+}

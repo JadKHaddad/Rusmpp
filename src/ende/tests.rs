@@ -17,7 +17,18 @@ where
 
     let size = original.encode(buf);
 
+    #[cfg(feature = "tracing")]
+    {
+        tracing::debug!(encoded=?original);
+        tracing::debug!(encoded=?crate::utils::HexFormatter(&buf[..size]), encoded_length=size);
+    }
+
     let (decoded, _size) = T::decode(&buf[..size]).expect("Failed to decode");
+
+    #[cfg(feature = "tracing")]
+    {
+        tracing::debug!(decoded=?decoded, decoded_length=_size);
+    }
 
     assert_eq!(original, decoded);
 }
@@ -39,7 +50,18 @@ where
 
     let size = original.encode(buf);
 
+    #[cfg(feature = "tracing")]
+    {
+        tracing::debug!(encoded=?original);
+        tracing::debug!(encoded=?crate::utils::HexFormatter(&buf[..size]), encoded_length=size);
+    }
+
     let (decoded, _size) = T::decode(&buf[..size], original.length()).expect("Failed to decode");
+
+    #[cfg(feature = "tracing")]
+    {
+        tracing::debug!(decoded=?decoded, decoded_length=_size);
+    }
 
     assert_eq!(original, decoded);
 }

@@ -1,9 +1,11 @@
 use crate::types::octet_string::OctetString;
 
 crate::create! {
+    // https://smpp.org/SMPP_v5.pdf#page=165
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct Subaddress {
         pub tag: SubaddressTag,
+        // addr can not be empty, because the whole source_subaddress tlv value is between 2 and 23 bytes long, and the tag is 1 byte long
         @[length = unchecked]
         pub addr: OctetString<1, 22>,
     }
@@ -46,5 +48,16 @@ impl From<SubaddressTag> for u8 {
             SubaddressTag::UserSpecified => 0b10100000,
             SubaddressTag::Other(value) => value,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode_with_length::<Subaddress>();
+        crate::ende::tests::default_encode_decode::<SubaddressTag>();
     }
 }

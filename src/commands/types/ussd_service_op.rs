@@ -1,7 +1,8 @@
 crate::create! {
     #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub enum UssdServiceOp {
+        #[default]
         PssdIndication = 0,
         PssrIndication = 1,
         UssrRequest = 2,
@@ -43,5 +44,15 @@ impl From<UssdServiceOp> for u8 {
             UssdServiceOp::UssnConfirm => 19,
             UssdServiceOp::Other(value) => value,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<UssdServiceOp>();
     }
 }

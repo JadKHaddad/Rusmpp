@@ -7,6 +7,12 @@ crate::create! {
     }
 }
 
+impl Default for NumberOfMessages {
+    fn default() -> Self {
+        NumberOfMessages::Allowed(0)
+    }
+}
+
 impl From<u8> for NumberOfMessages {
     fn from(value: u8) -> Self {
         match value {
@@ -22,5 +28,24 @@ impl From<NumberOfMessages> for u8 {
             NumberOfMessages::Allowed(value) => value,
             NumberOfMessages::Other(value) => value,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn from_u8() {
+        assert_eq!(NumberOfMessages::from(0), NumberOfMessages::Allowed(0));
+        assert_eq!(NumberOfMessages::from(50), NumberOfMessages::Allowed(50));
+        assert_eq!(NumberOfMessages::from(99), NumberOfMessages::Allowed(99));
+        assert_eq!(NumberOfMessages::from(100), NumberOfMessages::Other(100));
+        assert_eq!(NumberOfMessages::from(255), NumberOfMessages::Other(255));
+    }
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<NumberOfMessages>();
     }
 }

@@ -211,3 +211,15 @@ impl BroadcastContentType {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<TypeOfNetwork>();
+        crate::ende::tests::default_encode_decode::<EncodingContentType>();
+        crate::ende::tests::default_encode_decode::<BroadcastContentType>();
+    }
+}

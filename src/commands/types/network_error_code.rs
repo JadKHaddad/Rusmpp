@@ -1,7 +1,5 @@
-use crate::create;
-
-create! {
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+crate::create! {
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct NetworkErrorCode {
         pub network_type: ErrorCodeNetworkType,
         pub error_code: u16,
@@ -19,7 +17,7 @@ impl NetworkErrorCode {
 
 crate::create! {
     #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub enum ErrorCodeNetworkType {
         Ansi136AccessDeniedReason = 1,
         Is95AccessDeniedReason = 2,
@@ -27,6 +25,7 @@ crate::create! {
         Ansi136CauseCode = 4,
         Is95CauseCode = 5,
         Ansi41Error = 6,
+        #[default]
         SmppError = 7,
         MessageCenterSpecific = 8,
         Other(u8),
@@ -62,5 +61,16 @@ impl From<ErrorCodeNetworkType> for u8 {
             ErrorCodeNetworkType::MessageCenterSpecific => 8,
             ErrorCodeNetworkType::Other(value) => value,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<NetworkErrorCode>();
+        crate::ende::tests::default_encode_decode::<ErrorCodeNetworkType>();
     }
 }

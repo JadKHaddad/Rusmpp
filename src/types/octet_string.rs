@@ -71,7 +71,9 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     pub fn empty() -> Self {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
-        Self { bytes: Vec::new() }
+        Self {
+            bytes: vec![0; MIN],
+        }
     }
 
     /// Check if an [`OctetString`] is empty.
@@ -218,6 +220,13 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode_with_length::<OctetString<0, 5>>();
+        crate::ende::tests::default_encode_decode_with_length::<OctetString<1, 5>>();
+        crate::ende::tests::default_encode_decode_with_length::<OctetString<2, 5>>();
+    }
 
     mod new {
         use super::*;

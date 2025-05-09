@@ -309,6 +309,14 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
 mod tests {
     use super::*;
 
+    // TODO: How do we want to handle this?
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<COctetString<1, 5>>();
+        crate::ende::tests::default_encode_decode::<COctetString<2, 5>>();
+        crate::ende::tests::default_encode_decode::<COctetString<3, 5>>();
+    }
+
     mod new {
         use super::*;
 

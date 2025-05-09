@@ -1,5 +1,6 @@
 crate::create! {
     @[repr = u8]
+    /// See [`PriorityFlagType`].
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct PriorityFlag {
         pub value: u8,
@@ -333,5 +334,10 @@ mod tests {
 
         let gsm_sms = GsmSms::from(4);
         assert_eq!(gsm_sms, GsmSms::None);
+    }
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<PriorityFlag>();
     }
 }

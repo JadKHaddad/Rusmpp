@@ -15,6 +15,17 @@ crate::create! {
     }
 }
 
+impl Default for UnsuccessSme {
+    fn default() -> Self {
+        Self {
+            dest_addr_ton: Ton::default(),
+            dest_addr_npi: Npi::default(),
+            destination_addr: COctetString::default(),
+            error_status_code: CommandStatus::EsmeRunknownerr,
+        }
+    }
+}
+
 impl UnsuccessSme {
     pub fn new(
         dest_addr_ton: Ton,
@@ -28,5 +39,15 @@ impl UnsuccessSme {
             destination_addr,
             error_status_code,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<UnsuccessSme>();
     }
 }

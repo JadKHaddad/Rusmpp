@@ -263,6 +263,13 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
 mod tests {
     use super::*;
 
+    #[test]
+    fn default_encode_decode() {
+        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<1>>();
+        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<2>>();
+        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<3>>();
+    }
+
     mod new {
         use super::*;
 

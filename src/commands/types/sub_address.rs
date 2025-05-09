@@ -1,7 +1,4 @@
-use crate::{
-    create, tri,
-    types::{octet_string::OctetString, u8::EndeU8},
-};
+use crate::{create, types::octet_string::OctetString};
 
 create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -18,14 +15,16 @@ impl Subaddress {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum SubaddressTag {
-    #[default]
-    NsapEven = 0b10000000,
-    NsapOdd = 0b10001000,
-    UserSpecified = 0b10100000,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum SubaddressTag {
+        #[default]
+        NsapEven = 0b10000000,
+        NsapOdd = 0b10001000,
+        UserSpecified = 0b10100000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for SubaddressTag {
@@ -49,5 +48,3 @@ impl From<SubaddressTag> for u8 {
         }
     }
 }
-
-impl EndeU8 for SubaddressTag {}

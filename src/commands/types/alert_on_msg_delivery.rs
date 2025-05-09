@@ -1,14 +1,15 @@
-use crate::types::u8::EndeU8;
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum AlertOnMsgDelivery {
+        #[default]
+        UseMobileDefaultAlert = 0,
+        UseLowPriorityAlert = 1,
+        UseMediumPriorityAlert = 2,
+        UseHighPriorityAlert = 3,
+        Other(u8),
+    }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum AlertOnMsgDelivery {
-    #[default]
-    UseMobileDefaultAlert = 0,
-    UseLowPriorityAlert = 1,
-    UseMediumPriorityAlert = 2,
-    UseHighPriorityAlert = 3,
-    Other(u8),
 }
 
 impl From<u8> for AlertOnMsgDelivery {
@@ -34,5 +35,3 @@ impl From<AlertOnMsgDelivery> for u8 {
         }
     }
 }
-
-impl EndeU8 for AlertOnMsgDelivery {}

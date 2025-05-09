@@ -1,12 +1,12 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MoreMessagesToSend {
-    #[default]
-    NoMoreMessagesToFollow = 0,
-    MoreMessagesToFollow = 1,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MoreMessagesToSend {
+        #[default]
+        NoMoreMessagesToFollow = 0,
+        MoreMessagesToFollow = 1,
+        Other(u8),
+    }
 }
 
 impl From<u8> for MoreMessagesToSend {
@@ -28,5 +28,3 @@ impl From<MoreMessagesToSend> for u8 {
         }
     }
 }
-
-impl EndeU8 for MoreMessagesToSend {}

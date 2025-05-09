@@ -14,24 +14,6 @@ impl Length for u32 {
     }
 }
 
-/// A trait for encoding and decoding a value as [`u32`]
-pub(crate) trait EndeU32: Sized + Copy + From<u32>
-where
-    u32: From<Self>,
-{
-    fn length(&self) -> usize {
-        4
-    }
-
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        u32::from(*self).encode(dst)
-    }
-
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
-        u32::decode(src).map(|(value, usize)| (Self::from(value), usize))
-    }
-}
-
 impl Encode for u32 {
     fn encode(&self, dst: &mut [u8]) -> usize {
         let bytes = self.to_be_bytes();

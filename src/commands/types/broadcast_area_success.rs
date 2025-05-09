@@ -1,15 +1,16 @@
-use crate::types::u8::EndeU8;
-
-/// The success rate indicator, defined as the ratio of the
-/// number of BTSs that accepted the message and the total
-/// number of BTSs that should have accepted the message, for
-/// a particular broadcast_area_identifier.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum BroadcastAreaSuccess {
-    #[default]
-    InformationNotAvailable,
-    ZeroToHundred(u8),
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    /// The success rate indicator, defined as the ratio of the
+    /// number of BTSs that accepted the message and the total
+    /// number of BTSs that should have accepted the message, for
+    /// a particular broadcast_area_identifier.
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum BroadcastAreaSuccess {
+        #[default]
+        InformationNotAvailable,
+        ZeroToHundred(u8),
+        Other(u8),
+    }
 }
 
 impl From<BroadcastAreaSuccess> for u8 {
@@ -31,5 +32,3 @@ impl From<u8> for BroadcastAreaSuccess {
         }
     }
 }
-
-impl EndeU8 for BroadcastAreaSuccess {}

@@ -1,19 +1,19 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum ItsReplyType {
-    #[default]
-    Digit = 0,
-    Number = 1,
-    TelephoneNo = 2,
-    Password = 3,
-    CharacterLine = 4,
-    Menu = 5,
-    Date = 6,
-    Time = 7,
-    Continue = 8,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum ItsReplyType {
+        #[default]
+        Digit = 0,
+        Number = 1,
+        TelephoneNo = 2,
+        Password = 3,
+        CharacterLine = 4,
+        Menu = 5,
+        Date = 6,
+        Time = 7,
+        Continue = 8,
+        Other(u8),
+    }
 }
 
 impl From<u8> for ItsReplyType {
@@ -49,5 +49,3 @@ impl From<ItsReplyType> for u8 {
         }
     }
 }
-
-impl EndeU8 for ItsReplyType {}

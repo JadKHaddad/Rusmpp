@@ -1,17 +1,17 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum UssdServiceOp {
-    PssdIndication = 0,
-    PssrIndication = 1,
-    UssrRequest = 2,
-    UssnRequest = 3,
-    PssdResponse = 16,
-    PssrResponse = 17,
-    UssrConfirm = 18,
-    UssnConfirm = 19,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum UssdServiceOp {
+        PssdIndication = 0,
+        PssrIndication = 1,
+        UssrRequest = 2,
+        UssnRequest = 3,
+        PssdResponse = 16,
+        PssrResponse = 17,
+        UssrConfirm = 18,
+        UssnConfirm = 19,
+        Other(u8),
+    }
 }
 
 impl From<u8> for UssdServiceOp {
@@ -45,5 +45,3 @@ impl From<UssdServiceOp> for u8 {
         }
     }
 }
-
-impl EndeU8 for UssdServiceOp {}

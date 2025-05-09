@@ -1,13 +1,13 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum DestAddrNpResolution {
-    #[default]
-    QueryNotPerformed = 0,
-    QueryPerformedNumberNotPorted = 1,
-    QueryPerformedNumberPorted = 2,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum DestAddrNpResolution {
+        #[default]
+        QueryNotPerformed = 0,
+        QueryPerformedNumberNotPorted = 1,
+        QueryPerformedNumberPorted = 2,
+        Other(u8),
+    }
 }
 
 impl From<u8> for DestAddrNpResolution {
@@ -31,5 +31,3 @@ impl From<DestAddrNpResolution> for u8 {
         }
     }
 }
-
-impl EndeU8 for DestAddrNpResolution {}

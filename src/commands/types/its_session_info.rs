@@ -1,4 +1,4 @@
-use crate::{create, tri};
+use crate::create;
 
 create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

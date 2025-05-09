@@ -1,4 +1,4 @@
-use crate::{create, tri, types::u8::EndeU8};
+use crate::create;
 
 create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -37,16 +37,18 @@ impl MsValidityInformation {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MsValidityBehavior {
-    #[default]
-    StoreIndefinitely = 0,
-    PowerDown = 1,
-    ValidUntilRegistrationAreaChanges = 2,
-    DisplayOnly = 3,
-    RelativeTimePeriod = 4,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MsValidityBehavior {
+        #[default]
+        StoreIndefinitely = 0,
+        PowerDown = 1,
+        ValidUntilRegistrationAreaChanges = 2,
+        DisplayOnly = 3,
+        RelativeTimePeriod = 4,
+        Other(u8),
+    }
 }
 
 impl From<u8> for MsValidityBehavior {
@@ -75,20 +77,20 @@ impl From<MsValidityBehavior> for u8 {
     }
 }
 
-impl EndeU8 for MsValidityBehavior {}
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum UnitsOfTime {
-    #[default]
-    Seconds = 0b00000000,
-    Minutes = 0b00000001,
-    Hours = 0b00000010,
-    Days = 0b00000011,
-    Weeks = 0b00000100,
-    Months = 0b00000101,
-    Years = 0b00000110,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum UnitsOfTime {
+        #[default]
+        Seconds = 0b00000000,
+        Minutes = 0b00000001,
+        Hours = 0b00000010,
+        Days = 0b00000011,
+        Weeks = 0b00000100,
+        Months = 0b00000101,
+        Years = 0b00000110,
+        Other(u8),
+    }
 }
 
 impl From<u8> for UnitsOfTime {
@@ -120,5 +122,3 @@ impl From<UnitsOfTime> for u8 {
         }
     }
 }
-
-impl EndeU8 for UnitsOfTime {}

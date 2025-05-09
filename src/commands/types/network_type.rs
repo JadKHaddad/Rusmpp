@@ -1,19 +1,19 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum NetworkType {
-    #[default]
-    Unknown = 0x00,
-    Gsm = 0x01,
-    Ansi136 = 0x02,
-    Is95 = 0x03,
-    Pdc = 0x04,
-    Phs = 0x05,
-    IDen = 0x06,
-    Amps = 0x07,
-    PagingNetwork = 0x08,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum NetworkType {
+        #[default]
+        Unknown = 0x00,
+        Gsm = 0x01,
+        Ansi136 = 0x02,
+        Is95 = 0x03,
+        Pdc = 0x04,
+        Phs = 0x05,
+        IDen = 0x06,
+        Amps = 0x07,
+        PagingNetwork = 0x08,
+        Other(u8),
+    }
 }
 
 impl From<u8> for NetworkType {
@@ -49,5 +49,3 @@ impl From<NetworkType> for u8 {
         }
     }
 }
-
-impl EndeU8 for NetworkType {}

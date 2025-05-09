@@ -1,12 +1,12 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum DpfResult {
-    #[default]
-    NotSet = 0,
-    Set = 1,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum DpfResult {
+        #[default]
+        NotSet = 0,
+        Set = 1,
+        Other(u8),
+    }
 }
 
 impl From<u8> for DpfResult {
@@ -28,5 +28,3 @@ impl From<DpfResult> for u8 {
         }
     }
 }
-
-impl EndeU8 for DpfResult {}

@@ -24,9 +24,8 @@ use crate::{
     tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-        u32::EndeU32, u8::EndeU8,
     },
-    DecodeWithKey, DecodeWithLength, Encode, Length,
+    Decode, DecodeWithKey, DecodeWithLength, Encode, Length,
 };
 
 /// See module level documentation

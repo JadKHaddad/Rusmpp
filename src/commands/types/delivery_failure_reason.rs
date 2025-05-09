@@ -1,14 +1,14 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum DeliveryFailureReason {
-    #[default]
-    DestinationUnavailable = 0,
-    DestinationAddressInvalid = 1,
-    PermanentNetworkError = 2,
-    TemporaryNetworkError = 3,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum DeliveryFailureReason {
+        #[default]
+        DestinationUnavailable = 0,
+        DestinationAddressInvalid = 1,
+        PermanentNetworkError = 2,
+        TemporaryNetworkError = 3,
+        Other(u8),
+    }
 }
 
 impl From<u8> for DeliveryFailureReason {
@@ -34,5 +34,3 @@ impl From<DeliveryFailureReason> for u8 {
         }
     }
 }
-
-impl EndeU8 for DeliveryFailureReason {}

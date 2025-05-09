@@ -1,5 +1,3 @@
-use crate::types::u8::EndeU8;
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct CallbackNumPresInd {
     pub presentation: Presentation,
@@ -30,16 +28,34 @@ impl From<CallbackNumPresInd> for u8 {
     }
 }
 
-impl EndeU8 for CallbackNumPresInd {}
+impl crate::Length for CallbackNumPresInd {
+    fn length(&self) -> usize {
+        u8::from(*self).length()
+    }
+}
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum Presentation {
-    #[default]
-    PresentationAllowed = 0b00000000,
-    PresentationRestricted = 0b00000001,
-    NumberNotAvailable = 0b00000010,
-    Other(u8),
+impl crate::Encode for CallbackNumPresInd {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u8::from(*self).encode(dst)
+    }
+}
+
+impl crate::Decode for CallbackNumPresInd {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+        u8::decode(src).map(|(this, size)| (Self::from(this), size))
+    }
+}
+
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum Presentation {
+        #[default]
+        PresentationAllowed = 0b00000000,
+        PresentationRestricted = 0b00000001,
+        NumberNotAvailable = 0b00000010,
+        Other(u8),
+    }
 }
 
 impl From<u8> for Presentation {
@@ -64,17 +80,17 @@ impl From<Presentation> for u8 {
     }
 }
 
-impl EndeU8 for Presentation {}
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum Screening {
-    #[default]
-    NotScreened = 0b00000000,
-    VerifiedAndPassed = 0b00000100,
-    VerifiedAndFailed = 0b00001000,
-    NetworkProvided = 0b00001100,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum Screening {
+        #[default]
+        NotScreened = 0b00000000,
+        VerifiedAndPassed = 0b00000100,
+        VerifiedAndFailed = 0b00001000,
+        NetworkProvided = 0b00001100,
+        Other(u8),
+    }
 }
 
 impl From<u8> for Screening {
@@ -100,8 +116,6 @@ impl From<Screening> for u8 {
         }
     }
 }
-
-impl EndeU8 for Screening {}
 
 #[cfg(test)]
 mod tests {

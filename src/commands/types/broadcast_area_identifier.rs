@@ -1,16 +1,15 @@
-use crate::{
-    create, tri,
-    types::{octet_string::OctetString, u8::EndeU8},
-};
+use crate::{create, types::octet_string::OctetString};
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum BroadcastAreaFormat {
-    #[default]
-    AliasName = 0x00,
-    EllipsoidArc = 0x01,
-    Polygon = 0x02,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum BroadcastAreaFormat {
+        #[default]
+        AliasName = 0x00,
+        EllipsoidArc = 0x01,
+        Polygon = 0x02,
+        Other(u8),
+    }
 }
 
 impl From<u8> for BroadcastAreaFormat {
@@ -34,8 +33,6 @@ impl From<BroadcastAreaFormat> for u8 {
         }
     }
 }
-
-impl EndeU8 for BroadcastAreaFormat {}
 
 create! {
     /// Identifies one or more target Broadcast Area(s) for which the

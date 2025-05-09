@@ -1,14 +1,14 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum BroadcastMessageClass {
-    #[default]
-    NoClassSpecified = 0x00,
-    Class1 = 0x01,
-    Class2 = 0x02,
-    Class3 = 0x03,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum BroadcastMessageClass {
+        #[default]
+        NoClassSpecified = 0x00,
+        Class1 = 0x01,
+        Class2 = 0x02,
+        Class3 = 0x03,
+        Other(u8),
+    }
 }
 
 impl From<u8> for BroadcastMessageClass {
@@ -34,5 +34,3 @@ impl From<BroadcastMessageClass> for u8 {
         }
     }
 }
-
-impl EndeU8 for BroadcastMessageClass {}

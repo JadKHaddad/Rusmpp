@@ -1,5 +1,3 @@
-use crate::types::u8::EndeU8;
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct MsMsgWaitFacilities {
     pub indicator: Indicator,
@@ -30,15 +28,33 @@ impl From<MsMsgWaitFacilities> for u8 {
     }
 }
 
-impl EndeU8 for MsMsgWaitFacilities {}
+impl crate::Length for MsMsgWaitFacilities {
+    fn length(&self) -> usize {
+        u8::from(*self).length()
+    }
+}
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum Indicator {
-    #[default]
-    Inactive = 0b00000000,
-    Active = 0b10000000,
-    Other(u8),
+impl crate::Encode for MsMsgWaitFacilities {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u8::from(*self).encode(dst)
+    }
+}
+
+impl crate::Decode for MsMsgWaitFacilities {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+        u8::decode(src).map(|(this, size)| (Self::from(this), size))
+    }
+}
+
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum Indicator {
+        #[default]
+        Inactive = 0b00000000,
+        Active = 0b10000000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for Indicator {
@@ -61,15 +77,17 @@ impl From<Indicator> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum TypeOfMessage {
-    #[default]
-    VoicemailMessageWaiting = 0b00000000,
-    FaxMessageWaiting = 0b00000001,
-    ElectronicMailMessageWaiting = 0b00000010,
-    OtherMessageWaiting = 0b00000011,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum TypeOfMessage {
+        #[default]
+        VoicemailMessageWaiting = 0b00000000,
+        FaxMessageWaiting = 0b00000001,
+        ElectronicMailMessageWaiting = 0b00000010,
+        OtherMessageWaiting = 0b00000011,
+        Other(u8),
+    }
 }
 
 impl From<u8> for TypeOfMessage {

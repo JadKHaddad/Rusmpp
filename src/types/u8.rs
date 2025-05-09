@@ -14,24 +14,6 @@ impl Length for u8 {
     }
 }
 
-/// A trait for encoding and decoding a value as [`u8`]
-pub(crate) trait EndeU8: Sized + Copy + From<u8>
-where
-    u8: From<Self>,
-{
-    fn length(&self) -> usize {
-        1
-    }
-
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        u8::from(*self).encode(dst)
-    }
-
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
-        u8::decode(src).map(|(value, usize)| (Self::from(value), usize))
-    }
-}
-
 impl Encode for u8 {
     fn encode(&self, dst: &mut [u8]) -> usize {
         dst[0] = *self;

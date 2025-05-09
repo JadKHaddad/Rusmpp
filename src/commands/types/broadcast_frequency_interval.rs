@@ -1,18 +1,20 @@
-use crate::{create, tri, types::u8::EndeU8};
+use crate::create;
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum UnitOfTime {
-    #[default]
-    AsFrequentlyAsPossible = 0x00,
-    Seconds = 0x08,
-    Minutes = 0x09,
-    Hours = 0x0A,
-    Days = 0x0B,
-    Weeks = 0x0C,
-    Months = 0x0D,
-    Years = 0x0E,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum UnitOfTime {
+        #[default]
+        AsFrequentlyAsPossible = 0x00,
+        Seconds = 0x08,
+        Minutes = 0x09,
+        Hours = 0x0A,
+        Days = 0x0B,
+        Weeks = 0x0C,
+        Months = 0x0D,
+        Years = 0x0E,
+        Other(u8),
+    }
 }
 
 impl From<u8> for UnitOfTime {
@@ -46,8 +48,6 @@ impl From<UnitOfTime> for u8 {
         }
     }
 }
-
-impl EndeU8 for UnitOfTime {}
 
 create! {
     /// This field indicates the frequency interval at which

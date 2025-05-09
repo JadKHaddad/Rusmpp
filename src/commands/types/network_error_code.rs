@@ -1,4 +1,4 @@
-use crate::{create, tri, types::u8::EndeU8};
+use crate::create;
 
 create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -17,18 +17,20 @@ impl NetworkErrorCode {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum ErrorCodeNetworkType {
-    Ansi136AccessDeniedReason = 1,
-    Is95AccessDeniedReason = 2,
-    Gsm = 3,
-    Ansi136CauseCode = 4,
-    Is95CauseCode = 5,
-    Ansi41Error = 6,
-    SmppError = 7,
-    MessageCenterSpecific = 8,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum ErrorCodeNetworkType {
+        Ansi136AccessDeniedReason = 1,
+        Is95AccessDeniedReason = 2,
+        Gsm = 3,
+        Ansi136CauseCode = 4,
+        Is95CauseCode = 5,
+        Ansi41Error = 6,
+        SmppError = 7,
+        MessageCenterSpecific = 8,
+        Other(u8),
+    }
 }
 
 impl From<u8> for ErrorCodeNetworkType {
@@ -62,5 +64,3 @@ impl From<ErrorCodeNetworkType> for u8 {
         }
     }
 }
-
-impl EndeU8 for ErrorCodeNetworkType {}

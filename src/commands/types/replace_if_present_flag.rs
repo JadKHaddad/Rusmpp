@@ -1,12 +1,12 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum ReplaceIfPresentFlag {
-    #[default]
-    DoNotReplace = 0,
-    Replace = 1,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum ReplaceIfPresentFlag {
+        #[default]
+        DoNotReplace = 0,
+        Replace = 1,
+        Other(u8),
+    }
 }
 
 impl From<u8> for ReplaceIfPresentFlag {
@@ -28,5 +28,3 @@ impl From<ReplaceIfPresentFlag> for u8 {
         }
     }
 }
-
-impl EndeU8 for ReplaceIfPresentFlag {}

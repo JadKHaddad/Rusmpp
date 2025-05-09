@@ -1,19 +1,19 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum BearerType {
-    #[default]
-    Unknown = 0x00,
-    Sms = 0x01,
-    Csd = 0x02,
-    PacketData = 0x03,
-    Ussd = 0x04,
-    Cdpd = 0x05,
-    DataTac = 0x06,
-    FlexReFlex = 0x07,
-    CellBroadcast = 0x08,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum BearerType {
+        #[default]
+        Unknown = 0x00,
+        Sms = 0x01,
+        Csd = 0x02,
+        PacketData = 0x03,
+        Ussd = 0x04,
+        Cdpd = 0x05,
+        DataTac = 0x06,
+        FlexReFlex = 0x07,
+        CellBroadcast = 0x08,
+        Other(u8),
+    }
 }
 
 impl From<u8> for BearerType {
@@ -49,5 +49,3 @@ impl From<BearerType> for u8 {
         }
     }
 }
-
-impl EndeU8 for BearerType {}

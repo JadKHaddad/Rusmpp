@@ -1,5 +1,3 @@
-use crate::types::u8::EndeU8;
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct RegisteredDelivery {
     mc_delivery_receipt: MCDeliveryReceipt,
@@ -78,17 +76,35 @@ impl From<RegisteredDelivery> for u8 {
     }
 }
 
-impl EndeU8 for RegisteredDelivery {}
+impl crate::Length for RegisteredDelivery {
+    fn length(&self) -> usize {
+        u8::from(*self).length()
+    }
+}
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MCDeliveryReceipt {
-    #[default]
-    NoMcDeliveryReceiptRequested = 0b00000000,
-    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
-    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
-    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
-    Other(u8),
+impl crate::Encode for RegisteredDelivery {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u8::from(*self).encode(dst)
+    }
+}
+
+impl crate::Decode for RegisteredDelivery {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+        u8::decode(src).map(|(this, size)| (Self::from(this), size))
+    }
+}
+
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MCDeliveryReceipt {
+        #[default]
+        NoMcDeliveryReceiptRequested = 0b00000000,
+        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
+        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
+        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
+        Other(u8),
+    }
 }
 
 impl From<u8> for MCDeliveryReceipt {
@@ -115,15 +131,17 @@ impl From<MCDeliveryReceipt> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum SmeOriginatedAcknowledgement {
-    #[default]
-    NoReceiptSmeAcknowledgementRequested = 0b00000000,
-    SmeDeliveryAcknowledgementRequested = 0b00000100,
-    SmeUserAcknowledgementRequested = 0b00001000,
-    BothDeliveryAndUserAcknowledgmentRequested = 0b00001100,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum SmeOriginatedAcknowledgement {
+        #[default]
+        NoReceiptSmeAcknowledgementRequested = 0b00000000,
+        SmeDeliveryAcknowledgementRequested = 0b00000100,
+        SmeUserAcknowledgementRequested = 0b00001000,
+        BothDeliveryAndUserAcknowledgmentRequested = 0b00001100,
+        Other(u8),
+    }
 }
 
 impl From<u8> for SmeOriginatedAcknowledgement {
@@ -150,13 +168,15 @@ impl From<SmeOriginatedAcknowledgement> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum IntermediateNotification {
-    #[default]
-    NoIntermediaryNotificationRequested = 0b00000000,
-    IntermediateNotificationRequested = 0b00010000,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum IntermediateNotification {
+        #[default]
+        NoIntermediaryNotificationRequested = 0b00000000,
+        IntermediateNotificationRequested = 0b00010000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for IntermediateNotification {

@@ -1,16 +1,17 @@
-use crate::types::u8::EndeU8;
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum CongestionState {
-    #[default]
-    Idle,
-    LowLoad(u8),
-    MediumLoad(u8),
-    HighLoad(u8),
-    OptimumLoad(u8),
-    NearingCongestion(u8),
-    Congested,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum CongestionState {
+        #[default]
+        Idle,
+        LowLoad(u8),
+        MediumLoad(u8),
+        HighLoad(u8),
+        OptimumLoad(u8),
+        NearingCongestion(u8),
+        Congested,
+        Other(u8),
+    }
 }
 
 impl From<u8> for CongestionState {
@@ -42,5 +43,3 @@ impl From<CongestionState> for u8 {
         }
     }
 }
-
-impl EndeU8 for CongestionState {}

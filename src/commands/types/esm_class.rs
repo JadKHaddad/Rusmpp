@@ -1,5 +1,3 @@
-use crate::types::u8::EndeU8;
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub struct EsmClass {
     pub messaging_mode: MessagingMode,
@@ -44,17 +42,35 @@ impl From<EsmClass> for u8 {
     }
 }
 
-impl EndeU8 for EsmClass {}
+impl crate::Length for EsmClass {
+    fn length(&self) -> usize {
+        u8::from(*self).length()
+    }
+}
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MessagingMode {
-    #[default]
-    Default = 0b00000000,
-    Datagram = 0b00000001,
-    Forward = 0b00000010,
-    StoreAndForward = 0b00000011,
-    Other(u8),
+impl crate::Encode for EsmClass {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        u8::from(*self).encode(dst)
+    }
+}
+
+impl crate::Decode for EsmClass {
+    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+        u8::decode(src).map(|(this, size)| (Self::from(this), size))
+    }
+}
+
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MessagingMode {
+        #[default]
+        Default = 0b00000000,
+        Datagram = 0b00000001,
+        Forward = 0b00000010,
+        StoreAndForward = 0b00000011,
+        Other(u8),
+    }
 }
 
 impl From<u8> for MessagingMode {
@@ -81,14 +97,16 @@ impl From<MessagingMode> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MessageType {
-    #[default]
-    Default = 0b00000000,
-    ShortMessageContainsMCDeliveryReceipt = 0b00000100,
-    ShortMessageContainsIntermediateDeliveryNotification = 0b00001000,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MessageType {
+        #[default]
+        Default = 0b00000000,
+        ShortMessageContainsMCDeliveryReceipt = 0b00000100,
+        ShortMessageContainsIntermediateDeliveryNotification = 0b00001000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for MessageType {
@@ -113,14 +131,16 @@ impl From<MessageType> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum Ansi41Specific {
-    #[default]
-    ShortMessageContainsDeliveryAcknowledgement = 0b00010000,
-    ShortMessageContainsUserAcknowledgment = 0b00100000,
-    ShortMessageContainsConversationAbort = 0b00110000,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum Ansi41Specific {
+        #[default]
+        ShortMessageContainsDeliveryAcknowledgement = 0b00010000,
+        ShortMessageContainsUserAcknowledgment = 0b00100000,
+        ShortMessageContainsConversationAbort = 0b00110000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for Ansi41Specific {
@@ -145,15 +165,17 @@ impl From<Ansi41Specific> for u8 {
     }
 }
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum GsmFeatures {
-    #[default]
-    NotSelected = 0b00000000,
-    UdhiIndicator = 0b01000000,
-    SetReplyPath = 0b10000000,
-    SetUdhiAndReplyPath = 0b11000000,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum GsmFeatures {
+        #[default]
+        NotSelected = 0b00000000,
+        UdhiIndicator = 0b01000000,
+        SetReplyPath = 0b10000000,
+        SetUdhiAndReplyPath = 0b11000000,
+        Other(u8),
+    }
 }
 
 impl From<u8> for GsmFeatures {

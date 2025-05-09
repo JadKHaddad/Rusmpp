@@ -1,17 +1,17 @@
-use crate::types::u8::EndeU8;
-
-/// Refer to [CMT-136] for other values
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum LanguageIndicator {
-    #[default]
-    Unspecified = 0,
-    English = 1,
-    French = 2,
-    Spanish = 3,
-    German = 4,
-    Portuguese = 5,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    /// Refer to [CMT-136] for other values
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum LanguageIndicator {
+        #[default]
+        Unspecified = 0,
+        English = 1,
+        French = 2,
+        Spanish = 3,
+        German = 4,
+        Portuguese = 5,
+        Other(u8),
+    }
 }
 
 impl From<u8> for LanguageIndicator {
@@ -41,5 +41,3 @@ impl From<LanguageIndicator> for u8 {
         }
     }
 }
-
-impl EndeU8 for LanguageIndicator {}

@@ -1,10 +1,10 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum NumberOfMessages {
-    Allowed(u8),
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum NumberOfMessages {
+        Allowed(u8),
+        Other(u8),
+    }
 }
 
 impl From<u8> for NumberOfMessages {
@@ -24,5 +24,3 @@ impl From<NumberOfMessages> for u8 {
         }
     }
 }
-
-impl EndeU8 for NumberOfMessages {}

@@ -121,8 +121,48 @@ pub(super) use tri;
 // }
 
 macro_rules! create {
-    // @skip: must be applied before the docs
-    // Every other attribute must be applied after the docs
+    // Default
+    (
+        $(#[$struct_meta:meta])*
+        $struct_vis:vis struct $struct_ident:ident {
+            $(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_ident:ident: $field_ty:ty,
+            )*
+        }
+    ) => {
+        create!(@create_struct {
+            $(#[$struct_meta])*
+            $struct_vis $struct_ident
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_ident $field_ty,
+            )*
+        });
+
+        impl $crate::Decode for $struct_ident {
+            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+                let size = 0;
+
+                $(
+                    create!(@match_field
+                        {
+                            $field_ident,
+                            src, length, size
+                        }
+                    );
+                )*
+
+                Ok((
+                    Self {
+                        $($field_ident,)*
+                    },
+                    size,
+                ))
+            }
+        }
+    };
+
     (
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
@@ -254,8 +294,10 @@ macro_rules! create {
     };
 
     // Skip `impl Decode` generation for the whole struct
+    // @skip: must be applied before the docs
+    // Every other attribute must be applied after the docs
     (
-        $(@[$skip:ident])?
+        @[$skip:ident]
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -278,48 +320,7 @@ macro_rules! create {
         });
     };
 
-    // Default
-    (
-        $(#[$struct_meta:meta])*
-        $struct_vis:vis struct $struct_ident:ident {
-            $(
-                $(#[$field_attr:meta])*
-                $field_vis:vis $field_ident:ident: $field_ty:ty,
-            )*
-        }
-    ) => {
-        create!(@create_struct {
-            $(#[$struct_meta])*
-            $struct_vis $struct_ident
-            $(
-                $(#[$field_attr])*
-                $field_vis $field_ident $field_ty,
-            )*
-        });
 
-        impl $crate::Decode for $struct_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
-                let size = 0;
-
-                $(
-                    create!(@match_field
-                        {
-                            $(#[$field_attr])*
-                            $field_ident,
-                            src, length, size
-                        }
-                    );
-                )*
-
-                Ok((
-                    Self {
-                        $($field_ident,)*
-                    },
-                    size,
-                ))
-            }
-        }
-    };
 
     (@create_struct {
         $(#[$struct_meta:meta])*
@@ -506,4 +507,105 @@ macro_rules! create {
     }) => {
         let ($field_ident, size) = $crate::DecodeExt::decode_move($src, $size)?;
     };
+
+    // Enums u8
+    (
+        #[repr(u8)]
+        $(#[$enum_meta:meta])*
+        $enum_vis:vis enum $enum_ident:ident {
+            $($enum_body:tt)*
+        }
+    ) => {
+        #[repr(u8)]
+        $(#[$enum_meta])*
+        $enum_vis enum $enum_ident {
+            $($enum_body)*
+        }
+
+        impl $crate::Length for $enum_ident {
+            fn length(&self) -> usize {
+                u8::from(*self).length()
+            }
+        }
+
+        impl $crate::Encode for $enum_ident {
+            fn encode(&self, dst: &mut [u8]) -> usize {
+                u8::from(*self).encode(dst)
+            }
+        }
+
+        impl $crate::Decode for $enum_ident {
+            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+                u8::decode(src).map(|(this, size)| (Self::from(this), size))
+            }
+        }
+    };
+
+    // Enums u16
+    (
+        #[repr(u16)]
+        $(#[$enum_meta:meta])*
+        $enum_vis:vis enum $enum_ident:ident {
+            $($enum_body:tt)*
+        }
+    ) => {
+        #[repr(u16)]
+        $(#[$enum_meta])*
+        $enum_vis enum $enum_ident {
+            $($enum_body)*
+        }
+
+        impl $crate::Length for $enum_ident {
+            fn length(&self) -> usize {
+                u16::from(*self).length()
+            }
+        }
+
+        impl $crate::Encode for $enum_ident {
+            fn encode(&self, dst: &mut [u8]) -> usize {
+                u16::from(*self).encode(dst)
+            }
+        }
+
+        impl $crate::Decode for $enum_ident {
+            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+                u16::decode(src).map(|(this, size)| (Self::from(this), size))
+            }
+        }
+    };
+
+    // Enums u32
+    (
+        #[repr(u32)]
+        $(#[$enum_meta:meta])*
+        $enum_vis:vis enum $enum_ident:ident {
+            $($enum_body:tt)*
+        }
+    ) => {
+        #[repr(u32)]
+        $(#[$enum_meta])*
+        $enum_vis enum $enum_ident {
+            $($enum_body)*
+        }
+
+        impl $crate::Length for $enum_ident {
+            fn length(&self) -> usize {
+                u32::from(*self).length()
+            }
+        }
+
+        impl $crate::Encode for $enum_ident {
+            fn encode(&self, dst: &mut [u8]) -> usize {
+                u32::from(*self).encode(dst)
+            }
+        }
+
+        impl $crate::Decode for $enum_ident {
+            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+                u32::decode(src).map(|(this, size)| (Self::from(this), size))
+            }
+        }
+    };
 }
+
+pub(super) use create;

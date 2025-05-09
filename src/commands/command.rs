@@ -36,7 +36,7 @@ use super::{
     pdu::Pdu,
     types::{command_id::CommandId, command_status::CommandStatus},
 };
-use crate::{create, tri, types::u32::EndeU32};
+use crate::create;
 
 create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

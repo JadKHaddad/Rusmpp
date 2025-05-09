@@ -1,19 +1,19 @@
 use super::{npi::Npi, ton::Ton};
 
 use crate::{
-    create,
-    errors::DecodeError,
-    types::{c_octet_string::COctetString, u8::EndeU8},
-    Decode, DecodeExt, Encode, Length,
+    create, errors::DecodeError, types::c_octet_string::COctetString, Decode, DecodeExt, Encode,
+    Length,
 };
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum DestFlag {
-    #[default]
-    SmeAddress = 0x01,
-    DistributionListName = 0x02,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum DestFlag {
+        #[default]
+        SmeAddress = 0x01,
+        DistributionListName = 0x02,
+        Other(u8),
+    }
 }
 
 impl From<u8> for DestFlag {
@@ -41,8 +41,6 @@ impl From<DestFlag> for u32 {
         u8::from(value).into()
     }
 }
-
-impl EndeU8 for DestFlag {}
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum DestAddress {

@@ -1,18 +1,20 @@
-use crate::{types::u8::EndeU8, TLVValue, TLV};
+use crate::{TLVValue, TLV};
 
-/// The ms_availability_status parameter is used in the alert_notification operation to indicate the
-/// availability state of the MS to the ESME.
-///
-/// If the MC does not include the parameter in the alert_notification operation, the ESME should
-/// assume that the MS is in an “available” state.
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum MsAvailabilityStatus {
-    #[default]
-    Available = 0,
-    Denied = 1,
-    Unavailable = 2,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    /// The ms_availability_status parameter is used in the alert_notification operation to indicate the
+    /// availability state of the MS to the ESME.
+    ///
+    /// If the MC does not include the parameter in the alert_notification operation, the ESME should
+    /// assume that the MS is in an “available” state.
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum MsAvailabilityStatus {
+        #[default]
+        Available = 0,
+        Denied = 1,
+        Unavailable = 2,
+        Other(u8),
+    }
 }
 
 impl MsAvailabilityStatus {
@@ -51,5 +53,3 @@ impl From<MsAvailabilityStatus> for u8 {
         }
     }
 }
-
-impl EndeU8 for MsAvailabilityStatus {}

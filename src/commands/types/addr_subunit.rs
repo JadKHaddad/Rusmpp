@@ -1,15 +1,15 @@
-use crate::types::u8::EndeU8;
-
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum AddrSubunit {
-    #[default]
-    Unknown = 0x00,
-    MSDisplay = 0x01,
-    MobileEquipment = 0x02,
-    SmartCard = 0x03,
-    ExternalUnit = 0x04,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum AddrSubunit {
+        #[default]
+        Unknown = 0x00,
+        MSDisplay = 0x01,
+        MobileEquipment = 0x02,
+        SmartCard = 0x03,
+        ExternalUnit = 0x04,
+        Other(u8),
+    }
 }
 
 impl From<u8> for AddrSubunit {
@@ -37,5 +37,3 @@ impl From<AddrSubunit> for u8 {
         }
     }
 }
-
-impl EndeU8 for AddrSubunit {}

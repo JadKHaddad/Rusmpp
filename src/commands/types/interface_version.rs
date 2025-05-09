@@ -1,13 +1,15 @@
-use crate::{types::u8::EndeU8, TLVValue, TLV};
+use crate::{TLVValue, TLV};
 
-#[repr(u8)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub enum InterfaceVersion {
-    Smpp3_3OrEarlier(u8),
-    #[default]
-    Smpp3_4 = 0x34,
-    Smpp5_0 = 0x50,
-    Other(u8),
+crate::create! {
+    #[repr(u8)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub enum InterfaceVersion {
+        Smpp3_3OrEarlier(u8),
+        #[default]
+        Smpp3_4 = 0x34,
+        Smpp5_0 = 0x50,
+        Other(u8),
+    }
 }
 
 impl InterfaceVersion {
@@ -46,5 +48,3 @@ impl From<u8> for InterfaceVersion {
         }
     }
 }
-
-impl EndeU8 for InterfaceVersion {}

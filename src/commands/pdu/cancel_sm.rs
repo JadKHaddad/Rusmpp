@@ -1,8 +1,8 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    create, tri,
-    types::{c_octet_string::COctetString, u8::EndeU8},
+    create,
+    types::c_octet_string::COctetString,
 };
 
 create! {

@@ -1,11 +1,8 @@
 use super::Pdu;
 use crate::{
     commands::types::message_state::MessageState,
-    create, tri,
-    types::{
-        c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        u8::EndeU8,
-    },
+    create,
+    types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
 };
 
 create! {

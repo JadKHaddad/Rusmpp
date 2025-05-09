@@ -4,8 +4,8 @@ use crate::{
         tlvs::tlv::{cancel_broadcast::CancelBroadcastTLV, TLV},
         types::{npi::Npi, service_type::ServiceType, ton::Ton},
     },
-    create, tri,
-    types::{c_octet_string::COctetString, u8::EndeU8},
+    create,
+    types::c_octet_string::COctetString,
 };
 
 create! {

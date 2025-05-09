@@ -1,4 +1,4 @@
-use std::{fmt::Debug, io::Cursor};
+use std::fmt::Debug;
 
 use crate::{Decode, DecodeWithLength, Encode};
 

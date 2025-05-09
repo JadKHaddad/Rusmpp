@@ -1,17 +1,3 @@
-/// Our custom `try!` macro aka `?`, to get rid of [`std::convert::From`]/[`std::convert::Into`] used by the `?` operator.
-macro_rules! tri {
-    ($e:expr $(,)?) => {
-        match $e {
-            ::core::result::Result::Ok(value) => value,
-            ::core::result::Result::Err(err) => {
-                return ::core::result::Result::Err(err);
-            }
-        }
-    };
-}
-
-pub(super) use tri;
-
 // /// Implement the [`Length`](crate::ende::length::Length) and [`Encode`](crate::ende::encode::Encode) traits for a struct.
 // ///
 // /// # Help
@@ -241,6 +227,7 @@ macro_rules! create {
 
     };
 
+    // `impl Decode` generation for single field.
     // Example: SmeAddress
     (
         $(#[$struct_meta:meta])*
@@ -293,9 +280,9 @@ macro_rules! create {
         }
     };
 
-    // Skip `impl Decode` generation for the whole struct
-    // @skip: must be applied before the docs
-    // Every other attribute must be applied after the docs
+    // Skip `impl Decode` generation for the whole struct.
+    // @skip: must be applied before the docs.
+    // Every other attribute must be applied after the docs.
     (
         @[$skip:ident]
         $(#[$struct_meta:meta])*
@@ -319,8 +306,6 @@ macro_rules! create {
             )*
         });
     };
-
-
 
     (@create_struct {
         $(#[$struct_meta:meta])*
@@ -434,7 +419,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::DecodeWithLengthExt::decode_move(
             $src, $len.saturating_sub($size), $size
         )?;
     };
@@ -445,7 +430,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeExt::length_checked_decode_move(
+        let ($field_ident, $size) = $crate::DecodeExt::length_checked_decode_move(
             $src, $len.saturating_sub($size), $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -458,7 +443,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::DecodeWithLengthExt::decode_move(
             $src, $length_ident as usize, $size
         )?;
     };
@@ -469,7 +454,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeWithKeyOptionalExt::decode_move(
+        let ($field_ident, $size) = $crate::DecodeWithKeyOptionalExt::decode_move(
             $key, $src, $len.saturating_sub($size), $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -482,7 +467,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeWithKeyExt::optional_length_checked_decode_move(
+        let ($field_ident, $size) = $crate::DecodeWithKeyExt::optional_length_checked_decode_move(
             $key, $src, $length_ident as usize, $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -495,7 +480,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeExt::counted_move(
+        let ($field_ident, $size) = $crate::DecodeExt::counted_move(
             $src, $count as usize, $size
         )?;
     };
@@ -505,7 +490,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, size) = $crate::DecodeExt::decode_move($src, $size)?;
+        let ($field_ident, $size) = $crate::DecodeExt::decode_move($src, $size)?;
     };
 
     // Enums u8

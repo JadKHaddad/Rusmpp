@@ -4,12 +4,12 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
-    create, tri,
+    create,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString,
         empty_or_full_c_octet_string::EmptyOrFullCOctetString, octet_string::OctetString,
-        u8::EndeU8,
     },
+    Length,
 };
 
 create! {

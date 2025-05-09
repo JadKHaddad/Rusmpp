@@ -21,11 +21,10 @@ use crate::{
         ussd_service_op::UssdServiceOp,
     },
     errors::DecodeError,
-    tri,
     types::{
         any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
     },
-    Decode, DecodeWithKey, DecodeWithLength, Encode, Length,
+    DecodeWithKey, Encode, Length,
 };
 
 /// See module level documentation
@@ -351,146 +350,154 @@ impl Encode for TLVValue {
 impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 
-    fn decode(key: Self::Key, src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
-        let value = match key {
-            TLVTag::AdditionalStatusInfoText => {
-                TLVValue::AdditionalStatusInfoText(tri!(COctetString::decode(src)))
-            }
-            TLVTag::AlertOnMessageDelivery => {
-                TLVValue::AlertOnMessageDelivery(tri!(AlertOnMsgDelivery::decode(src)))
-            }
-            TLVTag::BillingIdentification => {
-                TLVValue::BillingIdentification(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::BroadcastAreaIdentifier => TLVValue::BroadcastAreaIdentifier(tri!(
-                BroadcastAreaIdentifier::decode(src, length)
-            )),
-            TLVTag::BroadcastAreaSuccess => {
-                TLVValue::BroadcastAreaSuccess(tri!(BroadcastAreaSuccess::decode(src)))
-            }
-            TLVTag::BroadcastContentTypeInfo => {
-                TLVValue::BroadcastContentTypeInfo(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::BroadcastChannelIndicator => {
-                TLVValue::BroadcastChannelIndicator(tri!(BroadcastChannelIndicator::decode(src)))
-            }
-            TLVTag::BroadcastContentType => {
-                TLVValue::BroadcastContentType(tri!(BroadcastContentType::decode(src)))
-            }
-            TLVTag::BroadcastEndTime => {
-                TLVValue::BroadcastEndTime(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::BroadcastErrorStatus => {
-                TLVValue::BroadcastErrorStatus(tri!(CommandStatus::decode(src)))
-            }
-            TLVTag::BroadcastFrequencyInterval => {
-                TLVValue::BroadcastFrequencyInterval(tri!(BroadcastFrequencyInterval::decode(src)))
-            }
-            TLVTag::BroadcastMessageClass => {
-                TLVValue::BroadcastMessageClass(tri!(BroadcastMessageClass::decode(src)))
-            }
-            TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(tri!(u16::decode(src))),
-            TLVTag::BroadcastServiceGroup => {
-                TLVValue::BroadcastServiceGroup(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::CallbackNum => TLVValue::CallbackNum(tri!(OctetString::decode(src, length))),
-            TLVTag::CallbackNumAtag => {
-                TLVValue::CallbackNumAtag(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::CallbackNumPresInd => {
-                TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode(src)))
-            }
-            TLVTag::CongestionState => {
-                TLVValue::CongestionState(tri!(CongestionState::decode(src)))
-            }
-            TLVTag::DeliveryFailureReason => {
-                TLVValue::DeliveryFailureReason(tri!(DeliveryFailureReason::decode(src)))
-            }
-            TLVTag::DestAddrNpCountry => {
-                TLVValue::DestAddrNpCountry(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::DestAddrNpInformation => {
-                TLVValue::DestAddrNpInformation(tri!(OctetString::decode(src, length)))
-            }
-            TLVTag::DestAddrNpResolution => {
-                TLVValue::DestAddrNpResolution(tri!(DestAddrNpResolution::decode(src)))
-            }
-            TLVTag::DestAddrSubunit => TLVValue::DestAddrSubunit(tri!(AddrSubunit::decode(src))),
-            TLVTag::DestBearerType => TLVValue::DestBearerType(tri!(BearerType::decode(src))),
-            TLVTag::DestNetworkId => TLVValue::DestNetworkId(tri!(COctetString::decode(src))),
-            TLVTag::DestNetworkType => TLVValue::DestNetworkType(tri!(NetworkType::decode(src))),
-            TLVTag::DestNodeId => TLVValue::DestNodeId(tri!(OctetString::decode(src, length))),
-            TLVTag::DestSubaddress => {
-                TLVValue::DestSubaddress(tri!(Subaddress::decode(src, length)))
-            }
-            TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(tri!(u16::decode(src))),
-            TLVTag::DestPort => TLVValue::DestPort(tri!(u16::decode(src))),
-            TLVTag::DisplayTime => TLVValue::DisplayTime(tri!(DisplayTime::decode(src))),
-            TLVTag::DpfResult => TLVValue::DpfResult(tri!(DpfResult::decode(src))),
-            TLVTag::ItsReplyType => TLVValue::ItsReplyType(tri!(ItsReplyType::decode(src))),
-            TLVTag::ItsSessionInfo => TLVValue::ItsSessionInfo(tri!(ItsSessionInfo::decode(src))),
-            TLVTag::LanguageIndicator => {
-                TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode(src)))
-            }
-            TLVTag::MessagePayload => {
-                TLVValue::MessagePayload(tri!(AnyOctetString::decode(src, length)))
-            }
-            TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode(src))),
-            TLVTag::MoreMessagesToSend => {
-                TLVValue::MoreMessagesToSend(tri!(MoreMessagesToSend::decode(src)))
-            }
-            TLVTag::MsAvailabilityStatus => {
-                TLVValue::MsAvailabilityStatus(tri!(MsAvailabilityStatus::decode(src)))
-            }
-            TLVTag::MsMsgWaitFacilities => {
-                TLVValue::MsMsgWaitFacilities(tri!(MsMsgWaitFacilities::decode(src)))
-            }
-            TLVTag::MsValidity => TLVValue::MsValidity(tri!(MsValidity::decode(src, length))),
-            TLVTag::NetworkErrorCode => {
-                TLVValue::NetworkErrorCode(tri!(NetworkErrorCode::decode(src)))
-            }
-            TLVTag::NumberOfMessages => {
-                TLVValue::NumberOfMessages(tri!(NumberOfMessages::decode(src)))
-            }
-            TLVTag::PayloadType => TLVValue::PayloadType(tri!(PayloadType::decode(src))),
-            TLVTag::PrivacyIndicator => {
-                TLVValue::PrivacyIndicator(tri!(PrivacyIndicator::decode(src)))
-            }
-            TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(tri!(u32::decode(src))),
-            TLVTag::ReceiptedMessageId => {
-                TLVValue::ReceiptedMessageId(tri!(COctetString::decode(src)))
-            }
-            TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(tri!(u16::decode(src))),
-            TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(tri!(u8::decode(src))),
-            TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(tri!(u8::decode(src))),
-            TLVTag::ScInterfaceVersion => {
-                TLVValue::ScInterfaceVersion(tri!(InterfaceVersion::decode(src)))
-            }
-            TLVTag::SetDpf => TLVValue::SetDpf(tri!(SetDpf::decode(src))),
-            TLVTag::SmsSignal => TLVValue::SmsSignal(tri!(u16::decode(src))),
-            TLVTag::SourceAddrSubunit => {
-                TLVValue::SourceAddrSubunit(tri!(AddrSubunit::decode(src)))
-            }
-            TLVTag::SourceBearerType => TLVValue::SourceBearerType(tri!(BearerType::decode(src))),
-            TLVTag::SourceNetworkId => TLVValue::SourceNetworkId(tri!(COctetString::decode(src))),
-            TLVTag::SourceNetworkType => {
-                TLVValue::SourceNetworkType(tri!(NetworkType::decode(src)))
-            }
-            TLVTag::SourceNodeId => TLVValue::SourceNodeId(tri!(OctetString::decode(src, length))),
-            TLVTag::SourcePort => TLVValue::SourcePort(tri!(u16::decode(src))),
-            TLVTag::SourceSubaddress => {
-                TLVValue::SourceSubaddress(tri!(Subaddress::decode(src, length)))
-            }
-            TLVTag::SourceTelematicsId => TLVValue::SourceTelematicsId(tri!(u16::decode(src))),
-            TLVTag::UserMessageReference => TLVValue::UserMessageReference(tri!(u16::decode(src))),
-            TLVTag::UserResponseCode => TLVValue::UserResponseCode(tri!(u8::decode(src))),
-            TLVTag::UssdServiceOp => TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode(src))),
-            other => {
-                let value = tri!(AnyOctetString::decode(src, length));
-                TLVValue::Other { tag: other, value }
-            }
-        };
+    fn decode(
+        _key: Self::Key,
+        _src: &mut [u8],
+        _length: usize,
+    ) -> Result<(Self, usize), DecodeError> {
+        // let value = match key {
+        //     TLVTag::AdditionalStatusInfoText => {
+        //         TLVValue::AdditionalStatusInfoText(tri!(COctetString::decode(src)))
+        //     }
+        //     TLVTag::AlertOnMessageDelivery => {
+        //         TLVValue::AlertOnMessageDelivery(tri!(AlertOnMsgDelivery::decode(src)))
+        //     }
+        //     TLVTag::BillingIdentification => {
+        //         TLVValue::BillingIdentification(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::BroadcastAreaIdentifier => TLVValue::BroadcastAreaIdentifier(tri!(
+        //         BroadcastAreaIdentifier::decode(src, length)
+        //     )),
+        //     TLVTag::BroadcastAreaSuccess => {
+        //         TLVValue::BroadcastAreaSuccess(tri!(BroadcastAreaSuccess::decode(src)))
+        //     }
+        //     TLVTag::BroadcastContentTypeInfo => {
+        //         TLVValue::BroadcastContentTypeInfo(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::BroadcastChannelIndicator => {
+        //         TLVValue::BroadcastChannelIndicator(tri!(BroadcastChannelIndicator::decode(src)))
+        //     }
+        //     TLVTag::BroadcastContentType => {
+        //         TLVValue::BroadcastContentType(tri!(BroadcastContentType::decode(src)))
+        //     }
+        //     TLVTag::BroadcastEndTime => {
+        //         TLVValue::BroadcastEndTime(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::BroadcastErrorStatus => {
+        //         TLVValue::BroadcastErrorStatus(tri!(CommandStatus::decode(src)))
+        //     }
+        //     TLVTag::BroadcastFrequencyInterval => {
+        //         TLVValue::BroadcastFrequencyInterval(tri!(BroadcastFrequencyInterval::decode(src)))
+        //     }
+        //     TLVTag::BroadcastMessageClass => {
+        //         TLVValue::BroadcastMessageClass(tri!(BroadcastMessageClass::decode(src)))
+        //     }
+        //     TLVTag::BroadcastRepNum => TLVValue::BroadcastRepNum(tri!(u16::decode(src))),
+        //     TLVTag::BroadcastServiceGroup => {
+        //         TLVValue::BroadcastServiceGroup(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::CallbackNum => TLVValue::CallbackNum(tri!(OctetString::decode(src, length))),
+        //     TLVTag::CallbackNumAtag => {
+        //         TLVValue::CallbackNumAtag(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::CallbackNumPresInd => {
+        //         TLVValue::CallbackNumPresInd(tri!(CallbackNumPresInd::decode(src)))
+        //     }
+        //     TLVTag::CongestionState => {
+        //         TLVValue::CongestionState(tri!(CongestionState::decode(src)))
+        //     }
+        //     TLVTag::DeliveryFailureReason => {
+        //         TLVValue::DeliveryFailureReason(tri!(DeliveryFailureReason::decode(src)))
+        //     }
+        //     TLVTag::DestAddrNpCountry => {
+        //         TLVValue::DestAddrNpCountry(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::DestAddrNpInformation => {
+        //         TLVValue::DestAddrNpInformation(tri!(OctetString::decode(src, length)))
+        //     }
+        //     TLVTag::DestAddrNpResolution => {
+        //         TLVValue::DestAddrNpResolution(tri!(DestAddrNpResolution::decode(src)))
+        //     }
+        //     TLVTag::DestAddrSubunit => TLVValue::DestAddrSubunit(tri!(AddrSubunit::decode(src))),
+        //     TLVTag::DestBearerType => TLVValue::DestBearerType(tri!(BearerType::decode(src))),
+        //     TLVTag::DestNetworkId => TLVValue::DestNetworkId(tri!(COctetString::decode(src))),
+        //     TLVTag::DestNetworkType => TLVValue::DestNetworkType(tri!(NetworkType::decode(src))),
+        //     TLVTag::DestNodeId => TLVValue::DestNodeId(tri!(OctetString::decode(src, length))),
+        //     TLVTag::DestSubaddress => {
+        //         TLVValue::DestSubaddress(tri!(Subaddress::decode(src, length)))
+        //     }
+        //     TLVTag::DestTelematicsId => TLVValue::DestTelematicsId(tri!(u16::decode(src))),
+        //     TLVTag::DestPort => TLVValue::DestPort(tri!(u16::decode(src))),
+        //     TLVTag::DisplayTime => TLVValue::DisplayTime(tri!(DisplayTime::decode(src))),
+        //     TLVTag::DpfResult => TLVValue::DpfResult(tri!(DpfResult::decode(src))),
+        //     TLVTag::ItsReplyType => TLVValue::ItsReplyType(tri!(ItsReplyType::decode(src))),
+        //     TLVTag::ItsSessionInfo => TLVValue::ItsSessionInfo(tri!(ItsSessionInfo::decode(src))),
+        //     TLVTag::LanguageIndicator => {
+        //         TLVValue::LanguageIndicator(tri!(LanguageIndicator::decode(src)))
+        //     }
+        //     TLVTag::MessagePayload => {
+        //         TLVValue::MessagePayload(tri!(AnyOctetString::decode(src, length)))
+        //     }
+        //     TLVTag::MessageState => TLVValue::MessageState(tri!(MessageState::decode(src))),
+        //     TLVTag::MoreMessagesToSend => {
+        //         TLVValue::MoreMessagesToSend(tri!(MoreMessagesToSend::decode(src)))
+        //     }
+        //     TLVTag::MsAvailabilityStatus => {
+        //         TLVValue::MsAvailabilityStatus(tri!(MsAvailabilityStatus::decode(src)))
+        //     }
+        //     TLVTag::MsMsgWaitFacilities => {
+        //         TLVValue::MsMsgWaitFacilities(tri!(MsMsgWaitFacilities::decode(src)))
+        //     }
+        //     TLVTag::MsValidity => TLVValue::MsValidity(tri!(MsValidity::decode(src, length))),
+        //     TLVTag::NetworkErrorCode => {
+        //         TLVValue::NetworkErrorCode(tri!(NetworkErrorCode::decode(src)))
+        //     }
+        //     TLVTag::NumberOfMessages => {
+        //         TLVValue::NumberOfMessages(tri!(NumberOfMessages::decode(src)))
+        //     }
+        //     TLVTag::PayloadType => TLVValue::PayloadType(tri!(PayloadType::decode(src))),
+        //     TLVTag::PrivacyIndicator => {
+        //         TLVValue::PrivacyIndicator(tri!(PrivacyIndicator::decode(src)))
+        //     }
+        //     TLVTag::QosTimeToLive => TLVValue::QosTimeToLive(tri!(u32::decode(src))),
+        //     TLVTag::ReceiptedMessageId => {
+        //         TLVValue::ReceiptedMessageId(tri!(COctetString::decode(src)))
+        //     }
+        //     TLVTag::SarMsgRefNum => TLVValue::SarMsgRefNum(tri!(u16::decode(src))),
+        //     TLVTag::SarSegmentSeqnum => TLVValue::SarSegmentSeqnum(tri!(u8::decode(src))),
+        //     TLVTag::SarTotalSegments => TLVValue::SarTotalSegments(tri!(u8::decode(src))),
+        //     TLVTag::ScInterfaceVersion => {
+        //         TLVValue::ScInterfaceVersion(tri!(InterfaceVersion::decode(src)))
+        //     }
+        //     TLVTag::SetDpf => TLVValue::SetDpf(tri!(SetDpf::decode(src))),
+        //     TLVTag::SmsSignal => TLVValue::SmsSignal(tri!(u16::decode(src))),
+        //     TLVTag::SourceAddrSubunit => {
+        //         TLVValue::SourceAddrSubunit(tri!(AddrSubunit::decode(src)))
+        //     }
+        //     TLVTag::SourceBearerType => TLVValue::SourceBearerType(tri!(BearerType::decode(src))),
+        //     TLVTag::SourceNetworkId => TLVValue::SourceNetworkId(tri!(COctetString::decode(src))),
+        //     TLVTag::SourceNetworkType => {
+        //         TLVValue::SourceNetworkType(tri!(NetworkType::decode(src)))
+        //     }
+        //     TLVTag::SourceNodeId => TLVValue::SourceNodeId(tri!(OctetString::decode(src, length))),
+        //     TLVTag::SourcePort => TLVValue::SourcePort(tri!(u16::decode(src))),
+        //     TLVTag::SourceSubaddress => {
+        //         TLVValue::SourceSubaddress(tri!(Subaddress::decode(src, length)))
+        //     }
+        //     TLVTag::SourceTelematicsId => TLVValue::SourceTelematicsId(tri!(u16::decode(src))),
+        //     TLVTag::UserMessageReference => TLVValue::UserMessageReference(tri!(u16::decode(src))),
+        //     TLVTag::UserResponseCode => TLVValue::UserResponseCode(tri!(u8::decode(src))),
+        //     TLVTag::UssdServiceOp => TLVValue::UssdServiceOp(tri!(UssdServiceOp::decode(src))),
+        //     other => {
+        //         let value = tri!(AnyOctetString::decode(src, length));
+        //         TLVValue::Other {
+        //             tag: other,
+        //             value: value.0,
+        //         }
+        //     }
+        // };
 
-        Ok(value)
+        todo!()
+        // Ok(value)
     }
 }

@@ -4,6 +4,7 @@ create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidity {
         pub validity_behavior: MsValidityBehavior,
+        @[length = checked]
         pub validity_information: Option<MsValidityInformation>,
     }
 }

@@ -10,7 +10,7 @@ use crate::{
             broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
         },
     },
-    create, tri,
+    create,
     types::c_octet_string::COctetString,
 };
 

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{broadcast_response::BroadcastResponseTLV, TLV},
-    create, tri,
+    create,
     types::c_octet_string::COctetString,
 };
 

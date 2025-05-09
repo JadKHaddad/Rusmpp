@@ -78,7 +78,7 @@ mod macros;
 
 pub(crate) mod utils;
 
-use macros::{create, tri};
+use macros::create;
 
 // New stuff
 

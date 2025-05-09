@@ -1,8 +1,8 @@
 use super::Pdu;
 use crate::{
     commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
-    create, tri,
-    types::{c_octet_string::COctetString, u8::EndeU8},
+    create,
+    types::c_octet_string::COctetString,
 };
 
 macro_rules! declare_bind {

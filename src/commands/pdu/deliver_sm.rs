@@ -11,11 +11,12 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    create, tri,
+    create,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        octet_string::OctetString, u8::EndeU8,
+        octet_string::OctetString,
     },
+    Length,
 };
 
 create! {

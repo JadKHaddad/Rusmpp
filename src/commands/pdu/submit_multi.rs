@@ -52,6 +52,7 @@ create! {
         /// submitting to one Distribution List.
         number_of_dests: u8,
         /// Composite field.
+        @[count = number_of_dests]
         dest_address: Vec<DestAddress>,
         /// Indicates Message Mode and Message Type.
         pub esm_class: EsmClass,

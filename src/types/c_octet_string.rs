@@ -132,8 +132,11 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
 
         let bytes = bytes.as_ref();
 
-        if bytes[bytes.len() - 1] != 0 {
-            return Err(Error::NotNullTerminated);
+        if bytes.len() < MIN {
+            return Err(Error::TooFewBytes {
+                actual: bytes.len(),
+                min: MIN,
+            });
         }
 
         if bytes.len() > MAX {
@@ -143,19 +146,18 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
             });
         }
 
-        if bytes.len() < MIN {
-            return Err(Error::TooFewBytes {
-                actual: bytes.len(),
-                min: MIN,
-            });
-        }
+        // Now we can index into the bytes because we know it cannot be empty
 
-        if !bytes.is_ascii() {
-            return Err(Error::NotAscii);
+        if bytes[bytes.len() - 1] != 0 {
+            return Err(Error::NotNullTerminated);
         }
 
         if bytes[..bytes.len() - 1].contains(&0) {
             return Err(Error::NullByteFound);
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
         }
 
         let bytes = bytes.to_vec();
@@ -215,13 +217,6 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
 
         let bytes = s.as_bytes();
 
-        if bytes.len() + 1 > MAX {
-            return Err(Error::TooManyBytes {
-                actual: bytes.len() + 1,
-                max: MAX,
-            });
-        }
-
         if bytes.len() + 1 < MIN {
             return Err(Error::TooFewBytes {
                 actual: bytes.len() + 1,
@@ -229,12 +224,19 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
             });
         }
 
-        if !bytes.is_ascii() {
-            return Err(Error::NotAscii);
+        if bytes.len() + 1 > MAX {
+            return Err(Error::TooManyBytes {
+                actual: bytes.len() + 1,
+                max: MAX,
+            });
         }
 
         if bytes[..bytes.len()].contains(&0) {
             return Err(Error::NullByteFound);
+        }
+
+        if !bytes.is_ascii() {
+            return Err(Error::NotAscii);
         }
 
         let mut bytes = bytes.to_vec();
@@ -329,6 +331,13 @@ mod tests {
         use super::*;
 
         #[test]
+        fn empty_too_few_bytes() {
+            let bytes = b"";
+            let error = COctetString::<1, 5>::new(bytes).unwrap_err();
+            assert!(matches!(error, Error::TooFewBytes { actual: 0, min: 1 }));
+        }
+
+        #[test]
         fn too_many_bytes() {
             let bytes = b"Hello\0";
             let error = COctetString::<1, 5>::new(bytes).unwrap_err();
@@ -398,6 +407,13 @@ mod tests {
         use core::str::FromStr;
 
         use super::*;
+
+        #[test]
+        fn null_null_byte_found() {
+            let string = "\0";
+            let error = COctetString::<1, 5>::from_str(string).unwrap_err();
+            assert!(matches!(error, Error::NullByteFound));
+        }
 
         #[test]
         fn too_many_bytes() {

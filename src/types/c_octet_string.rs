@@ -1,5 +1,7 @@
 #![allow(path_statements)]
 
+use std::vec;
+
 use crate::{
     errors::{COctetStringDecodeError, DecodeError},
     Decode, Encode, Length,
@@ -105,7 +107,14 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     pub fn empty() -> Self {
         Self::_ASSERT_VALID;
 
-        Self { bytes: vec![0] }
+        // Fill the buffer with (`MIN` - 1) `NOT` NULL octets
+        // And put a NULL octet at the end
+
+        let mut bytes = vec![1; MIN];
+
+        bytes[MIN - 1] = 0;
+
+        Self { bytes }
     }
 
     /// Check if a [`COctetString`] is empty.
@@ -309,7 +318,6 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
 mod tests {
     use super::*;
 
-    // TODO: How do we want to handle this?
     #[test]
     fn default_encode_decode() {
         crate::ende::tests::default_encode_decode::<COctetString<1, 5>>();

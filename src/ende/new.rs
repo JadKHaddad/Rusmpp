@@ -1,3 +1,5 @@
+// TODO: every ext trait should be crate private
+
 use error::DecodeError;
 
 pub trait Length {
@@ -46,6 +48,21 @@ pub trait EncodeExt: Encode {
 }
 
 impl<T: Encode> EncodeExt for T {}
+
+pub trait DecodeResultExt<T, E> {
+    fn map_decoded<F, U>(self, op: F) -> Result<(U, usize), E>
+    where
+        F: FnOnce(T) -> U;
+}
+
+impl<T, E> DecodeResultExt<T, E> for Result<(T, usize), E> {
+    fn map_decoded<F, U>(self, op: F) -> Result<(U, usize), E>
+    where
+        F: FnOnce(T) -> U,
+    {
+        self.map(|(this, size)| (op(this), size))
+    }
+}
 
 pub trait DecodeExt: Decode {
     fn decode_move(src: &mut [u8], size: usize) -> Result<(Self, usize), DecodeError> {

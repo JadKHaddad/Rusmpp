@@ -1,7 +1,8 @@
 use super::{npi::Npi, ton::Ton};
 
 use crate::{
-    errors::DecodeError, types::c_octet_string::COctetString, Decode, DecodeExt, Encode, Length,
+    ende::new::DecodeResultExt, errors::DecodeError, types::c_octet_string::COctetString, Decode,
+    DecodeExt, Encode, Length,
 };
 
 crate::create! {
@@ -75,14 +76,10 @@ impl Decode for DestAddress {
 
         match flag {
             DestFlag::SmeAddress => {
-                let (sa, size) = SmeAddress::decode_move(src, size)?;
-
-                Ok((Self::SmeAddress(sa), size))
+                SmeAddress::decode_move(src, size).map_decoded(Self::SmeAddress)
             }
             DestFlag::DistributionListName => {
-                let (dlm, size) = DistributionListName::decode_move(src, size)?;
-
-                Ok((Self::DistributionListName(dlm), size))
+                DistributionListName::decode_move(src, size).map_decoded(Self::DistributionListName)
             }
             DestFlag::Other(flag) => Err(DecodeError::UnsupportedKey { key: flag.into() }),
         }

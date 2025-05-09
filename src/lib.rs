@@ -87,7 +87,8 @@ pub use ende::new::{
 };
 
 use ende::new::{
-    DecodeExt, DecodeWithKeyExt, DecodeWithKeyOptionalExt, DecodeWithLengthExt, EncodeExt,
+    DecodeExt, DecodeResultExt, DecodeWithKeyExt, DecodeWithKeyOptionalExt, DecodeWithLengthExt,
+    EncodeExt,
 };
 
 pub mod errors {

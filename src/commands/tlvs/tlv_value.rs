@@ -350,7 +350,7 @@ impl Encode for TLVValue {
 impl DecodeWithKey for TLVValue {
     type Key = TLVTag;
 
-    fn decode(key: Self::Key, src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+    fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         let (value, size) = match key {
             TLVTag::AdditionalStatusInfoText => {
                 Decode::decode(src).map_decoded(Self::AdditionalStatusInfoText)?

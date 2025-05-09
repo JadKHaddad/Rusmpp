@@ -107,7 +107,7 @@ impl Encode for AnyOctetString {
 }
 
 impl DecodeWithLength for AnyOctetString {
-    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         if src.len() < length {
             return Err(DecodeError::UnexpectedEof);
         }

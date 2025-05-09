@@ -123,7 +123,7 @@ pub enum DecodeError2 {
 }
 
 pub trait Decode2: Sized {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError2>;
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError2>;
 
     fn decode_move(src: &mut [u8], size: usize) -> Result<(Self, usize), DecodeError2> {
         let (this, size_) = Self::decode(&mut src[size..])?;

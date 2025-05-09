@@ -217,7 +217,7 @@ impl<const N: usize> Encode for EmptyOrFullCOctetString<N> {
 }
 
 impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_NON_ZERO;
 
         let mut bytes = Vec::with_capacity(N);

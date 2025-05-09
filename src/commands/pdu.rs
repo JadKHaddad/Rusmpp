@@ -365,7 +365,7 @@ impl DecodeWithKeyOptional for Pdu {
 
     fn decode(
         key: Self::Key,
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
         if length == 0 {

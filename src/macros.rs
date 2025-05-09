@@ -127,7 +127,7 @@ macro_rules! create {
         });
 
         impl $crate::Decode for $struct_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 let size = 0;
 
                 $(
@@ -170,7 +170,7 @@ macro_rules! create {
         });
 
         impl $crate::DecodeWithLength for $struct_ident {
-            fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 let size = 0;
 
                 $(
@@ -257,7 +257,7 @@ macro_rules! create {
         });
 
         impl $crate::Decode for $struct_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 let size = 0;
 
                 $(
@@ -383,7 +383,7 @@ macro_rules! create {
         )*
     }) => {
         impl $crate::DecodeWithLength for $struct_ident {
-            fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 let size = 0;
 
                 $(
@@ -415,7 +415,7 @@ macro_rules! create {
         )*
     }) => {
         impl $crate::Decode for $struct_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 let size = 0;
 
                 $(
@@ -591,7 +591,7 @@ macro_rules! create {
         }
 
         impl $crate::Decode for $name {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
                 $repr::decode(src).map(|(this, size)| (Self::from(this), size))
             }
         }

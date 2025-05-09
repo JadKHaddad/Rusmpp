@@ -26,7 +26,7 @@ impl Encode for u16 {
 }
 
 impl Decode for u16 {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 2 {
             return Err(DecodeError::UnexpectedEof);
         }

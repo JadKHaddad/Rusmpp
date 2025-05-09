@@ -184,7 +184,7 @@ impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
-    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if length > MAX {

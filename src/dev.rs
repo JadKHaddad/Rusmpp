@@ -53,7 +53,7 @@ impl crate::ende::encode::Encode2 for A {
 }
 
 impl Decode2 for A {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError2> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError2> {
         let size = 0;
 
         let (b_size, size) = Decode2::decode_move(src, size)?;

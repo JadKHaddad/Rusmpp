@@ -28,7 +28,7 @@ impl Encode for u32 {
 }
 
 impl Decode for u32 {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 4 {
             return Err(DecodeError::UnexpectedEof);
         }

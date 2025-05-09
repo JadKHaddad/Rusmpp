@@ -265,7 +265,7 @@ impl<const MIN: usize, const MAX: usize> Encode for COctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_VALID;
 
         if src.len() < MIN {

@@ -15,19 +15,19 @@ pub trait Encode: Length {
 
 pub trait Decode: Sized {
     /// Decode a value from a slice
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), DecodeError>;
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError>;
 }
 
 pub trait DecodeWithLength: Sized {
     /// Decode a slice from a reader, with a specified length
-    fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError>;
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 
 pub trait DecodeWithKey: Sized {
     type Key;
 
     /// Decode a value from a slice, using a key to determine the type
-    fn decode(key: Self::Key, src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError>;
+    fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 
 pub trait DecodeWithKeyOptional: Sized {
@@ -36,7 +36,7 @@ pub trait DecodeWithKeyOptional: Sized {
     /// Decode an optional value from a slice, using a key to determine the type
     fn decode(
         key: Self::Key,
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError>;
 }
@@ -65,19 +65,19 @@ impl<T, E> DecodeResultExt<T, E> for Result<(T, usize), E> {
 }
 
 pub trait DecodeExt: Decode {
-    fn decode_move(src: &mut [u8], size: usize) -> Result<(Self, usize), DecodeError> {
-        Self::decode(&mut src[size..]).map(|(this, size_)| (this, size + size_))
+    fn decode_move(src: &[u8], size: usize) -> Result<(Self, usize), DecodeError> {
+        Self::decode(&src[size..]).map(|(this, size_)| (this, size + size_))
     }
 
     // TODO: test this
     /// Decode a vector of values from a slice with a specified count
-    fn counted(src: &mut [u8], count: usize) -> Result<(Vec<Self>, usize), DecodeError> {
+    fn counted(src: &[u8], count: usize) -> Result<(Vec<Self>, usize), DecodeError> {
         let mut size = 0;
 
         let mut vec = Vec::with_capacity(count);
 
         for _ in 0..count {
-            let (item, size_) = Self::decode(&mut src[size..])?;
+            let (item, size_) = Self::decode(&src[size..])?;
 
             size += size_;
 
@@ -89,18 +89,18 @@ pub trait DecodeExt: Decode {
 
     // TODO: test this
     fn counted_move(
-        src: &mut [u8],
+        src: &[u8],
         count: usize,
         size: usize,
     ) -> Result<(Vec<Self>, usize), DecodeError> {
-        Self::counted(&mut src[size..], count).map(|(vec, size_)| (vec, size + size_))
+        Self::counted(&src[size..], count).map(|(vec, size_)| (vec, size + size_))
     }
 
     /// Decode a value from a slice
     ///
     /// If the length is 0, return `None`
     fn length_checked_decode(
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
         (length > 0)
@@ -110,11 +110,11 @@ pub trait DecodeExt: Decode {
     }
 
     fn length_checked_decode_move(
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
         size: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
-        Self::length_checked_decode(&mut src[size..], length)
+        Self::length_checked_decode(&src[size..], length)
             .map(|decoded| decoded.map(|(this, size_)| (this, size + size_)))
     }
 }
@@ -122,12 +122,8 @@ pub trait DecodeExt: Decode {
 impl<T: Decode> DecodeExt for T {}
 
 pub trait DecodeWithLengthExt: DecodeWithLength {
-    fn decode_move(
-        src: &mut [u8],
-        length: usize,
-        size: usize,
-    ) -> Result<(Self, usize), DecodeError> {
-        Self::decode(&mut src[size..], length).map(|(this, size_)| (this, size + size_))
+    fn decode_move(src: &[u8], length: usize, size: usize) -> Result<(Self, usize), DecodeError> {
+        Self::decode(&src[size..], length).map(|(this, size_)| (this, size + size_))
     }
 }
 
@@ -149,7 +145,7 @@ pub trait DecodeWithKeyExt: DecodeWithKey {
     /// If the length is 0, return `None`
     fn optional_length_checked_decode(
         key: Self::Key,
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
         (length > 0)
@@ -160,11 +156,11 @@ pub trait DecodeWithKeyExt: DecodeWithKey {
 
     fn optional_length_checked_decode_move(
         key: Self::Key,
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
         size: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
-        Self::optional_length_checked_decode(key, &mut src[size..], length)
+        Self::optional_length_checked_decode(key, &src[size..], length)
             .map(|decoded| decoded.map(|(this, size_)| (this, size + size_)))
     }
 }
@@ -174,11 +170,11 @@ impl<T: DecodeWithKey> DecodeWithKeyExt for T {}
 pub trait DecodeWithKeyOptionalExt: DecodeWithKeyOptional {
     fn decode_move(
         key: Self::Key,
-        src: &mut [u8],
+        src: &[u8],
         length: usize,
         size: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
-        Self::decode(key, &mut src[size..], length)
+        Self::decode(key, &src[size..], length)
             .map(|decoded| decoded.map(|(this, size_)| (this, size + size_)))
     }
 }
@@ -305,13 +301,13 @@ const _: () = {
 
     // TODO: test this
     impl<T: Decode> DecodeWithLength for Vec<T> {
-        fn decode(src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
             let mut size = 0;
 
             let mut vec = Vec::with_capacity(length);
 
             for _ in 0..length {
-                let (item, size_) = T::decode(&mut src[size..])?;
+                let (item, size_) = T::decode(&src[size..])?;
 
                 size += size_;
 

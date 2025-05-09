@@ -69,7 +69,7 @@ impl Encode for DestAddress {
 }
 
 impl Decode for DestAddress {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
         let size = 0;
 
         let (flag, size) = DestFlag::decode_move(src, size)?;

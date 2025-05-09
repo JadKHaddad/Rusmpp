@@ -68,21 +68,47 @@ impl Default for CommandCodec {
 
 #[cfg(feature = "tokio-codec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
-const _: () = {
+pub mod tokio {
     use tokio_util::{
         bytes::{Buf, BufMut, BytesMut},
         codec::{Decoder, Encoder},
     };
 
-    use crate::{
-        commands::command::Command,
-        ende::{
-            decode::{DecodeError, DecodeWithLength},
-            encode::{Encode, EncodeError},
-            length::Length,
-        },
-        tri,
-    };
+    use crate::{commands::command::Command, DecodeWithLength, Encode, Length};
+
+    use super::CommandCodec;
+
+    #[derive(Debug)]
+    #[non_exhaustive]
+    pub enum EncodeError {
+        Io(std::io::Error),
+    }
+
+    impl From<std::io::Error> for EncodeError {
+        fn from(e: std::io::Error) -> Self {
+            EncodeError::Io(e)
+        }
+    }
+
+    impl core::fmt::Display for EncodeError {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                EncodeError::Io(e) => write!(f, "I/O error: {e}"),
+            }
+        }
+    }
+
+    impl std::error::Error for EncodeError {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            match self {
+                EncodeError::Io(e) => Some(e),
+            }
+        }
+
+        fn cause(&self) -> Option<&dyn std::error::Error> {
+            self.source()
+        }
+    }
 
     impl Encoder<&Command> for CommandCodec {
         type Error = EncodeError;
@@ -93,19 +119,16 @@ const _: () = {
             dst.reserve(command_length);
             dst.put_u32(command_length as u32);
 
-            // tested with cargo test --features tokio-codec
-            #[cfg(not(feature = "tracing"))]
-            tri!(command.encode_to(&mut dst.writer()));
+            // TODO: Can we encode directly into dst?
+            let mut buf = vec![0; command.length()];
+            let _ = command.encode(buf.as_mut_slice());
 
-            // tested with cargo test --features tokio-codec tracing
+            dst.put_slice(&buf);
+
             #[cfg(feature = "tracing")]
             {
-                let encoded = tri!(command.encode_into_vec());
-
-                dst.put_slice(&encoded);
-
                 tracing::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
-                tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&encoded));
+                tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&buf), encoded_length=command.length(), command_length);
             }
 
             Ok(())
@@ -120,6 +143,41 @@ const _: () = {
         }
     }
 
+    #[derive(Debug)]
+    #[non_exhaustive]
+    pub enum DecodeError {
+        Io(std::io::Error),
+        Decode(crate::errors::DecodeError),
+    }
+
+    impl From<std::io::Error> for DecodeError {
+        fn from(e: std::io::Error) -> Self {
+            DecodeError::Io(e)
+        }
+    }
+
+    impl core::fmt::Display for DecodeError {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> std::fmt::Result {
+            match self {
+                DecodeError::Io(e) => write!(f, "I/O error: {e}"),
+                DecodeError::Decode(e) => write!(f, "Decode error: {e}"),
+            }
+        }
+    }
+
+    impl std::error::Error for DecodeError {
+        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+            match self {
+                DecodeError::Io(e) => Some(e),
+                DecodeError::Decode(e) => Some(e),
+            }
+        }
+
+        fn cause(&self) -> Option<&dyn std::error::Error> {
+            self.source()
+        }
+    }
+
     impl Decoder for CommandCodec {
         type Item = Command;
         type Error = DecodeError;
@@ -127,7 +185,7 @@ const _: () = {
         fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
             if src.len() < 4 {
                 #[cfg(feature = "tracing")]
-                tracing::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough data to read command_length");
+                tracing::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command_length");
 
                 return Ok(None);
             }
@@ -135,14 +193,14 @@ const _: () = {
             let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
 
             #[cfg(feature = "tracing")]
-            tracing::trace!(target: "rusmpp::codec::decode", %command_length);
+            tracing::trace!(target: "rusmpp::codec::decode", command_length);
 
             if src.len() < command_length {
                 // Reserve enough space to read the entire command
                 src.reserve(command_length - src.len());
 
                 #[cfg(feature = "tracing")]
-                tracing::trace!(target: "rusmpp::codec::decode", %command_length, "Not enough data to read the entire command");
+                tracing::trace!(target: "rusmpp::codec::decode", command_length, "Not enough bytes to read the entire command");
 
                 return Ok(None);
             }
@@ -152,18 +210,18 @@ const _: () = {
             #[cfg(feature = "tracing")]
             tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::HexFormatter(&src[..command_length]));
 
-            let command = match Command::decode_from_slice(&src[4..command_length], pdu_len) {
-                Ok(command) => {
+            let (command, _size) = match Command::decode(&src[4..command_length], pdu_len) {
+                Ok((command, size)) => {
                     #[cfg(feature = "tracing")]
-                    tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command);
+                    tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command, command_length, decoded_length=size);
 
-                    command
+                    (command, size)
                 }
                 Err(err) => {
                     #[cfg(feature = "tracing")]
                     tracing::error!(target: "rusmpp::codec::decode", ?err);
 
-                    return Err(err);
+                    return Err(DecodeError::Decode(err));
                 }
             };
 
@@ -172,4 +230,4 @@ const _: () = {
             Ok(Some(command))
         }
     }
-};
+}

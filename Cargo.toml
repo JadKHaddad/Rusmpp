@@ -22,7 +22,7 @@ tokio-util = { version = "0.7.10", features = ["codec"], optional = true }
 tracing = { version = "0.1.40", optional = true }
 
 [features]
-default = []
+default = ["tokio-codec", "tracing"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
 # Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.

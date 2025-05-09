@@ -4,11 +4,10 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, ton::Ton},
     },
-    create,
     types::c_octet_string::COctetString,
 };
 
-create! {
+crate::create! {
     /// This command is issued by the ESME to query the status of a previously submitted
     /// broadcast message. The message can be queried either on the basis of the Message Center
     /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME

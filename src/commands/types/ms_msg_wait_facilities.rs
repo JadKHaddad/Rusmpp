@@ -1,7 +1,10 @@
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct MsMsgWaitFacilities {
-    pub indicator: Indicator,
-    pub type_of_message: TypeOfMessage,
+crate::create! {
+    @[repr = u8]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct MsMsgWaitFacilities {
+        pub indicator: Indicator,
+        pub type_of_message: TypeOfMessage,
+    }
 }
 
 impl MsMsgWaitFacilities {
@@ -25,24 +28,6 @@ impl From<u8> for MsMsgWaitFacilities {
 impl From<MsMsgWaitFacilities> for u8 {
     fn from(value: MsMsgWaitFacilities) -> Self {
         u8::from(value.indicator) | u8::from(value.type_of_message)
-    }
-}
-
-impl crate::Length for MsMsgWaitFacilities {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-impl crate::Encode for MsMsgWaitFacilities {
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        u8::from(*self).encode(dst)
-    }
-}
-
-impl crate::Decode for MsMsgWaitFacilities {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
-        u8::decode(src).map(|(this, size)| (Self::from(this), size))
     }
 }
 

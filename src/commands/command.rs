@@ -36,9 +36,8 @@ use super::{
     pdu::Pdu,
     types::{command_id::CommandId, command_status::CommandStatus},
 };
-use crate::create;
 
-create! {
+crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct Command {
         /// See [`CommandId`]

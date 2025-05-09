@@ -1,9 +1,12 @@
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-pub struct EsmClass {
-    pub messaging_mode: MessagingMode,
-    pub message_type: MessageType,
-    pub ansi41_specific: Ansi41Specific,
-    pub gsm_features: GsmFeatures,
+crate::create! {
+    @[repr = u8]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    pub struct EsmClass {
+        pub messaging_mode: MessagingMode,
+        pub message_type: MessageType,
+        pub ansi41_specific: Ansi41Specific,
+        pub gsm_features: GsmFeatures,
+    }
 }
 
 impl EsmClass {
@@ -39,24 +42,6 @@ impl From<EsmClass> for u8 {
             | u8::from(value.message_type)
             | u8::from(value.ansi41_specific)
             | u8::from(value.gsm_features)
-    }
-}
-
-impl crate::Length for EsmClass {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-impl crate::Encode for EsmClass {
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        u8::from(*self).encode(dst)
-    }
-}
-
-impl crate::Decode for EsmClass {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
-        u8::decode(src).map(|(this, size)| (Self::from(this), size))
     }
 }
 

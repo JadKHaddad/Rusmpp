@@ -6,13 +6,12 @@ use crate::{
             registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
         },
     },
-    create,
     types::c_octet_string::COctetString,
 };
 
 use super::Pdu;
 
-create! {
+crate::create! {
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or

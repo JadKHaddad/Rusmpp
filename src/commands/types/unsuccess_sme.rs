@@ -1,7 +1,7 @@
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
-use crate::{create, types::c_octet_string::COctetString};
+use crate::types::c_octet_string::COctetString;
 
-create! {
+crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct UnsuccessSme {
         /// Type of number for destination.

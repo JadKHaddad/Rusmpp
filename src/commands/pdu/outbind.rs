@@ -1,7 +1,7 @@
 use super::Pdu;
-use crate::{create, types::c_octet_string::COctetString};
+use crate::types::c_octet_string::COctetString;
 
-create! {
+crate::create! {
     /// Authentication PDU used by a Message Centre to Outbind to
     /// an ESME to inform it that messages are present in the MC.
     /// The PDU contains identification, and access password for the

@@ -117,7 +117,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        create!(@create_struct {
+        $crate::create!(@create_struct_with_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -131,7 +131,7 @@ macro_rules! create {
                 let size = 0;
 
                 $(
-                    create!(@match_field
+                    $crate::create!(@match_field
                         {
                             $field_ident,
                             src, length, size
@@ -160,7 +160,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        create!(@create_struct {
+        $crate::create!(@create_struct_with_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -174,7 +174,7 @@ macro_rules! create {
                 let size = 0;
 
                 $(
-                    create!(@match_field
+                    $crate::create!(@match_field
                         {
                             $(@[length = $length])?
                             $(@[count = $count])?
@@ -204,7 +204,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        create!(@create_struct {
+        $crate::create!(@create_struct_with_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -216,7 +216,7 @@ macro_rules! create {
         // Implements DecodeWithLength or Decode depending on the length:
         // If it's unchecked, it implements DecodeWithLength.
         // If it's and ident of a field, it implements Decode.
-        create!(@create_decode_with_key {
+        $crate::create!(@create_decode_with_key {
             $struct_ident
             $(
                 $(#[$field_attr])*
@@ -243,7 +243,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        create!(@create_struct {
+        $crate::create!(@create_struct_with_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -261,7 +261,7 @@ macro_rules! create {
                 let size = 0;
 
                 $(
-                    create!(@match_field
+                    $crate::create!(@match_field
                         {
                             $field_ident,
                             src, length, size
@@ -297,7 +297,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        create!(@create_struct {
+        $crate::create!(@create_struct_with_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -307,7 +307,32 @@ macro_rules! create {
         });
     };
 
-    (@create_struct {
+    // Impl `Length`, `Encode` and `Decode` for a struct, based on its Into/From u8
+    // The struct must be `Copy`, `Into<u8>` and `From<u8>`
+    (
+        @[repr = u8]
+        $(#[$struct_meta:meta])*
+        $struct_vis:vis struct $struct_ident:ident {
+            $(
+                $(#[$field_attr:meta])*
+                $field_vis:vis $field_ident:ident: $field_ty:ty,
+            )*
+        }
+    ) => {
+        $(#[$struct_meta])*
+        $struct_vis struct $struct_ident {
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_ident: $field_ty,
+            )*
+        }
+
+        $crate::create!(@repr{
+            $struct_ident, u8
+        });
+    };
+
+    (@create_struct_with_length_and_encode {
         $(#[$struct_meta:meta])*
         $struct_vis:vis $struct_ident:ident
         $(
@@ -362,7 +387,7 @@ macro_rules! create {
                 let size = 0;
 
                 $(
-                    create!(@match_field
+                    $crate::create!(@match_field
                         {
                             $(@[key = $key, length = unchecked])?
                             $field_ident,
@@ -394,7 +419,7 @@ macro_rules! create {
                 let size = 0;
 
                 $(
-                    create!(@match_field
+                    $crate::create!(@match_field
                         {
                             $(@[key = $key, length = $length])?
                             $field_ident,
@@ -507,23 +532,9 @@ macro_rules! create {
             $($enum_body)*
         }
 
-        impl $crate::Length for $enum_ident {
-            fn length(&self) -> usize {
-                u8::from(*self).length()
-            }
-        }
-
-        impl $crate::Encode for $enum_ident {
-            fn encode(&self, dst: &mut [u8]) -> usize {
-                u8::from(*self).encode(dst)
-            }
-        }
-
-        impl $crate::Decode for $enum_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
-                u8::decode(src).map(|(this, size)| (Self::from(this), size))
-            }
-        }
+        $crate::create!(@repr{
+            $enum_ident, u8
+        });
     };
 
     // Enums u16
@@ -540,23 +551,9 @@ macro_rules! create {
             $($enum_body)*
         }
 
-        impl $crate::Length for $enum_ident {
-            fn length(&self) -> usize {
-                u16::from(*self).length()
-            }
-        }
-
-        impl $crate::Encode for $enum_ident {
-            fn encode(&self, dst: &mut [u8]) -> usize {
-                u16::from(*self).encode(dst)
-            }
-        }
-
-        impl $crate::Decode for $enum_ident {
-            fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
-                u16::decode(src).map(|(this, size)| (Self::from(this), size))
-            }
-        }
+        $crate::create!(@repr{
+            $enum_ident, u16
+        });
     };
 
     // Enums u32
@@ -573,21 +570,29 @@ macro_rules! create {
             $($enum_body)*
         }
 
-        impl $crate::Length for $enum_ident {
+        $crate::create!(@repr{
+            $enum_ident, u32
+        });
+    };
+
+    (@repr {
+        $name:ident, $repr:ident
+    }) => {
+        impl $crate::Length for $name {
             fn length(&self) -> usize {
-                u32::from(*self).length()
+                $repr::from(*self).length()
             }
         }
 
-        impl $crate::Encode for $enum_ident {
+        impl $crate::Encode for $name {
             fn encode(&self, dst: &mut [u8]) -> usize {
-                u32::from(*self).encode(dst)
+                $repr::from(*self).encode(dst)
             }
         }
 
-        impl $crate::Decode for $enum_ident {
+        impl $crate::Decode for $name {
             fn decode(src: &mut [u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
-                u32::decode(src).map(|(this, size)| (Self::from(this), size))
+                $repr::decode(src).map(|(this, size)| (Self::from(this), size))
             }
         }
     };

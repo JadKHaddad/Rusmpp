@@ -11,7 +11,6 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    create,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString,
@@ -19,7 +18,7 @@ use crate::{
     Length,
 };
 
-create! {
+crate::create! {
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

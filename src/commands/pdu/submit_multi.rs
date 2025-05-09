@@ -11,7 +11,6 @@ use crate::{
             replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
         },
     },
-    create,
     types::{
         c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
         octet_string::OctetString,
@@ -19,7 +18,7 @@ use crate::{
     Length,
 };
 
-create! {
+crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMulti {
         /// The service_type parameter can be used to indicate the

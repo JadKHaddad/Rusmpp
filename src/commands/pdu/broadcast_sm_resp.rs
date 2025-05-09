@@ -1,11 +1,10 @@
 use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{broadcast_response::BroadcastResponseTLV, TLV},
-    create,
     types::c_octet_string::COctetString,
 };
 
-create! {
+crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct BroadcastSmResp {
         /// This field contains the MC message ID of the submitted

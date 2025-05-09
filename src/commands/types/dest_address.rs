@@ -1,8 +1,7 @@
 use super::{npi::Npi, ton::Ton};
 
 use crate::{
-    create, errors::DecodeError, types::c_octet_string::COctetString, Decode, DecodeExt, Encode,
-    Length,
+    errors::DecodeError, types::c_octet_string::COctetString, Decode, DecodeExt, Encode, Length,
 };
 
 crate::create! {
@@ -90,7 +89,7 @@ impl Decode for DestAddress {
     }
 }
 
-create! {
+crate::create! {
     /// SME Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SmeAddress {
@@ -129,7 +128,7 @@ impl SmeAddress {
     }
 }
 
-create! {
+crate::create! {
     /// Distribution List Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct DistributionListName {

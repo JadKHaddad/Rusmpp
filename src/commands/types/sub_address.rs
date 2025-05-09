@@ -1,6 +1,6 @@
-use crate::{create, types::octet_string::OctetString};
+use crate::types::octet_string::OctetString;
 
-create! {
+crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct Subaddress {
         pub tag: SubaddressTag,

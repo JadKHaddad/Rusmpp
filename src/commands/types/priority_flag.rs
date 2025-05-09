@@ -1,6 +1,9 @@
-#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct PriorityFlag {
-    pub value: u8,
+crate::create! {
+    @[repr = u8]
+    #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub struct PriorityFlag {
+        pub value: u8,
+    }
 }
 
 impl PriorityFlag {
@@ -66,24 +69,6 @@ impl From<Ansi41Cbs> for PriorityFlag {
         Self {
             value: value.into(),
         }
-    }
-}
-
-impl crate::Length for PriorityFlag {
-    fn length(&self) -> usize {
-        u8::from(*self).length()
-    }
-}
-
-impl crate::Encode for PriorityFlag {
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        u8::from(*self).encode(dst)
-    }
-}
-
-impl crate::Decode for PriorityFlag {
-    fn decode(src: &mut [u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
-        u8::decode(src).map(|(this, size)| (Self::from(this), size))
     }
 }
 

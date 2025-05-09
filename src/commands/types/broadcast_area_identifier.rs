@@ -1,4 +1,4 @@
-use crate::{create, types::octet_string::OctetString};
+use crate::types::octet_string::OctetString;
 
 crate::create! {
     #[repr(u8)]
@@ -34,7 +34,7 @@ impl From<BroadcastAreaFormat> for u8 {
     }
 }
 
-create! {
+crate::create! {
     /// Identifies one or more target Broadcast Area(s) for which the
     /// status information applies.
     ///

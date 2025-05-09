@@ -116,7 +116,7 @@ impl DecodeWithLength for AnyOctetString {
 
         bytes.extend_from_slice(&src[..length]);
 
-        return Ok((Self { bytes }, length));
+        Ok((Self { bytes }, length))
     }
 }
 

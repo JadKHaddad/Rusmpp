@@ -1,27 +1,25 @@
-use std::fmt::Debug;
-
 use crate::{Decode, DecodeWithLength, Encode};
-
-// TODO: restore
 
 /// Test encoding and decoding of a type.
 ///
 /// Encode a type to bytes and then decode it back to the original type.
 pub fn default_encode_decode<T>()
 where
-    T: Default + Debug + PartialEq + Encode + Decode,
+    T: Default + core::fmt::Debug + PartialEq + Encode + Decode,
 {
-    // let original = T::default();
+    let original = T::default();
 
-    // let mut curser = Cursor::new(Vec::new());
+    let buf = &mut [0u8; 1024];
 
-    // original.encode_to(&mut curser).expect("Failed to encode");
+    if original.length() > buf.len() {
+        panic!("Buffer is too small to hold the encoded data");
+    }
 
-    // curser.set_position(0);
+    let size = original.encode(buf);
 
-    // let decoded = T::decode_from(&mut curser).expect("Failed to decode");
+    let (decoded, _size) = T::decode(&buf[..size]).expect("Failed to decode");
 
-    // assert_eq!(original, decoded);
+    assert_eq!(original, decoded);
 }
 
 /// Test encoding and decoding of a type.
@@ -29,17 +27,19 @@ where
 /// Encode a type to bytes and then decode it back to the original type.
 pub fn default_encode_decode_with_length<T>()
 where
-    T: Default + Debug + PartialEq + Encode + DecodeWithLength,
+    T: Default + core::fmt::Debug + PartialEq + Encode + DecodeWithLength,
 {
-    // let original = T::default();
+    let original = T::default();
 
-    // let mut curser = Cursor::new(Vec::new());
+    let buf = &mut [0u8; 1024];
 
-    // original.encode_to(&mut curser).expect("Failed to encode");
+    if original.length() > buf.len() {
+        panic!("Buffer is too small to hold the encoded data");
+    }
 
-    // curser.set_position(0);
+    let size = original.encode(buf);
 
-    // let decoded = T::decode_from(&mut curser, original.length()).expect("Failed to decode");
+    let (decoded, _size) = T::decode(&buf[..size], original.length()).expect("Failed to decode");
 
-    // assert_eq!(original, decoded);
+    assert_eq!(original, decoded);
 }

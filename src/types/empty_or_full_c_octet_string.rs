@@ -83,10 +83,6 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
 
         let bytes = bytes.as_ref();
 
-        if bytes[bytes.len() - 1] != 0 {
-            return Err(Error::NotNullTerminated);
-        }
-
         if bytes.len() > 1 {
             if bytes.len() < N {
                 return Err(Error::TooFewBytes {
@@ -100,14 +96,18 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
                     max: N,
                 });
             }
+
+            if bytes[bytes.len() - 1] != 0 {
+                return Err(Error::NotNullTerminated);
+            }
+
+            if bytes[..bytes.len() - 1].contains(&0) {
+                return Err(Error::NullByteFound);
+            }
         }
 
         if !bytes.is_ascii() {
             return Err(Error::NotAscii);
-        }
-
-        if bytes[..bytes.len() - 1].contains(&0) {
-            return Err(Error::NullByteFound);
         }
 
         let bytes = bytes.to_vec();
@@ -190,9 +190,7 @@ impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
 
 impl<const N: usize> core::fmt::Display for EmptyOrFullCOctetString<N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(
-            &self.bytes[..self.bytes.len() - 1],
-        ))
+        f.write_str(&String::from_utf8_lossy(&self.bytes[..self.bytes.len()]))
     }
 }
 
@@ -259,6 +257,8 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
     }
 }
 
+// TODO: do the tests
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -274,10 +274,17 @@ mod tests {
         use super::*;
 
         #[test]
+        fn empty_too_few_bytes() {
+            let bytes = b"";
+            let error = EmptyOrFullCOctetString::<5>::new(bytes).unwrap_err();
+            assert!(matches!(error, Error::TooFewBytes { actual: 0 }));
+        }
+
+        #[test]
         fn too_many_bytes() {
             let bytes = b"Hello\0";
             let error = EmptyOrFullCOctetString::<5>::new(bytes).unwrap_err();
-            assert!(matches!(error, Error::TooManyBytes { actual: 6, .. }));
+            assert!(matches!(error, Error::TooManyBytes { actual: 6, max: 5 }));
         }
 
         #[test]

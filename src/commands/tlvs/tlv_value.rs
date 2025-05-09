@@ -353,151 +353,142 @@ impl DecodeWithKey for TLVValue {
     fn decode(key: Self::Key, src: &mut [u8], length: usize) -> Result<(Self, usize), DecodeError> {
         let (value, size) = match key {
             TLVTag::AdditionalStatusInfoText => {
-                COctetString::decode(src).map_decoded(Self::AdditionalStatusInfoText)?
+                Decode::decode(src).map_decoded(Self::AdditionalStatusInfoText)?
             }
             TLVTag::AlertOnMessageDelivery => {
-                AlertOnMsgDelivery::decode(src).map_decoded(Self::AlertOnMessageDelivery)?
+                Decode::decode(src).map_decoded(Self::AlertOnMessageDelivery)?
             }
             TLVTag::BillingIdentification => {
-                OctetString::decode(src, length).map_decoded(Self::BillingIdentification)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::BillingIdentification)?
             }
-            TLVTag::BroadcastAreaIdentifier => BroadcastAreaIdentifier::decode(src, length)
-                .map_decoded(Self::BroadcastAreaIdentifier)?,
+            TLVTag::BroadcastAreaIdentifier => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastAreaIdentifier)?
+            }
             TLVTag::BroadcastAreaSuccess => {
-                BroadcastAreaSuccess::decode(src).map_decoded(Self::BroadcastAreaSuccess)?
+                Decode::decode(src).map_decoded(Self::BroadcastAreaSuccess)?
             }
             TLVTag::BroadcastContentTypeInfo => {
-                OctetString::decode(src, length).map_decoded(Self::BroadcastContentTypeInfo)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastContentTypeInfo)?
             }
-            TLVTag::BroadcastChannelIndicator => BroadcastChannelIndicator::decode(src)
-                .map_decoded(Self::BroadcastChannelIndicator)?,
+            TLVTag::BroadcastChannelIndicator => {
+                Decode::decode(src).map_decoded(Self::BroadcastChannelIndicator)?
+            }
             TLVTag::BroadcastContentType => {
-                BroadcastContentType::decode(src).map_decoded(Self::BroadcastContentType)?
+                Decode::decode(src).map_decoded(Self::BroadcastContentType)?
             }
             TLVTag::BroadcastEndTime => {
-                OctetString::decode(src, length).map_decoded(Self::BroadcastEndTime)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastEndTime)?
             }
             TLVTag::BroadcastErrorStatus => {
-                CommandStatus::decode(src).map_decoded(Self::BroadcastErrorStatus)?
+                Decode::decode(src).map_decoded(Self::BroadcastErrorStatus)?
             }
-            TLVTag::BroadcastFrequencyInterval => BroadcastFrequencyInterval::decode(src)
-                .map_decoded(Self::BroadcastFrequencyInterval)?,
+            TLVTag::BroadcastFrequencyInterval => {
+                Decode::decode(src).map_decoded(Self::BroadcastFrequencyInterval)?
+            }
             TLVTag::BroadcastMessageClass => {
-                BroadcastMessageClass::decode(src).map_decoded(Self::BroadcastMessageClass)?
+                Decode::decode(src).map_decoded(Self::BroadcastMessageClass)?
             }
-            TLVTag::BroadcastRepNum => u16::decode(src).map_decoded(Self::BroadcastRepNum)?,
+            TLVTag::BroadcastRepNum => Decode::decode(src).map_decoded(Self::BroadcastRepNum)?,
             TLVTag::BroadcastServiceGroup => {
-                OctetString::decode(src, length).map_decoded(Self::BroadcastServiceGroup)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastServiceGroup)?
             }
             TLVTag::CallbackNum => {
-                OctetString::decode(src, length).map_decoded(Self::CallbackNum)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::CallbackNum)?
             }
             TLVTag::CallbackNumAtag => {
-                OctetString::decode(src, length).map_decoded(Self::CallbackNumAtag)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::CallbackNumAtag)?
             }
             TLVTag::CallbackNumPresInd => {
-                CallbackNumPresInd::decode(src).map_decoded(Self::CallbackNumPresInd)?
+                Decode::decode(src).map_decoded(Self::CallbackNumPresInd)?
             }
-            TLVTag::CongestionState => {
-                CongestionState::decode(src).map_decoded(Self::CongestionState)?
-            }
+            TLVTag::CongestionState => Decode::decode(src).map_decoded(Self::CongestionState)?,
             TLVTag::DeliveryFailureReason => {
-                DeliveryFailureReason::decode(src).map_decoded(Self::DeliveryFailureReason)?
+                Decode::decode(src).map_decoded(Self::DeliveryFailureReason)?
             }
             TLVTag::DestAddrNpCountry => {
-                OctetString::decode(src, length).map_decoded(Self::DestAddrNpCountry)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::DestAddrNpCountry)?
             }
             TLVTag::DestAddrNpInformation => {
-                OctetString::decode(src, length).map_decoded(Self::DestAddrNpInformation)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::DestAddrNpInformation)?
             }
             TLVTag::DestAddrNpResolution => {
-                DestAddrNpResolution::decode(src).map_decoded(Self::DestAddrNpResolution)?
+                Decode::decode(src).map_decoded(Self::DestAddrNpResolution)?
             }
-            TLVTag::DestAddrSubunit => {
-                AddrSubunit::decode(src).map_decoded(Self::DestAddrSubunit)?
+            TLVTag::DestAddrSubunit => Decode::decode(src).map_decoded(Self::DestAddrSubunit)?,
+            TLVTag::DestBearerType => Decode::decode(src).map_decoded(Self::DestBearerType)?,
+            TLVTag::DestNetworkId => Decode::decode(src).map_decoded(Self::DestNetworkId)?,
+            TLVTag::DestNetworkType => Decode::decode(src).map_decoded(Self::DestNetworkType)?,
+            TLVTag::DestNodeId => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::DestNodeId)?
             }
-            TLVTag::DestBearerType => BearerType::decode(src).map_decoded(Self::DestBearerType)?,
-            TLVTag::DestNetworkId => COctetString::decode(src).map_decoded(Self::DestNetworkId)?,
-            TLVTag::DestNetworkType => {
-                NetworkType::decode(src).map_decoded(Self::DestNetworkType)?
-            }
-            TLVTag::DestNodeId => OctetString::decode(src, length).map_decoded(Self::DestNodeId)?,
             TLVTag::DestSubaddress => {
-                Subaddress::decode(src, length).map_decoded(Self::DestSubaddress)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::DestSubaddress)?
             }
-            TLVTag::DestTelematicsId => u16::decode(src).map_decoded(Self::DestTelematicsId)?,
-            TLVTag::DestPort => u16::decode(src).map_decoded(Self::DestPort)?,
-            TLVTag::DisplayTime => DisplayTime::decode(src).map_decoded(Self::DisplayTime)?,
-            TLVTag::DpfResult => DpfResult::decode(src).map_decoded(Self::DpfResult)?,
-            TLVTag::ItsReplyType => ItsReplyType::decode(src).map_decoded(Self::ItsReplyType)?,
-            TLVTag::ItsSessionInfo => {
-                ItsSessionInfo::decode(src).map_decoded(Self::ItsSessionInfo)?
-            }
+            TLVTag::DestTelematicsId => Decode::decode(src).map_decoded(Self::DestTelematicsId)?,
+            TLVTag::DestPort => Decode::decode(src).map_decoded(Self::DestPort)?,
+            TLVTag::DisplayTime => Decode::decode(src).map_decoded(Self::DisplayTime)?,
+            TLVTag::DpfResult => Decode::decode(src).map_decoded(Self::DpfResult)?,
+            TLVTag::ItsReplyType => Decode::decode(src).map_decoded(Self::ItsReplyType)?,
+            TLVTag::ItsSessionInfo => Decode::decode(src).map_decoded(Self::ItsSessionInfo)?,
             TLVTag::LanguageIndicator => {
-                LanguageIndicator::decode(src).map_decoded(Self::LanguageIndicator)?
+                Decode::decode(src).map_decoded(Self::LanguageIndicator)?
             }
             TLVTag::MessagePayload => {
-                AnyOctetString::decode(src, length).map_decoded(Self::MessagePayload)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::MessagePayload)?
             }
-            TLVTag::MessageState => MessageState::decode(src).map_decoded(Self::MessageState)?,
+            TLVTag::MessageState => Decode::decode(src).map_decoded(Self::MessageState)?,
             TLVTag::MoreMessagesToSend => {
-                MoreMessagesToSend::decode(src).map_decoded(Self::MoreMessagesToSend)?
+                Decode::decode(src).map_decoded(Self::MoreMessagesToSend)?
             }
             TLVTag::MsAvailabilityStatus => {
-                MsAvailabilityStatus::decode(src).map_decoded(Self::MsAvailabilityStatus)?
+                Decode::decode(src).map_decoded(Self::MsAvailabilityStatus)?
             }
             TLVTag::MsMsgWaitFacilities => {
-                MsMsgWaitFacilities::decode(src).map_decoded(Self::MsMsgWaitFacilities)?
+                Decode::decode(src).map_decoded(Self::MsMsgWaitFacilities)?
             }
-            TLVTag::MsValidity => MsValidity::decode(src, length).map_decoded(Self::MsValidity)?,
-            TLVTag::NetworkErrorCode => {
-                NetworkErrorCode::decode(src).map_decoded(Self::NetworkErrorCode)?
+            TLVTag::MsValidity => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::MsValidity)?
             }
-            TLVTag::NumberOfMessages => {
-                NumberOfMessages::decode(src).map_decoded(Self::NumberOfMessages)?
-            }
-            TLVTag::PayloadType => PayloadType::decode(src).map_decoded(Self::PayloadType)?,
-            TLVTag::PrivacyIndicator => {
-                PrivacyIndicator::decode(src).map_decoded(Self::PrivacyIndicator)?
-            }
-            TLVTag::QosTimeToLive => u32::decode(src).map_decoded(Self::QosTimeToLive)?,
+            TLVTag::NetworkErrorCode => Decode::decode(src).map_decoded(Self::NetworkErrorCode)?,
+            TLVTag::NumberOfMessages => Decode::decode(src).map_decoded(Self::NumberOfMessages)?,
+            TLVTag::PayloadType => Decode::decode(src).map_decoded(Self::PayloadType)?,
+            TLVTag::PrivacyIndicator => Decode::decode(src).map_decoded(Self::PrivacyIndicator)?,
+            TLVTag::QosTimeToLive => Decode::decode(src).map_decoded(Self::QosTimeToLive)?,
             TLVTag::ReceiptedMessageId => {
-                COctetString::decode(src).map_decoded(Self::ReceiptedMessageId)?
+                Decode::decode(src).map_decoded(Self::ReceiptedMessageId)?
             }
-            TLVTag::SarMsgRefNum => u16::decode(src).map_decoded(Self::SarMsgRefNum)?,
-            TLVTag::SarSegmentSeqnum => u8::decode(src).map_decoded(Self::SarSegmentSeqnum)?,
-            TLVTag::SarTotalSegments => u8::decode(src).map_decoded(Self::SarTotalSegments)?,
+            TLVTag::SarMsgRefNum => Decode::decode(src).map_decoded(Self::SarMsgRefNum)?,
+            TLVTag::SarSegmentSeqnum => Decode::decode(src).map_decoded(Self::SarSegmentSeqnum)?,
+            TLVTag::SarTotalSegments => Decode::decode(src).map_decoded(Self::SarTotalSegments)?,
             TLVTag::ScInterfaceVersion => {
-                InterfaceVersion::decode(src).map_decoded(Self::ScInterfaceVersion)?
+                Decode::decode(src).map_decoded(Self::ScInterfaceVersion)?
             }
-            TLVTag::SetDpf => SetDpf::decode(src).map_decoded(Self::SetDpf)?,
-            TLVTag::SmsSignal => u16::decode(src).map_decoded(Self::SmsSignal)?,
+            TLVTag::SetDpf => Decode::decode(src).map_decoded(Self::SetDpf)?,
+            TLVTag::SmsSignal => Decode::decode(src).map_decoded(Self::SmsSignal)?,
             TLVTag::SourceAddrSubunit => {
-                AddrSubunit::decode(src).map_decoded(Self::SourceAddrSubunit)?
+                Decode::decode(src).map_decoded(Self::SourceAddrSubunit)?
             }
-            TLVTag::SourceBearerType => {
-                BearerType::decode(src).map_decoded(Self::SourceBearerType)?
-            }
-            TLVTag::SourceNetworkId => {
-                COctetString::decode(src).map_decoded(Self::SourceNetworkId)?
-            }
+            TLVTag::SourceBearerType => Decode::decode(src).map_decoded(Self::SourceBearerType)?,
+            TLVTag::SourceNetworkId => Decode::decode(src).map_decoded(Self::SourceNetworkId)?,
             TLVTag::SourceNetworkType => {
-                NetworkType::decode(src).map_decoded(Self::SourceNetworkType)?
+                Decode::decode(src).map_decoded(Self::SourceNetworkType)?
             }
             TLVTag::SourceNodeId => {
-                OctetString::decode(src, length).map_decoded(Self::SourceNodeId)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::SourceNodeId)?
             }
-            TLVTag::SourcePort => u16::decode(src).map_decoded(Self::SourcePort)?,
+            TLVTag::SourcePort => Decode::decode(src).map_decoded(Self::SourcePort)?,
             TLVTag::SourceSubaddress => {
-                Subaddress::decode(src, length).map_decoded(Self::SourceSubaddress)?
+                DecodeWithLength::decode(src, length).map_decoded(Self::SourceSubaddress)?
             }
-            TLVTag::SourceTelematicsId => u16::decode(src).map_decoded(Self::SourceTelematicsId)?,
+            TLVTag::SourceTelematicsId => {
+                Decode::decode(src).map_decoded(Self::SourceTelematicsId)?
+            }
             TLVTag::UserMessageReference => {
-                u16::decode(src).map_decoded(Self::UserMessageReference)?
+                Decode::decode(src).map_decoded(Self::UserMessageReference)?
             }
-            TLVTag::UserResponseCode => u8::decode(src).map_decoded(Self::UserResponseCode)?,
-            TLVTag::UssdServiceOp => UssdServiceOp::decode(src).map_decoded(Self::UssdServiceOp)?,
-            other => AnyOctetString::decode(src, length)
+            TLVTag::UserResponseCode => Decode::decode(src).map_decoded(Self::UserResponseCode)?,
+            TLVTag::UssdServiceOp => Decode::decode(src).map_decoded(Self::UssdServiceOp)?,
+            other => DecodeWithLength::decode(src, length)
                 .map_decoded(|value| TLVValue::Other { tag: other, value })?,
         };
 

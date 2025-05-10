@@ -4,7 +4,7 @@ use crate::tri;
 
 pub use self::error::*;
 
-pub trait Decode: std::fmt::Debug {
+pub trait Decode: core::fmt::Debug {
     /// Decode a value from a reader
     fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
     where

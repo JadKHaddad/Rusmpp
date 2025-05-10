@@ -95,7 +95,7 @@ pub mod tokio {
     }
 
     impl core::fmt::Display for EncodeError {
-        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
             match self {
                 EncodeError::Io(e) => write!(f, "I/O error: {e}"),
             }
@@ -161,7 +161,7 @@ pub mod tokio {
     }
 
     impl core::fmt::Display for DecodeError {
-        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> std::fmt::Result {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
             match self {
                 DecodeError::Io(e) => write!(f, "I/O error: {e}"),
                 DecodeError::Decode(e) => write!(f, "Decode error: {e}"),

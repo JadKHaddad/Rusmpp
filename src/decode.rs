@@ -326,8 +326,8 @@ pub enum OctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
 }
 
-impl std::fmt::Display for DecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for DecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             DecodeError::UnexpectedEof => write!(f, "Unexpected EOF"),
             DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
@@ -352,8 +352,8 @@ impl std::error::Error for DecodeError {
     }
 }
 
-impl std::fmt::Display for COctetStringDecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for COctetStringDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             COctetStringDecodeError::TooFewBytes { actual, min } => {
                 write!(f, "Too few bytes. actual: {actual}, min: {min}")
@@ -366,8 +366,8 @@ impl std::fmt::Display for COctetStringDecodeError {
 
 impl std::error::Error for COctetStringDecodeError {}
 
-impl std::fmt::Display for OctetStringDecodeError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl core::fmt::Display for OctetStringDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             OctetStringDecodeError::TooManyBytes { actual, max } => {
                 write!(f, "Too many bytes. actual: {actual}, max: {max}")

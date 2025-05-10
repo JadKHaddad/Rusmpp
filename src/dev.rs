@@ -115,44 +115,114 @@
 #![allow(dead_code)]
 #![allow(clippy::disallowed_names)]
 
-use crate::decode::{Decode, DecodeError};
+use crate::{
+    decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
+    types::AnyOctetString,
+};
 
 #[derive(Debug, PartialEq, Eq)]
-struct Foo {
-    a: u8,
-    b: u16,
-    c: u32,
+enum Foo {
+    A(u16),
+    B(AnyOctetString),
 }
 
-impl Decode for Foo {
-    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
-        let index = 0;
+impl DecodeWithKey for Foo {
+    type Key = u32;
 
-        let (a, size) = u8::decode(&src[index..])?;
-        let index = index + size;
+    fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        match key {
+            0x01020304 => {
+                let (a, size) = u16::decode(src)?;
 
-        let (b, size) = u16::decode(&src[index..])?;
-        let index = index + size;
+                Ok((Foo::A(a), size))
+            }
+            0x04030201 => {
+                let (b, size) = AnyOctetString::decode(src, length)?;
 
-        let (c, size) = u32::decode(&src[index..])?;
-        let index = index + size;
-
-        Ok((Foo { a, b, c }, index))
+                Ok((Foo::B(b), size))
+            }
+            _ => Err(DecodeError::UnsupportedKey { key }),
+        }
     }
 }
 
+#[test]
 fn foo() {
-    let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+    // Received over the wire
+    let length = 8;
 
-    let expected = Foo {
-        a: 0x01,
-        b: 0x0203,
-        c: 0x04050607,
-    };
+    // Key is A
+    let buf = &[
+        0x01, 0x02, 0x03, 0x04, // Key
+        0x05, 0x06, // Value
+        0x07, 0x08, 0x09, 0x0A, 0x0B, // Rest
+    ];
 
-    let (foo, size) = Foo::decode(buf).unwrap();
+    let index = 0;
 
-    assert_eq!(size, 7);
+    let (key, size) = u32::decode(buf).unwrap();
+    let index = index + size;
+
+    let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
+    let index = index + size;
+
+    let expected = Foo::A(0x0506);
+
+    assert_eq!(size, 2);
     assert_eq!(foo, expected);
-    assert_eq!(&buf[size..], &[0x08]);
+    assert_eq!(&buf[index..], &[0x07, 0x08, 0x09, 0x0A, 0x0B]);
+
+    // Key is B
+    let buf = &[
+        0x04, 0x03, 0x02, 0x01, // Key
+        0x05, 0x06, 0x07, 0x08, // Value
+        0x09, 0x0A, 0x0B, // Rest
+    ];
+
+    let index = 0;
+
+    let (key, size) = u32::decode(buf).unwrap();
+    let index = index + size;
+
+    let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
+    let index = index + size;
+
+    let expected = Foo::B(AnyOctetString::new([0x05, 0x06, 0x07, 0x08]));
+
+    assert_eq!(size, 4);
+    assert_eq!(foo, expected);
+    assert_eq!(&buf[index..], &[0x09, 0x0A, 0x0B]);
 }
+
+// impl Decode for Foo {
+//     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
+//         let index = 0;
+
+//         let (a, size) = u8::decode(&src[index..])?;
+//         let index = index + size;
+
+//         let (b, size) = u16::decode(&src[index..])?;
+//         let index = index + size;
+
+//         let (c, size) = u32::decode(&src[index..])?;
+//         let index = index + size;
+
+//         Ok((Foo { a, b, c }, index))
+//     }
+// }
+
+// fn foo() {
+//     let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+
+//     let expected = Foo {
+//         a: 0x01,
+//         b: 0x0203,
+//         c: 0x04050607,
+//     };
+
+//     let (foo, size) = Foo::decode(buf).unwrap();
+
+//     assert_eq!(size, 7);
+//     assert_eq!(foo, expected);
+//     assert_eq!(&buf[size..], &[0x08]);
+// }

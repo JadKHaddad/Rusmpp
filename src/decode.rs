@@ -57,6 +57,86 @@ pub trait DecodeWithLength: Sized {
 }
 
 /// Trait for decoding `SMPP` values from a slice with a specified key and length.
+/// 
+/// # Implementation
+///
+/// ```rust
+/// use rusmpp::{
+///     decode::{Decode, DecodeError, DecodeWithKey, DecodeWithLength},
+///     types::AnyOctetString,
+/// };
+///
+/// #[derive(Debug, PartialEq, Eq)]
+/// enum Foo {
+///     A(u16),
+///     B(AnyOctetString),
+/// }
+/// 
+/// impl DecodeWithKey for Foo {
+///     type Key = u32;
+/// 
+///     fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+///         match key {
+///             0x01020304 => {
+///                 let (a, size) = u16::decode(src)?;
+/// 
+///                 Ok((Foo::A(a), size))
+///             }
+///             0x04030201 => {
+///                 let (b, size) = AnyOctetString::decode(src, length)?;
+/// 
+///                 Ok((Foo::B(b), size))
+///             }
+///             _ => Err(DecodeError::UnsupportedKey { key }),
+///         }
+///     }
+/// }
+/// 
+/// // Received over the wire
+/// let length = 8;
+/// 
+/// // Key is A
+/// let buf = &[
+///     0x01, 0x02, 0x03, 0x04, // Key
+///     0x05, 0x06, // Value
+///     0x07, 0x08, 0x09, 0x0A, 0x0B, // Rest
+/// ];
+/// 
+/// let index = 0;
+/// 
+/// let (key, size) = u32::decode(buf).unwrap();
+/// let index = index + size;
+/// 
+/// let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
+/// let index = index + size;
+/// 
+/// let expected = Foo::A(0x0506);
+/// 
+/// assert_eq!(size, 2);
+/// assert_eq!(foo, expected);
+/// assert_eq!(&buf[index..], &[0x07, 0x08, 0x09, 0x0A, 0x0B]);
+/// 
+/// // Key is B
+/// let buf = &[
+///     0x04, 0x03, 0x02, 0x01, // Key
+///     0x05, 0x06, 0x07, 0x08, // Value
+///     0x09, 0x0A, 0x0B, // Rest
+/// ];
+/// 
+/// let index = 0;
+/// 
+/// let (key, size) = u32::decode(buf).unwrap();
+/// let index = index + size;
+/// 
+/// let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
+/// let index = index + size;
+/// 
+/// let expected = Foo::B(AnyOctetString::new([0x05, 0x06, 0x07, 0x08]));
+/// 
+/// assert_eq!(size, 4);
+/// assert_eq!(foo, expected);
+/// assert_eq!(&buf[index..], &[0x09, 0x0A, 0x0B]);
+/// ```
 pub trait DecodeWithKey: Sized {
     type Key;
 

@@ -1,24 +1,74 @@
+//! Traits for decoding `SMPP` values.
+
+/// Trait for decoding `SMPP` values from a slice.
+///
+/// # Implementation
+///
+/// ```rust
+/// use rusmpp::decode::{Decode, DecodeError};
+///
+/// #[derive(Debug, PartialEq, Eq)]
+/// struct Foo {
+///     a: u8,
+///     b: u16,
+///     c: u32,
+/// }
+///
+/// impl Decode for Foo {
+///     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
+///         let index = 0;
+///
+///         let (a, size) = u8::decode(&src[index..])?;
+///         let index = index + size;
+///
+///         let (b, size) = u16::decode(&src[index..])?;
+///         let index = index + size;
+///
+///         let (c, size) = u32::decode(&src[index..])?;
+///         let index = index + size;
+///
+///         Ok((Foo { a, b, c }, index))
+///     }
+/// }
+///
+/// let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08];
+///
+/// let expected = Foo {
+///     a: 0x01,
+///     b: 0x0203,
+///     c: 0x04050607,
+/// };
+///
+/// let (foo, size) = Foo::decode(buf).unwrap();
+///
+/// assert_eq!(size, 7);
+/// assert_eq!(foo, expected);
+/// assert_eq!(&buf[size..], &[0x08]);
+/// ```
 pub trait Decode: Sized {
-    /// Decode a value from a slice
+    /// Decode a value from a slice.
     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError>;
 }
 
+/// Trait for decoding `SMPP` values from a slice with a specified length.
 pub trait DecodeWithLength: Sized {
-    /// Decode a slice from a reader, with a specified length
+    /// Decode a slice from a slice, with a specified length
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 
+/// Trait for decoding `SMPP` values from a slice with a specified key and length.
 pub trait DecodeWithKey: Sized {
     type Key;
 
-    /// Decode a value from a slice, using a key to determine the type
+    /// Decode a value from a slice, using a key to determine the type.
     fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 
+/// Trait for decoding optional `SMPP` values from a slice with a specified key and length.
 pub trait DecodeWithKeyOptional: Sized {
     type Key;
 
-    /// Decode an optional value from a slice, using a key to determine the type
+    /// Decode an optional value from a slice, using a key to determine the type.
     fn decode(
         key: Self::Key,
         src: &[u8],
@@ -26,7 +76,7 @@ pub trait DecodeWithKeyOptional: Sized {
     ) -> Result<Option<(Self, usize)>, DecodeError>;
 }
 
-/// An error that can occur when decoding an `SMPP` value
+/// An error that can occur when decoding `SMPP` values.
 #[derive(Debug)]
 pub enum DecodeError {
     UnexpectedEof,
@@ -35,7 +85,7 @@ pub enum DecodeError {
     UnsupportedKey { key: u32 },
 }
 
-/// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString)
+/// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString).
 #[derive(Debug)]
 pub enum COctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
@@ -43,7 +93,7 @@ pub enum COctetStringDecodeError {
     NotNullTerminated,
 }
 
-/// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString)
+/// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString).
 #[derive(Debug)]
 pub enum OctetStringDecodeError {
     TooManyBytes { actual: usize, max: usize },
@@ -126,7 +176,7 @@ pub(crate) trait DecodeExt: Decode {
     }
 
     // TODO: test this
-    /// Decode a vector of values from a slice with a specified count
+    /// Decode a vector of values from a slice with a specified count.
     fn counted(src: &[u8], count: usize) -> Result<(Vec<Self>, usize), DecodeError> {
         let mut size = 0;
 
@@ -152,9 +202,9 @@ pub(crate) trait DecodeExt: Decode {
         Self::counted(&src[size..], count).map(|(vec, size_)| (vec, size + size_))
     }
 
-    /// Decode a value from a slice
+    /// Decode a value from a slice.
     ///
-    /// If the length is 0, return `None`
+    /// If the length is 0, return `None`.
     fn length_checked_decode(
         src: &[u8],
         length: usize,
@@ -196,9 +246,9 @@ pub(crate) trait DecodeWithKeyExt: DecodeWithKey {
     //     Self::decode(key, &mut src[size..], length).map(|(this, size_)| (this, size + size_))
     // }
 
-    /// Decode a value from a slice, using a key to determine the type
+    /// Decode a value from a slice, using a key to determine the type.
     ///
-    /// If the length is 0, return `None`
+    /// If the length is 0, return `None`.
     fn optional_length_checked_decode(
         key: Self::Key,
         src: &[u8],
@@ -237,23 +287,22 @@ pub(crate) trait DecodeWithKeyOptionalExt: DecodeWithKeyOptional {
 
 impl<T: DecodeWithKeyOptional> DecodeWithKeyOptionalExt for T {}
 
-const _: () = {
-    // TODO: test this
-    impl<T: Decode> DecodeWithLength for Vec<T> {
-        fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
-            let mut size = 0;
+impl<T: Decode> DecodeWithLength for Vec<T> {
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        let mut size = 0;
 
-            let mut vec = Vec::with_capacity(length);
+        let mut vec = Vec::with_capacity(length);
 
-            for _ in 0..length {
-                let (item, size_) = T::decode(&src[size..])?;
+        for _ in 0..length {
+            let (item, size_) = T::decode(&src[size..])?;
 
-                size += size_;
+            size += size_;
 
-                vec.push(item);
-            }
-
-            Ok((vec, size))
+            vec.push(item);
         }
+
+        Ok((vec, size))
     }
-};
+}
+
+// TODO: add tests for the implementation

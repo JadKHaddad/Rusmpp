@@ -18,7 +18,7 @@ use rusmpp::{
 use tokio::io::DuplexStream;
 use tokio_util::codec::Framed;
 
-async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
+async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn core::error::Error>> {
     tokio::spawn(async move {
         let mut framed = Framed::new(server_stream, CommandCodec::new());
 
@@ -40,7 +40,7 @@ async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::e
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn core::error::Error>> {
     let (server_stream, client_stream) = tokio::io::duplex(4096);
     launch_server(server_stream).await?;
 

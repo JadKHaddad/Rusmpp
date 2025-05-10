@@ -14,7 +14,7 @@
 /// use tokio::io::DuplexStream;
 /// use tokio_util::codec::Framed;
 ///
-/// async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn std::error::Error>> {
+/// async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn core::error::Error>> {
 ///     tokio::spawn(async move {
 ///         let mut framed = Framed::new(server_stream, CommandCodec::new());
 ///
@@ -30,7 +30,7 @@
 /// }
 ///
 /// #[tokio::main]
-/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+/// async fn main() -> Result<(), Box<dyn core::error::Error>> {
 ///     let (server_stream, client_stream) = tokio::io::duplex(4096);
 ///     launch_server(server_stream).await?;
 ///
@@ -102,14 +102,14 @@ pub mod tokio {
         }
     }
 
-    impl std::error::Error for EncodeError {
-        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+    impl core::error::Error for EncodeError {
+        fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
             match self {
                 EncodeError::Io(e) => Some(e),
             }
         }
 
-        fn cause(&self) -> Option<&dyn std::error::Error> {
+        fn cause(&self) -> Option<&dyn core::error::Error> {
             self.source()
         }
     }
@@ -169,15 +169,15 @@ pub mod tokio {
         }
     }
 
-    impl std::error::Error for DecodeError {
-        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+    impl core::error::Error for DecodeError {
+        fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
             match self {
                 DecodeError::Io(e) => Some(e),
                 DecodeError::Decode(e) => Some(e),
             }
         }
 
-        fn cause(&self) -> Option<&dyn std::error::Error> {
+        fn cause(&self) -> Option<&dyn core::error::Error> {
             self.source()
         }
     }

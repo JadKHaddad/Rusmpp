@@ -1,7 +1,5 @@
 #![allow(path_statements)]
 
-use std::vec;
-
 use crate::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, Length},

@@ -21,14 +21,14 @@ impl core::fmt::Display for EncodeError {
     }
 }
 
-impl std::error::Error for EncodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for EncodeError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
             EncodeError::IoError(e) => Some(e),
         }
     }
 
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn cause(&self) -> Option<&dyn core::error::Error> {
         self.source()
     }
 }

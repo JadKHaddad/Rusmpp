@@ -337,8 +337,8 @@ impl core::fmt::Display for DecodeError {
     }
 }
 
-impl std::error::Error for DecodeError {
-    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+impl core::error::Error for DecodeError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         match self {
             DecodeError::UnexpectedEof => None,
             DecodeError::COctetStringDecodeError(e) => Some(e),
@@ -347,7 +347,7 @@ impl std::error::Error for DecodeError {
         }
     }
 
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn cause(&self) -> Option<&dyn core::error::Error> {
         self.source()
     }
 }
@@ -364,7 +364,7 @@ impl core::fmt::Display for COctetStringDecodeError {
     }
 }
 
-impl std::error::Error for COctetStringDecodeError {}
+impl core::error::Error for COctetStringDecodeError {}
 
 impl core::fmt::Display for OctetStringDecodeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -379,7 +379,7 @@ impl core::fmt::Display for OctetStringDecodeError {
     }
 }
 
-impl std::error::Error for OctetStringDecodeError {}
+impl core::error::Error for OctetStringDecodeError {}
 
 pub(crate) trait DecodeResultExt<T, E> {
     fn map_decoded<F, U>(self, op: F) -> Result<(U, usize), E>

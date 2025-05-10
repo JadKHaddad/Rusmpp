@@ -18,7 +18,7 @@ use tokio::net::TcpStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Box<dyn core::error::Error>> {
     let stream = TcpStream::connect("34.242.18.250:2775").await?;
 
     let (reader, writer) = stream.into_split();

@@ -217,8 +217,8 @@ pub mod error {
         }
     }
 
-    impl std::error::Error for DecodeError {
-        fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+    impl core::error::Error for DecodeError {
+        fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
             match self {
                 DecodeError::UnexpectedEof => None,
                 DecodeError::COctetStringDecodeError(e) => Some(e),
@@ -227,7 +227,7 @@ pub mod error {
             }
         }
 
-        fn cause(&self) -> Option<&dyn std::error::Error> {
+        fn cause(&self) -> Option<&dyn core::error::Error> {
             self.source()
         }
     }
@@ -244,7 +244,7 @@ pub mod error {
         }
     }
 
-    impl std::error::Error for COctetStringDecodeError {}
+    impl core::error::Error for COctetStringDecodeError {}
 
     impl core::fmt::Display for OctetStringDecodeError {
         fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -259,7 +259,7 @@ pub mod error {
         }
     }
 
-    impl std::error::Error for OctetStringDecodeError {}
+    impl core::error::Error for OctetStringDecodeError {}
 }
 
 const _: () = {

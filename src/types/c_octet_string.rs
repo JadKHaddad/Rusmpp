@@ -62,6 +62,15 @@ impl core::error::Error for Error {}
 ///
 /// A NULL string “” is encoded as 0x00
 ///
+/// `MIN` is the minimum length of the [`COctetString`] including the NULL octet.
+/// `MAX` is the maximum length of the [`COctetString`] including the NULL octet.
+///
+/// Possible values:
+///  - Min: `[..(MIN - 1), 0x00]` where `0x00` not in `..(MIN - 1)`
+///    e.g. Min = 1: `[0x00]`, Min = 2: `[0x01, 0x00]`, Min = 3: `[0x01, 0x02, 0x00]`
+///  - Max: `[..(MAX - 1), 0x00]` where `0x00` not in `..(MAX - 1)`
+///  - Anything in between `MIN` and `MAX`.
+///
 /// # Notes
 ///
 /// `MIN` must be greater than 0.
@@ -373,8 +382,22 @@ mod tests {
         }
 
         #[test]
-        fn ok() {
+        fn ok_min() {
+            let bytes = b"\0";
+            let string = COctetString::<1, 6>::new(bytes).unwrap();
+            assert_eq!(string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_max() {
             let bytes = b"Hello\0";
+            let string = COctetString::<1, 6>::new(bytes).unwrap();
+            assert_eq!(string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_between_min_max() {
+            let bytes = b"Hel\0";
             let string = COctetString::<1, 6>::new(bytes).unwrap();
             assert_eq!(string.bytes, bytes);
         }
@@ -444,9 +467,25 @@ mod tests {
         }
 
         #[test]
-        fn ok() {
+        fn ok_min() {
+            let string = "";
+            let bytes = b"\0";
+            let string = COctetString::<1, 6>::from_str(string).unwrap();
+            assert_eq!(string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_max() {
             let string = "Hello";
             let bytes = b"Hello\0";
+            let string = COctetString::<1, 6>::from_str(string).unwrap();
+            assert_eq!(string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_between_min_max() {
+            let string = "Hel";
+            let bytes = b"Hel\0";
             let string = COctetString::<1, 6>::from_str(string).unwrap();
             assert_eq!(string.bytes, bytes);
         }

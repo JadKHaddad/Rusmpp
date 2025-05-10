@@ -40,14 +40,23 @@ impl core::error::Error for Error {}
 /// A NULL [`OctetString`] is not encoded. The explicit length
 /// field that indicates its length should be set to zero.
 ///
+///
+/// `MIN` is the minimum length of the [`OctetString`].
+/// `MAX` is the maximum length of the [`OctetString`].
+///
+/// Possible values:
+///  - Min: `[..MIN]`
+///  - Max: `[..MAX]`
+///  - Anything in between `MIN` and `MAX`.
+///
 /// # Notes
 ///
 /// `MIN` must be less than or equal to `MAX`.
 /// ```rust, compile_fail
-/// use rusmpp::types::EmptyOrFullCOctetString;
+/// use rusmpp::types::OctetString;
 ///
 /// // does not compile
-/// let string = EmptyOrFullCOctetString::<10,5>::new(b"Hello");
+/// let string = OctetString::<10,5>::new(b"Hello");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
@@ -246,9 +255,23 @@ mod tests {
         }
 
         #[test]
-        fn ok() {
+        fn ok_min() {
+            let bytes = b"H";
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_max() {
             let bytes = b"Hello\0World!\0";
-            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_between_min_max() {
+            let bytes = b"Hello\0";
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
             assert_eq!(octet_string.bytes, bytes);
         }
 

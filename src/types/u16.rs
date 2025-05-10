@@ -6,7 +6,10 @@
 //! A 2-octet integer with the decimal value of 41746 would
 //! be encoded as 2 octets with the value 0xA312
 
-use crate::{errors::DecodeError, Decode, Encode, Length};
+use crate::{
+    decode::{Decode, DecodeError},
+    encode::{Encode, Length},
+};
 
 impl Length for u16 {
     fn length(&self) -> usize {

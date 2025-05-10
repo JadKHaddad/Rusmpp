@@ -48,6 +48,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<LanguageIndicator>();
+        crate::tests::default_encode_decode::<LanguageIndicator>();
     }
 }

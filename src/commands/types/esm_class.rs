@@ -193,10 +193,10 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<EsmClass>();
-        crate::ende::tests::default_encode_decode::<MessagingMode>();
-        crate::ende::tests::default_encode_decode::<MessageType>();
-        crate::ende::tests::default_encode_decode::<Ansi41Specific>();
-        crate::ende::tests::default_encode_decode::<GsmFeatures>();
+        crate::tests::default_encode_decode::<EsmClass>();
+        crate::tests::default_encode_decode::<MessagingMode>();
+        crate::tests::default_encode_decode::<MessageType>();
+        crate::tests::default_encode_decode::<Ansi41Specific>();
+        crate::tests::default_encode_decode::<GsmFeatures>();
     }
 }

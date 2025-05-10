@@ -1,5 +1,6 @@
+use crate::encode::Length;
+
 use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
-use crate::Length;
 
 pub mod broadcast_request;
 pub mod broadcast_response;

@@ -146,6 +146,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<SubmitMultiResp>();
+        crate::tests::default_encode_decode_with_length::<SubmitMultiResp>();
     }
 }

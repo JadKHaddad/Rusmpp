@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<BroadcastAreaFormat>();
-        crate::ende::tests::default_encode_decode_with_length::<BroadcastAreaIdentifier>();
+        crate::tests::default_encode_decode::<BroadcastAreaFormat>();
+        crate::tests::default_encode_decode_with_length::<BroadcastAreaIdentifier>();
     }
 }

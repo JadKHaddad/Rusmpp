@@ -1,8 +1,8 @@
 #![allow(path_statements)]
 
 use crate::{
-    errors::{COctetStringDecodeError, DecodeError},
-    Decode, Encode, Length,
+    decode::{COctetStringDecodeError, Decode, DecodeError},
+    encode::{Encode, Length},
 };
 
 /// An error that can occur when creating an [`EmptyOrFullCOctetString`].
@@ -286,9 +286,9 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<1>>();
-        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<2>>();
-        crate::ende::tests::default_encode_decode::<EmptyOrFullCOctetString<3>>();
+        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<1>>();
+        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<2>>();
+        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<3>>();
     }
 
     mod new {

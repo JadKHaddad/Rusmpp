@@ -70,7 +70,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<NetworkErrorCode>();
-        crate::ende::tests::default_encode_decode::<ErrorCodeNetworkType>();
+        crate::tests::default_encode_decode::<NetworkErrorCode>();
+        crate::tests::default_encode_decode::<ErrorCodeNetworkType>();
     }
 }

@@ -74,7 +74,11 @@ pub mod tokio {
         codec::{Decoder, Encoder},
     };
 
-    use crate::{commands::command::Command, DecodeWithLength, Encode, Length};
+    use crate::{
+        commands::command::Command,
+        decode::DecodeWithLength,
+        encode::{Encode, Length},
+    };
 
     use super::CommandCodec;
 
@@ -147,7 +151,7 @@ pub mod tokio {
     #[non_exhaustive]
     pub enum DecodeError {
         Io(std::io::Error),
-        Decode(crate::errors::DecodeError),
+        Decode(crate::decode::DecodeError),
     }
 
     impl From<std::io::Error> for DecodeError {

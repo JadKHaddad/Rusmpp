@@ -67,8 +67,6 @@ pub use commands::tlvs::tlv_value::TLVValue;
 pub use commands::types::command_id::CommandId;
 pub use commands::types::command_status::CommandStatus;
 
-mod ende;
-
 pub mod session;
 pub use session::session_state::SessionState;
 
@@ -80,19 +78,10 @@ pub(crate) mod utils;
 
 use macros::create;
 
+pub mod decode;
+pub mod encode;
+
+#[cfg(test)]
+pub(crate) mod tests;
+
 // New stuff
-
-pub use ende::new::{
-    Decode, DecodeWithKey, DecodeWithKeyOptional, DecodeWithLength, Encode, Length,
-};
-
-use ende::new::{
-    DecodeExt, DecodeResultExt, DecodeWithKeyExt, DecodeWithKeyOptionalExt, DecodeWithLengthExt,
-    EncodeExt,
-};
-
-pub mod errors {
-    pub use super::ende::new::error::{
-        COctetStringDecodeError, DecodeError, OctetStringDecodeError,
-    };
-}

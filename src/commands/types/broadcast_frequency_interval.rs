@@ -71,7 +71,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<UnitOfTime>();
-        crate::ende::tests::default_encode_decode::<BroadcastFrequencyInterval>();
+        crate::tests::default_encode_decode::<UnitOfTime>();
+        crate::tests::default_encode_decode::<BroadcastFrequencyInterval>();
     }
 }

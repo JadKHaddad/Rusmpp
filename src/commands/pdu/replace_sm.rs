@@ -4,8 +4,8 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
+    encode::Length,
     types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString},
-    Length,
 };
 
 crate::create! {
@@ -252,6 +252,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<ReplaceSm>();
+        crate::tests::default_encode_decode_with_length::<ReplaceSm>();
     }
 }

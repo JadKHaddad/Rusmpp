@@ -131,8 +131,8 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<CallbackNumPresInd>();
-        crate::ende::tests::default_encode_decode::<Presentation>();
-        crate::ende::tests::default_encode_decode::<Screening>();
+        crate::tests::default_encode_decode::<CallbackNumPresInd>();
+        crate::tests::default_encode_decode::<Presentation>();
+        crate::tests::default_encode_decode::<Screening>();
     }
 }

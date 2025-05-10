@@ -20,9 +20,9 @@ use crate::{
         privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, sub_address::Subaddress,
         ussd_service_op::UssdServiceOp,
     },
-    errors::DecodeError,
+    decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKey, DecodeWithLength},
+    encode::{Encode, Length},
     types::{AnyOctetString, COctetString, OctetString},
-    Decode, DecodeResultExt, DecodeWithKey, DecodeWithLength, Encode, Length,
 };
 
 /// See module level documentation

@@ -3,8 +3,8 @@
 use std::vec;
 
 use crate::{
-    errors::{COctetStringDecodeError, DecodeError},
-    Decode, Encode, Length,
+    decode::{COctetStringDecodeError, Decode, DecodeError},
+    encode::{Encode, Length},
 };
 
 /// An Error that can occur when creating a [`COctetString`]
@@ -331,9 +331,9 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<COctetString<1, 5>>();
-        crate::ende::tests::default_encode_decode::<COctetString<2, 5>>();
-        crate::ende::tests::default_encode_decode::<COctetString<3, 5>>();
+        crate::tests::default_encode_decode::<COctetString<1, 5>>();
+        crate::tests::default_encode_decode::<COctetString<2, 5>>();
+        crate::tests::default_encode_decode::<COctetString<3, 5>>();
     }
 
     mod new {

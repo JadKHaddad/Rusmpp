@@ -116,8 +116,8 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<BindTransmitterResp>();
-        crate::ende::tests::default_encode_decode_with_length::<BindReceiverResp>();
-        crate::ende::tests::default_encode_decode_with_length::<BindTransceiverResp>();
+        crate::tests::default_encode_decode_with_length::<BindTransmitterResp>();
+        crate::tests::default_encode_decode_with_length::<BindReceiverResp>();
+        crate::tests::default_encode_decode_with_length::<BindTransceiverResp>();
     }
 }

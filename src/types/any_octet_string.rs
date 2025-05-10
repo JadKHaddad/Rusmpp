@@ -1,4 +1,7 @@
-use crate::{errors::DecodeError, DecodeWithLength, Encode, Length};
+use crate::{
+    decode::{DecodeError, DecodeWithLength},
+    encode::{Encode, Length},
+};
 
 /// No fixed size [`OctetString`](struct@crate::types::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -126,7 +129,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<AnyOctetString>();
+        crate::tests::default_encode_decode_with_length::<AnyOctetString>();
     }
 
     mod new {

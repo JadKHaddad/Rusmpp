@@ -1,9 +1,10 @@
-use super::{npi::Npi, ton::Ton};
-
 use crate::{
-    ende::new::DecodeResultExt, errors::DecodeError, types::COctetString, Decode, DecodeExt,
-    Encode, Length,
+    decode::{Decode, DecodeError, DecodeExt, DecodeResultExt},
+    encode::{Encode, Length},
+    types::COctetString,
 };
+
+use super::{npi::Npi, ton::Ton};
 
 crate::create! {
     #[repr(u8)]
@@ -69,7 +70,7 @@ impl Encode for DestAddress {
 }
 
 impl Decode for DestAddress {
-    fn decode(src: &[u8]) -> Result<(Self, usize), crate::errors::DecodeError> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         let size = 0;
 
         let (flag, size) = DestFlag::decode_move(src, size)?;
@@ -158,7 +159,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<DestFlag>();
+        crate::tests::default_encode_decode::<DestFlag>();
     }
 
     // TODO: a lot of encode/decode vector of values

@@ -218,8 +218,8 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<TypeOfNetwork>();
-        crate::ende::tests::default_encode_decode::<EncodingContentType>();
-        crate::ende::tests::default_encode_decode::<BroadcastContentType>();
+        crate::tests::default_encode_decode::<TypeOfNetwork>();
+        crate::tests::default_encode_decode::<EncodingContentType>();
+        crate::tests::default_encode_decode::<BroadcastContentType>();
     }
 }

@@ -1,8 +1,8 @@
 #![allow(path_statements)]
 
 use crate::{
-    errors::{DecodeError, OctetStringDecodeError},
-    DecodeWithLength, Encode, Length,
+    decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
+    encode::{Encode, Length},
 };
 
 /// An error that can occur when creating an [`OctetString`]
@@ -230,9 +230,9 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<OctetString<0, 5>>();
-        crate::ende::tests::default_encode_decode_with_length::<OctetString<1, 5>>();
-        crate::ende::tests::default_encode_decode_with_length::<OctetString<2, 5>>();
+        crate::tests::default_encode_decode_with_length::<OctetString<0, 5>>();
+        crate::tests::default_encode_decode_with_length::<OctetString<1, 5>>();
+        crate::tests::default_encode_decode_with_length::<OctetString<2, 5>>();
     }
 
     mod new {

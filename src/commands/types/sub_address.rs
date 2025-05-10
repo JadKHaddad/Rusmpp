@@ -57,7 +57,7 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<Subaddress>();
-        crate::ende::tests::default_encode_decode::<SubaddressTag>();
+        crate::tests::default_encode_decode_with_length::<Subaddress>();
+        crate::tests::default_encode_decode::<SubaddressTag>();
     }
 }

@@ -130,9 +130,9 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<MsValidity>();
-        crate::ende::tests::default_encode_decode::<MsValidityInformation>();
-        crate::ende::tests::default_encode_decode::<MsValidityBehavior>();
-        crate::ende::tests::default_encode_decode::<UnitsOfTime>();
+        crate::tests::default_encode_decode_with_length::<MsValidity>();
+        crate::tests::default_encode_decode::<MsValidityInformation>();
+        crate::tests::default_encode_decode::<MsValidityBehavior>();
+        crate::tests::default_encode_decode::<UnitsOfTime>();
     }
 }

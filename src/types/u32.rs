@@ -6,7 +6,10 @@
 //! A 4-octet integer with the decimal value of 31022623
 //! would be encoded as 4 octets with the value 0x1D95E1F
 
-use crate::{errors::DecodeError, Decode, Encode, Length};
+use crate::{
+    decode::{Decode, DecodeError},
+    encode::{Encode, Length},
+};
 
 impl Length for u32 {
     fn length(&self) -> usize {

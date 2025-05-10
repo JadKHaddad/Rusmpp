@@ -11,8 +11,8 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
+    encode::Length,
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
-    Length,
 };
 
 crate::create! {
@@ -341,6 +341,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode_with_length::<SubmitSm>();
+        crate::tests::default_encode_decode_with_length::<SubmitSm>();
     }
 }

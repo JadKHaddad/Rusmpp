@@ -338,6 +338,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<PriorityFlag>();
+        crate::tests::default_encode_decode::<PriorityFlag>();
     }
 }

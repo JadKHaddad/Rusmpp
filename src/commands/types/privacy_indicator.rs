@@ -41,6 +41,6 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<PrivacyIndicator>();
+        crate::tests::default_encode_decode::<PrivacyIndicator>();
     }
 }

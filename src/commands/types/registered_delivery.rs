@@ -190,9 +190,9 @@ mod tests {
 
     #[test]
     fn default_encode_decode() {
-        crate::ende::tests::default_encode_decode::<RegisteredDelivery>();
-        crate::ende::tests::default_encode_decode::<MCDeliveryReceipt>();
-        crate::ende::tests::default_encode_decode::<SmeOriginatedAcknowledgement>();
-        crate::ende::tests::default_encode_decode::<IntermediateNotification>();
+        crate::tests::default_encode_decode::<RegisteredDelivery>();
+        crate::tests::default_encode_decode::<MCDeliveryReceipt>();
+        crate::tests::default_encode_decode::<SmeOriginatedAcknowledgement>();
+        crate::tests::default_encode_decode::<IntermediateNotification>();
     }
 }

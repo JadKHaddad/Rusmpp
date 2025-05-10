@@ -126,8 +126,8 @@ macro_rules! create {
             )*
         });
 
-        impl $crate::Decode for $struct_ident {
-            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::Decode for $struct_ident {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 let size = 0;
 
                 $(
@@ -169,8 +169,8 @@ macro_rules! create {
             )*
         });
 
-        impl $crate::DecodeWithLength for $struct_ident {
-            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::DecodeWithLength for $struct_ident {
+            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 let size = 0;
 
                 $(
@@ -256,8 +256,8 @@ macro_rules! create {
             )*
         });
 
-        impl $crate::Decode for $struct_ident {
-            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::Decode for $struct_ident {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 let size = 0;
 
                 $(
@@ -349,24 +349,24 @@ macro_rules! create {
             )*
         }
 
-        impl $crate::Length for $struct_ident {
+        impl $crate::encode::Length for $struct_ident {
             fn length(&self) -> usize {
                 let mut length = 0;
 
                 $(
-                    length +=  $crate::Length::length(&self.$field_ident);
+                    length +=  $crate::encode::Length::length(&self.$field_ident);
                 )*
 
                 length
             }
         }
 
-        impl $crate::Encode for $struct_ident {
+        impl $crate::encode::Encode for $struct_ident {
             fn encode(&self, dst: &mut [u8]) -> usize {
                 let size = 0;
 
                 $(
-                    let size = $crate::EncodeExt::encode_move(&self.$field_ident, dst, size);
+                    let size = $crate::encode::EncodeExt::encode_move(&self.$field_ident, dst, size);
                 )*
 
                 size
@@ -382,8 +382,8 @@ macro_rules! create {
             $field_ident:ident $field_ty:ty,
         )*
     }) => {
-        impl $crate::DecodeWithLength for $struct_ident {
-            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::DecodeWithLength for $struct_ident {
+            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 let size = 0;
 
                 $(
@@ -414,8 +414,8 @@ macro_rules! create {
             $field_ident:ident $field_ty:ty,
         )*
     }) => {
-        impl $crate::Decode for $struct_ident {
-            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::Decode for $struct_ident {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 let size = 0;
 
                 $(
@@ -444,7 +444,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeWithLengthExt::decode_move(
             $src, $len.saturating_sub($size), $size
         )?;
     };
@@ -455,7 +455,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeExt::length_checked_decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeExt::length_checked_decode_move(
             $src, $len.saturating_sub($size), $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -468,7 +468,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeWithLengthExt::decode_move(
             $src, $length_ident as usize, $size
         )?;
     };
@@ -479,7 +479,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeWithKeyOptionalExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeWithKeyOptionalExt::decode_move(
             $key, $src, $len.saturating_sub($size), $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -492,7 +492,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeWithKeyExt::optional_length_checked_decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
             $key, $src, $length_ident as usize, $size
         )?
         .map(|(this, size)| (Some(this), size))
@@ -505,7 +505,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeExt::counted_move(
+        let ($field_ident, $size) = $crate::decode::DecodeExt::counted_move(
             $src, $count as usize, $size
         )?;
     };
@@ -515,7 +515,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::DecodeExt::decode_move($src, $size)?;
+        let ($field_ident, $size) = $crate::decode::DecodeExt::decode_move($src, $size)?;
     };
 
     // Enums u8
@@ -578,20 +578,20 @@ macro_rules! create {
     (@repr {
         $name:ident, $repr:ident
     }) => {
-        impl $crate::Length for $name {
+        impl $crate::encode::Length for $name {
             fn length(&self) -> usize {
                 $repr::from(*self).length()
             }
         }
 
-        impl $crate::Encode for $name {
+        impl $crate::encode::Encode for $name {
             fn encode(&self, dst: &mut [u8]) -> usize {
                 $repr::from(*self).encode(dst)
             }
         }
 
-        impl $crate::Decode for $name {
-            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::errors::DecodeError> {
+        impl $crate::decode::Decode for $name {
+            fn decode(src: &[u8]) -> Result<(Self, usize), $crate::decode::DecodeError> {
                 $repr::decode(src).map(|(this, size)| (Self::from(this), size))
             }
         }

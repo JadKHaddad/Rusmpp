@@ -1,4 +1,4 @@
-use crate::types::c_octet_string::COctetString;
+use crate::types::COctetString;
 
 /// Helper for creating a [`ServiceType`] with predefined values.
 ///

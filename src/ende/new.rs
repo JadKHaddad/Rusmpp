@@ -191,7 +191,7 @@ pub mod error {
         UnsupportedKey { key: u32 },
     }
 
-    /// An error that can occur when decoding a [`COctetString`](struct@crate::types::c_octet_string::COctetString)
+    /// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString)
     #[derive(Debug)]
     pub enum COctetStringDecodeError {
         TooFewBytes { actual: usize, min: usize },
@@ -199,7 +199,7 @@ pub mod error {
         NotNullTerminated,
     }
 
-    /// An error that can occur when decoding an [`OctetString`](struct@crate::types::octet_string::OctetString)
+    /// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString)
     #[derive(Debug)]
     pub enum OctetStringDecodeError {
         TooManyBytes { actual: usize, max: usize },

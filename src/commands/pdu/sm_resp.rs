@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::tlvs::tlv::{message_delivery_response::MessageDeliveryResponseTLV, TLV},
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 macro_rules! declare_sm_resp {

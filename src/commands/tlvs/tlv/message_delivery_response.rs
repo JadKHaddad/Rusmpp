@@ -6,7 +6,7 @@ use crate::{
             delivery_failure_reason::DeliveryFailureReason, network_error_code::NetworkErrorCode,
         },
     },
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

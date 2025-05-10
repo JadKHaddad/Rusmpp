@@ -4,7 +4,7 @@ use crate::{
         tlvs::{tlv::TLV, tlv_value::TLVValue},
         types::interface_version::InterfaceVersion,
     },
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 macro_rules! declare_bind_resp {

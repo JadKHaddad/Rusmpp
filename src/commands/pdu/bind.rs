@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 macro_rules! declare_bind {

@@ -1,8 +1,8 @@
 use super::{npi::Npi, ton::Ton};
 
 use crate::{
-    ende::new::DecodeResultExt, errors::DecodeError, types::c_octet_string::COctetString, Decode,
-    DecodeExt, Encode, Length,
+    ende::new::DecodeResultExt, errors::DecodeError, types::COctetString, Decode, DecodeExt,
+    Encode, Length,
 };
 
 crate::create! {

@@ -1,5 +1,5 @@
 use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
-use crate::types::c_octet_string::COctetString;
+use crate::types::COctetString;
 
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

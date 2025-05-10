@@ -1,6 +1,6 @@
 use crate::{errors::DecodeError, DecodeWithLength, Encode, Length};
 
-/// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString).
+/// No fixed size [`OctetString`](struct@crate::types::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct AnyOctetString {
     bytes: Vec<u8>,

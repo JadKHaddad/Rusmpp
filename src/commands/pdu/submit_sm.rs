@@ -11,10 +11,7 @@ use crate::{
             service_type::ServiceType, ton::Ton,
         },
     },
-    types::{
-        c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString,
-        octet_string::OctetString,
-    },
+    types::{COctetString, EmptyOrFullCOctetString, OctetString},
     Length,
 };
 

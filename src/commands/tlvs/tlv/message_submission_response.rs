@@ -7,7 +7,7 @@ use crate::{
             network_error_code::NetworkErrorCode,
         },
     },
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

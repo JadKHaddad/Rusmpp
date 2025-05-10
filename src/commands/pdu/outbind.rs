@@ -1,5 +1,5 @@
 use super::Pdu;
-use crate::types::c_octet_string::COctetString;
+use crate::types::COctetString;
 
 crate::create! {
     /// Authentication PDU used by a Message Centre to Outbind to

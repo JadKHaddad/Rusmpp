@@ -21,9 +21,7 @@ use crate::{
         ussd_service_op::UssdServiceOp,
     },
     errors::DecodeError,
-    types::{
-        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-    },
+    types::{AnyOctetString, COctetString, OctetString},
     Decode, DecodeResultExt, DecodeWithKey, DecodeWithLength, Encode, Length,
 };
 

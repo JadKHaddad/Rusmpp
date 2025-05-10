@@ -1,7 +1,7 @@
 use super::TLV;
 use crate::{
     commands::tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
-    types::octet_string::OctetString,
+    types::OctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

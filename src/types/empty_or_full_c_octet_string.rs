@@ -5,7 +5,7 @@ use crate::{
     Decode, Encode, Length,
 };
 
-/// An error that can occur when creating a [`EmptyOrFullCOctetString`].
+/// An error that can occur when creating an [`EmptyOrFullCOctetString`].
 #[derive(Debug)]
 pub enum Error {
     TooManyBytes { actual: usize, max: usize },
@@ -33,7 +33,7 @@ impl core::fmt::Display for Error {
 
 impl core::error::Error for Error {}
 
-/// Empty or full [`COctetString`](struct@crate::types::c_octet_string::COctetString).
+/// Empty or full [`COctetString`](struct@crate::types::COctetString).
 ///
 /// `N` is the maximum length of the string, including the null terminator.
 ///

@@ -1,4 +1,4 @@
-use crate::types::octet_string::OctetString;
+use crate::types::OctetString;
 
 crate::create! {
     #[repr(u8)]

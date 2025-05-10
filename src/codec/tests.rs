@@ -32,10 +32,7 @@ mod tokio {
             DeliverSmResp, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp,
             ReplaceSm, SubmitMulti, SubmitMultiResp, SubmitSmResp,
         },
-        types::{
-            any_octet_string::AnyOctetString, c_octet_string::COctetString,
-            octet_string::OctetString,
-        },
+        types::{AnyOctetString, COctetString, OctetString},
         CommandId,
     };
 

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::types::message_state::MessageState,
-    types::{c_octet_string::COctetString, empty_or_full_c_octet_string::EmptyOrFullCOctetString},
+    types::{COctetString, EmptyOrFullCOctetString},
 };
 
 crate::create! {

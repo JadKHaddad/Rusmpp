@@ -172,9 +172,7 @@ impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>>
-    for super::any_octet_string::AnyOctetString
-{
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for super::AnyOctetString {
     fn from(octet_string: OctetString<MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }

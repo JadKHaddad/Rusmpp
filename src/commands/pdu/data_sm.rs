@@ -6,7 +6,7 @@ use crate::{
             registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
         },
     },
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 use super::Pdu;

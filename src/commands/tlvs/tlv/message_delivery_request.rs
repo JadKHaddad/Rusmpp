@@ -12,9 +12,7 @@ use crate::{
             ussd_service_op::UssdServiceOp,
         },
     },
-    types::{
-        any_octet_string::AnyOctetString, c_octet_string::COctetString, octet_string::OctetString,
-    },
+    types::{COctetString, AnyOctetString, OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

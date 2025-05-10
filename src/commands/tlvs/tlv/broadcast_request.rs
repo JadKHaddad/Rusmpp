@@ -12,7 +12,7 @@ use crate::{
             sub_address::Subaddress,
         },
     },
-    types::{any_octet_string::AnyOctetString, octet_string::OctetString},
+    types::{AnyOctetString, OctetString},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

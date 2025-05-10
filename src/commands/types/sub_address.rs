@@ -1,4 +1,4 @@
-use crate::types::octet_string::OctetString;
+use crate::types::OctetString;
 
 crate::create! {
     // https://smpp.org/SMPP_v5.pdf#page=165

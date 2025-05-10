@@ -4,7 +4,7 @@ use crate::{
         tlvs::tlv::{cancel_broadcast::CancelBroadcastTLV, TLV},
         types::{npi::Npi, service_type::ServiceType, ton::Ton},
     },
-    types::c_octet_string::COctetString,
+    types::COctetString,
 };
 
 crate::create! {

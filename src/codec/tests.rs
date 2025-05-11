@@ -38,7 +38,7 @@ mod tokio {
 
     #[tokio::test]
     #[traced_test]
-    async fn default_encode_decode() {
+    async fn encode_decode() {
         let commands = vec![
             Command::new(
                 Default::default(),

@@ -115,9 +115,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode_with_length::<BindTransmitterResp>();
-        crate::tests::default_encode_decode_with_length::<BindReceiverResp>();
-        crate::tests::default_encode_decode_with_length::<BindTransceiverResp>();
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<BindTransmitterResp>();
+        crate::tests::encode_decode_with_length_test_instances::<BindReceiverResp>();
+        crate::tests::encode_decode_with_length_test_instances::<BindTransceiverResp>();
     }
 }

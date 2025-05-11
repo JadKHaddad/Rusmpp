@@ -1,4 +1,4 @@
-use crate::{TlvValue, Tlv};
+use crate::{Tlv, TlvValue};
 
 crate::create! {
     #[repr(u8)]
@@ -59,7 +59,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<MsAvailabilityStatus>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<MsAvailabilityStatus>();
     }
 }

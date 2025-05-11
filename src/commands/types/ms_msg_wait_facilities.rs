@@ -125,9 +125,9 @@ mod tests {
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<MsMsgWaitFacilities>();
-        crate::tests::default_encode_decode::<Indicator>();
-        crate::tests::default_encode_decode::<TypeOfMessage>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<MsMsgWaitFacilities>();
+        crate::tests::encode_decode_test_instances::<Indicator>();
+        crate::tests::encode_decode_test_instances::<TypeOfMessage>();
     }
 }

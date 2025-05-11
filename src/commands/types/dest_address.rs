@@ -160,8 +160,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<DestFlag>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<DestFlag>();
     }
 
     // TODO: a lot of encode/decode vector of values

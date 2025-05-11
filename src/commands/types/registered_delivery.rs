@@ -189,10 +189,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<RegisteredDelivery>();
-        crate::tests::default_encode_decode::<MCDeliveryReceipt>();
-        crate::tests::default_encode_decode::<SmeOriginatedAcknowledgement>();
-        crate::tests::default_encode_decode::<IntermediateNotification>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<RegisteredDelivery>();
+        crate::tests::encode_decode_test_instances::<MCDeliveryReceipt>();
+        crate::tests::encode_decode_test_instances::<SmeOriginatedAcknowledgement>();
+        crate::tests::encode_decode_test_instances::<IntermediateNotification>();
     }
 }

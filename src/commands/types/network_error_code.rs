@@ -69,8 +69,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<NetworkErrorCode>();
-        crate::tests::default_encode_decode::<ErrorCodeNetworkType>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<NetworkErrorCode>();
+        crate::tests::encode_decode_test_instances::<ErrorCodeNetworkType>();
     }
 }

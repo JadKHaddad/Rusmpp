@@ -217,9 +217,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<TypeOfNetwork>();
-        crate::tests::default_encode_decode::<EncodingContentType>();
-        crate::tests::default_encode_decode::<BroadcastContentType>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<TypeOfNetwork>();
+        crate::tests::encode_decode_test_instances::<EncodingContentType>();
+        crate::tests::encode_decode_test_instances::<BroadcastContentType>();
     }
 }

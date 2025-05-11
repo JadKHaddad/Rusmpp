@@ -299,10 +299,10 @@ mod tests {
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<1>>();
-        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<2>>();
-        crate::tests::default_encode_decode::<EmptyOrFullCOctetString<3>>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<EmptyOrFullCOctetString<1>>();
+        crate::tests::encode_decode_test_instances::<EmptyOrFullCOctetString<2>>();
+        crate::tests::encode_decode_test_instances::<EmptyOrFullCOctetString<3>>();
     }
 
     mod new {

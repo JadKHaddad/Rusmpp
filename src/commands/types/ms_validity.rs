@@ -127,10 +127,10 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode_with_length::<MsValidity>();
-        crate::tests::default_encode_decode::<MsValidityInformation>();
-        crate::tests::default_encode_decode::<MsValidityBehavior>();
-        crate::tests::default_encode_decode::<UnitsOfTime>();
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<MsValidity>();
+        crate::tests::encode_decode_test_instances::<MsValidityInformation>();
+        crate::tests::encode_decode_test_instances::<MsValidityBehavior>();
+        crate::tests::encode_decode_test_instances::<UnitsOfTime>();
     }
 }

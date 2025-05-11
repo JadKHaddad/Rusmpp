@@ -176,7 +176,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode_with_length::<CancelBroadcastSm>();
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<CancelBroadcastSm>();
     }
 }

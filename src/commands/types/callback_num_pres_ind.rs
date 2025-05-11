@@ -130,9 +130,9 @@ mod tests {
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<CallbackNumPresInd>();
-        crate::tests::default_encode_decode::<Presentation>();
-        crate::tests::default_encode_decode::<Screening>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<CallbackNumPresInd>();
+        crate::tests::encode_decode_test_instances::<Presentation>();
+        crate::tests::encode_decode_test_instances::<Screening>();
     }
 }

@@ -338,12 +338,6 @@ mod tests {
                 )
                 .unwrap(),
                 Self::new(
-                    core::iter::repeat_n(b'1', MAX - MIN - 1)
-                        .chain(core::iter::once(b'\0'))
-                        .collect::<Vec<_>>(),
-                )
-                .unwrap(),
-                Self::new(
                     core::iter::repeat_n(b'1', MAX - 1)
                         .chain(core::iter::once(b'\0'))
                         .collect::<Vec<_>>(),
@@ -354,10 +348,10 @@ mod tests {
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<COctetString<1, 5>>();
-        crate::tests::default_encode_decode::<COctetString<2, 5>>();
-        crate::tests::default_encode_decode::<COctetString<3, 5>>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<COctetString<1, 5>>();
+        crate::tests::encode_decode_test_instances::<COctetString<2, 5>>();
+        crate::tests::encode_decode_test_instances::<COctetString<3, 5>>();
     }
 
     mod new {

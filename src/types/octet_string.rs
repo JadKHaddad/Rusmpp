@@ -233,17 +233,17 @@ mod tests {
             vec![
                 Self::empty(),
                 Self::new(core::iter::repeat_n(b'1', MIN).collect::<Vec<_>>()).unwrap(),
-                Self::new(core::iter::repeat_n(b'1', MAX - MIN).collect::<Vec<_>>()).unwrap(),
+                Self::new(core::iter::repeat_n(b'1', MAX / 2).collect::<Vec<_>>()).unwrap(),
                 Self::new(core::iter::repeat_n(b'1', MAX).collect::<Vec<_>>()).unwrap(),
             ]
         }
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode_with_length::<OctetString<0, 5>>();
-        crate::tests::default_encode_decode_with_length::<OctetString<1, 5>>();
-        crate::tests::default_encode_decode_with_length::<OctetString<2, 5>>();
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<0, 5>>();
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<1, 5>>();
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<2, 5>>();
     }
 
     mod new {

@@ -192,11 +192,11 @@ mod tests {
     use super::*;
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<EsmClass>();
-        crate::tests::default_encode_decode::<MessagingMode>();
-        crate::tests::default_encode_decode::<MessageType>();
-        crate::tests::default_encode_decode::<Ansi41Specific>();
-        crate::tests::default_encode_decode::<GsmFeatures>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<EsmClass>();
+        crate::tests::encode_decode_test_instances::<MessagingMode>();
+        crate::tests::encode_decode_test_instances::<MessageType>();
+        crate::tests::encode_decode_test_instances::<Ansi41Specific>();
+        crate::tests::encode_decode_test_instances::<GsmFeatures>();
     }
 }

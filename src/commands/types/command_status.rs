@@ -586,7 +586,7 @@ mod tests {
     }
 
     #[test]
-    fn default_encode_decode() {
-        crate::tests::default_encode_decode::<CommandStatus>();
+    fn encode_decode() {
+        crate::tests::encode_decode_test_instances::<CommandStatus>();
     }
 }

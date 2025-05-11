@@ -56,6 +56,17 @@ crate::create! {
     }
 }
 
+impl Default for Command {
+    fn default() -> Self {
+        Self {
+            command_id: CommandId::EnquireLink,
+            command_status: CommandStatus::EsmeRok,
+            sequence_number: 0,
+            pdu: Some(Pdu::EnquireLink),
+        }
+    }
+}
+
 impl Command {
     pub fn new(command_status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
         let pdu = pdu.into();
@@ -97,14 +108,9 @@ impl Command {
         self.pdu = Some(pdu);
     }
 
-    pub const fn builder() -> CommandStatusBuilder {
+    pub fn builder() -> CommandStatusBuilder {
         CommandStatusBuilder {
-            inner: Command {
-                command_id: CommandId::EnquireLink,
-                command_status: CommandStatus::EsmeRok,
-                sequence_number: 0,
-                pdu: Some(Pdu::EnquireLink),
-            },
+            inner: Default::default(),
         }
     }
 }
@@ -144,5 +150,15 @@ impl PduBuilder {
     pub fn pdu(mut self, pdu: impl Into<Pdu>) -> Command {
         self.inner.set_pdu(pdu);
         self.inner
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn default_encode_decode() {
+        crate::tests::default_encode_decode_with_length::<Command>();
     }
 }

@@ -43,6 +43,8 @@ impl From<DestFlag> for u32 {
     }
 }
 
+// TODO: can we make decoding this just like Pdu and tlv with a key and skip the whole thing with @[skip] decoding for the dest_flag?
+// encode_decode_test_instances for SmeAddress and DistributionListName is failing because of this. See tests below.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum DestAddress {
     /// SME Format Destination Address.

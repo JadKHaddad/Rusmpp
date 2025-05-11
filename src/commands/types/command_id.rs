@@ -1,5 +1,6 @@
 crate::create! {
     #[repr(u32)]
+    @[skip_test]
     /// The [`CommandId`] identifies the SMPP operation e.g. submit_sm, bind_transmitter etc. The
     /// [`CommandId`] is encoded as a 4-octet integer value.
     ///

@@ -4,6 +4,10 @@
 ///
 /// Enums must be annotated with `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
 ///
+/// ## Decoding attributes
+///
+/// - `@[skip_test]`: Skip impl `TestInstance` for the enum.
+///
 /// # Structs
 ///
 /// ## Decoding attributes
@@ -491,6 +495,7 @@ macro_rules! create {
     // Enums u8
     (
         #[repr(u8)]
+        $(@[$skip_test:ident])?
         $(#[$enum_meta:meta])*
         $enum_vis:vis enum $enum_ident:ident {
             $($enum_body:tt)*
@@ -505,11 +510,17 @@ macro_rules! create {
         $crate::create!(@repr{
             $enum_ident, u8
         });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $enum_ident
+        });
     };
 
     // Enums u16
     (
         #[repr(u16)]
+        $(@[$skip_test:ident])?
         $(#[$enum_meta:meta])*
         $enum_vis:vis enum $enum_ident:ident {
             $($enum_body:tt)*
@@ -524,11 +535,17 @@ macro_rules! create {
         $crate::create!(@repr{
             $enum_ident, u16
         });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $enum_ident
+        });
     };
 
     // Enums u32
     (
         #[repr(u32)]
+        $(@[$skip_test:ident])?
         $(#[$enum_meta:meta])*
         $enum_vis:vis enum $enum_ident:ident {
             $($enum_body:tt)*
@@ -542,6 +559,11 @@ macro_rules! create {
 
         $crate::create!(@repr{
             $enum_ident, u32
+        });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $enum_ident
         });
     };
 

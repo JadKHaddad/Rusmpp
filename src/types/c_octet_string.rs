@@ -327,6 +327,32 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
 mod tests {
     use super::*;
 
+    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for COctetString<MIN, MAX> {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::empty(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MIN - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MAX - MIN - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MAX - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+            ]
+        }
+    }
+
     #[test]
     fn default_encode_decode() {
         crate::tests::default_encode_decode::<COctetString<1, 5>>();

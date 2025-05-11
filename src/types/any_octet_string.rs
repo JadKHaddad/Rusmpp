@@ -127,6 +127,15 @@ impl DecodeWithLength for AnyOctetString {
 mod tests {
     use super::*;
 
+    impl crate::tests::TestInstance for AnyOctetString {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::empty(),
+                Self::new(std::iter::repeat_n(b'1', 100).collect::<Vec<_>>()),
+            ]
+        }
+    }
+
     #[test]
     fn default_encode_decode() {
         crate::tests::default_encode_decode_with_length::<AnyOctetString>();

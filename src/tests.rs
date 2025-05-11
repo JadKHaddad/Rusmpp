@@ -16,7 +16,7 @@ pub trait TestInstance: Sized + Default {
 /// Encode a type to bytes and then decode it back to the original type.
 pub fn default_encode_decode<T>()
 where
-    T: Default + core::fmt::Debug + PartialEq + Encode + Decode,
+    T: TestInstance + Default + core::fmt::Debug + PartialEq + Encode + Decode,
 {
     let original = T::default();
 

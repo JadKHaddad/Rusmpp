@@ -1,5 +1,6 @@
 crate::create! {
     #[repr(u16)]
+    @[skip_test]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub enum TlvTag {
         DestAddrSubunit = 0x0005,

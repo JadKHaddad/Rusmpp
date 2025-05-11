@@ -76,8 +76,6 @@ mod macros;
 
 pub(crate) mod utils;
 
-use macros::create;
-
 pub mod decode;
 pub mod encode;
 

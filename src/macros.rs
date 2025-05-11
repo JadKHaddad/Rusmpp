@@ -1,4 +1,4 @@
-/// Implements [`Length`](crate::encode::Length), [`Encode`](crate::encode::Encode), [`Decode`](crate::decode::Decode) and `TestInstance` for structs and enums.
+/// Implements [`Length`](crate::encode::Length), [`Encode`](crate::encode::Encode), [`Decode`](crate::decode::Decode) and `TestInstance` with one default value for structs and enums.
 ///
 /// # Enums
 ///
@@ -340,7 +340,11 @@ macro_rules! create {
         $name:ident
     }) => {
         #[cfg(test)]
-        impl $crate::tests::TestInstance for $name {}
+        impl $crate::tests::TestInstance for $name {
+            fn instances() -> Vec<Self> {
+                vec![Self::default(),]
+            }
+        }
     };
 
     (@impl_test_instances {

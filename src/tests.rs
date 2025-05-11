@@ -4,11 +4,9 @@ use crate::{
 };
 
 /// Trait for creating test instances of a type.
-pub trait TestInstance: Sized + Default {
+pub trait TestInstance: Sized {
     /// Create test instances of the type.
-    fn instances() -> Vec<Self> {
-        vec![Self::default()]
-    }
+    fn instances() -> Vec<Self>;
 }
 
 /// Test encoding and decoding of a type.

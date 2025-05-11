@@ -155,14 +155,32 @@ impl DistributionListName {
     }
 }
 
+/// # Note
+///
+/// [`encode_decode_test_instances`](crate::tests::encode_decode_test_instances) will fail for [`SmeAddress`] and [`DistributionListName`]
+/// because they encode the `dest_flag` field but skip decoding it, since it will be extracted while decoding [`DestAddress`].
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    impl crate::tests::TestInstance for DestAddress {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::SmeAddress(SmeAddress::new(
+                    Ton::International,
+                    Npi::Isdn,
+                    COctetString::new(b"1234567890123456789\0").unwrap(),
+                )),
+                Self::DistributionListName(DistributionListName::new(
+                    COctetString::new(b"1234567890123456789\0").unwrap(),
+                )),
+            ]
+        }
+    }
+
     #[test]
     fn encode_decode() {
         crate::tests::encode_decode_test_instances::<DestFlag>();
+        crate::tests::encode_decode_test_instances::<DestAddress>();
     }
-
-    // TODO: a lot of encode/decode vector of values
 }

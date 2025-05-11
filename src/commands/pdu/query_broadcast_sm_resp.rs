@@ -2,8 +2,8 @@ use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
-            tlv::{query_broadcast_response::QueryBroadcastResponseTLV, TLV},
-            tlv_value::TLVValue,
+            tlv::{query_broadcast_response::QueryBroadcastResponseTlv, Tlv},
+            tlv_value::TlvValue,
         },
         types::{
             broadcast_area_identifier::BroadcastAreaIdentifier,
@@ -24,7 +24,7 @@ crate::create! {
         /// [`TLVValue::MessageState`].
         ///
         /// This field indicates the current status of the broadcast message.
-        message_state: TLV,
+        message_state: Tlv,
         /// [`TLVValue::BroadcastAreaIdentifier`].
         ///
         /// Identifies one or more target Broadcast Area(s) for which the
@@ -33,17 +33,17 @@ crate::create! {
         /// The number of instances of this parameter will be exactly equal
         /// to the number of occurrences of the broadcast_area_identifiers
         /// parameter in the corresponding broadcast_sm.
-        broadcast_area_identifier: TLV,
+        broadcast_area_identifier: Tlv,
         /// [`TLVValue::BroadcastAreaSuccess`].
         ///
         /// The success rate indicator, defined as the ratio of the
         /// number of BTSs that accepted the message and the total
         /// number of BTSs that should have accepted the message, for
         /// a particular broadcast_area_identifier.
-        broadcast_area_success: TLV,
+        broadcast_area_success: Tlv,
         /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -54,21 +54,21 @@ impl QueryBroadcastSmResp {
         message_state: MessageState,
         broadcast_area_identifier: BroadcastAreaIdentifier,
         broadcast_area_success: BroadcastAreaSuccess,
-        tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>,
+        tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
-        let message_state = TLV::new(TLVValue::MessageState(message_state));
+        let message_state = Tlv::new(TlvValue::MessageState(message_state));
 
         let broadcast_area_identifier =
-            TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+            Tlv::new(TlvValue::BroadcastAreaIdentifier(broadcast_area_identifier));
 
         let broadcast_area_success =
-            TLV::new(TLVValue::BroadcastAreaSuccess(broadcast_area_success));
+            Tlv::new(TlvValue::BroadcastAreaSuccess(broadcast_area_success));
 
         Self {
             message_id,
@@ -79,15 +79,15 @@ impl QueryBroadcastSmResp {
         }
     }
 
-    pub fn message_state(&self) -> &TLV {
+    pub fn message_state(&self) -> &Tlv {
         &self.message_state
     }
 
     pub fn set_message_state(&mut self, message_state: MessageState) {
-        self.message_state = TLV::new(TLVValue::MessageState(message_state));
+        self.message_state = Tlv::new(TlvValue::MessageState(message_state));
     }
 
-    pub fn broadcast_area_identifier(&self) -> &TLV {
+    pub fn broadcast_area_identifier(&self) -> &Tlv {
         &self.broadcast_area_identifier
     }
 
@@ -96,35 +96,35 @@ impl QueryBroadcastSmResp {
         broadcast_area_identifier: BroadcastAreaIdentifier,
     ) {
         self.broadcast_area_identifier =
-            TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+            Tlv::new(TlvValue::BroadcastAreaIdentifier(broadcast_area_identifier));
     }
 
-    pub fn broadcast_area_success(&self) -> &TLV {
+    pub fn broadcast_area_success(&self) -> &Tlv {
         &self.broadcast_area_success
     }
 
     pub fn set_broadcast_area_success(&mut self, broadcast_area_success: BroadcastAreaSuccess) {
         self.broadcast_area_success =
-            TLV::new(TLVValue::BroadcastAreaSuccess(broadcast_area_success));
+            Tlv::new(TlvValue::BroadcastAreaSuccess(broadcast_area_success));
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>) {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<QueryBroadcastResponseTLV>) {
-        let tlv: QueryBroadcastResponseTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<QueryBroadcastResponseTlv>) {
+        let tlv: QueryBroadcastResponseTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -144,11 +144,11 @@ impl Default for QueryBroadcastSmResp {
     fn default() -> Self {
         Self {
             message_id: Default::default(),
-            message_state: TLV::new(TLVValue::MessageState(Default::default())),
-            broadcast_area_identifier: TLV::new(TLVValue::BroadcastAreaIdentifier(
+            message_state: Tlv::new(TlvValue::MessageState(Default::default())),
+            broadcast_area_identifier: Tlv::new(TlvValue::BroadcastAreaIdentifier(
                 Default::default(),
             )),
-            broadcast_area_success: TLV::new(TLVValue::BroadcastAreaSuccess(Default::default())),
+            broadcast_area_success: Tlv::new(TlvValue::BroadcastAreaSuccess(Default::default())),
             tlvs: Default::default(),
         }
     }
@@ -189,12 +189,12 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTLV>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<QueryBroadcastResponseTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<QueryBroadcastResponseTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

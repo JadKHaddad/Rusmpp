@@ -2,8 +2,8 @@ use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
-            tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
-            tlv_tag::TLVTag,
+            tlv::{message_submission_request::MessageSubmissionRequestTlv, Tlv},
+            tlv_tag::TlvTag,
         },
         types::{
             data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
@@ -87,7 +87,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message submission request TLVs ([`MessageSubmissionRequestTLV`]).
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -111,13 +111,13 @@ impl SubmitSm {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>,
+        tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         let sm_length = short_message.length() as u8;
 
@@ -167,24 +167,24 @@ impl SubmitSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         self.tlvs = tlvs;
         self.clear_short_message_if_message_payload_exists();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) {
-        let tlv: MessageSubmissionRequestTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
+        let tlv: MessageSubmissionRequestTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
         self.clear_short_message_if_message_payload_exists();
@@ -196,7 +196,7 @@ impl SubmitSm {
         let message_payload_exists = self
             .tlvs
             .iter()
-            .any(|value| matches!(value.tag(), TLVTag::MessagePayload));
+            .any(|value| matches!(value.tag(), TlvTag::MessagePayload));
 
         if message_payload_exists {
             self.short_message = OctetString::empty();
@@ -320,12 +320,12 @@ impl SubmitSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTLV>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<MessageSubmissionRequestTlv>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

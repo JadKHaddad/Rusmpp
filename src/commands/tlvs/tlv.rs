@@ -1,6 +1,6 @@
 use crate::encode::Length;
 
-use super::{tlv_tag::TLVTag, tlv_value::TLVValue};
+use super::{tlv_tag::TlvTag, tlv_value::TlvValue};
 
 pub mod broadcast_request;
 pub mod broadcast_response;
@@ -14,26 +14,26 @@ pub mod query_broadcast_response;
 crate::create! {
     /// See module level documentation
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    pub struct TLV {
-        tag: TLVTag,
+    pub struct Tlv {
+        tag: TlvTag,
         value_length: u16,
         @[key = tag, length = value_length]
-        value: Option<TLVValue>,
+        value: Option<TlvValue>,
     }
 }
 
-impl TLV {
+impl Tlv {
     /// Create a new TLV with the given value
-    pub fn new(value: TLVValue) -> Self {
+    pub fn new(value: TlvValue) -> Self {
         Self::from(value)
     }
 
     /// Create a new TLV without a value
-    pub fn without_value(tag: TLVTag) -> Self {
+    pub fn without_value(tag: TlvTag) -> Self {
         Self::from(tag)
     }
 
-    pub fn tag(&self) -> TLVTag {
+    pub fn tag(&self) -> TlvTag {
         self.tag
     }
 
@@ -41,17 +41,17 @@ impl TLV {
         self.value_length
     }
 
-    pub fn value(&self) -> Option<&TLVValue> {
+    pub fn value(&self) -> Option<&TlvValue> {
         self.value.as_ref()
     }
 
-    pub fn into_value(self) -> Option<TLVValue> {
+    pub fn into_value(self) -> Option<TlvValue> {
         self.value
     }
 }
 
-impl From<TLVValue> for TLV {
-    fn from(value: TLVValue) -> Self {
+impl From<TlvValue> for Tlv {
+    fn from(value: TlvValue) -> Self {
         let tag = value.tlv_tag();
         let value_length = value.length() as u16;
 
@@ -63,8 +63,8 @@ impl From<TLVValue> for TLV {
     }
 }
 
-impl From<TLVTag> for TLV {
-    fn from(tag: TLVTag) -> Self {
+impl From<TlvTag> for Tlv {
+    fn from(tag: TlvTag) -> Self {
         Self {
             tag,
             value_length: 0,

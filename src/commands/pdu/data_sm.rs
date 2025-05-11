@@ -1,6 +1,6 @@
 use crate::{
     commands::{
-        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTLV, TLV},
+        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTlv, Tlv},
         types::{
             data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
             registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
@@ -65,7 +65,7 @@ crate::create! {
         pub data_coding: DataCoding,
         /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -82,13 +82,13 @@ impl DataSm {
         esm_class: EsmClass,
         registered_delivery: RegisteredDelivery,
         data_coding: DataCoding,
-        tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>,
+        tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         Self {
             service_type,
@@ -105,17 +105,17 @@ impl DataSm {
         }
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTLV>) {
-        let tlv: MessageSubmissionRequestTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
+        let tlv: MessageSubmissionRequestTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -191,12 +191,12 @@ impl DataSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTLV>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

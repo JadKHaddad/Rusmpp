@@ -1,86 +1,86 @@
-use super::TLV;
+use super::Tlv;
 use crate::{
-    commands::tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+    commands::tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
     types::OctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum QueryBroadcastResponseTLVTag {
+pub enum QueryBroadcastResponseTlvTag {
     BroadcastEndTime,
     UserMessageReference,
 }
 
-impl From<QueryBroadcastResponseTLVTag> for TLVTag {
-    fn from(value: QueryBroadcastResponseTLVTag) -> Self {
+impl From<QueryBroadcastResponseTlvTag> for TlvTag {
+    fn from(value: QueryBroadcastResponseTlvTag) -> Self {
         match value {
-            QueryBroadcastResponseTLVTag::BroadcastEndTime => TLVTag::BroadcastEndTime,
-            QueryBroadcastResponseTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+            QueryBroadcastResponseTlvTag::BroadcastEndTime => TlvTag::BroadcastEndTime,
+            QueryBroadcastResponseTlvTag::UserMessageReference => TlvTag::UserMessageReference,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum QueryBroadcastResponseTLVValue {
+pub enum QueryBroadcastResponseTlvValue {
     BroadcastEndTime(OctetString<0, 17>),
     UserMessageReference(u16),
 }
 
-impl From<QueryBroadcastResponseTLVValue> for TLVValue {
-    fn from(value: QueryBroadcastResponseTLVValue) -> Self {
+impl From<QueryBroadcastResponseTlvValue> for TlvValue {
+    fn from(value: QueryBroadcastResponseTlvValue) -> Self {
         match value {
-            QueryBroadcastResponseTLVValue::BroadcastEndTime(value) => {
-                TLVValue::BroadcastEndTime(value)
+            QueryBroadcastResponseTlvValue::BroadcastEndTime(value) => {
+                TlvValue::BroadcastEndTime(value)
             }
-            QueryBroadcastResponseTLVValue::UserMessageReference(value) => {
-                TLVValue::UserMessageReference(value)
+            QueryBroadcastResponseTlvValue::UserMessageReference(value) => {
+                TlvValue::UserMessageReference(value)
             }
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct QueryBroadcastResponseTLV {
-    tlv: TLV,
+pub struct QueryBroadcastResponseTlv {
+    tlv: Tlv,
 }
 
-impl QueryBroadcastResponseTLV {
-    pub fn new(value: QueryBroadcastResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl QueryBroadcastResponseTlv {
+    pub fn new(value: QueryBroadcastResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: QueryBroadcastResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: QueryBroadcastResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<QueryBroadcastResponseTLVTag> for TLV {
-    fn from(tag: QueryBroadcastResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<QueryBroadcastResponseTlvTag> for Tlv {
+    fn from(tag: QueryBroadcastResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<QueryBroadcastResponseTLVValue> for QueryBroadcastResponseTLV {
-    fn from(value: QueryBroadcastResponseTLVValue) -> Self {
+impl From<QueryBroadcastResponseTlvValue> for QueryBroadcastResponseTlv {
+    fn from(value: QueryBroadcastResponseTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<QueryBroadcastResponseTLVValue> for TLV {
-    fn from(value: QueryBroadcastResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<QueryBroadcastResponseTlvValue> for Tlv {
+    fn from(value: QueryBroadcastResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<QueryBroadcastResponseTLV> for TLV {
-    fn from(tlv: QueryBroadcastResponseTLV) -> Self {
+impl From<QueryBroadcastResponseTlv> for Tlv {
+    fn from(tlv: QueryBroadcastResponseTlv) -> Self {
         tlv.tlv
     }
 }

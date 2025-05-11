@@ -1,7 +1,7 @@
-use super::{TLVValue, TLV};
+use super::{Tlv, TlvValue};
 use crate::{
     commands::{
-        tlvs::tlv_tag::TLVTag,
+        tlvs::tlv_tag::TlvTag,
         types::{
             delivery_failure_reason::DeliveryFailureReason, network_error_code::NetworkErrorCode,
         },
@@ -10,88 +10,88 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageDeliveryResponseTLVTag {
+pub enum MessageDeliveryResponseTlvTag {
     AdditionalStatusInfoText,
     DeliveryFailureReason,
     NetworkErrorCode,
 }
 
-impl From<MessageDeliveryResponseTLVTag> for TLVTag {
-    fn from(value: MessageDeliveryResponseTLVTag) -> Self {
+impl From<MessageDeliveryResponseTlvTag> for TlvTag {
+    fn from(value: MessageDeliveryResponseTlvTag) -> Self {
         match value {
-            MessageDeliveryResponseTLVTag::AdditionalStatusInfoText => {
-                TLVTag::AdditionalStatusInfoText
+            MessageDeliveryResponseTlvTag::AdditionalStatusInfoText => {
+                TlvTag::AdditionalStatusInfoText
             }
-            MessageDeliveryResponseTLVTag::DeliveryFailureReason => TLVTag::DeliveryFailureReason,
-            MessageDeliveryResponseTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
+            MessageDeliveryResponseTlvTag::DeliveryFailureReason => TlvTag::DeliveryFailureReason,
+            MessageDeliveryResponseTlvTag::NetworkErrorCode => TlvTag::NetworkErrorCode,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageDeliveryResponseTLVValue {
+pub enum MessageDeliveryResponseTlvValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
     DeliveryFailureReason(DeliveryFailureReason),
     NetworkErrorCode(NetworkErrorCode),
 }
 
-impl From<MessageDeliveryResponseTLVValue> for TLVValue {
-    fn from(value: MessageDeliveryResponseTLVValue) -> Self {
+impl From<MessageDeliveryResponseTlvValue> for TlvValue {
+    fn from(value: MessageDeliveryResponseTlvValue) -> Self {
         match value {
-            MessageDeliveryResponseTLVValue::AdditionalStatusInfoText(v) => {
-                TLVValue::AdditionalStatusInfoText(v)
+            MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(v) => {
+                TlvValue::AdditionalStatusInfoText(v)
             }
-            MessageDeliveryResponseTLVValue::DeliveryFailureReason(v) => {
-                TLVValue::DeliveryFailureReason(v)
+            MessageDeliveryResponseTlvValue::DeliveryFailureReason(v) => {
+                TlvValue::DeliveryFailureReason(v)
             }
-            MessageDeliveryResponseTLVValue::NetworkErrorCode(v) => TLVValue::NetworkErrorCode(v),
+            MessageDeliveryResponseTlvValue::NetworkErrorCode(v) => TlvValue::NetworkErrorCode(v),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageDeliveryResponseTLV {
-    tlv: TLV,
+pub struct MessageDeliveryResponseTlv {
+    tlv: Tlv,
 }
 
-impl MessageDeliveryResponseTLV {
-    pub fn new(value: MessageDeliveryResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl MessageDeliveryResponseTlv {
+    pub fn new(value: MessageDeliveryResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: MessageDeliveryResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: MessageDeliveryResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<MessageDeliveryResponseTLVTag> for TLV {
-    fn from(tag: MessageDeliveryResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<MessageDeliveryResponseTlvTag> for Tlv {
+    fn from(tag: MessageDeliveryResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<MessageDeliveryResponseTLVValue> for MessageDeliveryResponseTLV {
-    fn from(value: MessageDeliveryResponseTLVValue) -> Self {
+impl From<MessageDeliveryResponseTlvValue> for MessageDeliveryResponseTlv {
+    fn from(value: MessageDeliveryResponseTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<MessageDeliveryResponseTLVValue> for TLV {
-    fn from(value: MessageDeliveryResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<MessageDeliveryResponseTlvValue> for Tlv {
+    fn from(value: MessageDeliveryResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<MessageDeliveryResponseTLV> for TLV {
-    fn from(tlv: MessageDeliveryResponseTLV) -> Self {
+impl From<MessageDeliveryResponseTlv> for Tlv {
+    fn from(tlv: MessageDeliveryResponseTlv) -> Self {
         tlv.tlv
     }
 }

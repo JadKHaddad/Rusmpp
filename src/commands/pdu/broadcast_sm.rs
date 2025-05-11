@@ -2,8 +2,8 @@ use super::Pdu;
 use crate::{
     commands::{
         tlvs::{
-            tlv::{broadcast_request::BroadcastRequestTLV, TLV},
-            tlv_value::TLVValue,
+            tlv::{broadcast_request::BroadcastRequestTlv, Tlv},
+            tlv_value::TlvValue,
         },
         types::{
             broadcast_area_identifier::BroadcastAreaIdentifier,
@@ -94,24 +94,24 @@ crate::create! {
         ///
         /// This parameter can be included a number of times
         /// for multiple target Broadcast Areas(s).
-        broadcast_area_identifier: TLV,
+        broadcast_area_identifier: Tlv,
         /// [`TLVValue::BroadcastContentType`].
         ///
         /// Specifies the content type of the message.
-        broadcast_content_type: TLV,
+        broadcast_content_type: Tlv,
         /// [`TLVValue::BroadcastRepNum`].
         ///
         /// This field indicates the number of repeated
         /// broadcasts of a message requested by the submitter.
-        broadcast_rep_num: TLV,
+        broadcast_rep_num: Tlv,
         /// [`TLVValue::BroadcastFrequencyInterval`].
         ///
         /// This field indicates the frequency interval at which
         /// the broadcasts of a message should be repeated.
-        broadcast_frequency_interval: TLV,
+        broadcast_frequency_interval: Tlv,
         /// Broadcast request TLVs ([`BroadcastRequestTLV`]).
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -134,23 +134,23 @@ impl BroadcastSm {
         broadcast_content_type: BroadcastContentType,
         broadcast_rep_num: u16,
         broadcast_frequency_interval: BroadcastFrequencyInterval,
-        tlvs: Vec<impl Into<BroadcastRequestTLV>>,
+        tlvs: Vec<impl Into<BroadcastRequestTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         let broadcast_area_identifier =
-            TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+            Tlv::new(TlvValue::BroadcastAreaIdentifier(broadcast_area_identifier));
 
         let broadcast_content_type =
-            TLV::new(TLVValue::BroadcastContentType(broadcast_content_type));
+            Tlv::new(TlvValue::BroadcastContentType(broadcast_content_type));
 
-        let broadcast_rep_num = TLV::new(TLVValue::BroadcastRepNum(broadcast_rep_num));
+        let broadcast_rep_num = Tlv::new(TlvValue::BroadcastRepNum(broadcast_rep_num));
 
-        let broadcast_frequency_interval = TLV::new(TLVValue::BroadcastFrequencyInterval(
+        let broadcast_frequency_interval = Tlv::new(TlvValue::BroadcastFrequencyInterval(
             broadcast_frequency_interval,
         ));
 
@@ -174,7 +174,7 @@ impl BroadcastSm {
         }
     }
 
-    pub fn broadcast_area_identifier(&self) -> &TLV {
+    pub fn broadcast_area_identifier(&self) -> &Tlv {
         &self.broadcast_area_identifier
     }
 
@@ -183,27 +183,27 @@ impl BroadcastSm {
         broadcast_area_identifier: BroadcastAreaIdentifier,
     ) {
         self.broadcast_area_identifier =
-            TLV::new(TLVValue::BroadcastAreaIdentifier(broadcast_area_identifier));
+            Tlv::new(TlvValue::BroadcastAreaIdentifier(broadcast_area_identifier));
     }
 
-    pub fn broadcast_content_type(&self) -> &TLV {
+    pub fn broadcast_content_type(&self) -> &Tlv {
         &self.broadcast_content_type
     }
 
     pub fn set_broadcast_content_type(&mut self, broadcast_content_type: BroadcastContentType) {
         self.broadcast_content_type =
-            TLV::new(TLVValue::BroadcastContentType(broadcast_content_type));
+            Tlv::new(TlvValue::BroadcastContentType(broadcast_content_type));
     }
 
-    pub fn broadcast_rep_num(&self) -> &TLV {
+    pub fn broadcast_rep_num(&self) -> &Tlv {
         &self.broadcast_rep_num
     }
 
     pub fn set_broadcast_rep_num(&mut self, broadcast_rep_num: u16) {
-        self.broadcast_rep_num = TLV::new(TLVValue::BroadcastRepNum(broadcast_rep_num));
+        self.broadcast_rep_num = Tlv::new(TlvValue::BroadcastRepNum(broadcast_rep_num));
     }
 
-    pub fn broadcast_frequency_interval(&self) -> &TLV {
+    pub fn broadcast_frequency_interval(&self) -> &Tlv {
         &self.broadcast_frequency_interval
     }
 
@@ -211,28 +211,28 @@ impl BroadcastSm {
         &mut self,
         broadcast_frequency_interval: BroadcastFrequencyInterval,
     ) {
-        self.broadcast_frequency_interval = TLV::new(TLVValue::BroadcastFrequencyInterval(
+        self.broadcast_frequency_interval = Tlv::new(TlvValue::BroadcastFrequencyInterval(
             broadcast_frequency_interval,
         ));
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTlv>>) {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastRequestTLV>) {
-        let tlv: BroadcastRequestTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastRequestTlv>) {
+        let tlv: BroadcastRequestTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -262,12 +262,12 @@ impl Default for BroadcastSm {
             replace_if_present_flag: Default::default(),
             data_coding: Default::default(),
             sm_default_msg_id: Default::default(),
-            broadcast_area_identifier: TLV::new(TLVValue::BroadcastAreaIdentifier(
+            broadcast_area_identifier: Tlv::new(TlvValue::BroadcastAreaIdentifier(
                 Default::default(),
             )),
-            broadcast_content_type: TLV::new(TLVValue::BroadcastContentType(Default::default())),
-            broadcast_rep_num: TLV::new(TLVValue::BroadcastRepNum(Default::default())),
-            broadcast_frequency_interval: TLV::new(TLVValue::BroadcastFrequencyInterval(
+            broadcast_content_type: Tlv::new(TlvValue::BroadcastContentType(Default::default())),
+            broadcast_rep_num: Tlv::new(TlvValue::BroadcastRepNum(Default::default())),
+            broadcast_frequency_interval: Tlv::new(TlvValue::BroadcastFrequencyInterval(
                 Default::default(),
             )),
             tlvs: Default::default(),
@@ -375,12 +375,12 @@ impl BroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTLV>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<BroadcastRequestTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<BroadcastRequestTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

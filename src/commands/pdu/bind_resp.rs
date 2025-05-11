@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        tlvs::{tlv::Tlv, tlv_value::TlvValue},
         types::interface_version::InterfaceVersion,
     },
     types::COctetString,
@@ -16,11 +16,11 @@ macro_rules! declare_bind_resp {
                 ///
                 /// Identifies the MC to the ESME.
                 pub system_id: COctetString<1, 16>,
-                /// [`TLVValue::ScInterfaceVersion`].
+                /// [`TlvValue::ScInterfaceVersion`].
                 ///
                 /// `SMPP` version supported by MC.
                 @[length = checked]
-                sc_interface_version: Option<TLV>,
+                sc_interface_version: Option<Tlv>,
             }
         }
 
@@ -32,11 +32,11 @@ macro_rules! declare_bind_resp {
                 Self {
                     system_id,
                     sc_interface_version: sc_interface_version
-                        .map(|value| TLV::new(TLVValue::ScInterfaceVersion(value))),
+                        .map(|value| Tlv::new(TlvValue::ScInterfaceVersion(value))),
                 }
             }
 
-            pub const fn sc_interface_version(&self) -> Option<&TLV> {
+            pub const fn sc_interface_version(&self) -> Option<&Tlv> {
                 self.sc_interface_version.as_ref()
             }
 
@@ -50,7 +50,7 @@ macro_rules! declare_bind_resp {
                 sc_interface_version: Option<InterfaceVersion>,
             ) {
                 self.sc_interface_version =
-                    sc_interface_version.map(|value| TLV::new(TLVValue::ScInterfaceVersion(value)));
+                    sc_interface_version.map(|value| Tlv::new(TlvValue::ScInterfaceVersion(value)));
             }
 
             pub fn builder() -> $builder_name {

@@ -17,7 +17,7 @@ mod tokio {
         commands::{
             command::Command,
             pdu::{submit_sm::SubmitSm, Pdu},
-            tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
+            tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
             types::{
                 command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
                 interface_version::InterfaceVersion, npi::Npi,
@@ -297,7 +297,7 @@ mod tokio {
                     OctetString::from_str("Hi, I am a short message. I will be overridden :(")
                         .expect("Failed to create short message"),
                 )
-                .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
+                .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                     AnyOctetString::from_str(
                         "Hi, I am a very long message that will override the short message :D",
                     )

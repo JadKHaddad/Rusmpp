@@ -1,7 +1,7 @@
-use super::TLV;
+use super::Tlv;
 use crate::{
     commands::{
-        tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+        tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
         types::{
             addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
             broadcast_channel_indicator::BroadcastChannelIndicator,
@@ -16,7 +16,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastRequestTLVTag {
+pub enum BroadcastRequestTlvTag {
     AlertOnMsgDelivery,
     BroadcastChannelIndicator,
     BroadcastContentTypeInfo,
@@ -41,37 +41,37 @@ pub enum BroadcastRequestTLVTag {
     UserMessageReference,
 }
 
-impl From<BroadcastRequestTLVTag> for TLVTag {
-    fn from(v: BroadcastRequestTLVTag) -> Self {
+impl From<BroadcastRequestTlvTag> for TlvTag {
+    fn from(v: BroadcastRequestTlvTag) -> Self {
         match v {
-            BroadcastRequestTLVTag::AlertOnMsgDelivery => TLVTag::AlertOnMessageDelivery,
-            BroadcastRequestTLVTag::BroadcastChannelIndicator => TLVTag::BroadcastChannelIndicator,
-            BroadcastRequestTLVTag::BroadcastContentTypeInfo => TLVTag::BroadcastContentTypeInfo,
-            BroadcastRequestTLVTag::BroadcastMessageClass => TLVTag::BroadcastMessageClass,
-            BroadcastRequestTLVTag::BroadcastServiceGroup => TLVTag::BroadcastServiceGroup,
-            BroadcastRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
-            BroadcastRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
-            BroadcastRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
-            BroadcastRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
-            BroadcastRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
-            BroadcastRequestTLVTag::DestPort => TLVTag::DestPort,
-            BroadcastRequestTLVTag::DisplayTime => TLVTag::DisplayTime,
-            BroadcastRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
-            BroadcastRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
-            BroadcastRequestTLVTag::MsValidity => TLVTag::MsValidity,
-            BroadcastRequestTLVTag::PayloadType => TLVTag::PayloadType,
-            BroadcastRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
-            BroadcastRequestTLVTag::SmsSignal => TLVTag::SmsSignal,
-            BroadcastRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
-            BroadcastRequestTLVTag::SourcePort => TLVTag::SourcePort,
-            BroadcastRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
-            BroadcastRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+            BroadcastRequestTlvTag::AlertOnMsgDelivery => TlvTag::AlertOnMessageDelivery,
+            BroadcastRequestTlvTag::BroadcastChannelIndicator => TlvTag::BroadcastChannelIndicator,
+            BroadcastRequestTlvTag::BroadcastContentTypeInfo => TlvTag::BroadcastContentTypeInfo,
+            BroadcastRequestTlvTag::BroadcastMessageClass => TlvTag::BroadcastMessageClass,
+            BroadcastRequestTlvTag::BroadcastServiceGroup => TlvTag::BroadcastServiceGroup,
+            BroadcastRequestTlvTag::CallbackNum => TlvTag::CallbackNum,
+            BroadcastRequestTlvTag::CallbackNumAtag => TlvTag::CallbackNumAtag,
+            BroadcastRequestTlvTag::CallbackNumPresInd => TlvTag::CallbackNumPresInd,
+            BroadcastRequestTlvTag::DestAddrSubunit => TlvTag::DestAddrSubunit,
+            BroadcastRequestTlvTag::DestSubaddress => TlvTag::DestSubaddress,
+            BroadcastRequestTlvTag::DestPort => TlvTag::DestPort,
+            BroadcastRequestTlvTag::DisplayTime => TlvTag::DisplayTime,
+            BroadcastRequestTlvTag::LanguageIndicator => TlvTag::LanguageIndicator,
+            BroadcastRequestTlvTag::MessagePayload => TlvTag::MessagePayload,
+            BroadcastRequestTlvTag::MsValidity => TlvTag::MsValidity,
+            BroadcastRequestTlvTag::PayloadType => TlvTag::PayloadType,
+            BroadcastRequestTlvTag::PrivacyIndicator => TlvTag::PrivacyIndicator,
+            BroadcastRequestTlvTag::SmsSignal => TlvTag::SmsSignal,
+            BroadcastRequestTlvTag::SourceAddrSubunit => TlvTag::SourceAddrSubunit,
+            BroadcastRequestTlvTag::SourcePort => TlvTag::SourcePort,
+            BroadcastRequestTlvTag::SourceSubaddress => TlvTag::SourceSubaddress,
+            BroadcastRequestTlvTag::UserMessageReference => TlvTag::UserMessageReference,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastRequestTLVValue {
+pub enum BroadcastRequestTlvValue {
     AlertOnMsgDelivery(AlertOnMsgDelivery),
     BroadcastChannelIndicator(BroadcastChannelIndicator),
     BroadcastContentTypeInfo(OctetString<0, 255>),
@@ -96,96 +96,96 @@ pub enum BroadcastRequestTLVValue {
     UserMessageReference(u16),
 }
 
-impl From<BroadcastRequestTLVValue> for TLVValue {
-    fn from(value: BroadcastRequestTLVValue) -> Self {
+impl From<BroadcastRequestTlvValue> for TlvValue {
+    fn from(value: BroadcastRequestTlvValue) -> Self {
         match value {
-            BroadcastRequestTLVValue::AlertOnMsgDelivery(value) => {
-                TLVValue::AlertOnMessageDelivery(value)
+            BroadcastRequestTlvValue::AlertOnMsgDelivery(value) => {
+                TlvValue::AlertOnMessageDelivery(value)
             }
-            BroadcastRequestTLVValue::BroadcastChannelIndicator(value) => {
-                TLVValue::BroadcastChannelIndicator(value)
+            BroadcastRequestTlvValue::BroadcastChannelIndicator(value) => {
+                TlvValue::BroadcastChannelIndicator(value)
             }
-            BroadcastRequestTLVValue::BroadcastContentTypeInfo(value) => {
-                TLVValue::BroadcastContentTypeInfo(value)
+            BroadcastRequestTlvValue::BroadcastContentTypeInfo(value) => {
+                TlvValue::BroadcastContentTypeInfo(value)
             }
-            BroadcastRequestTLVValue::BroadcastMessageClass(value) => {
-                TLVValue::BroadcastMessageClass(value)
+            BroadcastRequestTlvValue::BroadcastMessageClass(value) => {
+                TlvValue::BroadcastMessageClass(value)
             }
-            BroadcastRequestTLVValue::BroadcastServiceGroup(value) => {
-                TLVValue::BroadcastServiceGroup(value)
+            BroadcastRequestTlvValue::BroadcastServiceGroup(value) => {
+                TlvValue::BroadcastServiceGroup(value)
             }
-            BroadcastRequestTLVValue::CallbackNum(value) => TLVValue::CallbackNum(value),
-            BroadcastRequestTLVValue::CallbackNumAtag(value) => TLVValue::CallbackNumAtag(value),
-            BroadcastRequestTLVValue::CallbackNumPresInd(value) => {
-                TLVValue::CallbackNumPresInd(value)
+            BroadcastRequestTlvValue::CallbackNum(value) => TlvValue::CallbackNum(value),
+            BroadcastRequestTlvValue::CallbackNumAtag(value) => TlvValue::CallbackNumAtag(value),
+            BroadcastRequestTlvValue::CallbackNumPresInd(value) => {
+                TlvValue::CallbackNumPresInd(value)
             }
-            BroadcastRequestTLVValue::DestAddrSubunit(value) => TLVValue::DestAddrSubunit(value),
-            BroadcastRequestTLVValue::DestSubaddress(value) => TLVValue::DestSubaddress(value),
-            BroadcastRequestTLVValue::DestPort(value) => TLVValue::DestPort(value),
-            BroadcastRequestTLVValue::DisplayTime(value) => TLVValue::DisplayTime(value),
-            BroadcastRequestTLVValue::LanguageIndicator(value) => {
-                TLVValue::LanguageIndicator(value)
+            BroadcastRequestTlvValue::DestAddrSubunit(value) => TlvValue::DestAddrSubunit(value),
+            BroadcastRequestTlvValue::DestSubaddress(value) => TlvValue::DestSubaddress(value),
+            BroadcastRequestTlvValue::DestPort(value) => TlvValue::DestPort(value),
+            BroadcastRequestTlvValue::DisplayTime(value) => TlvValue::DisplayTime(value),
+            BroadcastRequestTlvValue::LanguageIndicator(value) => {
+                TlvValue::LanguageIndicator(value)
             }
-            BroadcastRequestTLVValue::MessagePayload(value) => TLVValue::MessagePayload(value),
-            BroadcastRequestTLVValue::MsValidity(value) => TLVValue::MsValidity(value),
-            BroadcastRequestTLVValue::PayloadType(value) => TLVValue::PayloadType(value),
-            BroadcastRequestTLVValue::PrivacyIndicator(value) => TLVValue::PrivacyIndicator(value),
-            BroadcastRequestTLVValue::SmsSignal(value) => TLVValue::SmsSignal(value),
-            BroadcastRequestTLVValue::SourceAddrSubunit(value) => {
-                TLVValue::SourceAddrSubunit(value)
+            BroadcastRequestTlvValue::MessagePayload(value) => TlvValue::MessagePayload(value),
+            BroadcastRequestTlvValue::MsValidity(value) => TlvValue::MsValidity(value),
+            BroadcastRequestTlvValue::PayloadType(value) => TlvValue::PayloadType(value),
+            BroadcastRequestTlvValue::PrivacyIndicator(value) => TlvValue::PrivacyIndicator(value),
+            BroadcastRequestTlvValue::SmsSignal(value) => TlvValue::SmsSignal(value),
+            BroadcastRequestTlvValue::SourceAddrSubunit(value) => {
+                TlvValue::SourceAddrSubunit(value)
             }
-            BroadcastRequestTLVValue::SourcePort(value) => TLVValue::SourcePort(value),
-            BroadcastRequestTLVValue::SourceSubaddress(value) => TLVValue::SourceSubaddress(value),
-            BroadcastRequestTLVValue::UserMessageReference(value) => {
-                TLVValue::UserMessageReference(value)
+            BroadcastRequestTlvValue::SourcePort(value) => TlvValue::SourcePort(value),
+            BroadcastRequestTlvValue::SourceSubaddress(value) => TlvValue::SourceSubaddress(value),
+            BroadcastRequestTlvValue::UserMessageReference(value) => {
+                TlvValue::UserMessageReference(value)
             }
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct BroadcastRequestTLV {
-    tlv: TLV,
+pub struct BroadcastRequestTlv {
+    tlv: Tlv,
 }
 
-impl BroadcastRequestTLV {
-    pub fn new(value: BroadcastRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl BroadcastRequestTlv {
+    pub fn new(value: BroadcastRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: BroadcastRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: BroadcastRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<BroadcastRequestTLVTag> for TLV {
-    fn from(tag: BroadcastRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<BroadcastRequestTlvTag> for Tlv {
+    fn from(tag: BroadcastRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<BroadcastRequestTLVValue> for BroadcastRequestTLV {
-    fn from(value: BroadcastRequestTLVValue) -> Self {
+impl From<BroadcastRequestTlvValue> for BroadcastRequestTlv {
+    fn from(value: BroadcastRequestTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<BroadcastRequestTLVValue> for TLV {
-    fn from(value: BroadcastRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<BroadcastRequestTlvValue> for Tlv {
+    fn from(value: BroadcastRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<BroadcastRequestTLV> for TLV {
-    fn from(tlv: BroadcastRequestTLV) -> Self {
+impl From<BroadcastRequestTlv> for Tlv {
+    fn from(tlv: BroadcastRequestTlv) -> Self {
         tlv.tlv
     }
 }

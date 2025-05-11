@@ -1,26 +1,26 @@
-use super::TLV;
+use super::Tlv;
 use crate::commands::{
-    tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+    tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
     types::broadcast_content_type::BroadcastContentType,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum CancelBroadcastTLVTag {
+pub enum CancelBroadcastTlvTag {
     BroadcastContentType,
     UserMessageReference,
 }
 
-impl From<CancelBroadcastTLVTag> for TLVTag {
-    fn from(v: CancelBroadcastTLVTag) -> Self {
+impl From<CancelBroadcastTlvTag> for TlvTag {
+    fn from(v: CancelBroadcastTlvTag) -> Self {
         match v {
-            CancelBroadcastTLVTag::BroadcastContentType => TLVTag::BroadcastContentType,
-            CancelBroadcastTLVTag::UserMessageReference => TLVTag::UserMessageReference,
+            CancelBroadcastTlvTag::BroadcastContentType => TlvTag::BroadcastContentType,
+            CancelBroadcastTlvTag::UserMessageReference => TlvTag::UserMessageReference,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum CancelBroadcastTLVValue {
+pub enum CancelBroadcastTlvValue {
     /// Specifies the content type of the message.
     BroadcastContentType(BroadcastContentType),
     /// ESME assigned message reference number.
@@ -30,62 +30,62 @@ pub enum CancelBroadcastTLVValue {
     UserMessageReference(u16),
 }
 
-impl From<CancelBroadcastTLVValue> for TLVValue {
-    fn from(value: CancelBroadcastTLVValue) -> Self {
+impl From<CancelBroadcastTlvValue> for TlvValue {
+    fn from(value: CancelBroadcastTlvValue) -> Self {
         match value {
-            CancelBroadcastTLVValue::BroadcastContentType(value) => {
-                TLVValue::BroadcastContentType(value)
+            CancelBroadcastTlvValue::BroadcastContentType(value) => {
+                TlvValue::BroadcastContentType(value)
             }
-            CancelBroadcastTLVValue::UserMessageReference(value) => {
-                TLVValue::UserMessageReference(value)
+            CancelBroadcastTlvValue::UserMessageReference(value) => {
+                TlvValue::UserMessageReference(value)
             }
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct CancelBroadcastTLV {
-    tlv: TLV,
+pub struct CancelBroadcastTlv {
+    tlv: Tlv,
 }
 
-impl CancelBroadcastTLV {
-    pub fn new(value: CancelBroadcastTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl CancelBroadcastTlv {
+    pub fn new(value: CancelBroadcastTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: CancelBroadcastTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: CancelBroadcastTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<CancelBroadcastTLVTag> for TLV {
-    fn from(tag: CancelBroadcastTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<CancelBroadcastTlvTag> for Tlv {
+    fn from(tag: CancelBroadcastTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<CancelBroadcastTLVValue> for CancelBroadcastTLV {
-    fn from(value: CancelBroadcastTLVValue) -> Self {
+impl From<CancelBroadcastTlvValue> for CancelBroadcastTlv {
+    fn from(value: CancelBroadcastTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<CancelBroadcastTLVValue> for TLV {
-    fn from(value: CancelBroadcastTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<CancelBroadcastTlvValue> for Tlv {
+    fn from(value: CancelBroadcastTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<CancelBroadcastTLV> for TLV {
-    fn from(tlv: CancelBroadcastTLV) -> Self {
+impl From<CancelBroadcastTlv> for Tlv {
+    fn from(tlv: CancelBroadcastTlv) -> Self {
         tlv.tlv
     }
 }

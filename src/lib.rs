@@ -61,9 +61,9 @@ pub mod commands;
 pub use commands::command::Command;
 pub use commands::pdu;
 pub use commands::pdu::Pdu;
-pub use commands::tlvs::tlv::TLV;
-pub use commands::tlvs::tlv_tag::TLVTag;
-pub use commands::tlvs::tlv_value::TLVValue;
+pub use commands::tlvs::tlv::Tlv;
+pub use commands::tlvs::tlv_tag::TlvTag;
+pub use commands::tlvs::tlv_value::TlvValue;
 pub use commands::types::command_id::CommandId;
 pub use commands::types::command_status::CommandStatus;
 

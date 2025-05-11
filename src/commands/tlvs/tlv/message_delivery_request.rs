@@ -1,7 +1,7 @@
-use super::{TLVValue, TLV};
+use super::{Tlv, TlvValue};
 use crate::{
     commands::{
-        tlvs::tlv_tag::TLVTag,
+        tlvs::tlv_tag::TlvTag,
         types::{
             addr_subunit::AddrSubunit, callback_num_pres_ind::CallbackNumPresInd,
             dest_addr_np_resolution::DestAddrNpResolution, dpf_result::DpfResult,
@@ -12,11 +12,11 @@ use crate::{
             ussd_service_op::UssdServiceOp,
         },
     },
-    types::{COctetString, AnyOctetString, OctetString},
+    types::{AnyOctetString, COctetString, OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageDeliveryRequestTLVTag {
+pub enum MessageDeliveryRequestTlvTag {
     CallbackNum,
     CallbackNumAtag,
     CallbackNumPresInd,
@@ -51,47 +51,47 @@ pub enum MessageDeliveryRequestTLVTag {
     UssdServiceOp,
 }
 
-impl From<MessageDeliveryRequestTLVTag> for TLVTag {
-    fn from(value: MessageDeliveryRequestTLVTag) -> Self {
+impl From<MessageDeliveryRequestTlvTag> for TlvTag {
+    fn from(value: MessageDeliveryRequestTlvTag) -> Self {
         match value {
-            MessageDeliveryRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
-            MessageDeliveryRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
-            MessageDeliveryRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
-            MessageDeliveryRequestTLVTag::DestAddrNpCountry => TLVTag::DestAddrNpCountry,
-            MessageDeliveryRequestTLVTag::DestAddrNpInformation => TLVTag::DestAddrNpInformation,
-            MessageDeliveryRequestTLVTag::DestAddrNpResolution => TLVTag::DestAddrNpResolution,
-            MessageDeliveryRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
-            MessageDeliveryRequestTLVTag::DestNetworkId => TLVTag::DestNetworkId,
-            MessageDeliveryRequestTLVTag::DestNodeId => TLVTag::DestNodeId,
-            MessageDeliveryRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
-            MessageDeliveryRequestTLVTag::DestPort => TLVTag::DestPort,
-            MessageDeliveryRequestTLVTag::DpfResult => TLVTag::DpfResult,
-            MessageDeliveryRequestTLVTag::ItsReplyType => TLVTag::ItsReplyType,
-            MessageDeliveryRequestTLVTag::ItsSessionInfo => TLVTag::ItsSessionInfo,
-            MessageDeliveryRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
-            MessageDeliveryRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
-            MessageDeliveryRequestTLVTag::MessageState => TLVTag::MessageState,
-            MessageDeliveryRequestTLVTag::NetworkErrorCode => TLVTag::NetworkErrorCode,
-            MessageDeliveryRequestTLVTag::PayloadType => TLVTag::PayloadType,
-            MessageDeliveryRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
-            MessageDeliveryRequestTLVTag::ReceiptedMessageId => TLVTag::ReceiptedMessageId,
-            MessageDeliveryRequestTLVTag::SarMsgRefNum => TLVTag::SarMsgRefNum,
-            MessageDeliveryRequestTLVTag::SarSegmentSeqnum => TLVTag::SarSegmentSeqnum,
-            MessageDeliveryRequestTLVTag::SarTotalSegments => TLVTag::SarTotalSegments,
-            MessageDeliveryRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
-            MessageDeliveryRequestTLVTag::SourceNetworkId => TLVTag::SourceNetworkId,
-            MessageDeliveryRequestTLVTag::SourceNodeId => TLVTag::SourceNodeId,
-            MessageDeliveryRequestTLVTag::SourcePort => TLVTag::SourcePort,
-            MessageDeliveryRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
-            MessageDeliveryRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
-            MessageDeliveryRequestTLVTag::UserResponseCode => TLVTag::UserResponseCode,
-            MessageDeliveryRequestTLVTag::UssdServiceOp => TLVTag::UssdServiceOp,
+            MessageDeliveryRequestTlvTag::CallbackNum => TlvTag::CallbackNum,
+            MessageDeliveryRequestTlvTag::CallbackNumAtag => TlvTag::CallbackNumAtag,
+            MessageDeliveryRequestTlvTag::CallbackNumPresInd => TlvTag::CallbackNumPresInd,
+            MessageDeliveryRequestTlvTag::DestAddrNpCountry => TlvTag::DestAddrNpCountry,
+            MessageDeliveryRequestTlvTag::DestAddrNpInformation => TlvTag::DestAddrNpInformation,
+            MessageDeliveryRequestTlvTag::DestAddrNpResolution => TlvTag::DestAddrNpResolution,
+            MessageDeliveryRequestTlvTag::DestAddrSubunit => TlvTag::DestAddrSubunit,
+            MessageDeliveryRequestTlvTag::DestNetworkId => TlvTag::DestNetworkId,
+            MessageDeliveryRequestTlvTag::DestNodeId => TlvTag::DestNodeId,
+            MessageDeliveryRequestTlvTag::DestSubaddress => TlvTag::DestSubaddress,
+            MessageDeliveryRequestTlvTag::DestPort => TlvTag::DestPort,
+            MessageDeliveryRequestTlvTag::DpfResult => TlvTag::DpfResult,
+            MessageDeliveryRequestTlvTag::ItsReplyType => TlvTag::ItsReplyType,
+            MessageDeliveryRequestTlvTag::ItsSessionInfo => TlvTag::ItsSessionInfo,
+            MessageDeliveryRequestTlvTag::LanguageIndicator => TlvTag::LanguageIndicator,
+            MessageDeliveryRequestTlvTag::MessagePayload => TlvTag::MessagePayload,
+            MessageDeliveryRequestTlvTag::MessageState => TlvTag::MessageState,
+            MessageDeliveryRequestTlvTag::NetworkErrorCode => TlvTag::NetworkErrorCode,
+            MessageDeliveryRequestTlvTag::PayloadType => TlvTag::PayloadType,
+            MessageDeliveryRequestTlvTag::PrivacyIndicator => TlvTag::PrivacyIndicator,
+            MessageDeliveryRequestTlvTag::ReceiptedMessageId => TlvTag::ReceiptedMessageId,
+            MessageDeliveryRequestTlvTag::SarMsgRefNum => TlvTag::SarMsgRefNum,
+            MessageDeliveryRequestTlvTag::SarSegmentSeqnum => TlvTag::SarSegmentSeqnum,
+            MessageDeliveryRequestTlvTag::SarTotalSegments => TlvTag::SarTotalSegments,
+            MessageDeliveryRequestTlvTag::SourceAddrSubunit => TlvTag::SourceAddrSubunit,
+            MessageDeliveryRequestTlvTag::SourceNetworkId => TlvTag::SourceNetworkId,
+            MessageDeliveryRequestTlvTag::SourceNodeId => TlvTag::SourceNodeId,
+            MessageDeliveryRequestTlvTag::SourcePort => TlvTag::SourcePort,
+            MessageDeliveryRequestTlvTag::SourceSubaddress => TlvTag::SourceSubaddress,
+            MessageDeliveryRequestTlvTag::UserMessageReference => TlvTag::UserMessageReference,
+            MessageDeliveryRequestTlvTag::UserResponseCode => TlvTag::UserResponseCode,
+            MessageDeliveryRequestTlvTag::UssdServiceOp => TlvTag::UssdServiceOp,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageDeliveryRequestTLVValue {
+pub enum MessageDeliveryRequestTlvValue {
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
     CallbackNumPresInd(CallbackNumPresInd),
@@ -126,128 +126,128 @@ pub enum MessageDeliveryRequestTLVValue {
     UssdServiceOp(UssdServiceOp),
 }
 
-impl From<MessageDeliveryRequestTLVValue> for TLVValue {
-    fn from(value: MessageDeliveryRequestTLVValue) -> Self {
+impl From<MessageDeliveryRequestTlvValue> for TlvValue {
+    fn from(value: MessageDeliveryRequestTlvValue) -> Self {
         match value {
-            MessageDeliveryRequestTLVValue::CallbackNum(value) => TLVValue::CallbackNum(value),
-            MessageDeliveryRequestTLVValue::CallbackNumAtag(value) => {
-                TLVValue::CallbackNumAtag(value)
+            MessageDeliveryRequestTlvValue::CallbackNum(value) => TlvValue::CallbackNum(value),
+            MessageDeliveryRequestTlvValue::CallbackNumAtag(value) => {
+                TlvValue::CallbackNumAtag(value)
             }
-            MessageDeliveryRequestTLVValue::CallbackNumPresInd(value) => {
-                TLVValue::CallbackNumPresInd(value)
+            MessageDeliveryRequestTlvValue::CallbackNumPresInd(value) => {
+                TlvValue::CallbackNumPresInd(value)
             }
-            MessageDeliveryRequestTLVValue::DestAddrNpCountry(value) => {
-                TLVValue::DestAddrNpCountry(value)
+            MessageDeliveryRequestTlvValue::DestAddrNpCountry(value) => {
+                TlvValue::DestAddrNpCountry(value)
             }
-            MessageDeliveryRequestTLVValue::DestAddrNpInformation(value) => {
-                TLVValue::DestAddrNpInformation(value)
+            MessageDeliveryRequestTlvValue::DestAddrNpInformation(value) => {
+                TlvValue::DestAddrNpInformation(value)
             }
-            MessageDeliveryRequestTLVValue::DestAddrNpResolution(value) => {
-                TLVValue::DestAddrNpResolution(value)
+            MessageDeliveryRequestTlvValue::DestAddrNpResolution(value) => {
+                TlvValue::DestAddrNpResolution(value)
             }
-            MessageDeliveryRequestTLVValue::DestAddrSubunit(value) => {
-                TLVValue::DestAddrSubunit(value)
+            MessageDeliveryRequestTlvValue::DestAddrSubunit(value) => {
+                TlvValue::DestAddrSubunit(value)
             }
-            MessageDeliveryRequestTLVValue::DestNetworkId(value) => TLVValue::DestNetworkId(value),
-            MessageDeliveryRequestTLVValue::DestNodeId(value) => TLVValue::DestNodeId(value),
-            MessageDeliveryRequestTLVValue::DestSubaddress(value) => {
-                TLVValue::DestSubaddress(value)
+            MessageDeliveryRequestTlvValue::DestNetworkId(value) => TlvValue::DestNetworkId(value),
+            MessageDeliveryRequestTlvValue::DestNodeId(value) => TlvValue::DestNodeId(value),
+            MessageDeliveryRequestTlvValue::DestSubaddress(value) => {
+                TlvValue::DestSubaddress(value)
             }
-            MessageDeliveryRequestTLVValue::DestPort(value) => TLVValue::DestPort(value),
-            MessageDeliveryRequestTLVValue::DpfResult(value) => TLVValue::DpfResult(value),
-            MessageDeliveryRequestTLVValue::ItsReplyType(value) => TLVValue::ItsReplyType(value),
-            MessageDeliveryRequestTLVValue::ItsSessionInfo(value) => {
-                TLVValue::ItsSessionInfo(value)
+            MessageDeliveryRequestTlvValue::DestPort(value) => TlvValue::DestPort(value),
+            MessageDeliveryRequestTlvValue::DpfResult(value) => TlvValue::DpfResult(value),
+            MessageDeliveryRequestTlvValue::ItsReplyType(value) => TlvValue::ItsReplyType(value),
+            MessageDeliveryRequestTlvValue::ItsSessionInfo(value) => {
+                TlvValue::ItsSessionInfo(value)
             }
-            MessageDeliveryRequestTLVValue::LanguageIndicator(value) => {
-                TLVValue::LanguageIndicator(value)
+            MessageDeliveryRequestTlvValue::LanguageIndicator(value) => {
+                TlvValue::LanguageIndicator(value)
             }
-            MessageDeliveryRequestTLVValue::MessagePayload(value) => {
-                TLVValue::MessagePayload(value)
+            MessageDeliveryRequestTlvValue::MessagePayload(value) => {
+                TlvValue::MessagePayload(value)
             }
-            MessageDeliveryRequestTLVValue::MessageState(value) => TLVValue::MessageState(value),
-            MessageDeliveryRequestTLVValue::NetworkErrorCode(value) => {
-                TLVValue::NetworkErrorCode(value)
+            MessageDeliveryRequestTlvValue::MessageState(value) => TlvValue::MessageState(value),
+            MessageDeliveryRequestTlvValue::NetworkErrorCode(value) => {
+                TlvValue::NetworkErrorCode(value)
             }
-            MessageDeliveryRequestTLVValue::PayloadType(value) => TLVValue::PayloadType(value),
-            MessageDeliveryRequestTLVValue::PrivacyIndicator(value) => {
-                TLVValue::PrivacyIndicator(value)
+            MessageDeliveryRequestTlvValue::PayloadType(value) => TlvValue::PayloadType(value),
+            MessageDeliveryRequestTlvValue::PrivacyIndicator(value) => {
+                TlvValue::PrivacyIndicator(value)
             }
-            MessageDeliveryRequestTLVValue::ReceiptedMessageId(value) => {
-                TLVValue::ReceiptedMessageId(value)
+            MessageDeliveryRequestTlvValue::ReceiptedMessageId(value) => {
+                TlvValue::ReceiptedMessageId(value)
             }
-            MessageDeliveryRequestTLVValue::SarMsgRefNum(value) => TLVValue::SarMsgRefNum(value),
-            MessageDeliveryRequestTLVValue::SarSegmentSeqnum(value) => {
-                TLVValue::SarSegmentSeqnum(value)
+            MessageDeliveryRequestTlvValue::SarMsgRefNum(value) => TlvValue::SarMsgRefNum(value),
+            MessageDeliveryRequestTlvValue::SarSegmentSeqnum(value) => {
+                TlvValue::SarSegmentSeqnum(value)
             }
-            MessageDeliveryRequestTLVValue::SarTotalSegments(value) => {
-                TLVValue::SarTotalSegments(value)
+            MessageDeliveryRequestTlvValue::SarTotalSegments(value) => {
+                TlvValue::SarTotalSegments(value)
             }
-            MessageDeliveryRequestTLVValue::SourceAddrSubunit(value) => {
-                TLVValue::SourceAddrSubunit(value)
+            MessageDeliveryRequestTlvValue::SourceAddrSubunit(value) => {
+                TlvValue::SourceAddrSubunit(value)
             }
-            MessageDeliveryRequestTLVValue::SourceNetworkId(value) => {
-                TLVValue::SourceNetworkId(value)
+            MessageDeliveryRequestTlvValue::SourceNetworkId(value) => {
+                TlvValue::SourceNetworkId(value)
             }
-            MessageDeliveryRequestTLVValue::SourceNodeId(value) => TLVValue::SourceNodeId(value),
-            MessageDeliveryRequestTLVValue::SourcePort(value) => TLVValue::SourcePort(value),
-            MessageDeliveryRequestTLVValue::SourceSubaddress(value) => {
-                TLVValue::SourceSubaddress(value)
+            MessageDeliveryRequestTlvValue::SourceNodeId(value) => TlvValue::SourceNodeId(value),
+            MessageDeliveryRequestTlvValue::SourcePort(value) => TlvValue::SourcePort(value),
+            MessageDeliveryRequestTlvValue::SourceSubaddress(value) => {
+                TlvValue::SourceSubaddress(value)
             }
-            MessageDeliveryRequestTLVValue::UserMessageReference(value) => {
-                TLVValue::UserMessageReference(value)
+            MessageDeliveryRequestTlvValue::UserMessageReference(value) => {
+                TlvValue::UserMessageReference(value)
             }
-            MessageDeliveryRequestTLVValue::UserResponseCode(value) => {
-                TLVValue::UserResponseCode(value)
+            MessageDeliveryRequestTlvValue::UserResponseCode(value) => {
+                TlvValue::UserResponseCode(value)
             }
-            MessageDeliveryRequestTLVValue::UssdServiceOp(value) => TLVValue::UssdServiceOp(value),
+            MessageDeliveryRequestTlvValue::UssdServiceOp(value) => TlvValue::UssdServiceOp(value),
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageDeliveryRequestTLV {
-    tlv: TLV,
+pub struct MessageDeliveryRequestTlv {
+    tlv: Tlv,
 }
 
-impl MessageDeliveryRequestTLV {
-    pub fn new(value: MessageDeliveryRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl MessageDeliveryRequestTlv {
+    pub fn new(value: MessageDeliveryRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: MessageDeliveryRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: MessageDeliveryRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<MessageDeliveryRequestTLVTag> for TLV {
-    fn from(tag: MessageDeliveryRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<MessageDeliveryRequestTlvTag> for Tlv {
+    fn from(tag: MessageDeliveryRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<MessageDeliveryRequestTLVValue> for MessageDeliveryRequestTLV {
-    fn from(value: MessageDeliveryRequestTLVValue) -> Self {
+impl From<MessageDeliveryRequestTlvValue> for MessageDeliveryRequestTlv {
+    fn from(value: MessageDeliveryRequestTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<MessageDeliveryRequestTLVValue> for TLV {
-    fn from(value: MessageDeliveryRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<MessageDeliveryRequestTlvValue> for Tlv {
+    fn from(value: MessageDeliveryRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<MessageDeliveryRequestTLV> for TLV {
-    fn from(tlv: MessageDeliveryRequestTLV) -> Self {
+impl From<MessageDeliveryRequestTlv> for Tlv {
+    fn from(tlv: MessageDeliveryRequestTlv) -> Self {
         tlv.tlv
     }
 }

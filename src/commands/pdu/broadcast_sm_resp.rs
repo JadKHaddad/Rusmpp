@@ -1,6 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::tlvs::tlv::{broadcast_response::BroadcastResponseTLV, TLV},
+    commands::tlvs::tlv::{broadcast_response::BroadcastResponseTlv, Tlv},
     types::COctetString,
 };
 
@@ -13,41 +13,41 @@ crate::create! {
         pub message_id: COctetString<1, 65>,
         /// Broadcast response TLVs ([`BroadcastResponseTLV`]).
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
 impl BroadcastSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        tlvs: Vec<impl Into<BroadcastResponseTLV>>,
+        tlvs: Vec<impl Into<BroadcastResponseTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         Self { message_id, tlvs }
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastResponseTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastResponseTlv>>) {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastResponseTLV>) {
-        let tlv: BroadcastResponseTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastResponseTlv>) {
+        let tlv: BroadcastResponseTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -78,12 +78,12 @@ impl BroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastResponseTLV>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastResponseTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<BroadcastResponseTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<BroadcastResponseTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

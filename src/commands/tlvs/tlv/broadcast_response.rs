@@ -1,86 +1,86 @@
-use super::TLV;
+use super::Tlv;
 use crate::commands::{
-    tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+    tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
     types::{broadcast_area_identifier::BroadcastAreaIdentifier, command_status::CommandStatus},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastResponseTLVTag {
+pub enum BroadcastResponseTlvTag {
     BroadcastErrorStatus,
     BroadcastAreaIdentifier,
 }
 
-impl From<BroadcastResponseTLVTag> for TLVTag {
-    fn from(v: BroadcastResponseTLVTag) -> Self {
+impl From<BroadcastResponseTlvTag> for TlvTag {
+    fn from(v: BroadcastResponseTlvTag) -> Self {
         match v {
-            BroadcastResponseTLVTag::BroadcastErrorStatus => TLVTag::BroadcastErrorStatus,
-            BroadcastResponseTLVTag::BroadcastAreaIdentifier => TLVTag::BroadcastAreaIdentifier,
+            BroadcastResponseTlvTag::BroadcastErrorStatus => TlvTag::BroadcastErrorStatus,
+            BroadcastResponseTlvTag::BroadcastAreaIdentifier => TlvTag::BroadcastAreaIdentifier,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastResponseTLVValue {
+pub enum BroadcastResponseTlvValue {
     BroadcastErrorStatus(CommandStatus),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
 }
 
-impl From<BroadcastResponseTLVValue> for TLVValue {
-    fn from(value: BroadcastResponseTLVValue) -> Self {
+impl From<BroadcastResponseTlvValue> for TlvValue {
+    fn from(value: BroadcastResponseTlvValue) -> Self {
         match value {
-            BroadcastResponseTLVValue::BroadcastErrorStatus(value) => {
-                TLVValue::BroadcastErrorStatus(value)
+            BroadcastResponseTlvValue::BroadcastErrorStatus(value) => {
+                TlvValue::BroadcastErrorStatus(value)
             }
-            BroadcastResponseTLVValue::BroadcastAreaIdentifier(value) => {
-                TLVValue::BroadcastAreaIdentifier(value)
+            BroadcastResponseTlvValue::BroadcastAreaIdentifier(value) => {
+                TlvValue::BroadcastAreaIdentifier(value)
             }
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct BroadcastResponseTLV {
-    tlv: TLV,
+pub struct BroadcastResponseTlv {
+    tlv: Tlv,
 }
 
-impl BroadcastResponseTLV {
-    pub fn new(value: BroadcastResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl BroadcastResponseTlv {
+    pub fn new(value: BroadcastResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: BroadcastResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: BroadcastResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<BroadcastResponseTLVTag> for TLV {
-    fn from(tag: BroadcastResponseTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<BroadcastResponseTlvTag> for Tlv {
+    fn from(tag: BroadcastResponseTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<BroadcastResponseTLVValue> for BroadcastResponseTLV {
-    fn from(value: BroadcastResponseTLVValue) -> Self {
+impl From<BroadcastResponseTlvValue> for BroadcastResponseTlv {
+    fn from(value: BroadcastResponseTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<BroadcastResponseTLVValue> for TLV {
-    fn from(value: BroadcastResponseTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<BroadcastResponseTlvValue> for Tlv {
+    fn from(value: BroadcastResponseTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<BroadcastResponseTLV> for TLV {
-    fn from(tlv: BroadcastResponseTLV) -> Self {
+impl From<BroadcastResponseTlv> for Tlv {
+    fn from(tlv: BroadcastResponseTlv) -> Self {
         tlv.tlv
     }
 }

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        tlvs::{tlv::Tlv, tlv_value::TlvValue},
         types::{npi::Npi, ton::Ton},
     },
     types::COctetString,
@@ -47,7 +47,7 @@ crate::create! {
         ///
         /// ESME assigned message reference number.
         @[length = checked]
-        user_message_reference: Option<TLV>,
+        user_message_reference: Option<Tlv>,
     }
 }
 
@@ -60,7 +60,7 @@ impl QueryBroadcastSm {
         user_message_reference: Option<u16>,
     ) -> Self {
         let user_message_reference =
-            user_message_reference.map(|value| TLV::new(TLVValue::UserMessageReference(value)));
+            user_message_reference.map(|value| Tlv::new(TlvValue::UserMessageReference(value)));
 
         Self {
             message_id,
@@ -71,22 +71,22 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub const fn user_message_reference(&self) -> Option<&TLV> {
+    pub const fn user_message_reference(&self) -> Option<&Tlv> {
         self.user_message_reference.as_ref()
     }
 
     pub fn user_message_reference_downcast(&self) -> Option<u16> {
         self.user_message_reference()
-            .and_then(TLV::value)
+            .and_then(Tlv::value)
             .and_then(|value| match value {
-                TLVValue::UserMessageReference(value) => Some(*value),
+                TlvValue::UserMessageReference(value) => Some(*value),
                 _ => None,
             })
     }
 
     pub fn set_user_message_reference(&mut self, user_message_reference: Option<u16>) {
         self.user_message_reference =
-            user_message_reference.map(|value| TLV::new(TLVValue::UserMessageReference(value)));
+            user_message_reference.map(|value| Tlv::new(TlvValue::UserMessageReference(value)));
     }
 
     pub fn builder() -> QueryBroadcastSmBuilder {

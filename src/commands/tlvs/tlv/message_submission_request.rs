@@ -1,7 +1,7 @@
-use super::TLV;
+use super::Tlv;
 use crate::{
     commands::{
-        tlvs::{tlv_tag::TLVTag, tlv_value::TLVValue},
+        tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
         types::{
             addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
             bearer_type::BearerType, callback_num_pres_ind::CallbackNumPresInd,
@@ -14,11 +14,11 @@ use crate::{
             sub_address::Subaddress, ussd_service_op::UssdServiceOp,
         },
     },
-    types::{COctetString, AnyOctetString, OctetString},
+    types::{AnyOctetString, COctetString, OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageSubmissionRequestTLVTag {
+pub enum MessageSubmissionRequestTlvTag {
     AlertOnMsgDelivery,
     BillingIdentification,
     CallbackNum,
@@ -65,59 +65,59 @@ pub enum MessageSubmissionRequestTLVTag {
     UssdServiceOp,
 }
 
-impl From<MessageSubmissionRequestTLVTag> for TLVTag {
-    fn from(value: MessageSubmissionRequestTLVTag) -> Self {
+impl From<MessageSubmissionRequestTlvTag> for TlvTag {
+    fn from(value: MessageSubmissionRequestTlvTag) -> Self {
         match value {
-            MessageSubmissionRequestTLVTag::AlertOnMsgDelivery => TLVTag::AlertOnMessageDelivery,
-            MessageSubmissionRequestTLVTag::BillingIdentification => TLVTag::BillingIdentification,
-            MessageSubmissionRequestTLVTag::CallbackNum => TLVTag::CallbackNum,
-            MessageSubmissionRequestTLVTag::CallbackNumAtag => TLVTag::CallbackNumAtag,
-            MessageSubmissionRequestTLVTag::CallbackNumPresInd => TLVTag::CallbackNumPresInd,
-            MessageSubmissionRequestTLVTag::DestAddrNpCountry => TLVTag::DestAddrNpCountry,
-            MessageSubmissionRequestTLVTag::DestAddrNpInformation => TLVTag::DestAddrNpInformation,
-            MessageSubmissionRequestTLVTag::DestAddrNpResolution => TLVTag::DestAddrNpResolution,
-            MessageSubmissionRequestTLVTag::DestAddrSubunit => TLVTag::DestAddrSubunit,
-            MessageSubmissionRequestTLVTag::DestBearerType => TLVTag::DestBearerType,
-            MessageSubmissionRequestTLVTag::DestNetworkId => TLVTag::DestNetworkId,
-            MessageSubmissionRequestTLVTag::DestNetworkType => TLVTag::DestNetworkType,
-            MessageSubmissionRequestTLVTag::DestNodeId => TLVTag::DestNodeId,
-            MessageSubmissionRequestTLVTag::DestSubaddress => TLVTag::DestSubaddress,
-            MessageSubmissionRequestTLVTag::DestTelematicsId => TLVTag::DestTelematicsId,
-            MessageSubmissionRequestTLVTag::DestPort => TLVTag::DestPort,
-            MessageSubmissionRequestTLVTag::DisplayTime => TLVTag::DisplayTime,
-            MessageSubmissionRequestTLVTag::ItsReplyType => TLVTag::ItsReplyType,
-            MessageSubmissionRequestTLVTag::ItsSessionInfo => TLVTag::ItsSessionInfo,
-            MessageSubmissionRequestTLVTag::LanguageIndicator => TLVTag::LanguageIndicator,
-            MessageSubmissionRequestTLVTag::MessagePayload => TLVTag::MessagePayload,
-            MessageSubmissionRequestTLVTag::MoreMessagesToSend => TLVTag::MoreMessagesToSend,
-            MessageSubmissionRequestTLVTag::MsMsgWaitFacilities => TLVTag::MsMsgWaitFacilities,
-            MessageSubmissionRequestTLVTag::MsValidity => TLVTag::MsValidity,
-            MessageSubmissionRequestTLVTag::NumberOfMessages => TLVTag::NumberOfMessages,
-            MessageSubmissionRequestTLVTag::PayloadType => TLVTag::PayloadType,
-            MessageSubmissionRequestTLVTag::PrivacyIndicator => TLVTag::PrivacyIndicator,
-            MessageSubmissionRequestTLVTag::QosTimeToLive => TLVTag::QosTimeToLive,
-            MessageSubmissionRequestTLVTag::SarMsgRefNum => TLVTag::SarMsgRefNum,
-            MessageSubmissionRequestTLVTag::SarSegmentSeqnum => TLVTag::SarSegmentSeqnum,
-            MessageSubmissionRequestTLVTag::SarTotalSegments => TLVTag::SarTotalSegments,
-            MessageSubmissionRequestTLVTag::SetDpf => TLVTag::SetDpf,
-            MessageSubmissionRequestTLVTag::SmsSignal => TLVTag::SmsSignal,
-            MessageSubmissionRequestTLVTag::SourceAddrSubunit => TLVTag::SourceAddrSubunit,
-            MessageSubmissionRequestTLVTag::SourceBearerType => TLVTag::SourceBearerType,
-            MessageSubmissionRequestTLVTag::SourceNetworkId => TLVTag::SourceNetworkId,
-            MessageSubmissionRequestTLVTag::SourceNetworkType => TLVTag::SourceNetworkType,
-            MessageSubmissionRequestTLVTag::SourceNodeId => TLVTag::SourceNodeId,
-            MessageSubmissionRequestTLVTag::SourcePort => TLVTag::SourcePort,
-            MessageSubmissionRequestTLVTag::SourceSubaddress => TLVTag::SourceSubaddress,
-            MessageSubmissionRequestTLVTag::SourceTelematicsId => TLVTag::SourceTelematicsId,
-            MessageSubmissionRequestTLVTag::UserMessageReference => TLVTag::UserMessageReference,
-            MessageSubmissionRequestTLVTag::UserResponseCode => TLVTag::UserResponseCode,
-            MessageSubmissionRequestTLVTag::UssdServiceOp => TLVTag::UssdServiceOp,
+            MessageSubmissionRequestTlvTag::AlertOnMsgDelivery => TlvTag::AlertOnMessageDelivery,
+            MessageSubmissionRequestTlvTag::BillingIdentification => TlvTag::BillingIdentification,
+            MessageSubmissionRequestTlvTag::CallbackNum => TlvTag::CallbackNum,
+            MessageSubmissionRequestTlvTag::CallbackNumAtag => TlvTag::CallbackNumAtag,
+            MessageSubmissionRequestTlvTag::CallbackNumPresInd => TlvTag::CallbackNumPresInd,
+            MessageSubmissionRequestTlvTag::DestAddrNpCountry => TlvTag::DestAddrNpCountry,
+            MessageSubmissionRequestTlvTag::DestAddrNpInformation => TlvTag::DestAddrNpInformation,
+            MessageSubmissionRequestTlvTag::DestAddrNpResolution => TlvTag::DestAddrNpResolution,
+            MessageSubmissionRequestTlvTag::DestAddrSubunit => TlvTag::DestAddrSubunit,
+            MessageSubmissionRequestTlvTag::DestBearerType => TlvTag::DestBearerType,
+            MessageSubmissionRequestTlvTag::DestNetworkId => TlvTag::DestNetworkId,
+            MessageSubmissionRequestTlvTag::DestNetworkType => TlvTag::DestNetworkType,
+            MessageSubmissionRequestTlvTag::DestNodeId => TlvTag::DestNodeId,
+            MessageSubmissionRequestTlvTag::DestSubaddress => TlvTag::DestSubaddress,
+            MessageSubmissionRequestTlvTag::DestTelematicsId => TlvTag::DestTelematicsId,
+            MessageSubmissionRequestTlvTag::DestPort => TlvTag::DestPort,
+            MessageSubmissionRequestTlvTag::DisplayTime => TlvTag::DisplayTime,
+            MessageSubmissionRequestTlvTag::ItsReplyType => TlvTag::ItsReplyType,
+            MessageSubmissionRequestTlvTag::ItsSessionInfo => TlvTag::ItsSessionInfo,
+            MessageSubmissionRequestTlvTag::LanguageIndicator => TlvTag::LanguageIndicator,
+            MessageSubmissionRequestTlvTag::MessagePayload => TlvTag::MessagePayload,
+            MessageSubmissionRequestTlvTag::MoreMessagesToSend => TlvTag::MoreMessagesToSend,
+            MessageSubmissionRequestTlvTag::MsMsgWaitFacilities => TlvTag::MsMsgWaitFacilities,
+            MessageSubmissionRequestTlvTag::MsValidity => TlvTag::MsValidity,
+            MessageSubmissionRequestTlvTag::NumberOfMessages => TlvTag::NumberOfMessages,
+            MessageSubmissionRequestTlvTag::PayloadType => TlvTag::PayloadType,
+            MessageSubmissionRequestTlvTag::PrivacyIndicator => TlvTag::PrivacyIndicator,
+            MessageSubmissionRequestTlvTag::QosTimeToLive => TlvTag::QosTimeToLive,
+            MessageSubmissionRequestTlvTag::SarMsgRefNum => TlvTag::SarMsgRefNum,
+            MessageSubmissionRequestTlvTag::SarSegmentSeqnum => TlvTag::SarSegmentSeqnum,
+            MessageSubmissionRequestTlvTag::SarTotalSegments => TlvTag::SarTotalSegments,
+            MessageSubmissionRequestTlvTag::SetDpf => TlvTag::SetDpf,
+            MessageSubmissionRequestTlvTag::SmsSignal => TlvTag::SmsSignal,
+            MessageSubmissionRequestTlvTag::SourceAddrSubunit => TlvTag::SourceAddrSubunit,
+            MessageSubmissionRequestTlvTag::SourceBearerType => TlvTag::SourceBearerType,
+            MessageSubmissionRequestTlvTag::SourceNetworkId => TlvTag::SourceNetworkId,
+            MessageSubmissionRequestTlvTag::SourceNetworkType => TlvTag::SourceNetworkType,
+            MessageSubmissionRequestTlvTag::SourceNodeId => TlvTag::SourceNodeId,
+            MessageSubmissionRequestTlvTag::SourcePort => TlvTag::SourcePort,
+            MessageSubmissionRequestTlvTag::SourceSubaddress => TlvTag::SourceSubaddress,
+            MessageSubmissionRequestTlvTag::SourceTelematicsId => TlvTag::SourceTelematicsId,
+            MessageSubmissionRequestTlvTag::UserMessageReference => TlvTag::UserMessageReference,
+            MessageSubmissionRequestTlvTag::UserResponseCode => TlvTag::UserResponseCode,
+            MessageSubmissionRequestTlvTag::UssdServiceOp => TlvTag::UssdServiceOp,
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageSubmissionRequestTLVValue {
+pub enum MessageSubmissionRequestTlvValue {
     AlertOnMsgDelivery(AlertOnMsgDelivery),
     BillingIdentification(OctetString<0, 1024>),
     CallbackNum(OctetString<4, 19>),
@@ -164,164 +164,164 @@ pub enum MessageSubmissionRequestTLVValue {
     UssdServiceOp(UssdServiceOp),
 }
 
-impl From<MessageSubmissionRequestTLVValue> for TLVValue {
-    fn from(value: MessageSubmissionRequestTLVValue) -> Self {
+impl From<MessageSubmissionRequestTlvValue> for TlvValue {
+    fn from(value: MessageSubmissionRequestTlvValue) -> Self {
         match value {
-            MessageSubmissionRequestTLVValue::AlertOnMsgDelivery(value) => {
-                TLVValue::AlertOnMessageDelivery(value)
+            MessageSubmissionRequestTlvValue::AlertOnMsgDelivery(value) => {
+                TlvValue::AlertOnMessageDelivery(value)
             }
-            MessageSubmissionRequestTLVValue::BillingIdentification(value) => {
-                TLVValue::BillingIdentification(value)
+            MessageSubmissionRequestTlvValue::BillingIdentification(value) => {
+                TlvValue::BillingIdentification(value)
             }
-            MessageSubmissionRequestTLVValue::CallbackNum(value) => TLVValue::CallbackNum(value),
-            MessageSubmissionRequestTLVValue::CallbackNumAtag(value) => {
-                TLVValue::CallbackNumAtag(value)
+            MessageSubmissionRequestTlvValue::CallbackNum(value) => TlvValue::CallbackNum(value),
+            MessageSubmissionRequestTlvValue::CallbackNumAtag(value) => {
+                TlvValue::CallbackNumAtag(value)
             }
-            MessageSubmissionRequestTLVValue::CallbackNumPresInd(value) => {
-                TLVValue::CallbackNumPresInd(value)
+            MessageSubmissionRequestTlvValue::CallbackNumPresInd(value) => {
+                TlvValue::CallbackNumPresInd(value)
             }
-            MessageSubmissionRequestTLVValue::DestAddrNpCountry(value) => {
-                TLVValue::DestAddrNpCountry(value)
+            MessageSubmissionRequestTlvValue::DestAddrNpCountry(value) => {
+                TlvValue::DestAddrNpCountry(value)
             }
-            MessageSubmissionRequestTLVValue::DestAddrNpInformation(value) => {
-                TLVValue::DestAddrNpInformation(value)
+            MessageSubmissionRequestTlvValue::DestAddrNpInformation(value) => {
+                TlvValue::DestAddrNpInformation(value)
             }
-            MessageSubmissionRequestTLVValue::DestAddrNpResolution(value) => {
-                TLVValue::DestAddrNpResolution(value)
+            MessageSubmissionRequestTlvValue::DestAddrNpResolution(value) => {
+                TlvValue::DestAddrNpResolution(value)
             }
-            MessageSubmissionRequestTLVValue::DestAddrSubunit(value) => {
-                TLVValue::DestAddrSubunit(value)
+            MessageSubmissionRequestTlvValue::DestAddrSubunit(value) => {
+                TlvValue::DestAddrSubunit(value)
             }
-            MessageSubmissionRequestTLVValue::DestBearerType(value) => {
-                TLVValue::DestBearerType(value)
+            MessageSubmissionRequestTlvValue::DestBearerType(value) => {
+                TlvValue::DestBearerType(value)
             }
-            MessageSubmissionRequestTLVValue::DestNetworkId(value) => {
-                TLVValue::DestNetworkId(value)
+            MessageSubmissionRequestTlvValue::DestNetworkId(value) => {
+                TlvValue::DestNetworkId(value)
             }
-            MessageSubmissionRequestTLVValue::DestNetworkType(value) => {
-                TLVValue::DestNetworkType(value)
+            MessageSubmissionRequestTlvValue::DestNetworkType(value) => {
+                TlvValue::DestNetworkType(value)
             }
-            MessageSubmissionRequestTLVValue::DestNodeId(value) => TLVValue::DestNodeId(value),
-            MessageSubmissionRequestTLVValue::DestSubaddress(value) => {
-                TLVValue::DestSubaddress(value)
+            MessageSubmissionRequestTlvValue::DestNodeId(value) => TlvValue::DestNodeId(value),
+            MessageSubmissionRequestTlvValue::DestSubaddress(value) => {
+                TlvValue::DestSubaddress(value)
             }
-            MessageSubmissionRequestTLVValue::DestTelematicsId(value) => {
-                TLVValue::DestTelematicsId(value)
+            MessageSubmissionRequestTlvValue::DestTelematicsId(value) => {
+                TlvValue::DestTelematicsId(value)
             }
-            MessageSubmissionRequestTLVValue::DestPort(value) => TLVValue::DestPort(value),
-            MessageSubmissionRequestTLVValue::DisplayTime(value) => TLVValue::DisplayTime(value),
-            MessageSubmissionRequestTLVValue::ItsReplyType(value) => TLVValue::ItsReplyType(value),
-            MessageSubmissionRequestTLVValue::ItsSessionInfo(value) => {
-                TLVValue::ItsSessionInfo(value)
+            MessageSubmissionRequestTlvValue::DestPort(value) => TlvValue::DestPort(value),
+            MessageSubmissionRequestTlvValue::DisplayTime(value) => TlvValue::DisplayTime(value),
+            MessageSubmissionRequestTlvValue::ItsReplyType(value) => TlvValue::ItsReplyType(value),
+            MessageSubmissionRequestTlvValue::ItsSessionInfo(value) => {
+                TlvValue::ItsSessionInfo(value)
             }
-            MessageSubmissionRequestTLVValue::LanguageIndicator(value) => {
-                TLVValue::LanguageIndicator(value)
+            MessageSubmissionRequestTlvValue::LanguageIndicator(value) => {
+                TlvValue::LanguageIndicator(value)
             }
-            MessageSubmissionRequestTLVValue::MessagePayload(value) => {
-                TLVValue::MessagePayload(value)
+            MessageSubmissionRequestTlvValue::MessagePayload(value) => {
+                TlvValue::MessagePayload(value)
             }
-            MessageSubmissionRequestTLVValue::MoreMessagesToSend(value) => {
-                TLVValue::MoreMessagesToSend(value)
+            MessageSubmissionRequestTlvValue::MoreMessagesToSend(value) => {
+                TlvValue::MoreMessagesToSend(value)
             }
-            MessageSubmissionRequestTLVValue::MsMsgWaitFacilities(value) => {
-                TLVValue::MsMsgWaitFacilities(value)
+            MessageSubmissionRequestTlvValue::MsMsgWaitFacilities(value) => {
+                TlvValue::MsMsgWaitFacilities(value)
             }
-            MessageSubmissionRequestTLVValue::MsValidity(value) => TLVValue::MsValidity(value),
-            MessageSubmissionRequestTLVValue::NumberOfMessages(value) => {
-                TLVValue::NumberOfMessages(value)
+            MessageSubmissionRequestTlvValue::MsValidity(value) => TlvValue::MsValidity(value),
+            MessageSubmissionRequestTlvValue::NumberOfMessages(value) => {
+                TlvValue::NumberOfMessages(value)
             }
-            MessageSubmissionRequestTLVValue::PayloadType(value) => TLVValue::PayloadType(value),
-            MessageSubmissionRequestTLVValue::PrivacyIndicator(value) => {
-                TLVValue::PrivacyIndicator(value)
+            MessageSubmissionRequestTlvValue::PayloadType(value) => TlvValue::PayloadType(value),
+            MessageSubmissionRequestTlvValue::PrivacyIndicator(value) => {
+                TlvValue::PrivacyIndicator(value)
             }
-            MessageSubmissionRequestTLVValue::QosTimeToLive(value) => {
-                TLVValue::QosTimeToLive(value)
+            MessageSubmissionRequestTlvValue::QosTimeToLive(value) => {
+                TlvValue::QosTimeToLive(value)
             }
-            MessageSubmissionRequestTLVValue::SarMsgRefNum(value) => TLVValue::SarMsgRefNum(value),
-            MessageSubmissionRequestTLVValue::SarSegmentSeqnum(value) => {
-                TLVValue::SarSegmentSeqnum(value)
+            MessageSubmissionRequestTlvValue::SarMsgRefNum(value) => TlvValue::SarMsgRefNum(value),
+            MessageSubmissionRequestTlvValue::SarSegmentSeqnum(value) => {
+                TlvValue::SarSegmentSeqnum(value)
             }
-            MessageSubmissionRequestTLVValue::SarTotalSegments(value) => {
-                TLVValue::SarTotalSegments(value)
+            MessageSubmissionRequestTlvValue::SarTotalSegments(value) => {
+                TlvValue::SarTotalSegments(value)
             }
-            MessageSubmissionRequestTLVValue::SetDpf(value) => TLVValue::SetDpf(value),
-            MessageSubmissionRequestTLVValue::SmsSignal(value) => TLVValue::SmsSignal(value),
-            MessageSubmissionRequestTLVValue::SourceAddrSubunit(value) => {
-                TLVValue::SourceAddrSubunit(value)
+            MessageSubmissionRequestTlvValue::SetDpf(value) => TlvValue::SetDpf(value),
+            MessageSubmissionRequestTlvValue::SmsSignal(value) => TlvValue::SmsSignal(value),
+            MessageSubmissionRequestTlvValue::SourceAddrSubunit(value) => {
+                TlvValue::SourceAddrSubunit(value)
             }
-            MessageSubmissionRequestTLVValue::SourceBearerType(value) => {
-                TLVValue::SourceBearerType(value)
+            MessageSubmissionRequestTlvValue::SourceBearerType(value) => {
+                TlvValue::SourceBearerType(value)
             }
-            MessageSubmissionRequestTLVValue::SourceNetworkId(value) => {
-                TLVValue::SourceNetworkId(value)
+            MessageSubmissionRequestTlvValue::SourceNetworkId(value) => {
+                TlvValue::SourceNetworkId(value)
             }
-            MessageSubmissionRequestTLVValue::SourceNetworkType(value) => {
-                TLVValue::SourceNetworkType(value)
+            MessageSubmissionRequestTlvValue::SourceNetworkType(value) => {
+                TlvValue::SourceNetworkType(value)
             }
-            MessageSubmissionRequestTLVValue::SourceNodeId(value) => TLVValue::SourceNodeId(value),
-            MessageSubmissionRequestTLVValue::SourcePort(value) => TLVValue::SourcePort(value),
-            MessageSubmissionRequestTLVValue::SourceSubaddress(value) => {
-                TLVValue::SourceSubaddress(value)
+            MessageSubmissionRequestTlvValue::SourceNodeId(value) => TlvValue::SourceNodeId(value),
+            MessageSubmissionRequestTlvValue::SourcePort(value) => TlvValue::SourcePort(value),
+            MessageSubmissionRequestTlvValue::SourceSubaddress(value) => {
+                TlvValue::SourceSubaddress(value)
             }
-            MessageSubmissionRequestTLVValue::SourceTelematicsId(value) => {
-                TLVValue::SourceTelematicsId(value)
+            MessageSubmissionRequestTlvValue::SourceTelematicsId(value) => {
+                TlvValue::SourceTelematicsId(value)
             }
-            MessageSubmissionRequestTLVValue::UserMessageReference(value) => {
-                TLVValue::UserMessageReference(value)
+            MessageSubmissionRequestTlvValue::UserMessageReference(value) => {
+                TlvValue::UserMessageReference(value)
             }
-            MessageSubmissionRequestTLVValue::UserResponseCode(value) => {
-                TLVValue::UserResponseCode(value)
+            MessageSubmissionRequestTlvValue::UserResponseCode(value) => {
+                TlvValue::UserResponseCode(value)
             }
-            MessageSubmissionRequestTLVValue::UssdServiceOp(value) => {
-                TLVValue::UssdServiceOp(value)
+            MessageSubmissionRequestTlvValue::UssdServiceOp(value) => {
+                TlvValue::UssdServiceOp(value)
             }
         }
     }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub struct MessageSubmissionRequestTLV {
-    tlv: TLV,
+pub struct MessageSubmissionRequestTlv {
+    tlv: Tlv,
 }
 
-impl MessageSubmissionRequestTLV {
-    pub fn new(value: MessageSubmissionRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        let tlv = TLV::from(value);
+impl MessageSubmissionRequestTlv {
+    pub fn new(value: MessageSubmissionRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        let tlv = Tlv::from(value);
 
         Self { tlv }
     }
 
-    pub fn without_value(tag: MessageSubmissionRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        let tlv = TLV::from(tag);
+    pub fn without_value(tag: MessageSubmissionRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        let tlv = Tlv::from(tag);
 
         Self { tlv }
     }
 }
 
-impl From<MessageSubmissionRequestTLVTag> for TLV {
-    fn from(tag: MessageSubmissionRequestTLVTag) -> Self {
-        let tag = TLVTag::from(tag);
-        TLV::from(tag)
+impl From<MessageSubmissionRequestTlvTag> for Tlv {
+    fn from(tag: MessageSubmissionRequestTlvTag) -> Self {
+        let tag = TlvTag::from(tag);
+        Tlv::from(tag)
     }
 }
 
-impl From<MessageSubmissionRequestTLVValue> for MessageSubmissionRequestTLV {
-    fn from(value: MessageSubmissionRequestTLVValue) -> Self {
+impl From<MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlv {
+    fn from(value: MessageSubmissionRequestTlvValue) -> Self {
         Self::new(value)
     }
 }
 
-impl From<MessageSubmissionRequestTLVValue> for TLV {
-    fn from(value: MessageSubmissionRequestTLVValue) -> Self {
-        let value = TLVValue::from(value);
-        TLV::from(value)
+impl From<MessageSubmissionRequestTlvValue> for Tlv {
+    fn from(value: MessageSubmissionRequestTlvValue) -> Self {
+        let value = TlvValue::from(value);
+        Tlv::from(value)
     }
 }
 
-impl From<MessageSubmissionRequestTLV> for TLV {
-    fn from(tlv: MessageSubmissionRequestTLV) -> Self {
+impl From<MessageSubmissionRequestTlv> for Tlv {
+    fn from(tlv: MessageSubmissionRequestTlv) -> Self {
         tlv.tlv
     }
 }

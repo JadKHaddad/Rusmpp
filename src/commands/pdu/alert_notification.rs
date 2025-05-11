@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        tlvs::{tlv::Tlv, tlv_value::TlvValue},
         types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
     },
     types::COctetString,
@@ -35,7 +35,7 @@ crate::create! {
         pub esme_addr: COctetString<1, 65>,
         /// The status of the mobile station.
         @[length = checked]
-        ms_availability_status: Option<TLV>,
+        ms_availability_status: Option<Tlv>,
     }
 }
 
@@ -57,11 +57,11 @@ impl AlertNotification {
             esme_addr_npi,
             esme_addr,
             ms_availability_status: ms_availability_status
-                .map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v))),
+                .map(|v| Tlv::new(TlvValue::MsAvailabilityStatus(v))),
         }
     }
 
-    pub const fn ms_availability_status(&self) -> Option<&TLV> {
+    pub const fn ms_availability_status(&self) -> Option<&Tlv> {
         self.ms_availability_status.as_ref()
     }
 
@@ -75,7 +75,7 @@ impl AlertNotification {
         ms_availability_status: Option<MsAvailabilityStatus>,
     ) {
         self.ms_availability_status =
-            ms_availability_status.map(|v| TLV::new(TLVValue::MsAvailabilityStatus(v)));
+            ms_availability_status.map(|v| Tlv::new(TlvValue::MsAvailabilityStatus(v)));
     }
 
     pub fn builder() -> AlertNotificationBuilder {

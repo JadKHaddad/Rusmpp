@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::TLV, tlv_value::TLVValue},
+        tlvs::{tlv::Tlv, tlv_value::TlvValue},
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
     },
     encode::Length,
@@ -73,7 +73,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message replacement request TLVs.
         @[length = checked]
-        message_payload: Option<TLV>,
+        message_payload: Option<Tlv>,
     }
 }
 
@@ -92,7 +92,7 @@ impl ReplaceSm {
         message_payload: Option<AnyOctetString>,
     ) -> Self {
         let message_payload =
-            message_payload.map(|value| TLV::new(TLVValue::MessagePayload(value)));
+            message_payload.map(|value| Tlv::new(TlvValue::MessagePayload(value)));
         let sm_length = short_message.length() as u8;
 
         let mut replace_sm = Self {
@@ -133,15 +133,15 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub const fn message_payload(&self) -> Option<&TLV> {
+    pub const fn message_payload(&self) -> Option<&Tlv> {
         self.message_payload.as_ref()
     }
 
     pub fn message_payload_downcast(&self) -> Option<&AnyOctetString> {
         self.message_payload()
-            .and_then(TLV::value)
+            .and_then(Tlv::value)
             .and_then(|value| match value {
-                TLVValue::MessagePayload(value) => Some(value),
+                TlvValue::MessagePayload(value) => Some(value),
                 _ => None,
             })
     }
@@ -149,7 +149,7 @@ impl ReplaceSm {
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
     pub fn set_message_payload(&mut self, message_payload: Option<AnyOctetString>) {
-        self.message_payload = message_payload.map(|v| TLV::new(TLVValue::MessagePayload(v)));
+        self.message_payload = message_payload.map(|v| Tlv::new(TlvValue::MessagePayload(v)));
 
         self.clear_short_message_if_message_payload_exists();
     }

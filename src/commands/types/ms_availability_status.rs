@@ -1,4 +1,4 @@
-use crate::{TLVValue, TLV};
+use crate::{TlvValue, Tlv};
 
 crate::create! {
     #[repr(u8)]
@@ -19,15 +19,15 @@ crate::create! {
 
 impl MsAvailabilityStatus {
     #[inline]
-    pub fn downcast_from_tlv_value(value: &TLVValue) -> Option<Self> {
+    pub fn downcast_from_tlv_value(value: &TlvValue) -> Option<Self> {
         match value {
-            TLVValue::MsAvailabilityStatus(ms_availability_status) => Some(*ms_availability_status),
+            TlvValue::MsAvailabilityStatus(ms_availability_status) => Some(*ms_availability_status),
             _ => None,
         }
     }
 
     #[inline]
-    pub fn downcast_from_tlv(tlv: &TLV) -> Option<Self> {
+    pub fn downcast_from_tlv(tlv: &Tlv) -> Option<Self> {
         tlv.value().and_then(Self::downcast_from_tlv_value)
     }
 }

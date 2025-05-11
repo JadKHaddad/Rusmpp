@@ -9,12 +9,12 @@ use futures::{SinkExt, StreamExt};
 use rusmpp::{
     codec::CommandCodec,
     commands::{
-        tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
+        tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
         types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
     },
     pdu::{BindTransceiver, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandId, CommandStatus, Pdu, TLVTag,
+    Command, CommandId, CommandStatus, Pdu, TlvTag,
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;
@@ -86,7 +86,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             .short_message(OctetString::from_str(
                 "Hi, I am a short message. I will be overridden :(",
             )?)
-            .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
+            .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                 AnyOctetString::from_str(
                     "Hi, I am a very long message. I will override the short message :D",
                 )?,
@@ -109,7 +109,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                 println!("DeliverSm received.");
 
                 for tlv in deliver_sm.tlvs().iter() {
-                    if let TLVTag::ReceiptedMessageId = tlv.tag() {
+                    if let TlvTag::ReceiptedMessageId = tlv.tag() {
                         println!("Delivery receipt received.");
 
                         break 'outer;

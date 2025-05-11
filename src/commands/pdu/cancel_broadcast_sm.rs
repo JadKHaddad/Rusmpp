@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::{cancel_broadcast::CancelBroadcastTLV, TLV},
+        tlvs::tlv::{cancel_broadcast::CancelBroadcastTlv, Tlv},
         types::{npi::Npi, service_type::ServiceType, ton::Ton},
     },
     types::COctetString,
@@ -60,7 +60,7 @@ crate::create! {
         pub source_addr: COctetString<1, 21>,
         /// Cancel broadcast  TLVs ([`CancelBroadcastTLV`]).
         @[length = unchecked]
-        tlvs: Vec<TLV>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -71,13 +71,13 @@ impl CancelBroadcastSm {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        tlvs: Vec<impl Into<CancelBroadcastTLV>>,
+        tlvs: Vec<impl Into<CancelBroadcastTlv>>,
     ) -> Self {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         Self {
             service_type,
@@ -89,23 +89,23 @@ impl CancelBroadcastSm {
         }
     }
 
-    pub fn tlvs(&self) -> &[TLV] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTLV>>) {
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) {
         let tlvs = tlvs
             .into_iter()
             .map(Into::into)
             .map(From::from)
-            .collect::<Vec<TLV>>();
+            .collect::<Vec<Tlv>>();
 
         self.tlvs = tlvs;
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTLV>) {
-        let tlv: CancelBroadcastTLV = tlv.into();
-        let tlv: TLV = tlv.into();
+    pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTlv>) {
+        let tlv: CancelBroadcastTlv = tlv.into();
+        let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
     }
@@ -156,12 +156,12 @@ impl CancelBroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTLV>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<CancelBroadcastTLV>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<CancelBroadcastTlv>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

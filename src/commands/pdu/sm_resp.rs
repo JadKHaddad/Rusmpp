@@ -1,6 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::tlvs::tlv::{message_delivery_response::MessageDeliveryResponseTLV, TLV},
+    commands::tlvs::tlv::{message_delivery_response::MessageDeliveryResponseTlv, Tlv},
     types::COctetString,
 };
 
@@ -13,16 +13,16 @@ macro_rules! declare_sm_resp {
                 /// It may be used at a later stage to query the status of a message,
                 /// cancel or replace the message.
                 message_id: COctetString<1, 65>,
-                /// Message delivery response TLVs ([`MessageDeliveryResponseTLV`])
+                /// Message delivery response TLVs ([`MessageDeliveryResponseTlv`])
                 @[length = unchecked]
-                tlvs: Vec<TLV>,
+                tlvs: Vec<Tlv>,
             }
         }
 
         impl $name {
             pub fn new(
                 message_id: COctetString<1, 65>,
-                tlvs: Vec<impl Into<MessageDeliveryResponseTLV>>,
+                tlvs: Vec<impl Into<MessageDeliveryResponseTlv>>,
             ) -> Self {
                 let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -33,23 +33,23 @@ macro_rules! declare_sm_resp {
                 &self.message_id
             }
 
-            pub fn tlvs(&self) -> &[TLV] {
+            pub fn tlvs(&self) -> &[Tlv] {
                 &self.tlvs
             }
 
-            pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTLV>>) {
+            pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTlv>>) {
                 let tlvs = tlvs
                     .into_iter()
                     .map(Into::into)
                     .map(From::from)
-                    .collect::<Vec<TLV>>();
+                    .collect::<Vec<Tlv>>();
 
                 self.tlvs = tlvs;
             }
 
-            pub fn push_tlv(&mut self, tlv: impl Into<MessageDeliveryResponseTLV>) {
-                let tlv: MessageDeliveryResponseTLV = tlv.into();
-                let tlv: TLV = tlv.into();
+            pub fn push_tlv(&mut self, tlv: impl Into<MessageDeliveryResponseTlv>) {
+                let tlv: MessageDeliveryResponseTlv = tlv.into();
+                let tlv: Tlv = tlv.into();
 
                 self.tlvs.push(tlv);
             }
@@ -74,12 +74,12 @@ macro_rules! declare_sm_resp {
                 self
             }
 
-            pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTLV>>) -> Self {
+            pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTlv>>) -> Self {
                 self.inner.set_tlvs(tlvs);
                 self
             }
 
-            pub fn push_tlv(mut self, tlv: impl Into<MessageDeliveryResponseTLV>) -> Self {
+            pub fn push_tlv(mut self, tlv: impl Into<MessageDeliveryResponseTlv>) -> Self {
                 self.inner.push_tlv(tlv);
                 self
             }

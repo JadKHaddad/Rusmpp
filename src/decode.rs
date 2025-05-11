@@ -51,6 +51,56 @@ pub trait Decode: Sized {
 }
 
 /// Trait for decoding `SMPP` values from a slice with a specified length.
+///
+/// # Implementation
+///
+/// ```rust
+/// use rusmpp::{
+///     decode::{Decode, DecodeError, DecodeWithLength},
+///     types::AnyOctetString,
+/// };
+///
+/// #[derive(Debug, PartialEq, Eq)]
+/// struct Foo {
+///     a: u8,
+///     b: u16,
+///     c: AnyOctetString,
+/// }
+///
+/// impl DecodeWithLength for Foo {
+///     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+///         let index = 0;
+///
+///         let (a, size) = u8::decode(&src[index..])?;
+///         let index = index + size;
+///
+///         let (b, size) = u16::decode(&src[index..])?;
+///         let index = index + size;
+///
+///         let (c, size) = AnyOctetString::decode(&src[index..], length - index)?;
+///         let index = index + size;
+///
+///         Ok((Foo { a, b, c }, index))
+///     }
+/// }
+///
+/// // Received over the wire
+/// let length = 8;
+///
+/// let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09];
+///
+/// let expected = Foo {
+///     a: 0x01,
+///     b: 0x0203,
+///     c: AnyOctetString::new([0x04, 0x05, 0x06, 0x07, 0x08]),
+/// };
+///
+/// let (foo, size) = Foo::decode(buf, length).unwrap();
+///
+/// assert_eq!(size, 8);
+/// assert_eq!(foo, expected);
+/// assert_eq!(&buf[size..], &[0x09]);
+/// ```
 pub trait DecodeWithLength: Sized {
     /// Decode a slice from a slice, with a specified length
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;

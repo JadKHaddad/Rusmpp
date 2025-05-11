@@ -114,147 +114,56 @@
 
 #![allow(dead_code)]
 #![allow(clippy::disallowed_names)]
+#![allow(dead_code)]
+#![allow(clippy::disallowed_names)]
 
 use crate::{
-    decode::{Decode, DecodeError, DecodeWithKeyOptional, DecodeWithLength},
+    decode::{Decode, DecodeError, DecodeWithLength},
     types::AnyOctetString,
 };
 
 #[derive(Debug, PartialEq, Eq)]
-enum Foo {
-    A,
-    B(u16),
-    C(AnyOctetString),
+struct Foo {
+    a: u8,
+    b: u16,
+    c: AnyOctetString,
 }
 
-impl DecodeWithKeyOptional for Foo {
-    type Key = u32;
+impl DecodeWithLength for Foo {
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        let index = 0;
 
-    fn decode(
-        key: Self::Key,
-        src: &[u8],
-        length: usize,
-    ) -> Result<Option<(Self, usize)>, DecodeError> {
-        if length == 0 {
-            match key {
-                0x00000000 => return Ok(Some((Foo::A, 0))),
-                _ => return Ok(None),
-            }
-        }
+        let (a, size) = u8::decode(&src[index..])?;
+        let index = index + size;
 
-        match key {
-            0x01020304 => {
-                let (a, size) = u16::decode(src)?;
+        let (b, size) = u16::decode(&src[index..])?;
+        let index = index + size;
 
-                Ok(Some((Foo::B(a), size)))
-            }
-            0x04030201 => {
-                let (b, size) = AnyOctetString::decode(src, length)?;
+        let (c, size) = AnyOctetString::decode(&src[index..], length - index)?;
+        let index = index + size;
 
-                Ok(Some((Foo::C(b), size)))
-            }
-            _ => Err(DecodeError::UnsupportedKey { key }),
-        }
+        Ok((Foo { a, b, c }, index))
     }
 }
 
 #[test]
 fn foo() {
     // Received over the wire
-    let length = 4;
-
-    // Key is A
-    let buf = &[
-        0x00, 0x00, 0x00, 0x00, // Key
-        0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, // Rest
-    ];
-
-    let index = 0;
-
-    let (key, size) = u32::decode(buf).unwrap();
-    let index = index + size;
-
-    let (foo, size) = Foo::decode(key, &buf[index..], length - index)
-        .unwrap()
-        .unwrap();
-    let index = index + size;
-
-    let expected = Foo::A;
-
-    assert_eq!(size, 0);
-    assert_eq!(foo, expected);
-    assert_eq!(&buf[index..], &[0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B]);
-
-    // Received over the wire
-    let length = 4;
-
-    // Key is B, but the received length indicates no value
-    let buf = &[
-        0x01, 0x02, 0x03, 0x04, // Key
-        0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, // Rest
-    ];
-
-    let index = 0;
-
-    let (key, size) = u32::decode(buf).unwrap();
-    let index = index + size;
-
-    let value = Foo::decode(key, &buf[index..], length - index).unwrap();
-
-    assert!(value.is_none());
-    assert_eq!(&buf[index..], &[0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B]);
-
-    // Received over the wire
     let length = 8;
 
-    // Key is B
-    let buf = &[
-        0x01, 0x02, 0x03, 0x04, // Key
-        0x05, 0x06, // Value
-        0x07, 0x08, 0x09, 0x0A, 0x0B, // Rest
-    ];
+    let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09];
 
-    let index = 0;
+    let expected = Foo {
+        a: 0x01,
+        b: 0x0203,
+        c: AnyOctetString::new([0x04, 0x05, 0x06, 0x07, 0x08]),
+    };
 
-    let (key, size) = u32::decode(buf).unwrap();
-    let index = index + size;
+    let (foo, size) = Foo::decode(buf, length).unwrap();
 
-    let (foo, size) = Foo::decode(key, &buf[index..], length - index)
-        .unwrap()
-        .unwrap();
-    let index = index + size;
-
-    let expected = Foo::B(0x0506);
-
-    assert_eq!(size, 2);
+    assert_eq!(size, 8);
     assert_eq!(foo, expected);
-    assert_eq!(&buf[index..], &[0x07, 0x08, 0x09, 0x0A, 0x0B]);
-
-    // Received over the wire
-    let length = 8;
-
-    // Key is C
-    let buf = &[
-        0x04, 0x03, 0x02, 0x01, // Key
-        0x05, 0x06, 0x07, 0x08, // Value
-        0x09, 0x0A, 0x0B, // Rest
-    ];
-
-    let index = 0;
-
-    let (key, size) = u32::decode(buf).unwrap();
-    let index = index + size;
-
-    let (foo, size) = Foo::decode(key, &buf[index..], length - index)
-        .unwrap()
-        .unwrap();
-    let index = index + size;
-
-    let expected = Foo::C(AnyOctetString::new([0x05, 0x06, 0x07, 0x08]));
-
-    assert_eq!(size, 4);
-    assert_eq!(foo, expected);
-    assert_eq!(&buf[index..], &[0x09, 0x0A, 0x0B]);
+    assert_eq!(&buf[size..], &[0x09]);
 }
 
 // impl Decode for Foo {

@@ -3,6 +3,14 @@ use crate::{
     encode::Encode,
 };
 
+/// Trait for creating test instances of a type.
+pub trait TestInstance: Sized + Default {
+    /// Create test instances of the type.
+    fn instances() -> Vec<Self> {
+        vec![Self::default()]
+    }
+}
+
 /// Test encoding and decoding of a type.
 ///
 /// Encode a type to bytes and then decode it back to the original type.

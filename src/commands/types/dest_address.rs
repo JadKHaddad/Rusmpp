@@ -88,6 +88,7 @@ impl Decode for DestAddress {
 }
 
 crate::create! {
+    @[skip_test]
     /// SME Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SmeAddress {
@@ -127,6 +128,7 @@ impl SmeAddress {
 }
 
 crate::create! {
+    @[skip_test]
     /// Distribution List Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct DistributionListName {

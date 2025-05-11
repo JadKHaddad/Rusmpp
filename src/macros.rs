@@ -1,4 +1,4 @@
-/// Implements [`Length`](crate::encode::Length), [`Encode`](crate::encode::Encode), and [`Decode`](crate::decode::Decode) for structs and enums.
+/// Implements [`Length`](crate::encode::Length), [`Encode`](crate::encode::Encode), [`Decode`](crate::decode::Decode) and `TestInstance` for structs and enums.
 ///
 /// # Enums
 ///
@@ -10,6 +10,8 @@
 ///
 /// ### Struct attributes
 ///
+/// - `@[skip]`: Skip impl `Decode` for the struct.
+/// - `@[skip_test]`: Skip impl `TestInstance` for the struct.
 /// - `@[repr = u8]`: Use the `From<u8>`/`Into<u8>` representation for decoding.
 ///
 /// ### Field attributes
@@ -30,6 +32,7 @@
 macro_rules! create {
     // Default
     (
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -38,13 +41,18 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode {
+        $crate::create!(@create_struct_with_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
                 $(#[$field_attr])*
                 $field_vis $field_ident $field_ty,
             )*
+        });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
         });
 
         impl $crate::decode::Decode for $struct_ident {
@@ -71,6 +79,7 @@ macro_rules! create {
     };
 
     (
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -81,13 +90,18 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode {
+        $crate::create!(@create_struct_with_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
                 $(#[$field_attr])*
                 $field_vis $field_ident $field_ty,
             )*
+        });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
         });
 
         impl $crate::decode::DecodeWithLength for $struct_ident {
@@ -116,6 +130,7 @@ macro_rules! create {
     };
 
     (
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -125,7 +140,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode {
+        $crate::create!(@create_struct_with_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -134,10 +149,15 @@ macro_rules! create {
             )*
         });
 
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
+        });
+
         // Implements DecodeWithLength or Decode depending on the length:
         // If it's unchecked, it implements DecodeWithLength.
         // If it's and ident of a field, it implements Decode.
-        $crate::create!(@create_decode_with_key {
+        $crate::create!(@impl_decode_with_key {
             $struct_ident
             $(
                 $(#[$field_attr])*
@@ -151,6 +171,7 @@ macro_rules! create {
     // `impl Decode` generation for single field.
     // Example: SmeAddress
     (
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -164,7 +185,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode {
+        $crate::create!(@create_struct_with_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -175,6 +196,11 @@ macro_rules! create {
                 $(#[$field_attr])*
                 $field_vis $field_ident $field_ty,
             )*
+        });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
         });
 
         impl $crate::decode::Decode for $struct_ident {
@@ -206,6 +232,7 @@ macro_rules! create {
     // Every other attribute must be applied after the docs.
     (
         @[$skip:ident]
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -218,7 +245,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode {
+        $crate::create!(@create_struct_with_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -226,12 +253,18 @@ macro_rules! create {
                 $field_vis $field_ident $field_ty,
             )*
         });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
+        });
     };
 
     // Impl `Length`, `Encode` and `Decode` for a struct, based on its Into/From u8
     // The struct must be `Copy`, `Into<u8>` and `From<u8>`
     (
         @[repr = u8]
+        $(@[$skip_test:ident])?
         $(#[$struct_meta:meta])*
         $struct_vis:vis struct $struct_ident:ident {
             $(
@@ -251,16 +284,20 @@ macro_rules! create {
         $crate::create!(@repr{
             $struct_ident, u8
         });
+
+        $crate::create!(@impl_test_instances {
+            $(@[$skip_test])?
+            $struct_ident
+        });
     };
 
-    (@create_struct_with_length_and_encode {
+    (@create_struct_with_length_and_encode_and_test {
         $(#[$struct_meta:meta])*
         $struct_vis:vis $struct_ident:ident
         $(
             $(#[$field_attr:meta])*
             $field_vis:vis $field_ident:ident $field_ty:ty,
         )*
-
     }) => {
         $(#[$struct_meta])*
         $struct_vis struct $struct_ident {
@@ -295,7 +332,19 @@ macro_rules! create {
         }
     };
 
-    (@create_decode_with_key {
+    (@impl_test_instances {
+        $name:ident
+    }) => {
+        #[cfg(test)]
+        impl $crate::tests::TestInstance for $name {}
+    };
+
+    (@impl_test_instances {
+        @[$skip_test:ident]
+        $name:ident
+    }) => {};
+
+    (@impl_decode_with_key {
         $struct_ident:ident
         $(
             $(#[$field_attr:meta])*
@@ -327,7 +376,7 @@ macro_rules! create {
         }
     };
 
-    (@create_decode_with_key {
+    (@impl_decode_with_key {
         $struct_ident:ident
         $(
             $(#[$field_attr:meta])*

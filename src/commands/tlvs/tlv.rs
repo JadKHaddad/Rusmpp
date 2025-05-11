@@ -12,6 +12,7 @@ pub mod message_submission_response;
 pub mod query_broadcast_response;
 
 crate::create! {
+    @[skip_test]
     /// See module level documentation
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct Tlv {

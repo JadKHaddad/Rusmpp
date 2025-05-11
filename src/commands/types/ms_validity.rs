@@ -1,6 +1,4 @@
-use crate::create;
-
-create! {
+crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidity {
         pub validity_behavior: MsValidityBehavior,
@@ -21,7 +19,7 @@ impl MsValidity {
     }
 }
 
-create! {
+crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct MsValidityInformation {
         pub units_of_time: UnitsOfTime,

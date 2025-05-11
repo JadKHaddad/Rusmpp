@@ -1,11 +1,85 @@
 //! Traits for encoding `SMPP` values.
 
 /// Trait for determining the length of `SMPP` values.
+///
+/// # Implementation
+///
+/// ```rust
+/// use rusmpp::encode::{Encode, Length};
+///
+/// struct Foo {
+///     a: u8,
+///     b: u16,
+///     c: u32,
+/// }
+///
+/// impl Length for Foo {
+///     fn length(&self) -> usize {
+///         self.a.length() + self.b.length() + self.c.length()
+///     }
+/// }
+///
+/// let foo = Foo {
+///     a: 0x01,
+///     b: 0x0203,
+///     c: 0x04050607,
+/// };
+///
+///
+/// assert_eq!(foo.length(), 7);
+/// ```
 pub trait Length {
     fn length(&self) -> usize;
 }
 
 /// Trait for encoding `SMPP` values into a slice.
+///
+/// # Implementation
+///
+/// ```rust
+/// use rusmpp::encode::{Encode, Length};
+///
+/// struct Foo {
+///     a: u8,
+///     b: u16,
+///     c: u32,
+/// }
+///
+/// impl Length for Foo {
+///     fn length(&self) -> usize {
+///         self.a.length() + self.b.length() + self.c.length()
+///     }
+/// }
+///
+/// impl Encode for Foo {
+///     fn encode(&self, dst: &mut [u8]) -> usize {
+///         let mut size = 0;
+///
+///         size += self.a.encode(&mut dst[size..]);
+///         size += self.b.encode(&mut dst[size..]);
+///         size += self.c.encode(&mut dst[size..]);
+///
+///         size
+///     }
+/// }
+///
+/// let foo = Foo {
+///     a: 0x01,
+///     b: 0x0203,
+///     c: 0x04050607,
+/// };
+///
+/// let buf = &mut [0u8; 1024];
+///
+/// assert!(buf.len() >= foo.length());
+///
+/// let size = foo.encode(buf);
+///
+/// let expected = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07];
+///
+/// assert_eq!(size, 7);
+/// assert_eq!(&buf[..size], expected);
+/// ```
 pub trait Encode: Length {
     /// Encode a value to a slice
     ///

@@ -114,56 +114,51 @@
 
 #![allow(dead_code)]
 #![allow(clippy::disallowed_names)]
-#![allow(dead_code)]
-#![allow(clippy::disallowed_names)]
 
-use crate::{
-    decode::{Decode, DecodeError, DecodeWithLength},
-    types::AnyOctetString,
-};
+use crate::encode::{Encode, Length};
 
-#[derive(Debug, PartialEq, Eq)]
 struct Foo {
     a: u8,
     b: u16,
-    c: AnyOctetString,
+    c: u32,
 }
 
-impl DecodeWithLength for Foo {
-    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
-        let index = 0;
+impl Length for Foo {
+    fn length(&self) -> usize {
+        self.a.length() + self.b.length() + self.c.length()
+    }
+}
 
-        let (a, size) = u8::decode(&src[index..])?;
-        let index = index + size;
+impl Encode for Foo {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        let mut size = 0;
 
-        let (b, size) = u16::decode(&src[index..])?;
-        let index = index + size;
+        size += self.a.encode(&mut dst[size..]);
+        size += self.b.encode(&mut dst[size..]);
+        size += self.c.encode(&mut dst[size..]);
 
-        let (c, size) = AnyOctetString::decode(&src[index..], length - index)?;
-        let index = index + size;
-
-        Ok((Foo { a, b, c }, index))
+        size
     }
 }
 
 #[test]
 fn foo() {
-    // Received over the wire
-    let length = 8;
-
-    let buf = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09];
-
-    let expected = Foo {
+    let foo = Foo {
         a: 0x01,
         b: 0x0203,
-        c: AnyOctetString::new([0x04, 0x05, 0x06, 0x07, 0x08]),
+        c: 0x04050607,
     };
 
-    let (foo, size) = Foo::decode(buf, length).unwrap();
+    let buf = &mut [0u8; 1024];
 
-    assert_eq!(size, 8);
-    assert_eq!(foo, expected);
-    assert_eq!(&buf[size..], &[0x09]);
+    assert!(buf.len() >= foo.length());
+
+    let size = foo.encode(buf);
+
+    let expected = &[0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07];
+
+    assert_eq!(size, 7);
+    assert_eq!(&buf[..size], expected);
 }
 
 // impl Decode for Foo {

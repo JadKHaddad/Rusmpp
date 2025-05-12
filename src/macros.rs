@@ -593,3 +593,28 @@ macro_rules! create {
         }
     };
 }
+
+macro_rules! trace {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "tracing")]
+        ::tracing::trace!($($arg)*);
+    };
+}
+
+macro_rules! debug {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "tracing")]
+        ::tracing::debug!($($arg)*);
+    };
+}
+
+macro_rules! error {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "tracing")]
+        ::tracing::error!($($arg)*);
+    };
+}
+
+pub(super) use debug;
+pub(super) use error;
+pub(super) use trace;

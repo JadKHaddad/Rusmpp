@@ -85,3 +85,7 @@ pub(crate) mod tests;
 // New stuff
 
 mod dev;
+
+pub(crate) use macros::debug;
+pub(crate) use macros::error;
+pub(crate) use macros::trace;

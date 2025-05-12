@@ -129,11 +129,8 @@ pub mod tokio {
 
             dst.put_slice(&buf);
 
-            #[cfg(feature = "tracing")]
-            {
-                tracing::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
-                tracing::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&buf), encoded_length=command.length(), command_length);
-            }
+            crate::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
+            crate::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&buf), encoded_length=command.length(), command_length);
 
             Ok(())
         }
@@ -188,42 +185,36 @@ pub mod tokio {
 
         fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
             if src.len() < 4 {
-                #[cfg(feature = "tracing")]
-                tracing::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command_length");
+                crate::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command_length");
 
                 return Ok(None);
             }
 
             let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
 
-            #[cfg(feature = "tracing")]
-            tracing::trace!(target: "rusmpp::codec::decode", command_length);
+            crate::trace!(target: "rusmpp::codec::decode", command_length);
 
             if src.len() < command_length {
                 // Reserve enough space to read the entire command
                 src.reserve(command_length - src.len());
 
-                #[cfg(feature = "tracing")]
-                tracing::trace!(target: "rusmpp::codec::decode", command_length, "Not enough bytes to read the entire command");
+                crate::trace!(target: "rusmpp::codec::decode", command_length, "Not enough bytes to read the entire command");
 
                 return Ok(None);
             }
 
             let pdu_len = command_length - 4;
 
-            #[cfg(feature = "tracing")]
-            tracing::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::HexFormatter(&src[..command_length]));
+            crate::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::HexFormatter(&src[..command_length]));
 
             let (command, _size) = match Command::decode(&src[4..command_length], pdu_len) {
                 Ok((command, size)) => {
-                    #[cfg(feature = "tracing")]
-                    tracing::debug!(target: "rusmpp::codec::decode::decoded", command=?command, command_length, decoded_length=size);
+                    crate::debug!(target: "rusmpp::codec::decode::decoded", command=?command, command_length, decoded_length=size);
 
                     (command, size)
                 }
                 Err(err) => {
-                    #[cfg(feature = "tracing")]
-                    tracing::error!(target: "rusmpp::codec::decode", ?err);
+                    crate::error!(target: "rusmpp::codec::decode", ?err);
 
                     return Err(DecodeError::Decode(err));
                 }

@@ -5,8 +5,8 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub enum InterfaceVersion {
         Smpp3_3OrEarlier(u8),
-        #[default]
         Smpp3_4 = 0x34,
+        #[default]
         Smpp5_0 = 0x50,
         Other(u8),
     }

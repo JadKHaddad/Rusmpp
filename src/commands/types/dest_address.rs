@@ -43,8 +43,6 @@ impl From<DestFlag> for u32 {
     }
 }
 
-// TODO: can we make decoding this just like Pdu and tlv with a key and skip the whole thing with @[skip] decoding for the dest_flag?
-// encode_decode_test_instances for SmeAddress and DistributionListName is failing because of this. See tests below.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum DestAddress {
     /// SME Format Destination Address.
@@ -161,6 +159,12 @@ impl DistributionListName {
 ///
 /// [`encode_decode_test_instances`](crate::tests::encode_decode_test_instances) will fail for [`SmeAddress`] and [`DistributionListName`]
 /// because they encode the `dest_flag` field but skip decoding it, since it will be extracted while decoding [`DestAddress`].
+///
+/// Another implementation for [`DestAddress`] that looks like `Pdu` or `Tlv` requires using the [`DestFlag`] as a key for decoding the `DestAddressVariant`,
+/// and making [`DestAddress`] a struct with a `dest_flag` field and a `variant` field.
+/// This means we should implement `DecodeWithKey` for `DestAddressVariant` with the [`DestFlag`] as a key.
+/// But `DecodeWithKey` needs a `length` parameter, and our macro supports only @key and @length attributes.
+/// So we have to create new trait that uses a key but does not require a length, and we have to update our macro to support only a key without a length.
 #[cfg(test)]
 mod tests {
     use super::*;

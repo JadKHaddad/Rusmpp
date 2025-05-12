@@ -338,6 +338,12 @@ mod tests {
                 )
                 .unwrap(),
                 Self::new(
+                    core::iter::repeat_n(b'1', ((MIN + MAX) / 2) - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+                Self::new(
                     core::iter::repeat_n(b'1', MAX - 1)
                         .chain(core::iter::once(b'\0'))
                         .collect::<Vec<_>>(),

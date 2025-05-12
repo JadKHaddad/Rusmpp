@@ -121,9 +121,9 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub enum Ansi41Specific {
         #[default]
-        ShortMessageContainsDeliveryAcknowledgement = 0b00010000,
-        ShortMessageContainsUserAcknowledgment = 0b00100000,
-        ShortMessageContainsConversationAbort = 0b00110000,
+        ShortMessageContainsDeliveryAcknowledgement = 0b00001000,
+        ShortMessageContainsUserAcknowledgment = 0b00010000,
+        ShortMessageContainsConversationAbort = 0b00011000,
         Other(u8),
     }
 }
@@ -131,9 +131,9 @@ crate::create! {
 impl From<u8> for Ansi41Specific {
     fn from(value: u8) -> Self {
         match value {
-            0b00010000 => Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement,
-            0b00100000 => Ansi41Specific::ShortMessageContainsUserAcknowledgment,
-            0b00110000 => Ansi41Specific::ShortMessageContainsConversationAbort,
+            0b00001000 => Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement,
+            0b00010000 => Ansi41Specific::ShortMessageContainsUserAcknowledgment,
+            0b00011000 => Ansi41Specific::ShortMessageContainsConversationAbort,
             _ => Ansi41Specific::Other(value),
         }
     }
@@ -142,9 +142,9 @@ impl From<u8> for Ansi41Specific {
 impl From<Ansi41Specific> for u8 {
     fn from(value: Ansi41Specific) -> Self {
         match value {
-            Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement => 0b00010000,
-            Ansi41Specific::ShortMessageContainsUserAcknowledgment => 0b00100000,
-            Ansi41Specific::ShortMessageContainsConversationAbort => 0b00110000,
+            Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement => 0b00001000,
+            Ansi41Specific::ShortMessageContainsUserAcknowledgment => 0b00010000,
+            Ansi41Specific::ShortMessageContainsConversationAbort => 0b00011000,
             Ansi41Specific::Other(value) => value,
         }
     }

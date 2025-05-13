@@ -17,13 +17,16 @@ mod tokio {
         commands::{
             command::Command,
             pdu::{submit_sm::SubmitSm, Pdu},
-            tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
+            tlvs::tlv::{
+                broadcast_request::BroadcastRequestTlvValue,
+                message_submission_request::MessageSubmissionRequestTlvValue,
+            },
             types::{
                 command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
                 interface_version::InterfaceVersion, npi::Npi,
                 registered_delivery::RegisteredDelivery,
                 replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-                MessagePayload,
+                AlertOnMsgDelivery, BroadcastMessageClass, MessagePayload, MsAvailabilityStatus,
             },
         },
         pdu::{
@@ -327,28 +330,88 @@ mod tokio {
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     }
 
-    // cargo test bind_resp --features tokio-codec -- --ignored --nocapture
+    // cargo test bind_transmitter --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "integration test"]
-    async fn bind_resp() {
+    async fn bind_transmitter() {
         let stream = TcpStream::connect("127.0.0.1:2775")
             .await
             .expect("Failed to connect");
 
         let mut framed = Framed::new(stream, CommandCodec::new());
 
-        let bind_trans = Command::builder()
+        let bind_transmitter = Command::builder()
             .command_status(CommandStatus::EsmeRok)
             .sequence_number(1)
             .pdu(BindTransmitter::builder().build());
 
-        framed.send(bind_trans).await.expect("Failed to send PDU");
+        framed
+            .send(bind_transmitter)
+            .await
+            .expect("Failed to send PDU");
 
-        while let Some(Ok(command)) = framed.next().await {
-            if let CommandId::BindTransmitterResp = command.command_id() {
-                println!("Received BindTransmitterResp: {:#?}", command);
-                break;
-            }
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
+        }
+    }
+
+    // cargo test alert_notification --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "integration test"]
+    async fn alert_notification() {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let alert_notification = Command::builder()
+            .command_status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                AlertNotification::builder()
+                    .ms_availability_status(Some(MsAvailabilityStatus::Denied))
+                    .build(),
+            );
+
+        framed
+            .send(alert_notification)
+            .await
+            .expect("Failed to send PDU");
+
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
+        }
+    }
+
+    // cargo test broadcast_sm --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "integration test"]
+    async fn broadcast_sm() {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let broadcast_sm = Command::builder()
+            .command_status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                BroadcastSm::builder()
+                    .push_tlv(BroadcastRequestTlvValue::AlertOnMsgDelivery(
+                        AlertOnMsgDelivery::UseMediumPriorityAlert,
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
+                        BroadcastMessageClass::Class2,
+                    ))
+                    .build(),
+            );
+
+        framed.send(broadcast_sm).await.expect("Failed to send PDU");
+
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
         }
     }
 }

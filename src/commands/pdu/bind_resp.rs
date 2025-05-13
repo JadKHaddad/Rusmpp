@@ -1,9 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::{tlv::Tlv, tlv_value::TlvValue},
-        types::interface_version::InterfaceVersion,
-    },
+    commands::{tlvs::tlv::KnownTlv, types::interface_version::InterfaceVersion},
     types::COctetString,
 };
 
@@ -20,7 +17,7 @@ macro_rules! declare_bind_resp {
                 ///
                 /// `SMPP` version supported by MC.
                 @[length = checked]
-                sc_interface_version: Option<Tlv>,
+                sc_interface_version: Option<KnownTlv<InterfaceVersion>>,
             }
         }
 
@@ -31,26 +28,22 @@ macro_rules! declare_bind_resp {
             ) -> Self {
                 Self {
                     system_id,
-                    sc_interface_version: sc_interface_version
-                        .map(|value| Tlv::new(TlvValue::ScInterfaceVersion(value))),
+                    sc_interface_version: sc_interface_version.map(|value| KnownTlv::new(value)),
                 }
             }
 
-            pub const fn sc_interface_version(&self) -> Option<&Tlv> {
-                self.sc_interface_version.as_ref()
-            }
-
-            pub fn sc_interface_version_downcast(&self) -> Option<InterfaceVersion> {
-                self.sc_interface_version()
-                    .and_then(InterfaceVersion::downcast_from_tlv)
+            pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
+                self.sc_interface_version
+                    .as_ref()
+                    .map(|tlv| tlv.value())
+                    .copied()
             }
 
             pub fn set_sc_interface_version(
                 &mut self,
                 sc_interface_version: Option<InterfaceVersion>,
             ) {
-                self.sc_interface_version =
-                    sc_interface_version.map(|value| Tlv::new(TlvValue::ScInterfaceVersion(value)));
+                self.sc_interface_version = sc_interface_version.map(|value| KnownTlv::new(value));
             }
 
             pub fn builder() -> $builder_name {

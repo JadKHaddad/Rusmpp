@@ -106,6 +106,13 @@ pub trait DecodeWithLength: Sized {
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 
+/// Everything that implements [`Decode`] also implements [`DecodeWithLength`] by ignoring the length.
+impl<T: Decode> DecodeWithLength for T {
+    fn decode(src: &[u8], _length: usize) -> Result<(Self, usize), DecodeError> {
+        Decode::decode(src)
+    }
+}
+
 /// Trait for decoding `SMPP` values from a slice with a specified key and length.
 ///
 /// # Implementation

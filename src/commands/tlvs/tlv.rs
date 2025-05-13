@@ -1,4 +1,7 @@
-use crate::encode::Length;
+use crate::{
+    decode::{Decode, DecodeError, DecodeExt, DecodeWithLength, DecodeWithLengthExt},
+    encode::{Encode, EncodeExt, Length},
+};
 
 use super::{tlv_tag::TlvTag, tlv_value::TlvValue};
 
@@ -73,3 +76,77 @@ impl From<TlvTag> for Tlv {
         }
     }
 }
+
+pub(crate) trait HasTlvTag {
+    fn tlv_tag() -> TlvTag;
+}
+
+/// See module level documentation
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub(crate) struct KnownTlv<V> {
+    tag: TlvTag,
+    value_length: u16,
+    value: V,
+}
+
+impl<V: Length + HasTlvTag> KnownTlv<V> {
+    /// Create a new TLV with the given value
+    pub fn new(value: V) -> Self {
+        let tag = V::tlv_tag();
+        let value_length = value.length() as u16;
+
+        Self {
+            tag,
+            value_length,
+            value,
+        }
+    }
+
+    pub fn value(&self) -> &V {
+        &self.value
+    }
+}
+
+impl<V: Length> Length for KnownTlv<V> {
+    fn length(&self) -> usize {
+        self.tag.length() + self.value_length.length() + self.value.length()
+    }
+}
+
+impl<V: Encode> Encode for KnownTlv<V> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        let size = 0;
+        let size = self.tag.encode_move(dst, size);
+        let size = self.value_length.encode_move(dst, size);
+        self.value.encode_move(dst, size)
+    }
+}
+
+impl<V: DecodeWithLength + HasTlvTag> Decode for KnownTlv<V> {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
+        let size = 0;
+
+        let (tag, size) = DecodeExt::decode_move(src, size)?;
+
+        if tag != V::tlv_tag() {
+            return Err(DecodeError::UnsupportedKey {
+                key: u32::from(u16::from(tag)),
+            });
+        };
+
+        let (value_length, size) = DecodeExt::decode_move(src, size)?;
+        let (value, size) = DecodeWithLengthExt::decode_move(src, value_length as usize, size)?;
+
+        Ok((
+            Self {
+                tag,
+                value_length,
+                value,
+            },
+            size,
+        ))
+    }
+}
+
+// TODO: remove the downcast stuff and use this instead. like bind_resp.
+// Since DecodeWithLength now implemented for every decode. we can use DecodeWithLengthExt for all variants, while match decoding in tlv and pdu.

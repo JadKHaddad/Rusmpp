@@ -323,4 +323,29 @@ mod tokio {
 
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
     }
+
+    // cargo test bind_resp --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "integration test"]
+    async fn bind_resp() {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let bind_trans = Command::builder()
+            .command_status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(BindTransmitter::builder().build());
+
+        framed.send(bind_trans).await.expect("Failed to send PDU");
+
+        while let Some(Ok(command)) = framed.next().await {
+            if let CommandId::BindTransmitterResp = command.command_id() {
+                println!("Received BindTransmitterResp: {:#?}", command);
+                break;
+            }
+        }
+    }
 }

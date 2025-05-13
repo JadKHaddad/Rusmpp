@@ -1,4 +1,4 @@
-use crate::{Tlv, TlvValue};
+use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -9,21 +9,6 @@ crate::create! {
         #[default]
         Smpp5_0 = 0x50,
         Other(u8),
-    }
-}
-
-impl InterfaceVersion {
-    #[inline]
-    pub fn downcast_from_tlv_value(value: &TlvValue) -> Option<Self> {
-        match value {
-            TlvValue::ScInterfaceVersion(interface_version) => Some(*interface_version),
-            _ => None,
-        }
-    }
-
-    #[inline]
-    pub fn downcast_from_tlv(tlv: &Tlv) -> Option<Self> {
-        tlv.value().and_then(Self::downcast_from_tlv_value)
     }
 }
 
@@ -46,6 +31,12 @@ impl From<u8> for InterfaceVersion {
             0x50 => Self::Smpp5_0,
             _ => Self::Other(value),
         }
+    }
+}
+
+impl HasTlvTag for InterfaceVersion {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::ScInterfaceVersion
     }
 }
 

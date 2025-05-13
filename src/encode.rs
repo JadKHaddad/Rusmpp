@@ -95,39 +95,28 @@ pub(crate) trait EncodeExt: Encode {
 
 impl<T: Encode> EncodeExt for T {}
 
+impl<T: Length> Length for Option<T> {
+    fn length(&self) -> usize {
+        self.as_ref().map(Length::length).unwrap_or(0)
+    }
+}
+
 impl<T: Length> Length for Vec<T> {
     fn length(&self) -> usize {
         self.iter().map(Length::length).sum()
     }
 }
 
-impl<T: Length> Length for Option<T> {
-    fn length(&self) -> usize {
-        match self {
-            Some(value) => value.length(),
-            None => 0,
-        }
-    }
-}
-
 impl<T: Encode> Encode for Option<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        match self {
-            Some(value) => value.encode(dst),
-            None => 0,
-        }
+        self.as_ref().map(|item| item.encode(dst)).unwrap_or(0)
     }
 }
 
 impl<T: Encode> Encode for Vec<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        let mut size = 0;
-
-        for item in self {
-            size += item.encode_move(dst, size);
-        }
-
-        size
+        self.iter()
+            .fold(0, |acc, item| acc + item.encode(&mut dst[acc..]))
     }
 }
 
@@ -138,7 +127,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn length() {
+    fn length_option() {
+        let value: Option<u8> = Some(0u8);
+        assert_eq!(value.length(), 1);
+
+        let value: Option<u8> = None;
+        assert_eq!(value.length(), 0);
+    }
+
+    #[test]
+    fn length_vec() {
         let values: Vec<u8> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert_eq!(values.length(), 10);
 
@@ -169,6 +167,103 @@ mod tests {
         ];
         assert_eq!(values.length(), 10);
     }
-}
 
-// TODO: add tests for the implementations
+    #[test]
+    fn encode_option() {
+        let buf = &mut [0u8; 1024];
+
+        let value: Option<u8> = Some(0u8);
+        assert!(buf.len() >= value.length());
+
+        let size = value.encode(buf);
+
+        assert_eq!(size, 1);
+        assert_eq!(&buf[..size], &[0]);
+
+        let value: Option<u8> = None;
+        assert!(buf.len() >= value.length());
+
+        let size = value.encode(buf);
+
+        assert_eq!(size, 0);
+    }
+
+    #[test]
+    fn encode_vec() {
+        let buf = &mut [0u8; 1024];
+
+        let values: Vec<u8> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 10);
+        assert_eq!(&buf[..size], &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+        let values: Vec<u16> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 20);
+        assert_eq!(
+            &buf[..size],
+            &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9]
+        );
+
+        let values: Vec<u32> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+        assert_eq!(size, 40);
+
+        assert_eq!(
+            &buf[..size],
+            &[
+                0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6,
+                0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9
+            ]
+        );
+
+        let values = vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 10);
+        assert_eq!(&buf[..size], b"HelloWorld");
+
+        let values = vec![
+            COctetString::<1, 6>::new(b"Hello\0").unwrap(),
+            COctetString::<1, 6>::new(b"World\0").unwrap(),
+        ];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 12);
+        assert_eq!(&buf[..size], b"Hello\0World\0");
+
+        let values = vec![
+            EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
+            EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
+        ];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 12);
+        assert_eq!(&buf[..size], b"Hello\0World\0");
+
+        let values = vec![
+            OctetString::<0, 5>::new(b"Hello").unwrap(),
+            OctetString::<0, 5>::new(b"World").unwrap(),
+        ];
+        assert!(buf.len() >= values.length());
+
+        let size = values.encode(buf);
+
+        assert_eq!(size, 10);
+        assert_eq!(&buf[..size], b"HelloWorld");
+    }
+}

@@ -182,16 +182,16 @@ impl SubmitSm {
         self.clear_short_message_if_message_payload_exists();
     }
 
+    pub fn clear_tlvs(&mut self) {
+        self.tlvs.clear();
+    }
+
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
         let tlv: MessageSubmissionRequestTlv = tlv.into();
         let tlv: Tlv = tlv.into();
 
         self.tlvs.push(tlv);
         self.clear_short_message_if_message_payload_exists();
-    }
-
-    pub fn clear_tlvs(&mut self) {
-        self.tlvs.clear();
     }
 
     /// Clears the short message and short message length if the message payload is set.
@@ -329,7 +329,6 @@ impl SubmitSmBuilder {
         self
     }
 
-    // TODO: add clear_tlvs method to every builder that has tlvs
     pub fn clear_tlvs(mut self) -> Self {
         self.inner.clear_tlvs();
         self

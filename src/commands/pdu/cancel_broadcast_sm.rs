@@ -103,6 +103,10 @@ impl CancelBroadcastSm {
         self.tlvs = tlvs;
     }
 
+    pub fn clear_tlvs(&mut self) {
+        self.tlvs.clear();
+    }
+
     pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTlv>) {
         let tlv: CancelBroadcastTlv = tlv.into();
         let tlv: Tlv = tlv.into();
@@ -158,6 +162,11 @@ impl CancelBroadcastSmBuilder {
 
     pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
+        self
+    }
+
+    pub fn clear_tlvs(mut self) -> Self {
+        self.inner.clear_tlvs();
         self
     }
 

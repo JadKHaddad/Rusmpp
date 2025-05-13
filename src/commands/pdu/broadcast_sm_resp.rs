@@ -45,6 +45,10 @@ impl BroadcastSmResp {
         self.tlvs = tlvs;
     }
 
+    pub fn clear_tlvs(&mut self) {
+        self.tlvs.clear();
+    }
+
     pub fn push_tlv(&mut self, tlv: impl Into<BroadcastResponseTlv>) {
         let tlv: BroadcastResponseTlv = tlv.into();
         let tlv: Tlv = tlv.into();
@@ -80,6 +84,11 @@ impl BroadcastSmRespBuilder {
 
     pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastResponseTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
+        self
+    }
+
+    pub fn clear_tlvs(mut self) -> Self {
+        self.inner.clear_tlvs();
         self
     }
 

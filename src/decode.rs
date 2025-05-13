@@ -512,16 +512,6 @@ pub(crate) trait DecodeWithLengthExt: DecodeWithLength {
 impl<T: DecodeWithLength> DecodeWithLengthExt for T {}
 
 pub(crate) trait DecodeWithKeyExt: DecodeWithKey {
-    // TODO: unused
-    // fn decode_move(
-    //     key: Self::Key,
-    //     src: &mut [u8],
-    //     length: usize,
-    //     size: usize,
-    // ) -> Result<(Self, usize), DecodeError> {
-    //     Self::decode(key, &mut src[size..], length).map(|(this, size_)| (this, size + size_))
-    // }
-
     /// Decode a value from a slice, using a key to determine the type.
     ///
     /// If the length is 0, return `None`.

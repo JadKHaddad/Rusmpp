@@ -131,4 +131,44 @@ impl<T: Encode> Encode for Vec<T> {
     }
 }
 
+#[cfg(test)]
+mod tests {
+    use crate::types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString};
+
+    use super::*;
+
+    #[test]
+    fn length() {
+        let values: Vec<u8> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert_eq!(values.length(), 10);
+
+        let values: Vec<u16> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert_eq!(values.length(), 20);
+
+        let values: Vec<u32> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        assert_eq!(values.length(), 40);
+
+        let values = vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
+        assert_eq!(values.length(), 10);
+
+        let values = vec![
+            COctetString::<1, 6>::new(b"Hello\0").unwrap(),
+            COctetString::<1, 6>::new(b"World\0").unwrap(),
+        ];
+        assert_eq!(values.length(), 12);
+
+        let values = vec![
+            EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
+            EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
+        ];
+        assert_eq!(values.length(), 12);
+
+        let values = vec![
+            OctetString::<0, 5>::new(b"Hello").unwrap(),
+            OctetString::<0, 5>::new(b"World").unwrap(),
+        ];
+        assert_eq!(values.length(), 10);
+    }
+}
+
 // TODO: add tests for the implementations

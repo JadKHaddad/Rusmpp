@@ -1,4 +1,4 @@
-use crate::types::OctetString;
+use crate::{commands::tlvs::tlv::HasTlvTag, types::AnyOctetString, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -35,23 +35,24 @@ impl From<BroadcastAreaFormat> for u8 {
 }
 
 crate::create! {
-    /// Identifies one or more target Broadcast Area(s) for which the
-    /// status information applies.
-    ///
-    /// The number of instances of this parameter will be exactly equal
-    /// to the number of occurrences of the broadcast_area_identifiers
-    /// parameter in the corresponding broadcast_sm.
+    /// The broadcast_area_identifier defines the Broadcast Area in terms of a geographical descriptor.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastAreaIdentifier {
         pub format: BroadcastAreaFormat,
         @[length = unchecked]
-        pub area: OctetString<0, 100>,
+        pub area: AnyOctetString,
     }
 }
 
 impl BroadcastAreaIdentifier {
-    pub fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
+    pub fn new(format: BroadcastAreaFormat, area: AnyOctetString) -> Self {
         Self { format, area }
+    }
+}
+
+impl HasTlvTag for BroadcastAreaIdentifier {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::BroadcastAreaIdentifier
     }
 }
 

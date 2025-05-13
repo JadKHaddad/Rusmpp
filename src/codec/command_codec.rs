@@ -50,13 +50,33 @@
 /// ```
 #[derive(Debug)]
 pub struct CommandCodec {
-    _private: (),
+    max_command_length: Option<usize>,
 }
 
+// TODO: impl the logic for max_command_length
 impl CommandCodec {
     #[inline]
     pub const fn new() -> Self {
-        Self { _private: () }
+        Self {
+            max_command_length: None,
+        }
+    }
+
+    #[inline]
+    pub const fn max_command_length(&self) -> Option<usize> {
+        self.max_command_length
+    }
+
+    #[inline]
+    pub fn with_max_command_length(mut self, max_command_length: usize) -> Self {
+        self.max_command_length = Some(max_command_length);
+        self
+    }
+
+    #[inline]
+    pub fn without_max_command_length(mut self) -> Self {
+        self.max_command_length = None;
+        self
     }
 }
 

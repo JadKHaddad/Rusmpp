@@ -18,13 +18,13 @@
 ///     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
 ///         let index = 0;
 ///
-///         let (a, size) = u8::decode(&src[index..])?;
+///         let (a, size) = Decode::decode(&src[index..])?;
 ///         let index = index + size;
 ///
-///         let (b, size) = u16::decode(&src[index..])?;
+///         let (b, size) = Decode::decode(&src[index..])?;
 ///         let index = index + size;
 ///
-///         let (c, size) = u32::decode(&src[index..])?;
+///         let (c, size) = Decode::decode(&src[index..])?;
 ///         let index = index + size;
 ///
 ///         Ok((Foo { a, b, c }, index))
@@ -71,10 +71,10 @@ pub trait Decode: Sized {
 ///     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
 ///         let index = 0;
 ///
-///         let (a, size) = u8::decode(&src[index..])?;
+///         let (a, size) = Decode::decode(&src[index..])?;
 ///         let index = index + size;
 ///
-///         let (b, size) = u16::decode(&src[index..])?;
+///         let (b, size) = Decode::decode(&src[index..])?;
 ///         let index = index + size;
 ///
 ///         let (c, size) = AnyOctetString::decode(&src[index..], length - index)?;
@@ -135,7 +135,7 @@ impl<T: Decode> DecodeWithLength for T {
 ///     fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
 ///         match key {
 ///             0x01020304 => {
-///                 let (a, size) = u16::decode(src)?;
+///                 let (a, size) = Decode::decode(src)?;
 ///
 ///                 Ok((Foo::A(a), size))
 ///             }
@@ -161,7 +161,7 @@ impl<T: Decode> DecodeWithLength for T {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
@@ -185,7 +185,7 @@ impl<T: Decode> DecodeWithLength for T {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let (foo, size) = Foo::decode(key, &buf[index..], length - index).unwrap();
@@ -238,7 +238,7 @@ pub trait DecodeWithKey: Sized {
 ///
 ///         match key {
 ///             0x01020304 => {
-///                 let (a, size) = u16::decode(src)?;
+///                 let (a, size) = Decode::decode(src)?;
 ///
 ///                 Ok(Some((Foo::B(a), size)))
 ///             }
@@ -263,7 +263,7 @@ pub trait DecodeWithKey: Sized {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let (foo, size) = Foo::decode(key, &buf[index..], length - index)
@@ -288,7 +288,7 @@ pub trait DecodeWithKey: Sized {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let value = Foo::decode(key, &buf[index..], length - index).unwrap();
@@ -308,7 +308,7 @@ pub trait DecodeWithKey: Sized {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let (foo, size) = Foo::decode(key, &buf[index..], length - index)
@@ -334,7 +334,7 @@ pub trait DecodeWithKey: Sized {
 ///
 /// let index = 0;
 ///
-/// let (key, size) = u32::decode(buf).unwrap();
+/// let (key, size) = Decode::decode(buf).unwrap();
 /// let index = index + size;
 ///
 /// let (foo, size) = Foo::decode(key, &buf[index..], length - index)

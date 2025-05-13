@@ -347,7 +347,10 @@ impl SubmitSmBuilder {
 #[cfg(test)]
 mod tests {
     use crate::{
-        commands::tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
+        commands::{
+            tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
+            types::MessagePayload,
+        },
         types::AnyOctetString,
     };
 
@@ -387,7 +390,7 @@ mod tests {
     #[test]
     fn message_payload_suppresses_short_message() {
         let short_message = OctetString::new(b"Short Message").unwrap();
-        let message_payload = AnyOctetString::new(b"Message Payload");
+        let message_payload = MessagePayload::new(AnyOctetString::new(b"Message Payload"));
 
         // Using push_tlv
         let submit_sm = SubmitSm::builder()

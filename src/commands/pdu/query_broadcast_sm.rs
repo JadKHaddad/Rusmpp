@@ -1,8 +1,8 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::Tlv, tlv_value::TlvValue},
-        types::{npi::Npi, ton::Ton},
+        tlvs::tlv::KnownTlv,
+        types::{npi::Npi, ton::Ton, UserMessageReference},
     },
     types::COctetString,
 };
@@ -47,7 +47,7 @@ crate::create! {
         ///
         /// ESME assigned message reference number.
         @[length = checked]
-        user_message_reference: Option<Tlv>,
+        user_message_reference: Option<KnownTlv<UserMessageReference>>,
     }
 }
 
@@ -57,10 +57,9 @@ impl QueryBroadcastSm {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        user_message_reference: Option<u16>,
+        user_message_reference: Option<UserMessageReference>,
     ) -> Self {
-        let user_message_reference =
-            user_message_reference.map(|value| Tlv::new(TlvValue::UserMessageReference(value)));
+        let user_message_reference = user_message_reference.map(From::from);
 
         Self {
             message_id,
@@ -71,22 +70,18 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub const fn user_message_reference(&self) -> Option<&Tlv> {
-        self.user_message_reference.as_ref()
+    pub fn user_message_reference(&self) -> Option<UserMessageReference> {
+        self.user_message_reference
+            .as_ref()
+            .map(|tlv| tlv.value())
+            .copied()
     }
 
-    pub fn user_message_reference_downcast(&self) -> Option<u16> {
-        self.user_message_reference()
-            .and_then(Tlv::value)
-            .and_then(|value| match value {
-                TlvValue::UserMessageReference(value) => Some(*value),
-                _ => None,
-            })
-    }
-
-    pub fn set_user_message_reference(&mut self, user_message_reference: Option<u16>) {
-        self.user_message_reference =
-            user_message_reference.map(|value| Tlv::new(TlvValue::UserMessageReference(value)));
+    pub fn set_user_message_reference(
+        &mut self,
+        user_message_reference: Option<UserMessageReference>,
+    ) {
+        self.user_message_reference = user_message_reference.map(From::from);
     }
 
     pub fn builder() -> QueryBroadcastSmBuilder {
@@ -130,7 +125,10 @@ impl QueryBroadcastSmBuilder {
         self
     }
 
-    pub fn user_message_reference(mut self, user_message_reference: Option<u16>) -> Self {
+    pub fn user_message_reference(
+        mut self,
+        user_message_reference: Option<UserMessageReference>,
+    ) -> Self {
         self.inner
             .set_user_message_reference(user_message_reference);
         self

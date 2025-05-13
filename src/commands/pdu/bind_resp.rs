@@ -28,7 +28,7 @@ macro_rules! declare_bind_resp {
             ) -> Self {
                 Self {
                     system_id,
-                    sc_interface_version: sc_interface_version.map(|value| KnownTlv::new(value)),
+                    sc_interface_version: sc_interface_version.map(From::from),
                 }
             }
 
@@ -43,7 +43,7 @@ macro_rules! declare_bind_resp {
                 &mut self,
                 sc_interface_version: Option<InterfaceVersion>,
             ) {
-                self.sc_interface_version = sc_interface_version.map(|value| KnownTlv::new(value));
+                self.sc_interface_version = sc_interface_version.map(From::from);
             }
 
             pub fn builder() -> $builder_name {

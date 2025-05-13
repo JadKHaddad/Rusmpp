@@ -1,4 +1,4 @@
-use crate::create;
+use crate::{commands::tlvs::tlv::HasTlvTag, create, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -52,7 +52,7 @@ impl From<UnitOfTime> for u8 {
 create! {
     /// This field indicates the frequency interval at which
     /// the broadcasts of a message should be repeated.
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastFrequencyInterval {
         pub unit: UnitOfTime,
         pub value: u16,
@@ -62,6 +62,12 @@ create! {
 impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
+    }
+}
+
+impl HasTlvTag for BroadcastFrequencyInterval {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::BroadcastFrequencyInterval
     }
 }
 

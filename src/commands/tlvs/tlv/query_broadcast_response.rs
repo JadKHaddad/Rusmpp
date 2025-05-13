@@ -1,6 +1,9 @@
 use super::Tlv;
 use crate::{
-    commands::tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
+    commands::{
+        tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
+        types::UserMessageReference,
+    },
     types::OctetString,
 };
 
@@ -22,7 +25,7 @@ impl From<QueryBroadcastResponseTlvTag> for TlvTag {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum QueryBroadcastResponseTlvValue {
     BroadcastEndTime(OctetString<0, 17>),
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
 }
 
 impl From<QueryBroadcastResponseTlvValue> for TlvValue {

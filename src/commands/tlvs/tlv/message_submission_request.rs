@@ -11,10 +11,11 @@ use crate::{
             ms_msg_wait_facilities::MsMsgWaitFacilities, ms_validity::MsValidity,
             network_type::NetworkType, number_of_messages::NumberOfMessages,
             payload_type::PayloadType, privacy_indicator::PrivacyIndicator, set_dpf::SetDpf,
-            sub_address::Subaddress, ussd_service_op::UssdServiceOp,
+            sub_address::Subaddress, ussd_service_op::UssdServiceOp, MessagePayload,
+            UserMessageReference,
         },
     },
-    types::{AnyOctetString, COctetString, OctetString},
+    types::{COctetString, OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -138,7 +139,7 @@ pub enum MessageSubmissionRequestTlvValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    MessagePayload(MessagePayload),
     MoreMessagesToSend(MoreMessagesToSend),
     MsMsgWaitFacilities(MsMsgWaitFacilities),
     MsValidity(MsValidity),
@@ -159,7 +160,7 @@ pub enum MessageSubmissionRequestTlvValue {
     SourcePort(u16),
     SourceSubaddress(Subaddress),
     SourceTelematicsId(u16),
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
 }

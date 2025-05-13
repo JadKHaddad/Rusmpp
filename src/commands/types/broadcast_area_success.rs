@@ -1,3 +1,5 @@
+use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
+
 crate::create! {
     #[repr(u8)]
     /// The success rate indicator, defined as the ratio of the
@@ -30,6 +32,12 @@ impl From<u8> for BroadcastAreaSuccess {
             255 => Self::InformationNotAvailable,
             _ => Self::Other(value),
         }
+    }
+}
+
+impl HasTlvTag for BroadcastAreaSuccess {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::BroadcastAreaSuccess
     }
 }
 

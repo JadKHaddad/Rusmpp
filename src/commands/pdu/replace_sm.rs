@@ -1,11 +1,11 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::{tlv::Tlv, tlv_value::TlvValue},
-        types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton},
+        tlvs::tlv::KnownTlv,
+        types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload},
     },
     encode::Length,
-    types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString},
+    types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
 crate::create! {
@@ -73,7 +73,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message replacement request TLVs.
         @[length = checked]
-        message_payload: Option<Tlv>,
+        message_payload: Option<KnownTlv<MessagePayload>>,
     }
 }
 
@@ -89,10 +89,9 @@ impl ReplaceSm {
         registered_delivery: RegisteredDelivery,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        message_payload: Option<AnyOctetString>,
+        message_payload: Option<MessagePayload>,
     ) -> Self {
-        let message_payload =
-            message_payload.map(|value| Tlv::new(TlvValue::MessagePayload(value)));
+        let message_payload = message_payload.map(From::from);
         let sm_length = short_message.length() as u8;
 
         let mut replace_sm = Self {
@@ -133,23 +132,14 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub const fn message_payload(&self) -> Option<&Tlv> {
-        self.message_payload.as_ref()
-    }
-
-    pub fn message_payload_downcast(&self) -> Option<&AnyOctetString> {
-        self.message_payload()
-            .and_then(Tlv::value)
-            .and_then(|value| match value {
-                TlvValue::MessagePayload(value) => Some(value),
-                _ => None,
-            })
+    pub fn message_payload(&self) -> Option<&MessagePayload> {
+        self.message_payload.as_ref().map(|tlv| tlv.value())
     }
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
-    pub fn set_message_payload(&mut self, message_payload: Option<AnyOctetString>) {
-        self.message_payload = message_payload.map(|v| Tlv::new(TlvValue::MessagePayload(v)));
+    pub fn set_message_payload(&mut self, message_payload: Option<MessagePayload>) {
+        self.message_payload = message_payload.map(From::from);
 
         self.clear_short_message_if_message_payload_exists();
     }
@@ -236,7 +226,7 @@ impl ReplaceSmBuilder {
         self
     }
 
-    pub fn message_payload(mut self, message_payload: Option<AnyOctetString>) -> Self {
+    pub fn message_payload(mut self, message_payload: Option<MessagePayload>) -> Self {
         self.inner.set_message_payload(message_payload);
         self
     }

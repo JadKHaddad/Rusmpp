@@ -23,6 +23,7 @@ mod tokio {
                 interface_version::InterfaceVersion, npi::Npi,
                 registered_delivery::RegisteredDelivery,
                 replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
+                MessagePayload,
             },
         },
         pdu::{
@@ -298,10 +299,12 @@ mod tokio {
                         .expect("Failed to create short message"),
                 )
                 .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
-                    AnyOctetString::from_str(
-                        "Hi, I am a very long message that will override the short message :D",
-                    )
-                    .expect("Failed to create message_payload"),
+                    MessagePayload::new(
+                        AnyOctetString::from_str(
+                            "Hi, I am a very long message that will override the short message :D",
+                        )
+                        .expect("Failed to create message_payload"),
+                    ),
                 ))
                 .build(),
         );

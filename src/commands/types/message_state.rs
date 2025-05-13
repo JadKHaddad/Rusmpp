@@ -1,3 +1,5 @@
+use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
+
 crate::create! {
     #[repr(u8)]
     /// This field indicates the current status of the broadcast message.
@@ -129,6 +131,12 @@ impl From<MessageState> for u8 {
             MessageState::Skipped => 9,
             MessageState::Other(value) => value,
         }
+    }
+}
+
+impl HasTlvTag for MessageState {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::MessageState
     }
 }
 

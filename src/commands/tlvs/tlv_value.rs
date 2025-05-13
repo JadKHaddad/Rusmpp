@@ -18,7 +18,7 @@ use crate::{
         ms_validity::MsValidity, network_error_code::NetworkErrorCode, network_type::NetworkType,
         number_of_messages::NumberOfMessages, payload_type::PayloadType,
         privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, sub_address::Subaddress,
-        ussd_service_op::UssdServiceOp,
+        ussd_service_op::UssdServiceOp, BroadcastRepNum, MessagePayload, UserMessageReference,
     },
     decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKey, DecodeWithLength},
     encode::{Encode, Length},
@@ -69,7 +69,7 @@ pub enum TlvValue {
     BroadcastMessageClass(BroadcastMessageClass),
     /// This field indicates the number of repeated
     /// broadcasts of a message requested by the submitter.
-    BroadcastRepNum(u16),
+    BroadcastRepNum(BroadcastRepNum),
     BroadcastServiceGroup(OctetString<1, 255>),
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
@@ -92,7 +92,7 @@ pub enum TlvValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    MessagePayload(MessagePayload),
     /// This field indicates the current status of the broadcast message.
     MessageState(MessageState),
     MoreMessagesToSend(MoreMessagesToSend),
@@ -120,7 +120,7 @@ pub enum TlvValue {
     SourcePort(u16),
     SourceSubaddress(Subaddress),
     SourceTelematicsId(u16),
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
     Other {

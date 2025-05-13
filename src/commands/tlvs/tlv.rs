@@ -107,6 +107,18 @@ impl<V: Length + HasTlvTag> KnownTlv<V> {
     }
 }
 
+impl<V: HasTlvTag + Length + Default> Default for KnownTlv<V> {
+    fn default() -> Self {
+        Self::new(V::default())
+    }
+}
+
+impl<V: Length + HasTlvTag> From<V> for KnownTlv<V> {
+    fn from(value: V) -> Self {
+        Self::new(value)
+    }
+}
+
 impl<V: Length> Length for KnownTlv<V> {
     fn length(&self) -> usize {
         self.tag.length() + self.value_length.length() + self.value.length()

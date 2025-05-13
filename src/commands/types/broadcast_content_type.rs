@@ -1,4 +1,4 @@
-use crate::create;
+use crate::{commands::tlvs::tlv::HasTlvTag, create, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -196,7 +196,7 @@ impl From<EncodingContentType> for u16 {
 
 create! {
     /// Specifies the content type of the message.
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastContentType {
         pub type_of_network: TypeOfNetwork,
         pub encoding_content_type: EncodingContentType,
@@ -209,6 +209,12 @@ impl BroadcastContentType {
             type_of_network,
             encoding_content_type,
         }
+    }
+}
+
+impl HasTlvTag for BroadcastContentType {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::BroadcastContentType
     }
 }
 

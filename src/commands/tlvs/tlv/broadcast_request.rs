@@ -9,10 +9,10 @@ use crate::{
             callback_num_pres_ind::CallbackNumPresInd, display_time::DisplayTime,
             language_indicator::LanguageIndicator, ms_validity::MsValidity,
             payload_type::PayloadType, privacy_indicator::PrivacyIndicator,
-            sub_address::Subaddress,
+            sub_address::Subaddress, MessagePayload, UserMessageReference,
         },
     },
-    types::{AnyOctetString, OctetString},
+    types::OctetString,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -85,7 +85,7 @@ pub enum BroadcastRequestTlvValue {
     DestPort(u16),
     DisplayTime(DisplayTime),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    MessagePayload(MessagePayload),
     MsValidity(MsValidity),
     PayloadType(PayloadType),
     PrivacyIndicator(PrivacyIndicator),
@@ -93,7 +93,7 @@ pub enum BroadcastRequestTlvValue {
     SourceAddrSubunit(AddrSubunit),
     SourcePort(u16),
     SourceSubaddress(Subaddress),
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
 }
 
 impl From<BroadcastRequestTlvValue> for TlvValue {

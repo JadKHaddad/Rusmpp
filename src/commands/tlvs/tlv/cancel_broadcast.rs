@@ -1,7 +1,7 @@
 use super::Tlv;
 use crate::commands::{
     tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
-    types::broadcast_content_type::BroadcastContentType,
+    types::{broadcast_content_type::BroadcastContentType, UserMessageReference},
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -27,7 +27,7 @@ pub enum CancelBroadcastTlvValue {
     ///
     /// Note: The message_id field should be set to NULL if
     /// using the user_message_reference TLV.
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
 }
 
 impl From<CancelBroadcastTlvValue> for TlvValue {

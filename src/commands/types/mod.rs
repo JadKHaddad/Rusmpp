@@ -131,3 +131,12 @@ pub use unsuccess_sme::UnsuccessSme;
 
 pub mod ussd_service_op;
 pub use ussd_service_op::UssdServiceOp;
+
+mod user_message_reference;
+pub use user_message_reference::UserMessageReference;
+
+mod broadcast_rep_num;
+pub use broadcast_rep_num::BroadcastRepNum;
+
+mod message_payload;
+pub use message_payload::MessagePayload;

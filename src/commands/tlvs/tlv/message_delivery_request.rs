@@ -9,10 +9,10 @@ use crate::{
             language_indicator::LanguageIndicator, message_state::MessageState,
             network_error_code::NetworkErrorCode, payload_type::PayloadType,
             privacy_indicator::PrivacyIndicator, sub_address::Subaddress,
-            ussd_service_op::UssdServiceOp,
+            ussd_service_op::UssdServiceOp, MessagePayload, UserMessageReference,
         },
     },
-    types::{AnyOctetString, COctetString, OctetString},
+    types::{COctetString, OctetString},
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -107,7 +107,7 @@ pub enum MessageDeliveryRequestTlvValue {
     ItsReplyType(ItsReplyType),
     ItsSessionInfo(ItsSessionInfo),
     LanguageIndicator(LanguageIndicator),
-    MessagePayload(AnyOctetString),
+    MessagePayload(MessagePayload),
     MessageState(MessageState),
     NetworkErrorCode(NetworkErrorCode),
     PayloadType(PayloadType),
@@ -121,7 +121,7 @@ pub enum MessageDeliveryRequestTlvValue {
     SourceNodeId(OctetString<6, 6>),
     SourcePort(u16),
     SourceSubaddress(Subaddress),
-    UserMessageReference(u16),
+    UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
 }

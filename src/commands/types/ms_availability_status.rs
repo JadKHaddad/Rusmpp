@@ -1,4 +1,4 @@
-use crate::{Tlv, TlvValue};
+use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -14,21 +14,6 @@ crate::create! {
         Denied = 1,
         Unavailable = 2,
         Other(u8),
-    }
-}
-
-impl MsAvailabilityStatus {
-    #[inline]
-    pub fn downcast_from_tlv_value(value: &TlvValue) -> Option<Self> {
-        match value {
-            TlvValue::MsAvailabilityStatus(ms_availability_status) => Some(*ms_availability_status),
-            _ => None,
-        }
-    }
-
-    #[inline]
-    pub fn downcast_from_tlv(tlv: &Tlv) -> Option<Self> {
-        tlv.value().and_then(Self::downcast_from_tlv_value)
     }
 }
 
@@ -51,6 +36,12 @@ impl From<MsAvailabilityStatus> for u8 {
             MsAvailabilityStatus::Unavailable => 2,
             MsAvailabilityStatus::Other(other) => other,
         }
+    }
+}
+
+impl HasTlvTag for MsAvailabilityStatus {
+    fn tlv_tag() -> TlvTag {
+        TlvTag::MsAvailabilityStatus
     }
 }
 

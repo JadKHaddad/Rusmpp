@@ -10,7 +10,9 @@ use rusmpp::{
     codec::CommandCodec,
     commands::{
         tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
-        types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
+        types::{
+            EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
+        },
     },
     pdu::{BindTransceiver, SubmitSm},
     types::{AnyOctetString, COctetString, OctetString},
@@ -87,9 +89,9 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                 "Hi, I am a short message. I will be overridden :(",
             )?)
             .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
-                AnyOctetString::from_str(
+                MessagePayload::new(AnyOctetString::from_str(
                     "Hi, I am a very long message. I will override the short message :D",
-                )?,
+                )?),
             ))
             .build(),
     );

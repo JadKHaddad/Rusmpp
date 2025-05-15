@@ -4,12 +4,15 @@ use crate::commands::{
     types::{broadcast_area_identifier::BroadcastAreaIdentifier, command_status::CommandStatus},
 };
 
-#[repr(u16)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastResponseTlvTag {
-    BroadcastAreaIdentifier = 0x0606,
-    BroadcastErrorStatus = 0x0607,
-    Other(u16),
+crate::create! {
+    #[repr(u16)]
+    @[skip_test]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum BroadcastResponseTlvTag {
+        BroadcastAreaIdentifier = 0x0606,
+        BroadcastErrorStatus = 0x0607,
+        Other(u16),
+    }
 }
 
 impl From<u16> for BroadcastResponseTlvTag {

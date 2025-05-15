@@ -10,14 +10,17 @@ use crate::{
     types::COctetString,
 };
 
-#[repr(u16)]
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum MessageSubmissionResponseTlvTag {
-    AdditionalStatusInfoText = 0x001D,
-    DpfResult = 0x0420,
-    NetworkErrorCode = 0x0423,
-    DeliveryFailureReason = 0x0425,
-    Other(u16),
+crate::create! {
+    #[repr(u16)]
+    @[skip_test]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum MessageSubmissionResponseTlvTag {
+        AdditionalStatusInfoText = 0x001D,
+        DpfResult = 0x0420,
+        NetworkErrorCode = 0x0423,
+        DeliveryFailureReason = 0x0425,
+        Other(u16),
+    }
 }
 
 impl From<u16> for MessageSubmissionResponseTlvTag {

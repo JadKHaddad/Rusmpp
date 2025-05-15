@@ -7,12 +7,15 @@ use crate::{
     types::OctetString,
 };
 
-#[repr(u16)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum QueryBroadcastResponseTlvTag {
-    UserMessageReference = 0x0204,
-    BroadcastEndTime = 0x0609,
-    Other(u16),
+crate::create! {
+    #[repr(u16)]
+    @[skip_test]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum QueryBroadcastResponseTlvTag {
+        UserMessageReference = 0x0204,
+        BroadcastEndTime = 0x0609,
+        Other(u16),
+    }
 }
 
 impl From<u16> for QueryBroadcastResponseTlvTag {

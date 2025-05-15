@@ -15,32 +15,35 @@ use crate::{
     types::OctetString,
 };
 
-#[repr(u16)]
-#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-pub enum BroadcastRequestTlvTag {
-    AlertOnMessageDelivery = 0x130C,
-    BroadcastChannelIndicator = 0x0600,
-    BroadcastContentTypeInfo = 0x0602,
-    BroadcastMessageClass = 0x0603,
-    BroadcastServiceGroup = 0x060A,
-    CallbackNum = 0x0381,
-    CallbackNumAtag = 0x0303,
-    CallbackNumPresInd = 0x0302,
-    DestAddrSubunit = 0x0005,
-    DestSubaddress = 0x0203,
-    DestPort = 0x020B,
-    DisplayTime = 0x1201,
-    LanguageIndicator = 0x020D,
-    MessagePayload = 0x0424,
-    MsValidity = 0x1204,
-    PayloadType = 0x0019,
-    PrivacyIndicator = 0x0201,
-    SmsSignal = 0x1203,
-    SourceAddrSubunit = 0x000D,
-    SourcePort = 0x020A,
-    SourceSubaddress = 0x0202,
-    UserMessageReference = 0x0204,
-    Other(u16),
+crate::create! {
+    #[repr(u16)]
+    @[skip_test]
+    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    pub enum BroadcastRequestTlvTag {
+        AlertOnMessageDelivery = 0x130C,
+        BroadcastChannelIndicator = 0x0600,
+        BroadcastContentTypeInfo = 0x0602,
+        BroadcastMessageClass = 0x0603,
+        BroadcastServiceGroup = 0x060A,
+        CallbackNum = 0x0381,
+        CallbackNumAtag = 0x0303,
+        CallbackNumPresInd = 0x0302,
+        DestAddrSubunit = 0x0005,
+        DestSubaddress = 0x0203,
+        DestPort = 0x020B,
+        DisplayTime = 0x1201,
+        LanguageIndicator = 0x020D,
+        MessagePayload = 0x0424,
+        MsValidity = 0x1204,
+        PayloadType = 0x0019,
+        PrivacyIndicator = 0x0201,
+        SmsSignal = 0x1203,
+        SourceAddrSubunit = 0x000D,
+        SourcePort = 0x020A,
+        SourceSubaddress = 0x0202,
+        UserMessageReference = 0x0204,
+        Other(u16),
+    }
 }
 
 impl From<u16> for BroadcastRequestTlvTag {

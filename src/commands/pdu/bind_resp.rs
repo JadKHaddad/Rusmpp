@@ -31,14 +31,15 @@ macro_rules! declare_bind_resp {
                 }
             }
 
-            //TODO: fix commented out code
+            pub fn sc_interface_version_tlv(&self) -> Option<&SingleTlv<InterfaceVersion>> {
+                self.sc_interface_version.as_ref()
+            }
 
-            // pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
-            //     self.sc_interface_version
-            //         .as_ref()
-            //         .map(|tlv| tlv.value())
-            //         .copied()
-            // }
+            pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
+                self.sc_interface_version_tlv()
+                    .and_then(SingleTlv::value)
+                    .copied()
+            }
 
             pub fn set_sc_interface_version(
                 &mut self,

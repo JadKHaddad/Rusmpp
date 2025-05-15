@@ -68,13 +68,15 @@ impl QueryBroadcastSm {
         }
     }
 
-    //TODO: fix commented out code
-    // pub fn user_message_reference(&self) -> Option<UserMessageReference> {
-    //     self.user_message_reference
-    //         .as_ref()
-    //         .map(|tlv| tlv.value())
-    //         .copied()
-    // }
+    pub fn user_message_reference_tlv(&self) -> Option<&SingleTlv<UserMessageReference>> {
+        self.user_message_reference.as_ref()
+    }
+
+    pub fn user_message_reference(&self) -> Option<UserMessageReference> {
+        self.user_message_reference_tlv()
+            .and_then(SingleTlv::value)
+            .copied()
+    }
 
     pub fn set_user_message_reference(
         &mut self,

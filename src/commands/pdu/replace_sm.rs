@@ -132,10 +132,13 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    //TODO: fix commented out code
-    // pub fn message_payload(&self) -> Option<&MessagePayload> {
-    //     self.message_payload.as_ref().map(|tlv| tlv.value())
-    // }
+    pub fn message_payload_tlv(&self) -> Option<&SingleTlv<MessagePayload>> {
+        self.message_payload.as_ref()
+    }
+
+    pub fn message_payload(&self) -> Option<&MessagePayload> {
+        self.message_payload_tlv().and_then(SingleTlv::value)
+    }
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.

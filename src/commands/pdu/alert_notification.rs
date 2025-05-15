@@ -58,13 +58,15 @@ impl AlertNotification {
         }
     }
 
-    //TODO: fix commented out code
-    // pub fn ms_availability_status(&self) -> Option<MsAvailabilityStatus> {
-    //     self.ms_availability_status
-    //         .as_ref()
-    //         .map(|tlv| tlv.value())
-    //         .copied()
-    // }
+    pub fn ms_availability_status_tlv(&self) -> Option<&SingleTlv<MsAvailabilityStatus>> {
+        self.ms_availability_status.as_ref()
+    }
+
+    pub fn ms_availability_status(&self) -> Option<MsAvailabilityStatus> {
+        self.ms_availability_status_tlv()
+            .and_then(SingleTlv::value)
+            .copied()
+    }
 
     pub fn set_ms_availability_status(
         &mut self,

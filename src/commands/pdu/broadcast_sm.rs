@@ -108,7 +108,6 @@ crate::create! {
     }
 }
 
-// TODO: add the downcast for these tlvs
 impl BroadcastSm {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
@@ -160,6 +159,7 @@ impl BroadcastSm {
         }
     }
 
+    //TODO: fix commented out code
     // pub fn broadcast_area_identifier(&self) -> &BroadcastAreaIdentifier {
     //     self.broadcast_area_identifier.value()
     // }

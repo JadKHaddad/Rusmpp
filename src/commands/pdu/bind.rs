@@ -7,6 +7,7 @@ use crate::{
 macro_rules! declare_bind {
     ($name:ident, $builder_name:ident) => {
         crate::create! {
+            @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             pub struct $name {
                 /// Identifies the ESME system
@@ -142,7 +143,62 @@ impl From<BindTransceiver> for Pdu {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for BindTransmitter {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .password(COctetString::from_str("password").unwrap())
+                    .system_type(COctetString::from_str("system_type").unwrap())
+                    .interface_version(InterfaceVersion::Smpp5_0)
+                    .addr_ton(Ton::International)
+                    .addr_npi(Npi::Isdn)
+                    .address_range(COctetString::from_str("address_range").unwrap())
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindReceiver {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .password(COctetString::from_str("password").unwrap())
+                    .system_type(COctetString::from_str("system_type").unwrap())
+                    .interface_version(InterfaceVersion::Smpp3_4)
+                    .addr_ton(Ton::Alphanumeric)
+                    .addr_npi(Npi::Ermes)
+                    .address_range(COctetString::from_str("address_range").unwrap())
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindTransceiver {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .password(COctetString::from_str("password").unwrap())
+                    .system_type(COctetString::from_str("system_type").unwrap())
+                    .interface_version(InterfaceVersion::Smpp3_3OrEarlier(2))
+                    .addr_ton(Ton::International)
+                    .addr_npi(Npi::Ermes)
+                    .address_range(COctetString::from_str("address_range").unwrap())
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

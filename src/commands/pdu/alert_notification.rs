@@ -6,6 +6,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
     /// session. It is sent when the MC has detected that a particular mobile subscriber has become
     /// available and a delivery pending flag had been previously set for that subscriber by means of
@@ -142,7 +143,40 @@ impl AlertNotificationBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for AlertNotification {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .ms_availability_status(Some(MsAvailabilityStatus::Available))
+                    .build(),
+                Self::builder()
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .esme_addr_ton(Ton::International)
+                    .esme_addr_npi(Npi::Isdn)
+                    .esme_addr(COctetString::from_str("0987654321").unwrap())
+                    .ms_availability_status(Some(MsAvailabilityStatus::Available))
+                    .build(),
+                Self::builder()
+                    .source_addr_ton(Ton::NetworkSpecific)
+                    .source_addr_npi(Npi::LandMobile)
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .esme_addr_ton(Ton::Abbreviated)
+                    .esme_addr_npi(Npi::WapClientId)
+                    .esme_addr(COctetString::from_str("0987654321").unwrap())
+                    .ms_availability_status(Some(MsAvailabilityStatus::Other(255)))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

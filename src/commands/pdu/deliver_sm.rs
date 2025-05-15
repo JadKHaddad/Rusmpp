@@ -332,10 +332,106 @@ impl DeliverSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use crate::{
+        commands::types::MessagePayload, tlvs::MessageDeliveryRequestTlvValue,
+        types::AnyOctetString,
+    };
+
     use super::*;
 
     #[test]
     fn encode_decode() {
         crate::tests::encode_decode_with_length_test_instances::<DeliverSm>();
+    }
+
+    #[test]
+    fn short_message_length() {
+        let short_message = OctetString::new(b"Short Message").unwrap();
+
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message.clone())
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &short_message);
+        assert_eq!(submit_sm.sm_length(), short_message.length() as u8);
+    }
+
+    #[test]
+    fn short_message_override() {
+        let short_message_1 = OctetString::new(b"Short Message 101").unwrap();
+        let short_message_2 = OctetString::new(b"Short Message 2").unwrap();
+
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message_1)
+            .short_message(short_message_2.clone())
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &short_message_2);
+        assert_eq!(submit_sm.sm_length(), short_message_2.length() as u8);
+    }
+
+    #[test]
+    fn message_payload_suppresses_short_message() {
+        let short_message = OctetString::new(b"Short Message").unwrap();
+        let message_payload = MessagePayload::new(AnyOctetString::new(b"Message Payload"));
+
+        // Using push_tlv
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message.clone())
+            .push_tlv(MessageDeliveryRequestTlvValue::MessagePayload(
+                message_payload.clone(),
+            ))
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &OctetString::empty());
+        assert_eq!(submit_sm.sm_length(), 0);
+
+        // Using tlvs
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message.clone())
+            .tlvs(vec![MessageDeliveryRequestTlvValue::MessagePayload(
+                message_payload.clone(),
+            )])
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &OctetString::empty());
+        assert_eq!(submit_sm.sm_length(), 0);
+
+        // Even setting the short message after the message payload should not set the short message
+        // Using push_tlv
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message.clone())
+            .push_tlv(MessageDeliveryRequestTlvValue::MessagePayload(
+                message_payload.clone(),
+            ))
+            .short_message(short_message.clone())
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &OctetString::empty());
+        assert_eq!(submit_sm.sm_length(), 0);
+
+        // Using tlvs
+        let submit_sm = DeliverSm::builder()
+            .short_message(short_message.clone())
+            .tlvs(vec![MessageDeliveryRequestTlvValue::MessagePayload(
+                message_payload.clone(),
+            )])
+            .short_message(short_message.clone())
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &OctetString::empty());
+        assert_eq!(submit_sm.sm_length(), 0);
+
+        // Removing the message payload and then setting the short message should set the short message
+        let submit_sm = DeliverSm::builder()
+            .push_tlv(MessageDeliveryRequestTlvValue::MessagePayload(
+                message_payload.clone(),
+            ))
+            .clear_tlvs()
+            .short_message(short_message.clone())
+            .build();
+
+        assert_eq!(submit_sm.short_message(), &short_message);
+        assert_eq!(submit_sm.sm_length(), short_message.length() as u8);
     }
 }

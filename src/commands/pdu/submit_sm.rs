@@ -368,7 +368,6 @@ mod tests {
         assert_eq!(submit_sm.sm_length(), short_message_2.length() as u8);
     }
 
-    // TODO: add the same test for every pdu that has a short message
     #[test]
     fn message_payload_suppresses_short_message() {
         let short_message = OctetString::new(b"Short Message").unwrap();

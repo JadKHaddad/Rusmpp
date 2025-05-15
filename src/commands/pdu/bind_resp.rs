@@ -6,6 +6,7 @@ use crate::{
 macro_rules! declare_bind_resp {
     ($name:ident, $builder_name:ident) => {
         crate::create! {
+            @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             pub struct $name {
                 /// MC identifier.
@@ -107,7 +108,47 @@ impl From<BindTransceiverResp> for Pdu {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for BindTransmitterResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp5_0))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindReceiverResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_4))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindTransceiverResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_3OrEarlier(1)))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

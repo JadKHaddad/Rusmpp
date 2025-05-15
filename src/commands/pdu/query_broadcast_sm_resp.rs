@@ -2,6 +2,7 @@ use super::Pdu;
 use crate::{tlvs::QueryBroadcastResponseTlv, types::COctetString};
 
 crate::create! {
+    @[skip_test]
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct QueryBroadcastSmResp {
         /// Message ID of the queried message. This must be the MC
@@ -89,7 +90,34 @@ impl QueryBroadcastSmRespBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::UserMessageReference, tests::TestInstance,
+        tlvs::QueryBroadcastResponseTlvValue, types::OctetString,
+    };
+
     use super::*;
+
+    impl TestInstance for QueryBroadcastSmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123").unwrap())
+                    .push_tlv(QueryBroadcastResponseTlvValue::BroadcastEndTime(
+                        OctetString::from_str("2023-10-01").unwrap(),
+                    ))
+                    .push_tlv(QueryBroadcastResponseTlvValue::UserMessageReference(
+                        UserMessageReference::new(69),
+                    ))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

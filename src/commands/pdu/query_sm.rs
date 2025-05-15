@@ -5,6 +5,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This command is issued by the ESME to query the status of a previously submitted short
     /// message.
     /// The matching mechanism is based on the MC assigned message_id and source address.
@@ -109,7 +110,25 @@ impl QuerySmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for QuerySm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("1234567890123456").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Addr").unwrap())
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

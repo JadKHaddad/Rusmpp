@@ -5,6 +5,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct QuerySmResp {
         /// MC Message ID of the message whose
@@ -93,7 +94,25 @@ impl QuerySmRespBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for QuerySmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .final_date(EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap())
+                    .message_state(MessageState::Delivered)
+                    .error_code(0)
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

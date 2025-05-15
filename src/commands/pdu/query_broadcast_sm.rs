@@ -6,6 +6,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This command is issued by the ESME to query the status of a previously submitted
     /// broadcast message. The message can be queried either on the basis of the Message Center
     /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
@@ -142,7 +143,32 @@ impl QueryBroadcastSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for QueryBroadcastSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678901234567890").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678901234567890").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .user_message_reference(Some(UserMessageReference::new(69)))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

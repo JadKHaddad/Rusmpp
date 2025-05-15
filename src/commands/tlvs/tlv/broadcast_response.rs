@@ -4,17 +4,41 @@ use crate::commands::{
     types::{broadcast_area_identifier::BroadcastAreaIdentifier, command_status::CommandStatus},
 };
 
+#[repr(u16)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum BroadcastResponseTlvTag {
-    BroadcastErrorStatus,
-    BroadcastAreaIdentifier,
+    BroadcastAreaIdentifier = 0x0606,
+    BroadcastErrorStatus = 0x0607,
+    Other(u16),
+}
+
+impl From<u16> for BroadcastResponseTlvTag {
+    fn from(tag: u16) -> Self {
+        match tag {
+            0x0606 => BroadcastResponseTlvTag::BroadcastAreaIdentifier,
+            0x0607 => BroadcastResponseTlvTag::BroadcastErrorStatus,
+
+            other => BroadcastResponseTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<BroadcastResponseTlvTag> for u16 {
+    fn from(tag: BroadcastResponseTlvTag) -> Self {
+        match tag {
+            BroadcastResponseTlvTag::BroadcastAreaIdentifier => 0x0606,
+            BroadcastResponseTlvTag::BroadcastErrorStatus => 0x0607,
+            BroadcastResponseTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<BroadcastResponseTlvTag> for TlvTag {
-    fn from(v: BroadcastResponseTlvTag) -> Self {
-        match v {
-            BroadcastResponseTlvTag::BroadcastErrorStatus => TlvTag::BroadcastErrorStatus,
+    fn from(tag: BroadcastResponseTlvTag) -> Self {
+        match tag {
             BroadcastResponseTlvTag::BroadcastAreaIdentifier => TlvTag::BroadcastAreaIdentifier,
+            BroadcastResponseTlvTag::BroadcastErrorStatus => TlvTag::BroadcastErrorStatus,
+            BroadcastResponseTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

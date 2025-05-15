@@ -18,12 +18,12 @@ mod tokio {
             command::Command,
             pdu::{submit_sm::SubmitSm, Pdu},
             types::{
-                command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
-                interface_version::InterfaceVersion, npi::Npi,
-                registered_delivery::RegisteredDelivery,
+                broadcast_area_identifier::BroadcastAreaFormat, command_status::CommandStatus,
+                data_coding::DataCoding, esm_class::EsmClass, interface_version::InterfaceVersion,
+                npi::Npi, registered_delivery::RegisteredDelivery,
                 replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-                AlertOnMessageDelivery, BroadcastMessageClass, MessagePayload,
-                MsAvailabilityStatus,
+                AlertOnMessageDelivery, BroadcastAreaIdentifier, BroadcastMessageClass,
+                MessagePayload, MsAvailabilityStatus,
             },
         },
         pdu::{
@@ -399,6 +399,36 @@ mod tokio {
                 BroadcastSm::builder()
                     .push_tlv(BroadcastRequestTlvValue::AlertOnMessageDelivery(
                         AlertOnMessageDelivery::UseMediumPriorityAlert,
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::Polygon,
+                            AnyOctetString::new(b"Polygon Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::AliasName,
+                            AnyOctetString::new(b"AliasName Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 2"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 3"),
+                        ),
                     ))
                     .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
                         BroadcastMessageClass::Class2,

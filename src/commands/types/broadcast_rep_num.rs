@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     /// This field indicates the number of repeated broadcasts requested by the Submitter.
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -24,8 +22,4 @@ impl From<BroadcastRepNum> for u8 {
     fn from(value: BroadcastRepNum) -> Self {
         value.value
     }
-}
-
-impl HasTlvTag for BroadcastRepNum {
-    const TAG: TlvTag = TlvTag::BroadcastRepNum;
 }

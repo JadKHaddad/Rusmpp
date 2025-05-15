@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -210,10 +208,6 @@ impl BroadcastContentType {
             encoding_content_type,
         }
     }
-}
-
-impl HasTlvTag for BroadcastContentType {
-    const TAG: TlvTag = TlvTag::BroadcastContentType;
 }
 
 #[cfg(test)]

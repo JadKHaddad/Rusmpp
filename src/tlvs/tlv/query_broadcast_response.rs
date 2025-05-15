@@ -6,6 +6,9 @@ mod tag {
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub enum QueryBroadcastResponseTlvTag {
+            MessageState = 0x0427,
+            BroadcastAreaIdentifier = 0x0606,
+            BroadcastAreaSuccess = 0x0608,
             UserMessageReference = 0x0204,
             BroadcastEndTime = 0x0609,
             Other(u16),
@@ -15,6 +18,9 @@ mod tag {
     impl From<u16> for QueryBroadcastResponseTlvTag {
         fn from(tag: u16) -> Self {
             match tag {
+                0x0427 => QueryBroadcastResponseTlvTag::MessageState,
+                0x0606 => QueryBroadcastResponseTlvTag::BroadcastAreaIdentifier,
+                0x0608 => QueryBroadcastResponseTlvTag::BroadcastAreaSuccess,
                 0x0204 => QueryBroadcastResponseTlvTag::UserMessageReference,
                 0x0609 => QueryBroadcastResponseTlvTag::BroadcastEndTime,
                 other => QueryBroadcastResponseTlvTag::Other(other),
@@ -25,6 +31,9 @@ mod tag {
     impl From<QueryBroadcastResponseTlvTag> for u16 {
         fn from(tag: QueryBroadcastResponseTlvTag) -> Self {
             match tag {
+                QueryBroadcastResponseTlvTag::MessageState => 0x0427,
+                QueryBroadcastResponseTlvTag::BroadcastAreaIdentifier => 0x0606,
+                QueryBroadcastResponseTlvTag::BroadcastAreaSuccess => 0x0608,
                 QueryBroadcastResponseTlvTag::UserMessageReference => 0x0204,
                 QueryBroadcastResponseTlvTag::BroadcastEndTime => 0x0609,
                 QueryBroadcastResponseTlvTag::Other(other) => other,
@@ -35,6 +44,11 @@ mod tag {
     impl From<QueryBroadcastResponseTlvTag> for TlvTag {
         fn from(tag: QueryBroadcastResponseTlvTag) -> Self {
             match tag {
+                QueryBroadcastResponseTlvTag::MessageState => TlvTag::MessageState,
+                QueryBroadcastResponseTlvTag::BroadcastAreaIdentifier => {
+                    TlvTag::BroadcastAreaIdentifier
+                }
+                QueryBroadcastResponseTlvTag::BroadcastAreaSuccess => TlvTag::BroadcastAreaSuccess,
                 QueryBroadcastResponseTlvTag::UserMessageReference => TlvTag::UserMessageReference,
                 QueryBroadcastResponseTlvTag::BroadcastEndTime => TlvTag::BroadcastEndTime,
                 QueryBroadcastResponseTlvTag::Other(other) => TlvTag::Other(other),
@@ -45,7 +59,9 @@ mod tag {
 
 mod value {
     use crate::{
-        commands::types::UserMessageReference,
+        commands::types::{
+            BroadcastAreaIdentifier, BroadcastAreaSuccess, MessageState, UserMessageReference,
+        },
         types::{AnyOctetString, OctetString},
     };
 
@@ -54,6 +70,9 @@ mod value {
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub enum QueryBroadcastResponseTlvValue {
+            MessageState(MessageState),
+            BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+            BroadcastAreaSuccess(BroadcastAreaSuccess),
             BroadcastEndTime(OctetString<0, 17>),
             UserMessageReference(UserMessageReference),
             @Other {

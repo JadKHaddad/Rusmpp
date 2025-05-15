@@ -6,6 +6,10 @@ mod tag {
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub enum BroadcastRequestTlvTag {
+            BroadcastAreaIdentifier = 0x0606,
+            BroadcastContentType = 0x0601,
+            BroadcastFrequencyInterval = 0x0605,
+            BroadcastRepNum = 0x0604,
             AlertOnMessageDelivery = 0x130C,
             BroadcastChannelIndicator = 0x0600,
             BroadcastContentTypeInfo = 0x0602,
@@ -35,6 +39,10 @@ mod tag {
     impl From<u16> for BroadcastRequestTlvTag {
         fn from(value: u16) -> Self {
             match value {
+                0x0606 => BroadcastRequestTlvTag::BroadcastAreaIdentifier,
+                0x0601 => BroadcastRequestTlvTag::BroadcastContentType,
+                0x0605 => BroadcastRequestTlvTag::BroadcastFrequencyInterval,
+                0x0604 => BroadcastRequestTlvTag::BroadcastRepNum,
                 0x130C => BroadcastRequestTlvTag::AlertOnMessageDelivery,
                 0x0600 => BroadcastRequestTlvTag::BroadcastChannelIndicator,
                 0x0602 => BroadcastRequestTlvTag::BroadcastContentTypeInfo,
@@ -65,6 +73,10 @@ mod tag {
     impl From<BroadcastRequestTlvTag> for u16 {
         fn from(tag: BroadcastRequestTlvTag) -> Self {
             match tag {
+                BroadcastRequestTlvTag::BroadcastAreaIdentifier => 0x0606,
+                BroadcastRequestTlvTag::BroadcastContentType => 0x0601,
+                BroadcastRequestTlvTag::BroadcastFrequencyInterval => 0x0605,
+                BroadcastRequestTlvTag::BroadcastRepNum => 0x0604,
                 BroadcastRequestTlvTag::AlertOnMessageDelivery => 0x130C,
                 BroadcastRequestTlvTag::BroadcastChannelIndicator => 0x0600,
                 BroadcastRequestTlvTag::BroadcastContentTypeInfo => 0x0602,
@@ -95,6 +107,12 @@ mod tag {
     impl From<BroadcastRequestTlvTag> for TlvTag {
         fn from(tag: BroadcastRequestTlvTag) -> Self {
             match tag {
+                BroadcastRequestTlvTag::BroadcastAreaIdentifier => TlvTag::BroadcastAreaIdentifier,
+                BroadcastRequestTlvTag::BroadcastContentType => TlvTag::BroadcastContentType,
+                BroadcastRequestTlvTag::BroadcastFrequencyInterval => {
+                    TlvTag::BroadcastFrequencyInterval
+                }
+                BroadcastRequestTlvTag::BroadcastRepNum => TlvTag::BroadcastRepNum,
                 BroadcastRequestTlvTag::AlertOnMessageDelivery => TlvTag::AlertOnMessageDelivery,
                 BroadcastRequestTlvTag::BroadcastChannelIndicator => {
                     TlvTag::BroadcastChannelIndicator
@@ -136,7 +154,8 @@ mod value {
             callback_num_pres_ind::CallbackNumPresInd, display_time::DisplayTime,
             language_indicator::LanguageIndicator, ms_validity::MsValidity,
             payload_type::PayloadType, privacy_indicator::PrivacyIndicator,
-            sub_address::Subaddress, MessagePayload, UserMessageReference,
+            sub_address::Subaddress, BroadcastAreaIdentifier, BroadcastContentType,
+            BroadcastFrequencyInterval, BroadcastRepNum, MessagePayload, UserMessageReference,
         },
         types::{AnyOctetString, OctetString},
     };
@@ -146,6 +165,10 @@ mod value {
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
         pub enum BroadcastRequestTlvValue {
+            BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+            BroadcastContentType(BroadcastContentType),
+            BroadcastFrequencyInterval(BroadcastFrequencyInterval),
+            BroadcastRepNum(BroadcastRepNum),
             AlertOnMessageDelivery(AlertOnMessageDelivery),
             BroadcastChannelIndicator(BroadcastChannelIndicator),
             BroadcastContentTypeInfo(OctetString<0, 255>),

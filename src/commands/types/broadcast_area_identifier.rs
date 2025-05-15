@@ -1,7 +1,4 @@
-use crate::{
-    tlvs::{HasTlvTag, TlvTag},
-    types::AnyOctetString,
-};
+use crate::types::AnyOctetString;
 
 crate::create! {
     #[repr(u8)]
@@ -51,10 +48,6 @@ impl BroadcastAreaIdentifier {
     pub fn new(format: BroadcastAreaFormat, area: AnyOctetString) -> Self {
         Self { format, area }
     }
-}
-
-impl HasTlvTag for BroadcastAreaIdentifier {
-    const TAG: TlvTag = TlvTag::BroadcastAreaIdentifier;
 }
 
 #[cfg(test)]

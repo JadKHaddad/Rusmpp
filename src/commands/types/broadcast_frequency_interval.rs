@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -63,10 +61,6 @@ impl BroadcastFrequencyInterval {
     pub fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
     }
-}
-
-impl HasTlvTag for BroadcastFrequencyInterval {
-    const TAG: TlvTag = TlvTag::BroadcastFrequencyInterval;
 }
 
 #[cfg(test)]

@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     /// The success rate indicator, defined as the ratio of the
@@ -33,10 +31,6 @@ impl From<u8> for BroadcastAreaSuccess {
             _ => Self::Other(value),
         }
     }
-}
-
-impl HasTlvTag for BroadcastAreaSuccess {
-    const TAG: TlvTag = TlvTag::BroadcastAreaSuccess;
 }
 
 #[cfg(test)]

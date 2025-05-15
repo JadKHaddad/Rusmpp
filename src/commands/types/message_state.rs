@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     /// This field indicates the current status of the broadcast message.
@@ -132,10 +130,6 @@ impl From<MessageState> for u8 {
             MessageState::Other(value) => value,
         }
     }
-}
-
-impl HasTlvTag for MessageState {
-    const TAG: TlvTag = TlvTag::MessageState;
 }
 
 #[cfg(test)]

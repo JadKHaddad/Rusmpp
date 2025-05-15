@@ -10,23 +10,50 @@ use crate::{
     types::COctetString,
 };
 
+#[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageSubmissionResponseTlvTag {
-    AdditionalStatusInfoText,
-    DeliveryFailureReason,
-    DpfResult,
-    NetworkErrorCode,
+    AdditionalStatusInfoText = 0x001D,
+    DpfResult = 0x0420,
+    NetworkErrorCode = 0x0423,
+    DeliveryFailureReason = 0x0425,
+    Other(u16),
+}
+
+impl From<u16> for MessageSubmissionResponseTlvTag {
+    fn from(tag: u16) -> Self {
+        match tag {
+            0x001D => MessageSubmissionResponseTlvTag::AdditionalStatusInfoText,
+            0x0420 => MessageSubmissionResponseTlvTag::DpfResult,
+            0x0423 => MessageSubmissionResponseTlvTag::NetworkErrorCode,
+            0x0425 => MessageSubmissionResponseTlvTag::DeliveryFailureReason,
+            other => MessageSubmissionResponseTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<MessageSubmissionResponseTlvTag> for u16 {
+    fn from(tag: MessageSubmissionResponseTlvTag) -> Self {
+        match tag {
+            MessageSubmissionResponseTlvTag::AdditionalStatusInfoText => 0x001D,
+            MessageSubmissionResponseTlvTag::DpfResult => 0x0420,
+            MessageSubmissionResponseTlvTag::NetworkErrorCode => 0x0423,
+            MessageSubmissionResponseTlvTag::DeliveryFailureReason => 0x0425,
+            MessageSubmissionResponseTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<MessageSubmissionResponseTlvTag> for TlvTag {
-    fn from(value: MessageSubmissionResponseTlvTag) -> Self {
-        match value {
+    fn from(tag: MessageSubmissionResponseTlvTag) -> Self {
+        match tag {
             MessageSubmissionResponseTlvTag::AdditionalStatusInfoText => {
                 TlvTag::AdditionalStatusInfoText
             }
-            MessageSubmissionResponseTlvTag::DeliveryFailureReason => TlvTag::DeliveryFailureReason,
             MessageSubmissionResponseTlvTag::DpfResult => TlvTag::DpfResult,
             MessageSubmissionResponseTlvTag::NetworkErrorCode => TlvTag::NetworkErrorCode,
+            MessageSubmissionResponseTlvTag::DeliveryFailureReason => TlvTag::DeliveryFailureReason,
+            MessageSubmissionResponseTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

@@ -9,21 +9,46 @@ use crate::{
     types::COctetString,
 };
 
+#[repr(u16)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageDeliveryResponseTlvTag {
-    AdditionalStatusInfoText,
-    DeliveryFailureReason,
-    NetworkErrorCode,
+    AdditionalStatusInfoText = 0x001D,
+    DeliveryFailureReason = 0x0425,
+    NetworkErrorCode = 0x0423,
+    Other(u16),
+}
+
+impl From<u16> for MessageDeliveryResponseTlvTag {
+    fn from(tag: u16) -> Self {
+        match tag {
+            0x001D => MessageDeliveryResponseTlvTag::AdditionalStatusInfoText,
+            0x0425 => MessageDeliveryResponseTlvTag::DeliveryFailureReason,
+            0x0423 => MessageDeliveryResponseTlvTag::NetworkErrorCode,
+            other => MessageDeliveryResponseTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<MessageDeliveryResponseTlvTag> for u16 {
+    fn from(tag: MessageDeliveryResponseTlvTag) -> Self {
+        match tag {
+            MessageDeliveryResponseTlvTag::AdditionalStatusInfoText => 0x001D,
+            MessageDeliveryResponseTlvTag::DeliveryFailureReason => 0x0425,
+            MessageDeliveryResponseTlvTag::NetworkErrorCode => 0x0423,
+            MessageDeliveryResponseTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<MessageDeliveryResponseTlvTag> for TlvTag {
-    fn from(value: MessageDeliveryResponseTlvTag) -> Self {
-        match value {
+    fn from(tag: MessageDeliveryResponseTlvTag) -> Self {
+        match tag {
             MessageDeliveryResponseTlvTag::AdditionalStatusInfoText => {
                 TlvTag::AdditionalStatusInfoText
             }
             MessageDeliveryResponseTlvTag::DeliveryFailureReason => TlvTag::DeliveryFailureReason,
             MessageDeliveryResponseTlvTag::NetworkErrorCode => TlvTag::NetworkErrorCode,
+            MessageDeliveryResponseTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

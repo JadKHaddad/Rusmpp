@@ -7,17 +7,40 @@ use crate::{
     types::OctetString,
 };
 
+#[repr(u16)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum QueryBroadcastResponseTlvTag {
-    BroadcastEndTime,
-    UserMessageReference,
+    UserMessageReference = 0x0204,
+    BroadcastEndTime = 0x0609,
+    Other(u16),
+}
+
+impl From<u16> for QueryBroadcastResponseTlvTag {
+    fn from(tag: u16) -> Self {
+        match tag {
+            0x0204 => QueryBroadcastResponseTlvTag::UserMessageReference,
+            0x0609 => QueryBroadcastResponseTlvTag::BroadcastEndTime,
+            other => QueryBroadcastResponseTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<QueryBroadcastResponseTlvTag> for u16 {
+    fn from(tag: QueryBroadcastResponseTlvTag) -> Self {
+        match tag {
+            QueryBroadcastResponseTlvTag::UserMessageReference => 0x0204,
+            QueryBroadcastResponseTlvTag::BroadcastEndTime => 0x0609,
+            QueryBroadcastResponseTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<QueryBroadcastResponseTlvTag> for TlvTag {
-    fn from(value: QueryBroadcastResponseTlvTag) -> Self {
-        match value {
-            QueryBroadcastResponseTlvTag::BroadcastEndTime => TlvTag::BroadcastEndTime,
+    fn from(tag: QueryBroadcastResponseTlvTag) -> Self {
+        match tag {
             QueryBroadcastResponseTlvTag::UserMessageReference => TlvTag::UserMessageReference,
+            QueryBroadcastResponseTlvTag::BroadcastEndTime => TlvTag::BroadcastEndTime,
+            QueryBroadcastResponseTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

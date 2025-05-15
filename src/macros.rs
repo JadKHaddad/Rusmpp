@@ -619,6 +619,7 @@ pub(super) use debug;
 pub(super) use error;
 pub(super) use trace;
 
+/// Creates a `TlvValue` like and implements `Length`, `Encode`, `DecodeWithKey` and `From<TlvValue>`.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! create_tlv_value {

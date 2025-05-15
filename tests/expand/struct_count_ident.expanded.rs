@@ -1,7 +1,32 @@
+/// Docs
+///
+/// More docs
 pub struct SubmitMulti {
+    /// Docs
+    ///
+    /// More docs
     pub other: u8,
     number_of_dests: u8,
+    /// Docs
+    ///
+    /// More docs
     dest_address: Vec<DestAddress>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for SubmitMulti {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "SubmitMulti",
+            "other",
+            &self.other,
+            "number_of_dests",
+            &self.number_of_dests,
+            "dest_address",
+            &&self.dest_address,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for SubmitMulti {
     fn length(&self) -> usize {

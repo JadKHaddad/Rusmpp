@@ -1,6 +1,29 @@
+/// Docs
+///
+/// More docs
 pub struct MsValidity {
+    /// Docs
+    ///
+    /// More docs
     pub validity_behavior: MsValidityBehavior,
+    /// Docs
+    ///
+    /// More docs
     pub validity_information: Option<MsValidityInformation>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for MsValidity {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "MsValidity",
+            "validity_behavior",
+            &self.validity_behavior,
+            "validity_information",
+            &&self.validity_information,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for MsValidity {
     fn length(&self) -> usize {

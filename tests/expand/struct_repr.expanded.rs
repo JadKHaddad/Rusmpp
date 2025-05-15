@@ -1,6 +1,26 @@
+/// Docs
+///
+/// More docs
 pub struct CallbackNumPresInd {
+    /// Docs
+    ///
+    /// More docs
     pub presentation: Presentation,
     pub screening: Screening,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for CallbackNumPresInd {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "CallbackNumPresInd",
+            "presentation",
+            &self.presentation,
+            "screening",
+            &&self.screening,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for CallbackNumPresInd {
     fn length(&self) -> usize {

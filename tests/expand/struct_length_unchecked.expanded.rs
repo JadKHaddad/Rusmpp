@@ -1,6 +1,29 @@
+/// Docs
+///
+/// More docs
 pub struct BroadcastAreaIdentifier {
+    /// Docs
+    ///
+    /// More docs
     pub format: BroadcastAreaFormat,
+    /// Docs
+    ///
+    /// More docs
     pub area: OctetString<0, 100>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for BroadcastAreaIdentifier {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "BroadcastAreaIdentifier",
+            "format",
+            &self.format,
+            "area",
+            &&self.area,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for BroadcastAreaIdentifier {
     fn length(&self) -> usize {

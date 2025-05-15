@@ -1,7 +1,32 @@
+/// Docs
+///
+/// More docs
 pub struct SubmitSm {
+    /// Docs
+    ///
+    /// More docs
     pub other: u8,
     sm_length: u8,
+    /// Docs
+    ///
+    /// More docs
     short_message: OctetString<0, 255>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for SubmitSm {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "SubmitSm",
+            "other",
+            &self.other,
+            "sm_length",
+            &self.sm_length,
+            "short_message",
+            &&self.short_message,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for SubmitSm {
     fn length(&self) -> usize {

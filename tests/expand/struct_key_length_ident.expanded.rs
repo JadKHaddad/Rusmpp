@@ -1,7 +1,32 @@
+/// Docs
+///
+/// More docs
 pub struct Tlv {
+    /// Docs
+    ///
+    /// More docs
     tag: TlvTag,
     value_length: u16,
+    /// Docs
+    ///
+    /// More docs
     value: Option<TlvValue>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for Tlv {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "Tlv",
+            "tag",
+            &self.tag,
+            "value_length",
+            &self.value_length,
+            "value",
+            &&self.value,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for Tlv {
     fn length(&self) -> usize {

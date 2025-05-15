@@ -1,6 +1,26 @@
+/// Docs
+///
+/// More docs
 pub struct DistributionListName {
+    /// Docs
+    ///
+    /// More docs
     dest_flag: DestFlag,
     pub dl_name: COctetString<1, 21>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for DistributionListName {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "DistributionListName",
+            "dest_flag",
+            &self.dest_flag,
+            "dl_name",
+            &&self.dl_name,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for DistributionListName {
     fn length(&self) -> usize {

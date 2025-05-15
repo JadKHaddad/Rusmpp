@@ -1,8 +1,35 @@
+/// Docs
+///
+/// More docs
 pub struct Command {
+    /// Docs
+    ///
+    /// More docs
     command_id: CommandId,
     pub command_status: CommandStatus,
     pub sequence_number: u32,
+    /// Docs
+    ///
+    /// More docs
     pdu: Option<Pdu>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for Command {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field4_finish(
+            f,
+            "Command",
+            "command_id",
+            &self.command_id,
+            "command_status",
+            &self.command_status,
+            "sequence_number",
+            &self.sequence_number,
+            "pdu",
+            &&self.pdu,
+        )
+    }
 }
 impl ::rusmpp::encode::Length for Command {
     fn length(&self) -> usize {

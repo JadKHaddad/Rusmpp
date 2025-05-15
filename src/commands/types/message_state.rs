@@ -135,9 +135,7 @@ impl From<MessageState> for u8 {
 }
 
 impl HasTlvTag for MessageState {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::MessageState
-    }
+    const TAG: TlvTag = TlvTag::MessageState;
 }
 
 #[cfg(test)]

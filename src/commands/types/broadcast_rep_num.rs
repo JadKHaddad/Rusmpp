@@ -27,7 +27,5 @@ impl From<BroadcastRepNum> for u8 {
 }
 
 impl HasTlvTag for BroadcastRepNum {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::BroadcastRepNum
-    }
+    const TAG: TlvTag = TlvTag::BroadcastRepNum;
 }

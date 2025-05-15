@@ -40,9 +40,7 @@ impl From<MsAvailabilityStatus> for u8 {
 }
 
 impl HasTlvTag for MsAvailabilityStatus {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::MsAvailabilityStatus
-    }
+    const TAG: TlvTag = TlvTag::MsAvailabilityStatus;
 }
 
 #[cfg(test)]

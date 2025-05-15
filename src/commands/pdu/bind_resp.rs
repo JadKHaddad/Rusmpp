@@ -1,6 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::{tlvs::tlv::KnownTlv, types::interface_version::InterfaceVersion},
+    commands::{tlvs::tlv::SingleTlv, types::interface_version::InterfaceVersion},
     types::COctetString,
 };
 
@@ -17,7 +17,7 @@ macro_rules! declare_bind_resp {
                 ///
                 /// `SMPP` version supported by MC.
                 @[length = checked]
-                sc_interface_version: Option<KnownTlv<InterfaceVersion>>,
+                sc_interface_version: Option<SingleTlv<InterfaceVersion>>,
             }
         }
 
@@ -32,12 +32,14 @@ macro_rules! declare_bind_resp {
                 }
             }
 
-            pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
-                self.sc_interface_version
-                    .as_ref()
-                    .map(|tlv| tlv.value())
-                    .copied()
-            }
+            //TODO: fix commented out code
+
+            // pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
+            //     self.sc_interface_version
+            //         .as_ref()
+            //         .map(|tlv| tlv.value())
+            //         .copied()
+            // }
 
             pub fn set_sc_interface_version(
                 &mut self,

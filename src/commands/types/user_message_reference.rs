@@ -33,7 +33,5 @@ impl From<UserMessageReference> for u16 {
 }
 
 impl HasTlvTag for UserMessageReference {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::UserMessageReference
-    }
+    const TAG: TlvTag = TlvTag::UserMessageReference;
 }

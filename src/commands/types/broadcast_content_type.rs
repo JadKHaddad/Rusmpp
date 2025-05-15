@@ -213,9 +213,7 @@ impl BroadcastContentType {
 }
 
 impl HasTlvTag for BroadcastContentType {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::BroadcastContentType
-    }
+    const TAG: TlvTag = TlvTag::BroadcastContentType;
 }
 
 #[cfg(test)]

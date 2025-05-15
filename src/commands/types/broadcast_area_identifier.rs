@@ -51,9 +51,7 @@ impl BroadcastAreaIdentifier {
 }
 
 impl HasTlvTag for BroadcastAreaIdentifier {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::BroadcastAreaIdentifier
-    }
+    const TAG: TlvTag = TlvTag::BroadcastAreaIdentifier;
 }
 
 #[cfg(test)]

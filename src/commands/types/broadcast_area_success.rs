@@ -36,9 +36,7 @@ impl From<u8> for BroadcastAreaSuccess {
 }
 
 impl HasTlvTag for BroadcastAreaSuccess {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::BroadcastAreaSuccess
-    }
+    const TAG: TlvTag = TlvTag::BroadcastAreaSuccess;
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::{query_broadcast_response::QueryBroadcastResponseTlv, KnownTlv, Tlv},
+        tlvs::tlv::{query_broadcast_response::QueryBroadcastResponseTlv, SingleTlv, Tlv},
         types::{
             broadcast_area_identifier::BroadcastAreaIdentifier,
             broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
@@ -19,19 +19,19 @@ crate::create! {
         /// returned in the broadcast_sm_resp PDU by the MC.
         pub message_id: COctetString<1, 65>,
         /// This field indicates the current status of the broadcast message.
-        message_state: KnownTlv<MessageState>,
+        message_state: SingleTlv<MessageState>,
         /// Identifies one or more target Broadcast Area(s) for which the
         /// status information applies.
         ///
         /// The number of instances of this parameter will be exactly equal
         /// to the number of occurrences of the broadcast_area_identifiers
         /// parameter in the corresponding broadcast_sm.
-        broadcast_area_identifier: KnownTlv<BroadcastAreaIdentifier>,
+        broadcast_area_identifier: SingleTlv<BroadcastAreaIdentifier>,
         /// The success rate indicator, defined as the ratio of the
         /// number of BTSs that accepted the message and the total
         /// number of BTSs that should have accepted the message, for
         /// a particular broadcast_area_identifier.
-        broadcast_area_success: KnownTlv<BroadcastAreaSuccess>,
+        broadcast_area_success: SingleTlv<BroadcastAreaSuccess>,
         /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
         @[length = unchecked]
         tlvs: Vec<Tlv>,
@@ -64,18 +64,18 @@ impl QueryBroadcastSmResp {
             tlvs,
         }
     }
-
-    pub fn message_state(&self) -> MessageState {
-        *self.message_state.value()
-    }
+    //TODO: fix commented out code
+    // pub fn message_state(&self) -> MessageState {
+    //     *self.message_state.value()
+    // }
 
     pub fn set_message_state(&mut self, message_state: MessageState) {
         self.message_state = message_state.into();
     }
 
-    pub fn broadcast_area_identifier(&self) -> &BroadcastAreaIdentifier {
-        self.broadcast_area_identifier.value()
-    }
+    // pub fn broadcast_area_identifier(&self) -> &BroadcastAreaIdentifier {
+    //     self.broadcast_area_identifier.value()
+    // }
 
     pub fn set_broadcast_area_identifier(
         &mut self,
@@ -84,9 +84,9 @@ impl QueryBroadcastSmResp {
         self.broadcast_area_identifier = broadcast_area_identifier.into();
     }
 
-    pub fn broadcast_area_success(&self) -> BroadcastAreaSuccess {
-        *self.broadcast_area_success.value()
-    }
+    // pub fn broadcast_area_success(&self) -> BroadcastAreaSuccess {
+    //     *self.broadcast_area_success.value()
+    // }
 
     pub fn set_broadcast_area_success(&mut self, broadcast_area_success: BroadcastAreaSuccess) {
         self.broadcast_area_success = broadcast_area_success.into();

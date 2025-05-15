@@ -66,9 +66,7 @@ impl BroadcastFrequencyInterval {
 }
 
 impl HasTlvTag for BroadcastFrequencyInterval {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::BroadcastFrequencyInterval
-    }
+    const TAG: TlvTag = TlvTag::BroadcastFrequencyInterval;
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::KnownTlv,
+        tlvs::tlv::SingleTlv,
         types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload},
     },
     encode::Length,
@@ -73,7 +73,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message replacement request TLVs.
         @[length = checked]
-        message_payload: Option<KnownTlv<MessagePayload>>,
+        message_payload: Option<SingleTlv<MessagePayload>>,
     }
 }
 
@@ -132,9 +132,10 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn message_payload(&self) -> Option<&MessagePayload> {
-        self.message_payload.as_ref().map(|tlv| tlv.value())
-    }
+    //TODO: fix commented out code
+    // pub fn message_payload(&self) -> Option<&MessagePayload> {
+    //     self.message_payload.as_ref().map(|tlv| tlv.value())
+    // }
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.

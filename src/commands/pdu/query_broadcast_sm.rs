@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::KnownTlv,
+        tlvs::tlv::SingleTlv,
         types::{npi::Npi, ton::Ton, UserMessageReference},
     },
     types::COctetString,
@@ -47,7 +47,7 @@ crate::create! {
         ///
         /// ESME assigned message reference number.
         @[length = checked]
-        user_message_reference: Option<KnownTlv<UserMessageReference>>,
+        user_message_reference: Option<SingleTlv<UserMessageReference>>,
     }
 }
 
@@ -70,12 +70,13 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub fn user_message_reference(&self) -> Option<UserMessageReference> {
-        self.user_message_reference
-            .as_ref()
-            .map(|tlv| tlv.value())
-            .copied()
-    }
+    //TODO: fix commented out code
+    // pub fn user_message_reference(&self) -> Option<UserMessageReference> {
+    //     self.user_message_reference
+    //         .as_ref()
+    //         .map(|tlv| tlv.value())
+    //         .copied()
+    // }
 
     pub fn set_user_message_reference(
         &mut self,

@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::{
-        tlvs::tlv::{broadcast_request::BroadcastRequestTlv, KnownTlv, Tlv},
+        tlvs::tlv::{broadcast_request::BroadcastRequestTlv, SingleTlv, Tlv},
         types::{
             broadcast_area_identifier::BroadcastAreaIdentifier,
             broadcast_content_type::BroadcastContentType,
@@ -89,21 +89,21 @@ crate::create! {
         ///
         /// This parameter can be included a number of times
         /// for multiple target Broadcast Areas(s).
-        broadcast_area_identifier: KnownTlv<BroadcastAreaIdentifier>,
+        broadcast_area_identifier: SingleTlv<BroadcastAreaIdentifier>,
         /// [`TLVValue::BroadcastContentType`].
         ///
         /// Specifies the content type of the message.
-        broadcast_content_type: KnownTlv<BroadcastContentType>,
+        broadcast_content_type: SingleTlv<BroadcastContentType>,
         /// [`TLVValue::BroadcastRepNum`].
         ///
         /// This field indicates the number of repeated
         /// broadcasts of a message requested by the submitter.
-        broadcast_rep_num: KnownTlv<BroadcastRepNum>,
+        broadcast_rep_num: SingleTlv<BroadcastRepNum>,
         /// [`TLVValue::BroadcastFrequencyInterval`].
         ///
         /// This field indicates the frequency interval at which
         /// the broadcasts of a message should be repeated.
-        broadcast_frequency_interval: KnownTlv<BroadcastFrequencyInterval>,
+        broadcast_frequency_interval: SingleTlv<BroadcastFrequencyInterval>,
         /// Broadcast request TLVs ([`BroadcastRequestTLV`]).
         @[length = unchecked]
         tlvs: Vec<Tlv>,
@@ -162,9 +162,9 @@ impl BroadcastSm {
         }
     }
 
-    pub fn broadcast_area_identifier(&self) -> &BroadcastAreaIdentifier {
-        self.broadcast_area_identifier.value()
-    }
+    // pub fn broadcast_area_identifier(&self) -> &BroadcastAreaIdentifier {
+    //     self.broadcast_area_identifier.value()
+    // }
 
     pub fn set_broadcast_area_identifier(
         &mut self,
@@ -173,25 +173,25 @@ impl BroadcastSm {
         self.broadcast_area_identifier = broadcast_area_identifier.into();
     }
 
-    pub fn broadcast_content_type(&self) -> BroadcastContentType {
-        *self.broadcast_content_type.value()
-    }
+    // pub fn broadcast_content_type(&self) -> BroadcastContentType {
+    //     *self.broadcast_content_type.value()
+    // }
 
     pub fn set_broadcast_content_type(&mut self, broadcast_content_type: BroadcastContentType) {
         self.broadcast_content_type = broadcast_content_type.into();
     }
 
-    pub fn broadcast_rep_num(&self) -> BroadcastRepNum {
-        *self.broadcast_rep_num.value()
-    }
+    // pub fn broadcast_rep_num(&self) -> BroadcastRepNum {
+    //     *self.broadcast_rep_num.value()
+    // }
 
     pub fn set_broadcast_rep_num(&mut self, broadcast_rep_num: BroadcastRepNum) {
         self.broadcast_rep_num = broadcast_rep_num.into();
     }
 
-    pub fn broadcast_frequency_interval(&self) -> BroadcastFrequencyInterval {
-        *self.broadcast_frequency_interval.value()
-    }
+    // pub fn broadcast_frequency_interval(&self) -> BroadcastFrequencyInterval {
+    //     *self.broadcast_frequency_interval.value()
+    // }
 
     pub fn set_broadcast_frequency_interval(
         &mut self,

@@ -27,7 +27,5 @@ impl From<MessagePayload> for AnyOctetString {
 }
 
 impl HasTlvTag for MessagePayload {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::MessagePayload
-    }
+    const TAG: TlvTag = TlvTag::MessagePayload;
 }

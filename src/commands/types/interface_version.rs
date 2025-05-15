@@ -35,9 +35,7 @@ impl From<u8> for InterfaceVersion {
 }
 
 impl HasTlvTag for InterfaceVersion {
-    fn tlv_tag() -> TlvTag {
-        TlvTag::ScInterfaceVersion
-    }
+    const TAG: TlvTag = TlvTag::ScInterfaceVersion;
 }
 
 #[cfg(test)]

@@ -9,6 +9,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -235,7 +236,67 @@ impl BroadcastSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{
+            priority_flag::{Ansi136, GsmSms, PriorityFlagType},
+            service_type::GenericServiceType,
+            LanguageIndicator,
+        },
+        tests::TestInstance,
+        tlvs::BroadcastRequestTlvValue,
+        types::OctetString,
+    };
+
     use super::*;
+
+    impl TestInstance for BroadcastSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::new(
+                        GenericServiceType::CellularMessaging.into(),
+                    ))
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("SourceAddr").unwrap())
+                    .message_id(COctetString::from_str("MessageId").unwrap())
+                    .priority_flag(PriorityFlag::from(PriorityFlagType::from(GsmSms::from(1))))
+                    .schedule_delivery_time(EmptyOrFullCOctetString::empty())
+                    .validity_period(EmptyOrFullCOctetString::empty())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::Replace)
+                    .data_coding(DataCoding::LatinHebrew)
+                    .sm_default_msg_id(0)
+                    .build(),
+                Self::builder()
+                    .service_type(ServiceType::new(
+                        GenericServiceType::UnstructuredSupplementaryServicesData.into(),
+                    ))
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("SourceAddr").unwrap())
+                    .message_id(COctetString::from_str("MessageId").unwrap())
+                    .priority_flag(PriorityFlag::from(PriorityFlagType::from(Ansi136::Bulk)))
+                    .schedule_delivery_time(
+                        EmptyOrFullCOctetString::new(b"2023-10-01T00:00\0").unwrap(),
+                    )
+                    .validity_period(EmptyOrFullCOctetString::empty())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::DoNotReplace)
+                    .data_coding(DataCoding::GsmMessageClassControl)
+                    .sm_default_msg_id(255)
+                    .tlvs(vec![
+                        BroadcastRequestTlvValue::CallbackNum(
+                            OctetString::from_str("1234567890").unwrap(),
+                        ),
+                        BroadcastRequestTlvValue::LanguageIndicator(LanguageIndicator::German),
+                        BroadcastRequestTlvValue::SmsSignal(1024),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

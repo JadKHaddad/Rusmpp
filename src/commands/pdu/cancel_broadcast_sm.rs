@@ -6,6 +6,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This command is issued by the ESME to cancel a broadcast message which has been
     /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
     /// pending delivery.
@@ -167,7 +168,51 @@ impl CancelBroadcastSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{
+            broadcast_content_type::{EncodingContentType, TypeOfNetwork},
+            BroadcastContentType, UserMessageReference,
+        },
+        tests::TestInstance,
+        tlvs::{CancelBroadcastTlvTag, CancelBroadcastTlvValue},
+        types::AnyOctetString,
+    };
+
     use super::*;
+
+    impl TestInstance for CancelBroadcastSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::default())
+                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Ermes)
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .source_addr(COctetString::from_str("1234567890").unwrap())
+                    .tlvs(vec![
+                        CancelBroadcastTlvValue::BroadcastContentType(BroadcastContentType::new(
+                            TypeOfNetwork::Gsm,
+                            EncodingContentType::BusinessFinancialNewsInternational,
+                        )),
+                        CancelBroadcastTlvValue::UserMessageReference(UserMessageReference::new(
+                            16,
+                        )),
+                        CancelBroadcastTlvValue::Other {
+                            tag: CancelBroadcastTlvTag::Other(0xF00D),
+                            value: AnyOctetString::new(b"FOOD"),
+                        },
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

@@ -2,6 +2,7 @@ use super::Pdu;
 use crate::{tlvs::BroadcastResponseTlv, types::COctetString};
 
 crate::create! {
+    @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct BroadcastSmResp {
         /// This field contains the MC message ID of the submitted
@@ -88,7 +89,46 @@ impl BroadcastSmRespBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{
+            broadcast_area_identifier::BroadcastAreaFormat, BroadcastAreaIdentifier,
+        },
+        tests::TestInstance,
+        tlvs::BroadcastResponseTlvValue,
+        types::AnyOctetString,
+        CommandStatus,
+    };
+
     use super::*;
+
+    impl TestInstance for BroadcastSmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
+                    .push_tlv(BroadcastResponseTlvValue::BroadcastErrorStatus(CommandStatus::EsmeRalybnd))
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
+                    .tlvs(vec![
+                        BroadcastResponseTlvValue::BroadcastErrorStatus(CommandStatus::EsmeRbcastcancelfail),
+                        BroadcastResponseTlvValue::BroadcastAreaIdentifier(
+                            BroadcastAreaIdentifier::new(
+                                BroadcastAreaFormat::Polygon,
+                                AnyOctetString::new(b"Polygon Area"),
+                            )
+                        ),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

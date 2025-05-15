@@ -15,36 +15,98 @@ use crate::{
     types::OctetString,
 };
 
+#[repr(u16)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum BroadcastRequestTlvTag {
-    AlertOnMsgDelivery,
-    BroadcastChannelIndicator,
-    BroadcastContentTypeInfo,
-    BroadcastMessageClass,
-    BroadcastServiceGroup,
-    CallbackNum,
-    CallbackNumAtag,
-    CallbackNumPresInd,
-    DestAddrSubunit,
-    DestSubaddress,
-    DestPort,
-    DisplayTime,
-    LanguageIndicator,
-    MessagePayload,
-    MsValidity,
-    PayloadType,
-    PrivacyIndicator,
-    SmsSignal,
-    SourceAddrSubunit,
-    SourcePort,
-    SourceSubaddress,
-    UserMessageReference,
+    AlertOnMessageDelivery = 0x130C,
+    BroadcastChannelIndicator = 0x0600,
+    BroadcastContentTypeInfo = 0x0602,
+    BroadcastMessageClass = 0x0603,
+    BroadcastServiceGroup = 0x060A,
+    CallbackNum = 0x0381,
+    CallbackNumAtag = 0x0303,
+    CallbackNumPresInd = 0x0302,
+    DestAddrSubunit = 0x0005,
+    DestSubaddress = 0x0203,
+    DestPort = 0x020B,
+    DisplayTime = 0x1201,
+    LanguageIndicator = 0x020D,
+    MessagePayload = 0x0424,
+    MsValidity = 0x1204,
+    PayloadType = 0x0019,
+    PrivacyIndicator = 0x0201,
+    SmsSignal = 0x1203,
+    SourceAddrSubunit = 0x000D,
+    SourcePort = 0x020A,
+    SourceSubaddress = 0x0202,
+    UserMessageReference = 0x0204,
+    Other(u16),
+}
+
+impl From<u16> for BroadcastRequestTlvTag {
+    fn from(value: u16) -> Self {
+        match value {
+            0x130C => BroadcastRequestTlvTag::AlertOnMessageDelivery,
+            0x0600 => BroadcastRequestTlvTag::BroadcastChannelIndicator,
+            0x0602 => BroadcastRequestTlvTag::BroadcastContentTypeInfo,
+            0x0603 => BroadcastRequestTlvTag::BroadcastMessageClass,
+            0x060A => BroadcastRequestTlvTag::BroadcastServiceGroup,
+            0x0381 => BroadcastRequestTlvTag::CallbackNum,
+            0x0303 => BroadcastRequestTlvTag::CallbackNumAtag,
+            0x0302 => BroadcastRequestTlvTag::CallbackNumPresInd,
+            0x0005 => BroadcastRequestTlvTag::DestAddrSubunit,
+            0x0203 => BroadcastRequestTlvTag::DestSubaddress,
+            0x020B => BroadcastRequestTlvTag::DestPort,
+            0x1201 => BroadcastRequestTlvTag::DisplayTime,
+            0x020D => BroadcastRequestTlvTag::LanguageIndicator,
+            0x0424 => BroadcastRequestTlvTag::MessagePayload,
+            0x1204 => BroadcastRequestTlvTag::MsValidity,
+            0x0019 => BroadcastRequestTlvTag::PayloadType,
+            0x0201 => BroadcastRequestTlvTag::PrivacyIndicator,
+            0x1203 => BroadcastRequestTlvTag::SmsSignal,
+            0x000D => BroadcastRequestTlvTag::SourceAddrSubunit,
+            0x020A => BroadcastRequestTlvTag::SourcePort,
+            0x0202 => BroadcastRequestTlvTag::SourceSubaddress,
+            0x0204 => BroadcastRequestTlvTag::UserMessageReference,
+            other => BroadcastRequestTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<BroadcastRequestTlvTag> for u16 {
+    fn from(tag: BroadcastRequestTlvTag) -> Self {
+        match tag {
+            BroadcastRequestTlvTag::AlertOnMessageDelivery => 0x130C,
+            BroadcastRequestTlvTag::BroadcastChannelIndicator => 0x0600,
+            BroadcastRequestTlvTag::BroadcastContentTypeInfo => 0x0602,
+            BroadcastRequestTlvTag::BroadcastMessageClass => 0x0603,
+            BroadcastRequestTlvTag::BroadcastServiceGroup => 0x060A,
+            BroadcastRequestTlvTag::CallbackNum => 0x0381,
+            BroadcastRequestTlvTag::CallbackNumAtag => 0x0303,
+            BroadcastRequestTlvTag::CallbackNumPresInd => 0x0302,
+            BroadcastRequestTlvTag::DestAddrSubunit => 0x0005,
+            BroadcastRequestTlvTag::DestSubaddress => 0x0203,
+            BroadcastRequestTlvTag::DestPort => 0x020B,
+            BroadcastRequestTlvTag::DisplayTime => 0x1201,
+            BroadcastRequestTlvTag::LanguageIndicator => 0x020D,
+            BroadcastRequestTlvTag::MessagePayload => 0x0424,
+            BroadcastRequestTlvTag::MsValidity => 0x1204,
+            BroadcastRequestTlvTag::PayloadType => 0x0019,
+            BroadcastRequestTlvTag::PrivacyIndicator => 0x0201,
+            BroadcastRequestTlvTag::SmsSignal => 0x1203,
+            BroadcastRequestTlvTag::SourceAddrSubunit => 0x000D,
+            BroadcastRequestTlvTag::SourcePort => 0x020A,
+            BroadcastRequestTlvTag::SourceSubaddress => 0x0202,
+            BroadcastRequestTlvTag::UserMessageReference => 0x0204,
+            BroadcastRequestTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<BroadcastRequestTlvTag> for TlvTag {
-    fn from(v: BroadcastRequestTlvTag) -> Self {
-        match v {
-            BroadcastRequestTlvTag::AlertOnMsgDelivery => TlvTag::AlertOnMessageDelivery,
+    fn from(tag: BroadcastRequestTlvTag) -> Self {
+        match tag {
+            BroadcastRequestTlvTag::AlertOnMessageDelivery => TlvTag::AlertOnMessageDelivery,
             BroadcastRequestTlvTag::BroadcastChannelIndicator => TlvTag::BroadcastChannelIndicator,
             BroadcastRequestTlvTag::BroadcastContentTypeInfo => TlvTag::BroadcastContentTypeInfo,
             BroadcastRequestTlvTag::BroadcastMessageClass => TlvTag::BroadcastMessageClass,
@@ -66,6 +128,7 @@ impl From<BroadcastRequestTlvTag> for TlvTag {
             BroadcastRequestTlvTag::SourcePort => TlvTag::SourcePort,
             BroadcastRequestTlvTag::SourceSubaddress => TlvTag::SourceSubaddress,
             BroadcastRequestTlvTag::UserMessageReference => TlvTag::UserMessageReference,
+            BroadcastRequestTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

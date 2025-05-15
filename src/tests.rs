@@ -29,7 +29,6 @@ where
 
         let size = original.encode(buf);
 
-        crate::debug!(encoded=?original);
         crate::debug!(encoded=?crate::utils::HexFormatter(&buf[..size]), encoded_length=size);
 
         let (decoded, _size) = T::decode(&buf[..size]).expect("Failed to decode");
@@ -58,7 +57,6 @@ where
 
         let size = original.encode(buf);
 
-        crate::debug!(encoded=?original);
         crate::debug!(encoded=?crate::utils::HexFormatter(&buf[..size]), encoded_length=size);
 
         let (decoded, _size) =

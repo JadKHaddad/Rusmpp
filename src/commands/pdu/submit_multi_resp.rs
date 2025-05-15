@@ -5,6 +5,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMultiResp {
         /// This field contains the MC message ID of the submitted
@@ -150,11 +151,45 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{Npi, Ton},
+        commands::types::{
+            network_error_code::ErrorCodeNetworkType, DpfResult, NetworkErrorCode, Npi, Ton,
+        },
+        tests::TestInstance,
+        tlvs::MessageSubmissionResponseTlvValue,
         CommandStatus,
     };
 
     use super::*;
+
+    impl TestInstance for SubmitMultiResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .push_unsuccess_sme(UnsuccessSme::default())
+                    .push_unsuccess_sme(UnsuccessSme::new(
+                        Ton::International,
+                        Npi::Data,
+                        COctetString::from_str("1234567890").unwrap(),
+                        CommandStatus::EsmeRunknownerr,
+                    ))
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .push_tlv(MessageSubmissionResponseTlvValue::DpfResult(
+                        DpfResult::NotSet,
+                    ))
+                    .push_tlv(MessageSubmissionResponseTlvValue::NetworkErrorCode(
+                        NetworkErrorCode::new(ErrorCodeNetworkType::Is95AccessDeniedReason, 0x01),
+                    ))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

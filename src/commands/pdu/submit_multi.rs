@@ -11,6 +11,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitMulti {
         /// The service_type parameter can be used to indicate the
@@ -269,11 +270,6 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn number_of_dests(mut self, number_of_dests: u8) -> Self {
-        self.inner.number_of_dests = number_of_dests;
-        self
-    }
-
     pub fn dest_address(mut self, dest_address: Vec<DestAddress>) -> Self {
         self.inner.set_dest_address(dest_address);
         self
@@ -367,16 +363,66 @@ impl SubmitMultiBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use crate::{
         commands::types::{
             dest_address::{DistributionListName, SmeAddress},
             MessagePayload,
         },
+        tests::TestInstance,
         tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
     };
 
     use super::*;
+
+    impl TestInstance for SubmitMulti {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::default())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Address").unwrap())
+                    .esm_class(EsmClass::default())
+                    .protocol_id(0)
+                    .priority_flag(PriorityFlag::default())
+                    .schedule_delivery_time(EmptyOrFullCOctetString::empty())
+                    .validity_period(EmptyOrFullCOctetString::empty())
+                    .registered_delivery(RegisteredDelivery::default())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::default())
+                    .data_coding(DataCoding::default())
+                    .sm_default_msg_id(0)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .build(),
+                Self::builder()
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    ))
+                    .build(),
+                Self::builder()
+                    .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
+                        Ton::International,
+                        Npi::Isdn,
+                        COctetString::new(b"1234567890123456789\0").unwrap(),
+                    )))
+                    .push_dest_address(DestAddress::DistributionListName(
+                        DistributionListName::new(
+                            COctetString::new(b"1234567890123456789\0").unwrap(),
+                        ),
+                    ))
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    ))
+                    .push_tlv(MessageSubmissionRequestTlvValue::DestTelematicsId(16))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

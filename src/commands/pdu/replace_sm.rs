@@ -9,6 +9,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This command is issued by the ESME to replace a previously submitted short message that
     /// is pending delivery. The matching mechanism is based on the message_id and source
     /// address of the original message.
@@ -242,9 +243,54 @@ impl ReplaceSmBuilder {
 
 #[cfg(test)]
 mod tests {
-    use crate::{commands::types::MessagePayload, types::AnyOctetString};
+    use std::str::FromStr;
+
+    use crate::{commands::types::MessagePayload, tests::TestInstance, types::AnyOctetString};
 
     use super::*;
+
+    impl TestInstance for ReplaceSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Addr").unwrap())
+                    .schedule_delivery_time(
+                        EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap(),
+                    )
+                    .validity_period(EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap())
+                    .registered_delivery(RegisteredDelivery::default())
+                    .sm_default_msg_id(0)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Addr").unwrap())
+                    .schedule_delivery_time(
+                        EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap(),
+                    )
+                    .validity_period(EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap())
+                    .registered_delivery(RegisteredDelivery::default())
+                    .sm_default_msg_id(0)
+                    .message_payload(Some(MessagePayload::new(AnyOctetString::new(
+                        b"Message Payload",
+                    ))))
+                    .build(),
+                Self::builder()
+                    .validity_period(EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap())
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .message_payload(Some(MessagePayload::new(AnyOctetString::new(
+                        b"Message Payload",
+                    ))))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

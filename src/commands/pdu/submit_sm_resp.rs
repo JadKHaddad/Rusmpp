@@ -2,6 +2,7 @@ use super::Pdu;
 use crate::{tlvs::MessageSubmissionResponseTlv, types::COctetString};
 
 crate::create! {
+    @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub struct SubmitSmResp {
         /// This field contains the MC message ID of the submitted message.
@@ -92,7 +93,36 @@ impl SubmitSmRespBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::DeliveryFailureReason, tests::TestInstance,
+        tlvs::MessageSubmissionResponseTlvValue,
+    };
+
     use super::*;
+
+    impl TestInstance for SubmitSmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("12345678901234567890123").unwrap())
+                    .tlvs(vec![
+                        MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(
+                            COctetString::from_str("Octets indeed").unwrap(),
+                        ),
+                        MessageSubmissionResponseTlvValue::DeliveryFailureReason(
+                            DeliveryFailureReason::TemporaryNetworkError,
+                        ),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

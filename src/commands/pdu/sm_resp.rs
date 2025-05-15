@@ -4,6 +4,7 @@ use crate::{tlvs::MessageDeliveryResponseTlv, types::COctetString};
 macro_rules! declare_sm_resp {
     ($name:ident, $builder_name:ident) => {
         crate::create! {
+            @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             pub struct $name {
                 /// This field contains the MC message ID of the submitted message.
@@ -96,7 +97,62 @@ impl From<DataSmResp> for Pdu {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{
+            network_error_code::ErrorCodeNetworkType, DeliveryFailureReason, NetworkErrorCode,
+        },
+        tests::TestInstance,
+        tlvs::MessageDeliveryResponseTlvValue,
+    };
+
     use super::*;
+
+    impl TestInstance for DeliverSmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .tlvs(vec![
+                        MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
+                            COctetString::from_str("Octets").unwrap(),
+                        ),
+                        MessageDeliveryResponseTlvValue::DeliveryFailureReason(
+                            DeliveryFailureReason::TemporaryNetworkError,
+                        ),
+                    ])
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for DataSmResp {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .build(),
+                Self::builder()
+                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .tlvs(vec![
+                        MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
+                            COctetString::from_str("Octets on steroids").unwrap(),
+                        ),
+                        MessageDeliveryResponseTlvValue::NetworkErrorCode(NetworkErrorCode::new(
+                            ErrorCodeNetworkType::SmppError,
+                            1,
+                        )),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

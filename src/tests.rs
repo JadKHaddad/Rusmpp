@@ -3,8 +3,6 @@ use crate::{
     encode::Encode,
 };
 
-// TODO: now test every pdu with weird create! attributes like @[length = attr] and @[count = attr]
-
 /// Trait for creating test instances of a type.
 pub trait TestInstance: Sized {
     /// Create test instances of the type.

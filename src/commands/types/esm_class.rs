@@ -1,5 +1,6 @@
 crate::create! {
     @[repr = u8]
+    @[skip_test]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct EsmClass {
         pub messaging_mode: MessagingMode,
@@ -89,7 +90,7 @@ crate::create! {
         #[default]
         Default = 0b00_00_00_00,
         ShortMessageContainsMCDeliveryReceipt = 0b00_00_01_00,
-        ShortMessageContainsIntermediateDeliveryNotification = 0b00_00_10_00,
+        ShortMessageContainsIntermediateDeliveryNotification = 0b00_10_00_00,
         Other(u8),
     }
 }
@@ -99,7 +100,7 @@ impl From<u8> for MessageType {
         match value {
             0b00_00_00_00 => MessageType::Default,
             0b00_00_01_00 => MessageType::ShortMessageContainsMCDeliveryReceipt,
-            0b00_00_10_00 => MessageType::ShortMessageContainsIntermediateDeliveryNotification,
+            0b00_10_00_00 => MessageType::ShortMessageContainsIntermediateDeliveryNotification,
             _ => MessageType::Other(value),
         }
     }
@@ -110,7 +111,7 @@ impl From<MessageType> for u8 {
         match value {
             MessageType::Default => 0b00_00_00_00,
             MessageType::ShortMessageContainsMCDeliveryReceipt => 0b00_00_01_00,
-            MessageType::ShortMessageContainsIntermediateDeliveryNotification => 0b00_00_10_00,
+            MessageType::ShortMessageContainsIntermediateDeliveryNotification => 0b00_10_00_00,
             MessageType::Other(value) => value,
         }
     }
@@ -189,7 +190,29 @@ impl From<GsmFeatures> for u8 {
 
 #[cfg(test)]
 mod tests {
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for EsmClass {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::new(
+                    MessagingMode::Forward,
+                    MessageType::ShortMessageContainsIntermediateDeliveryNotification,
+                    Ansi41Specific::ShortMessageContainsConversationAbort,
+                    GsmFeatures::UdhiIndicator,
+                ),
+                Self::new(
+                    MessagingMode::Datagram,
+                    MessageType::ShortMessageContainsMCDeliveryReceipt,
+                    Ansi41Specific::ShortMessageContainsUserAcknowledgment,
+                    GsmFeatures::UdhiIndicator,
+                ),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

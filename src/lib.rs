@@ -87,3 +87,7 @@ mod dev;
 pub(crate) use macros::debug;
 pub(crate) use macros::error;
 pub(crate) use macros::trace;
+
+// TODO: no std
+// TODO: rework the exports
+// TODO: do the fuzz

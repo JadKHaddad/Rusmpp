@@ -11,6 +11,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -330,12 +331,105 @@ impl SubmitSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use crate::{
-        commands::types::MessagePayload, tlvs::MessageSubmissionRequestTlvValue,
+        commands::types::{
+            esm_class::{Ansi41Specific, GsmFeatures, MessageType, MessagingMode},
+            priority_flag::{Ansi136, PriorityFlagType},
+            service_type::GenericServiceType,
+            sub_address::SubaddressTag,
+            BearerType, MessagePayload, Subaddress,
+        },
+        tests::TestInstance,
+        tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
     };
 
     use super::*;
+
+    impl TestInstance for SubmitSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::new(
+                        GenericServiceType::CellularMessaging.into(),
+                    ))
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Address").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::from_str("Destination Address").unwrap())
+                    .esm_class(EsmClass::new(
+                        MessagingMode::StoreAndForward,
+                        MessageType::ShortMessageContainsMCDeliveryReceipt,
+                        Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement,
+                        GsmFeatures::SetUdhiAndReplyPath,
+                    ))
+                    .protocol_id(0)
+                    .priority_flag(PriorityFlag::from(PriorityFlagType::from(Ansi136::Bulk)))
+                    .schedule_delivery_time(
+                        EmptyOrFullCOctetString::new(b"2023-09-01T12:00\0").unwrap(),
+                    )
+                    .validity_period(EmptyOrFullCOctetString::from_str("2023-10-01T12:00").unwrap())
+                    .registered_delivery(RegisteredDelivery::request_all())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::Replace)
+                    .data_coding(DataCoding::Ksc5601)
+                    .sm_default_msg_id(69)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .build(),
+                Self::builder()
+                    .service_type(ServiceType::new(
+                        GenericServiceType::CellularMessaging.into(),
+                    ))
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::new(b"Source Address\0").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::new(b"Destination Address\0").unwrap())
+                    .esm_class(EsmClass::new(
+                        MessagingMode::Default,
+                        MessageType::ShortMessageContainsIntermediateDeliveryNotification,
+                        Ansi41Specific::ShortMessageContainsUserAcknowledgment,
+                        GsmFeatures::SetUdhiAndReplyPath,
+                    ))
+                    .protocol_id(0)
+                    .priority_flag(PriorityFlag::from(PriorityFlagType::from(
+                        Ansi136::VeryUrgent,
+                    )))
+                    .schedule_delivery_time(
+                        EmptyOrFullCOctetString::new(b"2023-09-01T12:01\0").unwrap(),
+                    )
+                    .validity_period(EmptyOrFullCOctetString::from_str("2023-10-01T12:20").unwrap())
+                    .registered_delivery(RegisteredDelivery::request_all())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::DoNotReplace)
+                    .data_coding(DataCoding::Jis)
+                    .sm_default_msg_id(96)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    )])
+                    .build(),
+                Self::builder()
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .tlvs(vec![
+                        MessageSubmissionRequestTlvValue::MessagePayload(MessagePayload::new(
+                            AnyOctetString::new(b"Message Payload"),
+                        )),
+                        MessageSubmissionRequestTlvValue::UserResponseCode(3),
+                        MessageSubmissionRequestTlvValue::DestBearerType(BearerType::FlexReFlex),
+                        MessageSubmissionRequestTlvValue::SourceSubaddress(Subaddress::new(
+                            SubaddressTag::NsapOdd,
+                            OctetString::from_str("Subaddress :D").unwrap(),
+                        )),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

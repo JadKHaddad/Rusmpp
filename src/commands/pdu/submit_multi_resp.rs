@@ -1,7 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::types::unsuccess_sme::UnsuccessSme,
-    tlvs::{MessageSubmissionResponseTlv, Tlv},
+    commands::types::unsuccess_sme::UnsuccessSme, tlvs::MessageSubmissionResponseTlv,
     types::COctetString,
 };
 
@@ -22,9 +21,9 @@ crate::create! {
         /// (Composite Field).
         @[count = no_unsuccess]
         unsuccess_sme: Vec<UnsuccessSme>,
-        /// Message submission response TLVs ([`MessageSubmissionResponseTLV`])
+        /// Message submission response TLVs ([`MessageSubmissionResponseTlv`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<MessageSubmissionResponseTlv>,
     }
 }
 
@@ -36,11 +35,7 @@ impl SubmitMultiResp {
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         Self {
             message_id,
@@ -59,25 +54,26 @@ impl SubmitMultiResp {
     }
 
     pub fn set_unsuccess_sme(&mut self, unsuccess_sme: Vec<UnsuccessSme>) {
-        self.no_unsuccess = unsuccess_sme.len() as u8;
         self.unsuccess_sme = unsuccess_sme;
+        self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
 
     pub fn push_unsuccess_sme(&mut self, unsuccess_sme: UnsuccessSme) {
-        self.no_unsuccess += 1;
         self.unsuccess_sme.push(unsuccess_sme);
+        self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn clear_unsuccess_sme(&mut self) {
+        self.unsuccess_sme.clear();
+        self.no_unsuccess = self.unsuccess_sme.len() as u8;
+    }
+
+    pub fn tlvs(&self) -> &[MessageSubmissionResponseTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>) {
-        self.tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
@@ -85,10 +81,7 @@ impl SubmitMultiResp {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTlv>) {
-        let tlv: MessageSubmissionResponseTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
-
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv.into());
     }
 
     pub fn builder() -> SubmitMultiRespBuilder {
@@ -127,6 +120,11 @@ impl SubmitMultiRespBuilder {
         self
     }
 
+    pub fn clear_unsuccess_sme(mut self) -> Self {
+        self.inner.clear_unsuccess_sme();
+        self
+    }
+
     pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
@@ -147,6 +145,7 @@ impl SubmitMultiRespBuilder {
     }
 }
 
+// TODO: test the counted decode
 #[cfg(test)]
 mod tests {
     use super::*;

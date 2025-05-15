@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    tlvs::{CancelBroadcastTlv, Tlv},
+    tlvs::CancelBroadcastTlv,
     types::COctetString,
 };
 
@@ -56,9 +56,9 @@ crate::create! {
         //
         // If not known, set to NULL (Unknown).
         pub source_addr: COctetString<1, 21>,
-        /// Cancel broadcast  TLVs ([`CancelBroadcastTLV`]).
+        /// Cancel broadcast  TLVs ([`CancelBroadcastTlv`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<CancelBroadcastTlv>,
     }
 }
 
@@ -71,11 +71,7 @@ impl CancelBroadcastSm {
         source_addr: COctetString<1, 21>,
         tlvs: Vec<impl Into<CancelBroadcastTlv>>,
     ) -> Self {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         Self {
             service_type,
@@ -87,18 +83,12 @@ impl CancelBroadcastSm {
         }
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[CancelBroadcastTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
-
-        self.tlvs = tlvs;
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
@@ -106,10 +96,7 @@ impl CancelBroadcastSm {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTlv>) {
-        let tlv: CancelBroadcastTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
-
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv.into());
     }
 
     pub fn builder() -> CancelBroadcastSmBuilder {

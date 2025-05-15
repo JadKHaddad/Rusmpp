@@ -412,4 +412,33 @@ mod tokio {
             println!("Received: {:#?}", command);
         }
     }
+
+    // cargo test submit_sm --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "integration test"]
+    async fn submit_sm() {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let submit_sm = Command::builder()
+            .command_status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                SubmitSm::builder()
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    ))
+                    .build(),
+            );
+
+        framed.send(submit_sm).await.expect("Failed to send PDU");
+
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
+        }
+    }
 }

@@ -1,8 +1,5 @@
 use super::Pdu;
-use crate::{
-    tlvs::{MessageDeliveryResponseTlv, Tlv},
-    types::COctetString,
-};
+use crate::{tlvs::MessageDeliveryResponseTlv, types::COctetString};
 
 macro_rules! declare_sm_resp {
     ($name:ident, $builder_name:ident) => {
@@ -15,7 +12,7 @@ macro_rules! declare_sm_resp {
                 message_id: COctetString<1, 65>,
                 /// Message delivery response TLVs ([`MessageDeliveryResponseTlv`])
                 @[length = unchecked]
-                tlvs: Vec<Tlv>,
+                tlvs: Vec<MessageDeliveryResponseTlv>,
             }
         }
 
@@ -24,7 +21,7 @@ macro_rules! declare_sm_resp {
                 message_id: COctetString<1, 65>,
                 tlvs: Vec<impl Into<MessageDeliveryResponseTlv>>,
             ) -> Self {
-                let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
+                let tlvs = tlvs.into_iter().map(Into::into).collect();
 
                 Self { message_id, tlvs }
             }
@@ -33,25 +30,16 @@ macro_rules! declare_sm_resp {
                 &self.message_id
             }
 
-            pub fn tlvs(&self) -> &[Tlv] {
+            pub fn tlvs(&self) -> &[MessageDeliveryResponseTlv] {
                 &self.tlvs
             }
 
             pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTlv>>) {
-                let tlvs = tlvs
-                    .into_iter()
-                    .map(Into::into)
-                    .map(From::from)
-                    .collect::<Vec<Tlv>>();
-
-                self.tlvs = tlvs;
+                self.tlvs = tlvs.into_iter().map(Into::into).collect();
             }
 
             pub fn push_tlv(&mut self, tlv: impl Into<MessageDeliveryResponseTlv>) {
-                let tlv: MessageDeliveryResponseTlv = tlv.into();
-                let tlv: Tlv = tlv.into();
-
-                self.tlvs.push(tlv);
+                self.tlvs.push(tlv.into());
             }
 
             pub fn builder() -> $builder_name {

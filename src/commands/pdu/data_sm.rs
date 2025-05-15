@@ -3,7 +3,7 @@ use crate::{
         data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
         registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
     },
-    tlvs::{MessageSubmissionRequestTlv, Tlv},
+    tlvs::MessageSubmissionRequestTlv,
     types::COctetString,
 };
 
@@ -61,9 +61,9 @@ crate::create! {
         /// Defines the encoding scheme
         /// of the short message user data.
         pub data_coding: DataCoding,
-        /// Message submission request TLVs ([`MessageSubmissionRequestTLV`])
+        /// Message submission request TLVs ([`MessageSubmissionRequestTlv`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<MessageSubmissionRequestTlv>,
     }
 }
 
@@ -82,11 +82,7 @@ impl DataSm {
         data_coding: DataCoding,
         tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>,
     ) -> Self {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         Self {
             service_type,
@@ -103,12 +99,12 @@ impl DataSm {
         }
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[MessageSubmissionRequestTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
@@ -116,10 +112,7 @@ impl DataSm {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
-        let tlv: MessageSubmissionRequestTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
-
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv.into());
     }
 
     pub fn builder() -> DataSmBuilder {

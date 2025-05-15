@@ -6,7 +6,7 @@ use crate::{
         replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
     },
     encode::Length,
-    tlvs::{MessageSubmissionRequestTlv, Tlv, TlvTag},
+    tlvs::{MessageSubmissionRequestTlv, MessageSubmissionRequestTlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
@@ -91,9 +91,9 @@ crate::create! {
         /// this case the sm_length field should be set to zero.
         @[length = sm_length]
         short_message: OctetString<0, 255>,
-        /// Message submission request TLVs ([`MessageSubmissionRequestTLV`]).
+        /// Message submission request TLVs ([`MessageSubmissionRequestTlv`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<MessageSubmissionRequestTlv>,
     }
 }
 
@@ -120,11 +120,7 @@ impl SubmitMulti {
         let sm_length = short_message.length() as u8;
         let number_of_dests = dest_address.len() as u8;
 
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         let mut submit_multi = Self {
             service_type,
@@ -161,13 +157,18 @@ impl SubmitMulti {
     }
 
     pub fn set_dest_address(&mut self, dest_address: Vec<DestAddress>) {
-        self.number_of_dests = dest_address.len() as u8;
         self.dest_address = dest_address;
+        self.number_of_dests = self.dest_address.len() as u8;
     }
 
     pub fn push_dest_address(&mut self, dest_address: DestAddress) {
-        self.number_of_dests += 1;
         self.dest_address.push(dest_address);
+        self.number_of_dests = self.dest_address.len() as u8;
+    }
+
+    pub fn clear_dest_address(&mut self) {
+        self.dest_address.clear();
+        self.number_of_dests = self.dest_address.len() as u8;
     }
 
     pub fn sm_length(&self) -> u8 {
@@ -183,24 +184,19 @@ impl SubmitMulti {
     /// Has no effect if the message payload is set.
     /// Returns true if the short message and short message length were set.
     pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
-        self.sm_length = short_message.length() as u8;
         self.short_message = short_message;
+        self.sm_length = self.short_message.length() as u8;
 
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[MessageSubmissionRequestTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
 
-        self.tlvs = tlvs;
         self.clear_short_message_if_message_payload_exists();
     }
 
@@ -209,10 +205,8 @@ impl SubmitMulti {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
-        let tlv: MessageSubmissionRequestTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
+        self.tlvs.push(tlv.into());
 
-        self.tlvs.push(tlv);
         self.clear_short_message_if_message_payload_exists();
     }
 
@@ -222,7 +216,7 @@ impl SubmitMulti {
         let message_payload_exists = self
             .tlvs
             .iter()
-            .any(|value| matches!(value.tag(), TlvTag::MessagePayload));
+            .any(|value| matches!(value.tag(), MessageSubmissionRequestTlvTag::MessagePayload));
 
         if message_payload_exists {
             self.short_message = OctetString::empty();
@@ -287,6 +281,11 @@ impl SubmitMultiBuilder {
 
     pub fn push_dest_address(mut self, dest_address: DestAddress) -> Self {
         self.inner.push_dest_address(dest_address);
+        self
+    }
+
+    pub fn clear_dest_address(mut self) -> Self {
+        self.inner.clear_dest_address();
         self
     }
 

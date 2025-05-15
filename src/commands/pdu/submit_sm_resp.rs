@@ -1,8 +1,5 @@
 use super::Pdu;
-use crate::{
-    tlvs::{MessageSubmissionResponseTlv, Tlv},
-    types::COctetString,
-};
+use crate::{tlvs::MessageSubmissionResponseTlv, types::COctetString};
 
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -11,9 +8,9 @@ crate::create! {
         /// It may be used at a later stage to query the status of a message,
         /// cancel or replace the message.
         message_id: COctetString<1, 65>,
-        /// Message submission response TLVs ([`MessageSubmissionResponseTLV`])
+        /// Message submission response TLVs ([`MessageSubmissionResponseTlv`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<MessageSubmissionResponseTlv>,
     }
 }
 
@@ -22,7 +19,7 @@ impl SubmitSmResp {
         message_id: COctetString<1, 65>,
         tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         Self { message_id, tlvs }
     }
@@ -31,18 +28,12 @@ impl SubmitSmResp {
         &self.message_id
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[MessageSubmissionResponseTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>) {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
-
-        self.tlvs = tlvs;
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
@@ -50,10 +41,7 @@ impl SubmitSmResp {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTlv>) {
-        let tlv: MessageSubmissionResponseTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
-
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv.into());
     }
 
     pub fn builder() -> SubmitSmRespBuilder {

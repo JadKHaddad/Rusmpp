@@ -1,8 +1,5 @@
 use super::Pdu;
-use crate::{
-    tlvs::{BroadcastResponseTlv, Tlv},
-    types::COctetString,
-};
+use crate::{tlvs::BroadcastResponseTlv, types::COctetString};
 
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -11,9 +8,9 @@ crate::create! {
         /// message. It may be used at a later stage to perform
         /// subsequent operations on the message.
         pub message_id: COctetString<1, 65>,
-        /// Broadcast response TLVs ([`BroadcastResponseTLV`]).
+        /// Broadcast response TLVs ([`BroadcastResponseTlv`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<BroadcastResponseTlv>,
     }
 }
 
@@ -22,27 +19,17 @@ impl BroadcastSmResp {
         message_id: COctetString<1, 65>,
         tlvs: Vec<impl Into<BroadcastResponseTlv>>,
     ) -> Self {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         Self { message_id, tlvs }
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[BroadcastResponseTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastResponseTlv>>) {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
-
-        self.tlvs = tlvs;
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
@@ -50,10 +37,7 @@ impl BroadcastSmResp {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<BroadcastResponseTlv>) {
-        let tlv: BroadcastResponseTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
-
-        self.tlvs.push(tlv);
+        self.tlvs.push(tlv.into());
     }
 
     pub fn builder() -> BroadcastSmRespBuilder {

@@ -6,7 +6,7 @@ use crate::{
         service_type::ServiceType, ton::Ton,
     },
     encode::Length,
-    tlvs::{MessageSubmissionRequestTlv, Tlv, TlvTag},
+    tlvs::{MessageSubmissionRequestTlv, MessageSubmissionRequestTlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
@@ -80,9 +80,9 @@ crate::create! {
         /// specified.
         @[length = sm_length]
         short_message: OctetString<0, 255>,
-        /// Message submission request TLVs ([`MessageSubmissionRequestTLV`]).
+        /// Message submission request TLVs ([`MessageSubmissionRequestTlv`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: Vec<MessageSubmissionRequestTlv>,
     }
 }
 
@@ -108,11 +108,7 @@ impl SubmitSm {
         short_message: OctetString<0, 255>,
         tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>,
     ) -> Self {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        let tlvs = tlvs.into_iter().map(Into::into).collect();
 
         let sm_length = short_message.length() as u8;
 
@@ -156,24 +152,19 @@ impl SubmitSm {
     /// Has no effect if the message payload is set.
     /// Returns true if the short message and short message length were set.
     pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
-        self.sm_length = short_message.length() as u8;
         self.short_message = short_message;
+        self.sm_length = self.short_message.length() as u8;
 
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&self) -> &[MessageSubmissionRequestTlv] {
         &self.tlvs
     }
 
     pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
-        let tlvs = tlvs
-            .into_iter()
-            .map(Into::into)
-            .map(From::from)
-            .collect::<Vec<Tlv>>();
+        self.tlvs = tlvs.into_iter().map(Into::into).collect();
 
-        self.tlvs = tlvs;
         self.clear_short_message_if_message_payload_exists();
     }
 
@@ -182,10 +173,8 @@ impl SubmitSm {
     }
 
     pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
-        let tlv: MessageSubmissionRequestTlv = tlv.into();
-        let tlv: Tlv = tlv.into();
+        self.tlvs.push(tlv.into());
 
-        self.tlvs.push(tlv);
         self.clear_short_message_if_message_payload_exists();
     }
 
@@ -195,7 +184,7 @@ impl SubmitSm {
         let message_payload_exists = self
             .tlvs
             .iter()
-            .any(|value| matches!(value.tag(), TlvTag::MessagePayload));
+            .any(|value| matches!(value.tag(), MessageSubmissionRequestTlvTag::MessagePayload));
 
         if message_payload_exists {
             self.short_message = OctetString::empty();
@@ -379,6 +368,7 @@ mod tests {
         assert_eq!(submit_sm.sm_length(), short_message_2.length() as u8);
     }
 
+    // TODO: add the same test for every pdu that has a short message
     #[test]
     fn message_payload_suppresses_short_message() {
         let short_message = OctetString::new(b"Short Message").unwrap();

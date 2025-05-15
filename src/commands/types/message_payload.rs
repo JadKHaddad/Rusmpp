@@ -1,4 +1,7 @@
-use crate::{commands::tlvs::tlv::HasTlvTag, types::AnyOctetString, TlvTag};
+use crate::{
+    tlvs::{HasTlvTag, TlvTag},
+    types::AnyOctetString,
+};
 
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]

@@ -1,12 +1,10 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::{query_broadcast_response::QueryBroadcastResponseTlv, SingleTlv, Tlv},
-        types::{
-            broadcast_area_identifier::BroadcastAreaIdentifier,
-            broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
-        },
+    commands::types::{
+        broadcast_area_identifier::BroadcastAreaIdentifier,
+        broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
     },
+    tlvs::{QueryBroadcastResponseTlv, SingleTlv, Tlv},
     types::COctetString,
 };
 

@@ -1,9 +1,7 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::SingleTlv,
-        types::{npi::Npi, ton::Ton, UserMessageReference},
-    },
+    commands::types::{npi::Npi, ton::Ton, UserMessageReference},
+    tlvs::SingleTlv,
     types::COctetString,
 };
 

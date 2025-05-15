@@ -17,10 +17,6 @@ mod tokio {
         commands::{
             command::Command,
             pdu::{submit_sm::SubmitSm, Pdu},
-            tlvs::tlv::{
-                broadcast_request::BroadcastRequestTlvValue,
-                message_submission_request::MessageSubmissionRequestTlvValue,
-            },
             types::{
                 command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
                 interface_version::InterfaceVersion, npi::Npi,
@@ -37,6 +33,7 @@ mod tokio {
             DeliverSmResp, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp,
             ReplaceSm, SubmitMulti, SubmitMultiResp, SubmitSmResp,
         },
+        tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
         types::{AnyOctetString, COctetString, OctetString},
         CommandId,
     };

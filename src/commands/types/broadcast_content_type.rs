@@ -1,4 +1,4 @@
-use crate::{commands::tlvs::tlv::HasTlvTag, create, TlvTag};
+use crate::tlvs::{HasTlvTag, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -194,7 +194,7 @@ impl From<EncodingContentType> for u16 {
     }
 }
 
-create! {
+crate::create! {
     /// Specifies the content type of the message.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     pub struct BroadcastContentType {

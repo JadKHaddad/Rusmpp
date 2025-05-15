@@ -1,6 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::tlvs::tlv::{broadcast_response::BroadcastResponseTlv, Tlv},
+    tlvs::{BroadcastResponseTlv, Tlv},
     types::COctetString,
 };
 

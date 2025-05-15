@@ -1,4 +1,4 @@
-use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
+use crate::tlvs::{HasTlvTag, TlvTag};
 
 crate::create! {
     #[repr(u8)]

@@ -1,10 +1,10 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::SingleTlv,
-        types::{npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload},
+    commands::types::{
+        npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload,
     },
     encode::Length,
+    tlvs::SingleTlv,
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 

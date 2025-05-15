@@ -1,4 +1,4 @@
-use crate::{commands::tlvs::tlv::HasTlvTag, create, TlvTag};
+use crate::tlvs::{HasTlvTag, TlvTag};
 
 crate::create! {
     #[repr(u8)]
@@ -49,7 +49,7 @@ impl From<UnitOfTime> for u8 {
     }
 }
 
-create! {
+crate::create! {
     /// This field indicates the frequency interval at which
     /// the broadcasts of a message should be repeated.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]

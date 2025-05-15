@@ -1,4 +1,3 @@
-use super::tlv_tag::TlvTag;
 use crate::{
     commands::types::{
         addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
@@ -22,10 +21,11 @@ use crate::{
     },
     decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKey, DecodeWithLength},
     encode::{Encode, Length},
+    tlvs::TlvTag,
     types::{AnyOctetString, COctetString, OctetString},
 };
 
-/// See module level documentation
+/// See module level documentation.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TlvValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
@@ -130,7 +130,7 @@ pub enum TlvValue {
 }
 
 impl TlvValue {
-    pub fn tlv_tag(&self) -> TlvTag {
+    pub const fn tag(&self) -> TlvTag {
         match self {
             TlvValue::AdditionalStatusInfoText(_) => TlvTag::AdditionalStatusInfoText,
             TlvValue::AlertOnMessageDelivery(_) => TlvTag::AlertOnMessageDelivery,
@@ -486,8 +486,12 @@ impl DecodeWithKey for TlvValue {
             }
             TlvTag::UserResponseCode => Decode::decode(src).map_decoded(Self::UserResponseCode)?,
             TlvTag::UssdServiceOp => Decode::decode(src).map_decoded(Self::UssdServiceOp)?,
-            other => DecodeWithLength::decode(src, length)
-                .map_decoded(|value| TlvValue::Other { tag: other, value })?,
+            TlvTag::Other(other) => {
+                DecodeWithLength::decode(src, length).map_decoded(|value| TlvValue::Other {
+                    tag: TlvTag::Other(other),
+                    value,
+                })?
+            }
         };
 
         Ok((value, size))

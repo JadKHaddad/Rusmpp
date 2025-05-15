@@ -1,17 +1,12 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::{
-            tlv::{message_submission_request::MessageSubmissionRequestTlv, Tlv},
-            tlv_tag::TlvTag,
-        },
-        types::{
-            data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-            service_type::ServiceType, ton::Ton,
-        },
+    commands::types::{
+        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
+        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
+        service_type::ServiceType, ton::Ton,
     },
     encode::Length,
+    tlvs::{MessageSubmissionRequestTlv, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
@@ -347,10 +342,7 @@ impl SubmitSmBuilder {
 #[cfg(test)]
 mod tests {
     use crate::{
-        commands::{
-            tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
-            types::MessagePayload,
-        },
+        commands::types::MessagePayload, tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
     };
 

@@ -8,15 +8,13 @@
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     codec::CommandCodec,
-    commands::{
-        tlvs::tlv::message_submission_request::MessageSubmissionRequestTlvValue,
-        types::{
-            EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
-        },
+    commands::types::{
+        EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
     },
     pdu::{BindTransceiver, SubmitSm},
+    tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandId, CommandStatus, Pdu, TlvTag,
+    Command, CommandId, CommandStatus, Pdu,
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;

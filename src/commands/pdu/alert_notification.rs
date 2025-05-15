@@ -1,9 +1,7 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::SingleTlv,
-        types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
-    },
+    commands::types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
+    tlvs::SingleTlv,
     types::COctetString,
 };
 

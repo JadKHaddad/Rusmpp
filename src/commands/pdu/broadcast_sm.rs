@@ -1,15 +1,13 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::{broadcast_request::BroadcastRequestTlv, SingleTlv, Tlv},
-        types::{
-            broadcast_area_identifier::BroadcastAreaIdentifier,
-            broadcast_content_type::BroadcastContentType,
-            broadcast_frequency_interval::BroadcastFrequencyInterval, data_coding::DataCoding,
-            npi::Npi, priority_flag::PriorityFlag, replace_if_present_flag::ReplaceIfPresentFlag,
-            service_type::ServiceType, ton::Ton, BroadcastRepNum,
-        },
+    commands::types::{
+        broadcast_area_identifier::BroadcastAreaIdentifier,
+        broadcast_content_type::BroadcastContentType,
+        broadcast_frequency_interval::BroadcastFrequencyInterval, data_coding::DataCoding,
+        npi::Npi, priority_flag::PriorityFlag, replace_if_present_flag::ReplaceIfPresentFlag,
+        service_type::ServiceType, ton::Ton, BroadcastRepNum,
     },
+    tlvs::{BroadcastRequestTlv, SingleTlv, Tlv},
     types::{COctetString, EmptyOrFullCOctetString},
 };
 

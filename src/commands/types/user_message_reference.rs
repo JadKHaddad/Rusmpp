@@ -1,4 +1,4 @@
-use crate::{commands::tlvs::tlv::HasTlvTag, TlvTag};
+use crate::tlvs::{HasTlvTag, TlvTag};
 
 crate::create! {
     /// A reference assigned by the originating SME to the short message. Depending on the

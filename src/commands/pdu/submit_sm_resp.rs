@@ -1,6 +1,6 @@
 use super::Pdu;
 use crate::{
-    commands::tlvs::tlv::{message_submission_response::MessageSubmissionResponseTlv, Tlv},
+    tlvs::{MessageSubmissionResponseTlv, Tlv},
     types::COctetString,
 };
 

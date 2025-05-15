@@ -1,11 +1,9 @@
 use crate::{
-    commands::{
-        tlvs::tlv::{message_submission_request::MessageSubmissionRequestTlv, Tlv},
-        types::{
-            data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
-            registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
-        },
+    commands::types::{
+        data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
+        registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
     },
+    tlvs::{MessageSubmissionRequestTlv, Tlv},
     types::COctetString,
 };
 

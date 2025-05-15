@@ -1,9 +1,7 @@
 use super::Pdu;
 use crate::{
-    commands::{
-        tlvs::tlv::{cancel_broadcast::CancelBroadcastTlv, Tlv},
-        types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    },
+    commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
+    tlvs::{CancelBroadcastTlv, Tlv},
     types::COctetString,
 };
 

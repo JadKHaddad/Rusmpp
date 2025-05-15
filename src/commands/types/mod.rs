@@ -4,7 +4,7 @@ pub mod addr_subunit;
 pub use addr_subunit::AddrSubunit;
 
 pub mod alert_on_msg_delivery;
-pub use alert_on_msg_delivery::AlertOnMsgDelivery;
+pub use alert_on_msg_delivery::AlertOnMessageDelivery;
 
 pub mod bearer_type;
 pub use bearer_type::BearerType;

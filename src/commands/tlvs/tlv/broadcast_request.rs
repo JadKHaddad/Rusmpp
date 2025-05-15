@@ -3,7 +3,7 @@ use crate::{
     commands::{
         tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
         types::{
-            addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
+            addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
             broadcast_channel_indicator::BroadcastChannelIndicator,
             broadcast_message_class::BroadcastMessageClass,
             callback_num_pres_ind::CallbackNumPresInd, display_time::DisplayTime,
@@ -138,7 +138,7 @@ impl From<BroadcastRequestTlvTag> for TlvTag {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum BroadcastRequestTlvValue {
-    AlertOnMsgDelivery(AlertOnMsgDelivery),
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
     BroadcastChannelIndicator(BroadcastChannelIndicator),
     BroadcastContentTypeInfo(OctetString<0, 255>),
     BroadcastMessageClass(BroadcastMessageClass),
@@ -165,7 +165,7 @@ pub enum BroadcastRequestTlvValue {
 impl From<BroadcastRequestTlvValue> for TlvValue {
     fn from(value: BroadcastRequestTlvValue) -> Self {
         match value {
-            BroadcastRequestTlvValue::AlertOnMsgDelivery(value) => {
+            BroadcastRequestTlvValue::AlertOnMessageDelivery(value) => {
                 TlvValue::AlertOnMessageDelivery(value)
             }
             BroadcastRequestTlvValue::BroadcastChannelIndicator(value) => {

@@ -1,7 +1,7 @@
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    pub enum AlertOnMsgDelivery {
+    pub enum AlertOnMessageDelivery {
         #[default]
         UseMobileDefaultAlert = 0,
         UseLowPriorityAlert = 1,
@@ -12,26 +12,26 @@ crate::create! {
 
 }
 
-impl From<u8> for AlertOnMsgDelivery {
+impl From<u8> for AlertOnMessageDelivery {
     fn from(value: u8) -> Self {
         match value {
-            0 => AlertOnMsgDelivery::UseMobileDefaultAlert,
-            1 => AlertOnMsgDelivery::UseLowPriorityAlert,
-            2 => AlertOnMsgDelivery::UseMediumPriorityAlert,
-            3 => AlertOnMsgDelivery::UseHighPriorityAlert,
-            value => AlertOnMsgDelivery::Other(value),
+            0 => AlertOnMessageDelivery::UseMobileDefaultAlert,
+            1 => AlertOnMessageDelivery::UseLowPriorityAlert,
+            2 => AlertOnMessageDelivery::UseMediumPriorityAlert,
+            3 => AlertOnMessageDelivery::UseHighPriorityAlert,
+            value => AlertOnMessageDelivery::Other(value),
         }
     }
 }
 
-impl From<AlertOnMsgDelivery> for u8 {
-    fn from(value: AlertOnMsgDelivery) -> Self {
+impl From<AlertOnMessageDelivery> for u8 {
+    fn from(value: AlertOnMessageDelivery) -> Self {
         match value {
-            AlertOnMsgDelivery::UseMobileDefaultAlert => 0,
-            AlertOnMsgDelivery::UseLowPriorityAlert => 1,
-            AlertOnMsgDelivery::UseMediumPriorityAlert => 2,
-            AlertOnMsgDelivery::UseHighPriorityAlert => 3,
-            AlertOnMsgDelivery::Other(value) => value,
+            AlertOnMessageDelivery::UseMobileDefaultAlert => 0,
+            AlertOnMessageDelivery::UseLowPriorityAlert => 1,
+            AlertOnMessageDelivery::UseMediumPriorityAlert => 2,
+            AlertOnMessageDelivery::UseHighPriorityAlert => 3,
+            AlertOnMessageDelivery::Other(value) => value,
         }
     }
 }
@@ -42,6 +42,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<AlertOnMsgDelivery>();
+        crate::tests::encode_decode_test_instances::<AlertOnMessageDelivery>();
     }
 }

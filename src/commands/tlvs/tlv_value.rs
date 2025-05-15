@@ -1,7 +1,7 @@
 use super::tlv_tag::TlvTag;
 use crate::{
     commands::types::{
-        addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
+        addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
         bearer_type::BearerType, broadcast_area_identifier::BroadcastAreaIdentifier,
         broadcast_area_success::BroadcastAreaSuccess,
         broadcast_channel_indicator::BroadcastChannelIndicator,
@@ -29,7 +29,7 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum TlvValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
-    AlertOnMessageDelivery(AlertOnMsgDelivery),
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
     BillingIdentification(OctetString<0, 1024>),
     /// Identifies one or more target Broadcast Area(s) for which the
     /// status information applies.

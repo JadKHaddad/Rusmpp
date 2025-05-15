@@ -26,7 +26,8 @@ mod tokio {
                 interface_version::InterfaceVersion, npi::Npi,
                 registered_delivery::RegisteredDelivery,
                 replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-                AlertOnMsgDelivery, BroadcastMessageClass, MessagePayload, MsAvailabilityStatus,
+                AlertOnMessageDelivery, BroadcastMessageClass, MessagePayload,
+                MsAvailabilityStatus,
             },
         },
         pdu::{
@@ -399,8 +400,8 @@ mod tokio {
             .sequence_number(1)
             .pdu(
                 BroadcastSm::builder()
-                    .push_tlv(BroadcastRequestTlvValue::AlertOnMsgDelivery(
-                        AlertOnMsgDelivery::UseMediumPriorityAlert,
+                    .push_tlv(BroadcastRequestTlvValue::AlertOnMessageDelivery(
+                        AlertOnMessageDelivery::UseMediumPriorityAlert,
                     ))
                     .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
                         BroadcastMessageClass::Class2,

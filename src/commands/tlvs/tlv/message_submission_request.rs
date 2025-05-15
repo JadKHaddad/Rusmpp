@@ -3,7 +3,7 @@ use crate::{
     commands::{
         tlvs::{tlv_tag::TlvTag, tlv_value::TlvValue},
         types::{
-            addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMsgDelivery,
+            addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
             bearer_type::BearerType, callback_num_pres_ind::CallbackNumPresInd,
             dest_addr_np_resolution::DestAddrNpResolution, display_time::DisplayTime,
             its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
@@ -231,7 +231,7 @@ impl From<MessageSubmissionRequestTlvTag> for TlvTag {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum MessageSubmissionRequestTlvValue {
-    AlertOnMsgDelivery(AlertOnMsgDelivery),
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
     BillingIdentification(OctetString<0, 1024>),
     CallbackNum(OctetString<4, 19>),
     CallbackNumAtag(OctetString<0, 65>),
@@ -280,7 +280,7 @@ pub enum MessageSubmissionRequestTlvValue {
 impl From<MessageSubmissionRequestTlvValue> for TlvValue {
     fn from(value: MessageSubmissionRequestTlvValue) -> Self {
         match value {
-            MessageSubmissionRequestTlvValue::AlertOnMsgDelivery(value) => {
+            MessageSubmissionRequestTlvValue::AlertOnMessageDelivery(value) => {
                 TlvValue::AlertOnMessageDelivery(value)
             }
             MessageSubmissionRequestTlvValue::BillingIdentification(value) => {

@@ -2,6 +2,7 @@ use super::Pdu;
 use crate::types::COctetString;
 
 crate::create! {
+    @[skip_test]
     /// Authentication PDU used by a Message Centre to Outbind to
     /// an ESME to inform it that messages are present in the MC.
     /// The PDU contains identification, and access password for the
@@ -68,7 +69,23 @@ impl OutbindBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for Outbind {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .password(COctetString::from_str("password").unwrap())
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

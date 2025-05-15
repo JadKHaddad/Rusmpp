@@ -11,6 +11,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -332,12 +333,70 @@ impl DeliverSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use crate::{
-        commands::types::MessagePayload, tlvs::MessageDeliveryRequestTlvValue,
+        commands::types::{
+            callback_num_pres_ind::{Presentation, Screening},
+            CallbackNumPresInd, MessagePayload,
+        },
+        tests::TestInstance,
+        tlvs::MessageDeliveryRequestTlvValue,
         types::AnyOctetString,
     };
 
     use super::*;
+
+    impl TestInstance for DeliverSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Address").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::from_str("Destination Address").unwrap())
+                    .schedule_delivery_time(EmptyOrFullCOctetString::empty())
+                    .validity_period(EmptyOrFullCOctetString::empty())
+                    .registered_delivery(RegisteredDelivery::default())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::Replace)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .build(),
+                Self::builder()
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("Source Address").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::from_str("Destination Address").unwrap())
+                    .protocol_id(0)
+                    .schedule_delivery_time(EmptyOrFullCOctetString::empty())
+                    .validity_period(EmptyOrFullCOctetString::empty())
+                    .registered_delivery(RegisteredDelivery::default())
+                    .replace_if_present_flag(ReplaceIfPresentFlag::Replace)
+                    .data_coding(DataCoding::default())
+                    .sm_default_msg_id(0)
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .tlvs(vec![
+                        MessageDeliveryRequestTlvValue::MessagePayload(MessagePayload::new(
+                            AnyOctetString::new(b"Message Payload"),
+                        )),
+                        MessageDeliveryRequestTlvValue::MessagePayload(MessagePayload::new(
+                            AnyOctetString::new(b"Message Payload 2"),
+                        )),
+                        MessageDeliveryRequestTlvValue::CallbackNumPresInd(
+                            CallbackNumPresInd::new(
+                                Presentation::NumberNotAvailable,
+                                Screening::VerifiedAndPassed,
+                            ),
+                        ),
+                    ])
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

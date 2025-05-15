@@ -10,6 +10,7 @@ use crate::{
 use super::Pdu;
 
 crate::create! {
+    @[skip_test]
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
@@ -208,7 +209,63 @@ impl DataSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{
+            registered_delivery::{
+                IntermediateNotification, MCDeliveryReceipt, SmeOriginatedAcknowledgement,
+            },
+            AddrSubunit, UssdServiceOp,
+        },
+        tests::TestInstance,
+        tlvs::MessageSubmissionRequestTlvValue,
+    };
+
     use super::*;
+
+    impl TestInstance for DataSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::default())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("source_addr").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::from_str("destination_addr").unwrap())
+                    .esm_class(EsmClass::default())
+                    .registered_delivery(RegisteredDelivery::request_all())
+                    .data_coding(DataCoding::Ucs2)
+                    .build(),
+                Self::builder()
+                    .service_type(ServiceType::default())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Isdn)
+                    .source_addr(COctetString::from_str("source_addr").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Isdn)
+                    .destination_addr(COctetString::from_str("destination_addr").unwrap())
+                    .esm_class(EsmClass::default())
+                    .registered_delivery(RegisteredDelivery::new(
+                        MCDeliveryReceipt::NoMcDeliveryReceiptRequested,
+                        SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested,
+                        IntermediateNotification::IntermediateNotificationRequested,
+                        0,
+                    ))
+                    .data_coding(DataCoding::Ucs2)
+                    .push_tlv(MessageSubmissionRequestTlvValue::SourceAddrSubunit(
+                        AddrSubunit::MobileEquipment,
+                    ))
+                    .push_tlv(MessageSubmissionRequestTlvValue::UssdServiceOp(
+                        UssdServiceOp::UssnConfirm,
+                    ))
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

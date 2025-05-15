@@ -5,6 +5,7 @@ use crate::{
 };
 
 crate::create! {
+    @[skip_test]
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.
@@ -185,7 +186,29 @@ impl CancelSmBuilder {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for CancelSm {
+        fn instances() -> Vec<Self> {
+            vec![
+                Self::default(),
+                Self::builder()
+                    .service_type(ServiceType::default())
+                    .message_id(COctetString::from_str("message_id").unwrap())
+                    .source_addr_ton(Ton::International)
+                    .source_addr_npi(Npi::Unknown)
+                    .source_addr(COctetString::from_str("source_addr").unwrap())
+                    .dest_addr_ton(Ton::International)
+                    .dest_addr_npi(Npi::Unknown)
+                    .destination_addr(COctetString::from_str("destination_addr").unwrap())
+                    .build(),
+            ]
+        }
+    }
 
     #[test]
     fn encode_decode() {

@@ -368,7 +368,11 @@ impl SubmitMultiBuilder {
 #[cfg(test)]
 mod tests {
     use crate::{
-        commands::types::MessagePayload, tlvs::MessageSubmissionRequestTlvValue,
+        commands::types::{
+            dest_address::{DistributionListName, SmeAddress},
+            MessagePayload,
+        },
+        tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
     };
 
@@ -446,7 +450,7 @@ mod tests {
         assert_eq!(submit_sm.sm_length(), 0);
 
         // Using tlvs
-        let submit_sm = SubmitMulti::builder()
+        let submit_multi = SubmitMulti::builder()
             .short_message(short_message.clone())
             .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
@@ -454,8 +458,8 @@ mod tests {
             .short_message(short_message.clone())
             .build();
 
-        assert_eq!(submit_sm.short_message(), &OctetString::empty());
-        assert_eq!(submit_sm.sm_length(), 0);
+        assert_eq!(submit_multi.short_message(), &OctetString::empty());
+        assert_eq!(submit_multi.sm_length(), 0);
 
         // Removing the message payload and then setting the short message should set the short message
         let submit_sm = SubmitMulti::builder()
@@ -468,5 +472,58 @@ mod tests {
 
         assert_eq!(submit_sm.short_message(), &short_message);
         assert_eq!(submit_sm.sm_length(), short_message.length() as u8);
+    }
+
+    #[test]
+    fn count() {
+        let submit_multi = SubmitMulti::default();
+
+        assert_eq!(submit_multi.number_of_dests(), 0);
+        assert!(submit_multi.dest_address().is_empty());
+
+        let submit_sm = SubmitMulti::builder()
+            .dest_address(vec![
+                DestAddress::SmeAddress(SmeAddress::new(
+                    Ton::International,
+                    Npi::Isdn,
+                    COctetString::new(b"1234567890123456789\0").unwrap(),
+                )),
+                DestAddress::DistributionListName(DistributionListName::new(
+                    COctetString::new(b"1234567890123456789\0").unwrap(),
+                )),
+            ])
+            .build();
+
+        assert_eq!(submit_sm.number_of_dests(), 2);
+        assert_eq!(submit_sm.dest_address().len(), 2);
+
+        let submit_sm = SubmitMulti::builder()
+            .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
+                Ton::International,
+                Npi::Isdn,
+                COctetString::new(b"1234567890123456789\0").unwrap(),
+            )))
+            .push_dest_address(DestAddress::DistributionListName(
+                DistributionListName::new(COctetString::new(b"1234567890123456789\0").unwrap()),
+            ))
+            .build();
+
+        assert_eq!(submit_sm.number_of_dests(), 2);
+        assert_eq!(submit_sm.dest_address().len(), 2);
+
+        let submit_sm = SubmitMulti::builder()
+            .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
+                Ton::International,
+                Npi::Isdn,
+                COctetString::new(b"1234567890123456789\0").unwrap(),
+            )))
+            .push_dest_address(DestAddress::DistributionListName(
+                DistributionListName::new(COctetString::new(b"1234567890123456789\0").unwrap()),
+            ))
+            .clear_dest_address()
+            .build();
+
+        assert_eq!(submit_sm.number_of_dests(), 0);
+        assert!(submit_sm.dest_address().is_empty());
     }
 }

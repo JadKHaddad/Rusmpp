@@ -376,15 +376,15 @@ mod tests {
         let message_payload = MessagePayload::new(AnyOctetString::new(b"Message Payload"));
 
         // Using push_tlv
-        let submit_sm = DeliverSm::builder()
+        let deliver_sm = DeliverSm::builder()
             .short_message(short_message.clone())
             .push_tlv(MessageDeliveryRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             ))
             .build();
 
-        assert_eq!(submit_sm.short_message(), &OctetString::empty());
-        assert_eq!(submit_sm.sm_length(), 0);
+        assert_eq!(deliver_sm.short_message(), &OctetString::empty());
+        assert_eq!(deliver_sm.sm_length(), 0);
 
         // Using tlvs
         let submit_sm = DeliverSm::builder()

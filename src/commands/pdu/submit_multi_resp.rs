@@ -145,13 +145,69 @@ impl SubmitMultiRespBuilder {
     }
 }
 
-// TODO: test the counted decode
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
+    use crate::{
+        commands::types::{Npi, Ton},
+        CommandStatus,
+    };
+
     use super::*;
 
     #[test]
     fn encode_decode() {
         crate::tests::encode_decode_with_length_test_instances::<SubmitMultiResp>();
+    }
+
+    #[test]
+    fn count() {
+        let submit_multi = SubmitMultiResp::default();
+
+        assert_eq!(submit_multi.no_unsuccess(), 0);
+        assert!(submit_multi.unsuccess_sme().is_empty());
+
+        let submit_multi = SubmitMultiResp::builder()
+            .unsuccess_sme(vec![
+                UnsuccessSme::default(),
+                UnsuccessSme::new(
+                    Ton::International,
+                    Npi::Data,
+                    COctetString::from_str("1234567890").unwrap(),
+                    CommandStatus::EsmeRunknownerr,
+                ),
+            ])
+            .build();
+
+        assert_eq!(submit_multi.no_unsuccess(), 2);
+        assert_eq!(submit_multi.unsuccess_sme().len(), 2);
+
+        let submit_multi = SubmitMultiResp::builder()
+            .push_unsuccess_sme(UnsuccessSme::default())
+            .push_unsuccess_sme(UnsuccessSme::new(
+                Ton::International,
+                Npi::Data,
+                COctetString::from_str("1234567890").unwrap(),
+                CommandStatus::EsmeRunknownerr,
+            ))
+            .build();
+
+        assert_eq!(submit_multi.no_unsuccess(), 2);
+        assert_eq!(submit_multi.unsuccess_sme().len(), 2);
+
+        let submit_multi = SubmitMultiResp::builder()
+            .push_unsuccess_sme(UnsuccessSme::default())
+            .push_unsuccess_sme(UnsuccessSme::new(
+                Ton::International,
+                Npi::Data,
+                COctetString::from_str("1234567890").unwrap(),
+                CommandStatus::EsmeRunknownerr,
+            ))
+            .clear_unsuccess_sme()
+            .build();
+
+        assert_eq!(submit_multi.no_unsuccess(), 0);
+        assert!(submit_multi.unsuccess_sme().is_empty());
     }
 }

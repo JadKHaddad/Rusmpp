@@ -42,7 +42,8 @@ crate::create! {
 }
 
 impl Tlv {
-    pub fn new(value: TlvValue) -> Self {
+    pub fn new(value: impl Into<TlvValue>) -> Self {
+        let value = value.into();
         let tag = value.tag();
         let value_length = value.length() as u16;
 

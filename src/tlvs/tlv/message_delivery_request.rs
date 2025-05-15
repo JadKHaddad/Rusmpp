@@ -244,7 +244,8 @@ mod tlv {
     }
 
     impl MessageDeliveryRequestTlv {
-        pub fn new(value: MessageDeliveryRequestTlvValue) -> Self {
+        pub fn new(value: impl Into<MessageDeliveryRequestTlvValue>) -> Self {
+            let value = value.into();
             let tag = value.tag();
             let value_length = value.length() as u16;
 

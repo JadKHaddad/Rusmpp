@@ -87,7 +87,8 @@ mod tlv {
     }
 
     impl BroadcastResponseTlv {
-        pub fn new(value: BroadcastResponseTlvValue) -> Self {
+        pub fn new(value: impl Into<BroadcastResponseTlvValue>) -> Self {
+            let value = value.into();
             let tag = value.tag();
             let value_length = value.length() as u16;
 

@@ -315,7 +315,8 @@ mod tlv {
     }
 
     impl MessageSubmissionRequestTlv {
-        pub fn new(value: MessageSubmissionRequestTlvValue) -> Self {
+        pub fn new(value: impl Into<MessageSubmissionRequestTlvValue>) -> Self {
+            let value = value.into();
             let tag = value.tag();
             let value_length = value.length() as u16;
 

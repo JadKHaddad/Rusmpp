@@ -89,7 +89,8 @@ mod tlv {
     }
 
     impl CancelBroadcastTlv {
-        pub fn new(value: CancelBroadcastTlvValue) -> Self {
+        pub fn new(value: impl Into<CancelBroadcastTlvValue>) -> Self {
+            let value = value.into();
             let tag = value.tag();
             let value_length = value.length() as u16;
 

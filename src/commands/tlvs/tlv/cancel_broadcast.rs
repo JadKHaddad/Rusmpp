@@ -4,17 +4,40 @@ use crate::commands::{
     types::{broadcast_content_type::BroadcastContentType, UserMessageReference},
 };
 
+#[repr(u16)]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum CancelBroadcastTlvTag {
-    BroadcastContentType,
-    UserMessageReference,
+    UserMessageReference = 0x0204,
+    BroadcastContentType = 0x0601,
+    Other(u16),
+}
+
+impl From<u16> for CancelBroadcastTlvTag {
+    fn from(tag: u16) -> Self {
+        match tag {
+            0x0204 => CancelBroadcastTlvTag::UserMessageReference,
+            0x0601 => CancelBroadcastTlvTag::BroadcastContentType,
+            other => CancelBroadcastTlvTag::Other(other),
+        }
+    }
+}
+
+impl From<CancelBroadcastTlvTag> for u16 {
+    fn from(tag: CancelBroadcastTlvTag) -> Self {
+        match tag {
+            CancelBroadcastTlvTag::UserMessageReference => 0x0204,
+            CancelBroadcastTlvTag::BroadcastContentType => 0x0601,
+            CancelBroadcastTlvTag::Other(other) => other,
+        }
+    }
 }
 
 impl From<CancelBroadcastTlvTag> for TlvTag {
-    fn from(v: CancelBroadcastTlvTag) -> Self {
-        match v {
-            CancelBroadcastTlvTag::BroadcastContentType => TlvTag::BroadcastContentType,
+    fn from(tag: CancelBroadcastTlvTag) -> Self {
+        match tag {
             CancelBroadcastTlvTag::UserMessageReference => TlvTag::UserMessageReference,
+            CancelBroadcastTlvTag::BroadcastContentType => TlvTag::BroadcastContentType,
+            CancelBroadcastTlvTag::Other(other) => TlvTag::Other(other),
         }
     }
 }

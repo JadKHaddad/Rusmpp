@@ -1,8 +1,8 @@
-use super::Pdu;
 use crate::{
     commands::types::{ms_availability_status::MsAvailabilityStatus, npi::Npi, ton::Ton},
     tlvs::SingleTlv,
     types::COctetString,
+    Pdu,
 };
 
 crate::create! {

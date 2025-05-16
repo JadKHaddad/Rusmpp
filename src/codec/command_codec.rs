@@ -3,14 +3,7 @@
 /// # Usage
 /// ```rust
 /// use futures::{SinkExt, StreamExt};
-/// use rusmpp::{
-///     codec::CommandCodec,
-///     commands::{
-///         command::Command,
-///         pdu::Pdu,
-///         types::{command_id::CommandId, command_status::CommandStatus},
-///     },
-/// };
+/// use rusmpp::{codec::CommandCodec, Command, CommandId, CommandStatus, Pdu};
 /// use tokio::io::DuplexStream;
 /// use tokio_util::codec::Framed;
 ///
@@ -19,7 +12,7 @@
 ///         let mut framed = Framed::new(server_stream, CommandCodec::new());
 ///
 ///         while let Some(Ok(command)) = framed.next().await {
-///             if let CommandId::EnquireLink = command.command_id() {
+///             if let CommandId::EnquireLink = command.id() {
 ///                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
 ///                 framed.send(&response).await.unwrap();
 ///                 break;
@@ -40,7 +33,7 @@
 ///     framed.send(&enquire_link_command).await?;
 ///
 ///     while let Some(Ok(command)) = framed.next().await {
-///         if let CommandId::EnquireLinkResp = command.command_id() {
+///         if let CommandId::EnquireLinkResp = command.id() {
 ///             break;
 ///         }
 ///     }
@@ -94,9 +87,9 @@ pub mod tokio {
     };
 
     use crate::{
-        commands::command::Command,
         decode::DecodeWithLength,
         encode::{Encode, Length},
+        Command,
     };
 
     use super::CommandCodec;

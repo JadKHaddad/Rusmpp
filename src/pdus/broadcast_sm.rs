@@ -1,4 +1,3 @@
-use super::Pdu;
 use crate::{
     commands::types::{
         data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
@@ -6,6 +5,7 @@ use crate::{
     },
     tlvs::{BroadcastRequestTlvValue, Tlv},
     types::{COctetString, EmptyOrFullCOctetString},
+    Pdu,
 };
 
 crate::create! {

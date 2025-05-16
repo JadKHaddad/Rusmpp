@@ -30,12 +30,6 @@ pub use broadcast_message_class::BroadcastMessageClass;
 pub mod callback_num_pres_ind;
 pub use callback_num_pres_ind::CallbackNumPresInd;
 
-pub mod command_id;
-pub use command_id::CommandId;
-
-pub mod command_status;
-pub use command_status::CommandStatus;
-
 pub mod congestion_state;
 pub use congestion_state::CongestionState;
 

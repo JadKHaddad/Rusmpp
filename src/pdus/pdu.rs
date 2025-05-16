@@ -1,73 +1,13 @@
-//! `SMPP` PDUs.
-
 use crate::{
     decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKeyOptional, DecodeWithLength},
     encode::{Encode, Length},
     types::AnyOctetString,
+    CommandId,
 };
 
-use super::types::command_id::CommandId;
+use super::*;
 
-pub mod alert_notification;
-pub use alert_notification::AlertNotification;
-
-pub mod bind;
-pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
-
-pub mod bind_resp;
-pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
-
-pub mod cancel_sm;
-pub use cancel_sm::CancelSm;
-
-pub mod data_sm;
-pub use data_sm::DataSm;
-
-pub mod deliver_sm;
-pub use deliver_sm::DeliverSm;
-
-pub mod outbind;
-pub use outbind::Outbind;
-
-pub mod query_sm;
-pub use query_sm::QuerySm;
-
-pub mod query_sm_resp;
-pub use query_sm_resp::QuerySmResp;
-
-pub mod replace_sm;
-pub use replace_sm::ReplaceSm;
-
-pub mod sm_resp;
-pub use sm_resp::{DataSmResp, DeliverSmResp};
-
-pub mod submit_sm;
-pub use submit_sm::SubmitSm;
-
-pub mod submit_sm_resp;
-pub use submit_sm_resp::SubmitSmResp;
-
-pub mod submit_multi;
-pub use submit_multi::SubmitMulti;
-
-pub mod submit_multi_resp;
-pub use submit_multi_resp::SubmitMultiResp;
-
-pub mod broadcast_sm;
-pub use broadcast_sm::BroadcastSm;
-
-pub mod broadcast_sm_resp;
-pub use broadcast_sm_resp::BroadcastSmResp;
-
-pub mod query_broadcast_sm;
-pub use query_broadcast_sm::QueryBroadcastSm;
-
-pub mod query_broadcast_sm_resp;
-pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
-
-pub mod cancel_broadcast_sm;
-pub use cancel_broadcast_sm::CancelBroadcastSm;
-
+/// `SMPP` PDU.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub enum Pdu {

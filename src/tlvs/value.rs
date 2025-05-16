@@ -7,8 +7,7 @@ use crate::{
         broadcast_content_type::BroadcastContentType,
         broadcast_frequency_interval::BroadcastFrequencyInterval,
         broadcast_message_class::BroadcastMessageClass, callback_num_pres_ind::CallbackNumPresInd,
-        command_status::CommandStatus, congestion_state::CongestionState,
-        delivery_failure_reason::DeliveryFailureReason,
+        congestion_state::CongestionState, delivery_failure_reason::DeliveryFailureReason,
         dest_addr_np_resolution::DestAddrNpResolution, display_time::DisplayTime,
         dpf_result::DpfResult, interface_version::InterfaceVersion, its_reply_type::ItsReplyType,
         its_session_info::ItsSessionInfo, language_indicator::LanguageIndicator,
@@ -23,6 +22,7 @@ use crate::{
     encode::{Encode, Length},
     tlvs::TlvTag,
     types::{AnyOctetString, COctetString, OctetString},
+    CommandStatus,
 };
 
 /// See module level documentation.

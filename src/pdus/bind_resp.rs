@@ -1,6 +1,5 @@
-use super::Pdu;
 use crate::{
-    commands::types::interface_version::InterfaceVersion, tlvs::SingleTlv, types::COctetString,
+    commands::types::interface_version::InterfaceVersion, tlvs::SingleTlv, types::COctetString, Pdu,
 };
 
 macro_rules! declare_bind_resp {

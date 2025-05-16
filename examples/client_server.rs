@@ -7,14 +7,7 @@
 //!
 
 use futures::{SinkExt, StreamExt};
-use rusmpp::{
-    codec::CommandCodec,
-    commands::{
-        command::Command,
-        pdu::Pdu,
-        types::{command_id::CommandId, command_status::CommandStatus},
-    },
-};
+use rusmpp::{codec::CommandCodec, Command, CommandId, CommandStatus, Pdu};
 use tokio::io::DuplexStream;
 use tokio_util::codec::Framed;
 

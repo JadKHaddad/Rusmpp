@@ -1,6 +1,4 @@
-use crate::commands::types::{
-    broadcast_area_identifier::BroadcastAreaIdentifier, command_status::CommandStatus,
-};
+use crate::{commands::types::broadcast_area_identifier::BroadcastAreaIdentifier, CommandStatus};
 
 crate::create_tlv_value! {
     #[non_exhaustive]

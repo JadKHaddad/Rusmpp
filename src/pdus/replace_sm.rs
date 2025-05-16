@@ -1,4 +1,3 @@
-use super::Pdu;
 use crate::{
     commands::types::{
         npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload,
@@ -6,6 +5,7 @@ use crate::{
     encode::Length,
     tlvs::SingleTlv,
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    Pdu,
 };
 
 crate::create! {

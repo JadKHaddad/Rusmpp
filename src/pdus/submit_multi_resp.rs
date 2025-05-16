@@ -1,8 +1,8 @@
-use super::Pdu;
 use crate::{
     commands::types::unsuccess_sme::UnsuccessSme,
     tlvs::{MessageSubmissionResponseTlvValue, Tlv},
     types::COctetString,
+    Pdu,
 };
 
 crate::create! {

@@ -1,7 +1,7 @@
-use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     types::COctetString,
+    Pdu,
 };
 
 crate::create! {

@@ -11,7 +11,7 @@ use rusmpp::{
     commands::types::{
         EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
     },
-    pdu::{BindTransceiver, SubmitSm},
+    pdus::{BindTransceiver, SubmitSm},
     tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{AnyOctetString, COctetString, OctetString},
     Command, CommandId, CommandStatus, Pdu,

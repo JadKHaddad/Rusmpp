@@ -82,7 +82,7 @@ pub trait HasTlvTag {
 
 /// Since `TLV`s can be used in any order, we store them in a `Vec`.
 /// This is a single concrete `TLV` used in `PDU`s that define a single concrete `TLV` at the end,
-/// like [`BindTransmitterResp`](crate::commands::pdu::bind_resp::BindTransmitterResp), [`BindReceiverResp`](crate::commands::pdu::bind_resp::BindReceiverResp), [`BindTransceiverResp`](crate::commands::pdu::bind_resp::BindTransceiverResp) and [`AlertNotification`](crate::commands::pdu::alert_notification::AlertNotification).
+/// like [`BindTransmitterResp`](crate::pdus::BindTransmitterResp), [`BindReceiverResp`](crate::pdus::BindReceiverResp), [`BindTransceiverResp`](crate::pdus::BindTransceiverResp) and [`AlertNotification`](crate::pdus::AlertNotification).
 ///
 /// The decoding of this `TLV` might fail if the given tag does not match the expected tag.
 ///

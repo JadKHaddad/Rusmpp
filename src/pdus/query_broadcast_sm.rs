@@ -1,8 +1,8 @@
-use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, ton::Ton, UserMessageReference},
     tlvs::SingleTlv,
     types::COctetString,
+    Pdu,
 };
 
 crate::create! {

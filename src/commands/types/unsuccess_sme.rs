@@ -1,5 +1,6 @@
-use super::{command_status::CommandStatus, npi::Npi, ton::Ton};
-use crate::types::COctetString;
+use crate::{types::COctetString, CommandStatus};
+
+use super::{npi::Npi, ton::Ton};
 
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -11,7 +12,7 @@ crate::create! {
         pub dest_addr_npi: Npi,
         /// Destination Address of SME.
         pub destination_addr: COctetString<1, 21>,
-        /// Indicates the success or failure of the [`Pdu::SubmitMulti`](type@crate::commands::pdu::Pdu::SubmitMulti) request to this SME address.
+        /// Indicates the success or failure of the [`SubmitMulti`](type@crate::pdus::SubmitMulti) request to this SME address.
         pub error_status_code: CommandStatus,
     }
 }

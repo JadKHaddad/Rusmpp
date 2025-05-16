@@ -14,23 +14,19 @@ mod tokio {
 
     use crate::{
         codec::{command_codec::CommandCodec, tokio::DecodeError},
-        commands::{
-            command::Command,
-            pdu::{submit_sm::SubmitSm, Pdu},
-            types::{
-                broadcast_area_identifier::BroadcastAreaFormat, command_status::CommandStatus,
-                data_coding::DataCoding, esm_class::EsmClass, interface_version::InterfaceVersion,
-                npi::Npi, registered_delivery::RegisteredDelivery,
-                replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-                AlertOnMessageDelivery, BroadcastAreaIdentifier, BroadcastMessageClass,
-                MessagePayload, MsAvailabilityStatus,
-            },
+        commands::types::{
+            broadcast_area_identifier::BroadcastAreaFormat, data_coding::DataCoding,
+            esm_class::EsmClass, interface_version::InterfaceVersion, npi::Npi,
+            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
+            service_type::ServiceType, ton::Ton, AlertOnMessageDelivery, BroadcastAreaIdentifier,
+            BroadcastMessageClass, MessagePayload, MsAvailabilityStatus,
         },
         encode::Length,
-        pdu::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm},
+        pdus::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm, SubmitSm},
         tests::test_commands,
         tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
         types::{AnyOctetString, COctetString, OctetString},
+        Command, CommandStatus, Pdu,
     };
 
     #[tokio::test]

@@ -2,6 +2,8 @@
 
 Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
 
+TODO: This must be updated
+
 ```rust
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
@@ -30,7 +32,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     // Wait for responses.
     while let Some(Ok(command)) = framed_read.next().await {
-        if let CommandId::EnquireLinkResp = command.command_id() {
+        if let CommandId::EnquireLinkResp = command.id() {
             break;
         }
     }

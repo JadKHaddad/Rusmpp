@@ -4,14 +4,7 @@
 //!
 //! ```rust
 //! use futures::{SinkExt, StreamExt};
-//! use rusmpp::{
-//!     codec::CommandCodec,
-//!     commands::{
-//!         command::Command,
-//!         pdu::Pdu,
-//!         types::{command_id::CommandId, command_status::CommandStatus},
-//!     },
-//! };
+//! use rusmpp::{codec::CommandCodec, Command, CommandId, CommandStatus, Pdu};
 //! use tokio::io::DuplexStream;
 //! use tokio_util::codec::Framed;
 //!
@@ -20,13 +13,14 @@
 //!         let mut framed = Framed::new(server_stream, CommandCodec::new());
 //!
 //!         while let Some(Ok(command)) = framed.next().await {
-//!             if let CommandId::EnquireLink = command.command_id() {
+//!             if let CommandId::EnquireLink = command.id() {
 //!                 let response = Command::new(CommandStatus::EsmeRok, command.sequence_number, Pdu::EnquireLinkResp);
 //!                 framed.send(&response).await.unwrap();
 //!                 break;
 //!             }
 //!         }
 //!     });
+//!
 //!     Ok(())
 //! }
 //!
@@ -41,7 +35,7 @@
 //!     framed.send(&enquire_link_command).await?;
 //!
 //!     while let Some(Ok(command)) = framed.next().await {
-//!         if let CommandId::EnquireLinkResp = command.command_id() {
+//!         if let CommandId::EnquireLinkResp = command.id() {
 //!             break;
 //!         }
 //!     }
@@ -57,15 +51,16 @@
 
 pub mod codec;
 
-pub mod commands;
-pub use commands::command::Command;
-pub use commands::pdu;
-pub use commands::pdu::Pdu;
-pub use commands::types::command_id::CommandId;
-pub use commands::types::command_status::CommandStatus;
+pub mod command;
+pub use command::command_id::CommandId;
+pub use command::command_status::CommandStatus;
+pub use command::inner::Command;
 
-pub mod session;
-pub use session::session_state::SessionState;
+pub mod pdus;
+pub use pdus::pdu::Pdu;
+
+mod session;
+pub use session::SessionState;
 
 pub mod tlvs;
 pub mod types;
@@ -80,9 +75,8 @@ pub mod encode;
 #[cfg(test)]
 pub(crate) mod tests;
 
-// New stuff
-
-mod dev;
+// TODO: extract types into values
+pub mod commands;
 
 #[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::debug;

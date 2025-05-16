@@ -5,9 +5,8 @@ use crate::{
     },
     tlvs::{MessageSubmissionRequestTlvValue, Tlv},
     types::COctetString,
+    Pdu,
 };
-
-use super::Pdu;
 
 crate::create! {
     @[skip_test]

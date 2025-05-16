@@ -1,7 +1,7 @@
 use crate::{
     decode::{Decode, DecodeWithLength},
     encode::Encode,
-    pdu::{
+    pdus::{
         AlertNotification, BindReceiver, BindReceiverResp, BindTransceiver, BindTransceiverResp,
         BindTransmitter, BindTransmitterResp, BroadcastSm, BroadcastSmResp, CancelBroadcastSm,
         CancelSm, DataSm, DataSmResp, DeliverSm, DeliverSmResp, Outbind, QueryBroadcastSm,

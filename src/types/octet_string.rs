@@ -59,6 +59,7 @@ impl core::error::Error for Error {}
 /// let string = OctetString::<10,5>::new(b"Hello");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
     bytes: Vec<u8>,
 }

@@ -5,6 +5,7 @@ use crate::{
 
 /// No fixed size [`OctetString`](struct@crate::types::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct AnyOctetString {
     bytes: Vec<u8>,
 }

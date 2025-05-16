@@ -87,6 +87,7 @@ impl core::error::Error for Error {}
 /// let string = COctetString::<10, 6>::new(b"Hello\0");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct COctetString<const MIN: usize, const MAX: usize> {
     bytes: Vec<u8>,
 }

@@ -51,6 +51,7 @@ impl core::error::Error for Error {}
 /// let string = EmptyOrFullCOctetString::<0>::new(b"Hello\0");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct EmptyOrFullCOctetString<const N: usize> {
     bytes: Vec<u8>,
 }

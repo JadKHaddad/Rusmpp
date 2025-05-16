@@ -1,5 +1,6 @@
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct NetworkErrorCode {
         pub network_type: ErrorCodeNetworkType,
         pub error_code: u16,
@@ -18,6 +19,7 @@ impl NetworkErrorCode {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum ErrorCodeNetworkType {
         Ansi136AccessDeniedReason = 1,
         Is95AccessDeniedReason = 2,

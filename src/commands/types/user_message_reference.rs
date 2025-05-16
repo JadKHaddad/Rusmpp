@@ -9,6 +9,7 @@ crate::create! {
     /// user_message_reference can be used to substitute an actual message_id or may be used in
     /// conjunction with a message_id.
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct UserMessageReference {
         pub value: u16,
     }

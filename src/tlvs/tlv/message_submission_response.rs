@@ -5,6 +5,7 @@ mod tag {
         #[repr(u16)]
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageSubmissionResponseTlvTag {
             AdditionalStatusInfoText = 0x001D,
             DpfResult = 0x0420,
@@ -68,6 +69,7 @@ mod value {
 
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageSubmissionResponseTlvValue {
             AdditionalStatusInfoText(COctetString<1, 256>),
             DeliveryFailureReason(DeliveryFailureReason),
@@ -92,6 +94,7 @@ mod tlv {
     crate::create! {
         @[skip_test]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub struct MessageSubmissionResponseTlv {
             tag: MessageSubmissionResponseTlvTag,
             value_length: u16,

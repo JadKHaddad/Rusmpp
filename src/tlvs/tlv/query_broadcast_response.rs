@@ -5,6 +5,7 @@ mod tag {
         #[repr(u16)]
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum QueryBroadcastResponseTlvTag {
             MessageState = 0x0427,
             BroadcastAreaIdentifier = 0x0606,
@@ -69,6 +70,7 @@ mod value {
 
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum QueryBroadcastResponseTlvValue {
             MessageState(MessageState),
             BroadcastAreaIdentifier(BroadcastAreaIdentifier),
@@ -94,6 +96,7 @@ mod tlv {
     crate::create! {
         @[skip_test]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub struct QueryBroadcastResponseTlv {
             tag: QueryBroadcastResponseTlvTag,
             value_length: u16,

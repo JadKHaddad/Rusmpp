@@ -8,6 +8,7 @@ macro_rules! declare_bind_resp {
         crate::create! {
             @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+            #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
             pub struct $name {
                 /// MC identifier.
                 ///

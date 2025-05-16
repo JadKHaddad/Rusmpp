@@ -13,6 +13,7 @@ use crate::{
 crate::create! {
     @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct SubmitMulti {
         /// The service_type parameter can be used to indicate the
         /// SMS Application service associated with the message.

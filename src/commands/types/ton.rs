@@ -2,6 +2,7 @@ crate::create! {
     #[repr(u8)]
     /// Type of Number.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum Ton {
         #[default]
         Unknown = 0b00000000,

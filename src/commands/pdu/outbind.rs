@@ -10,6 +10,7 @@ crate::create! {
     /// with a bind_receiver or bind_transceiver to begin the process
     /// of binding into the MC.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct Outbind {
         /// MC identifier.
         ///

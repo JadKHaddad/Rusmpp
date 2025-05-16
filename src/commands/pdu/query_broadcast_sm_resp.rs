@@ -4,6 +4,7 @@ use crate::{tlvs::QueryBroadcastResponseTlv, types::COctetString};
 crate::create! {
     @[skip_test]
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct QueryBroadcastSmResp {
         /// Message ID of the queried message. This must be the MC
         /// assigned Message ID allocated to the original short message

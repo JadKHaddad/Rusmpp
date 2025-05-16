@@ -3,6 +3,7 @@ use crate::tlvs::{HasTlvTag, TlvTag};
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum InterfaceVersion {
         Smpp3_3OrEarlier(u8),
         Smpp3_4 = 0x34,

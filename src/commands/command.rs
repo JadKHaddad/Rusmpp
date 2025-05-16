@@ -39,6 +39,7 @@ use super::{
 
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct Command {
         /// See [`CommandId`]
         command_id: CommandId,

@@ -2,6 +2,7 @@ crate::create! {
     #[repr(u8)]
     /// Refer to [CMT-136] for other values
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum LanguageIndicator {
         #[default]
         Unspecified = 0,

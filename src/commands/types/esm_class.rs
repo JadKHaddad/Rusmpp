@@ -2,6 +2,7 @@ crate::create! {
     @[repr = u8]
     @[skip_test]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct EsmClass {
         pub messaging_mode: MessagingMode,
         pub message_type: MessageType,
@@ -49,6 +50,7 @@ impl From<EsmClass> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum MessagingMode {
         #[default]
         Default = 0b00_00_00_00,
@@ -86,6 +88,7 @@ impl From<MessagingMode> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum MessageType {
         #[default]
         Default = 0b00_00_00_00,
@@ -120,6 +123,7 @@ impl From<MessageType> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum Ansi41Specific {
         #[default]
         ShortMessageContainsDeliveryAcknowledgement = 0b00_00_10_00,
@@ -154,6 +158,7 @@ impl From<Ansi41Specific> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum GsmFeatures {
         #[default]
         NotSelected = 0b00_00_00_00,

@@ -90,6 +90,7 @@ pub trait HasTlvTag {
 /// Creating an instance of this `TLV` using a factory function will always set the value to `Some`.
 /// But decoded instances may have a `None` value.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct SingleTlv<V> {
     tag: TlvTag,
     value_length: u16,

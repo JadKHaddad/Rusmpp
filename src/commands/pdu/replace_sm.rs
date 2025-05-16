@@ -17,6 +17,7 @@ crate::create! {
     /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
     /// address in the replace_sm command should also be NULL.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct ReplaceSm {
         /// Message ID of the message to be replaced.
         /// This must be the MC assigned Message ID

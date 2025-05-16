@@ -7,6 +7,7 @@ use crate::{
 crate::create! {
     @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct QuerySmResp {
         /// MC Message ID of the message whose
         /// state is being queried.

@@ -3,6 +3,7 @@ use crate::types::COctetString;
 
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct UnsuccessSme {
         /// Type of number for destination.
         pub dest_addr_ton: Ton,

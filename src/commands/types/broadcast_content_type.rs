@@ -1,6 +1,7 @@
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TypeOfNetwork {
         #[default]
         Generic = 0,
@@ -38,6 +39,7 @@ impl From<TypeOfNetwork> for u8 {
 crate::create! {
     #[repr(u16)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum EncodingContentType {
         #[default]
         Index = 0x0000,
@@ -195,6 +197,7 @@ impl From<EncodingContentType> for u16 {
 crate::create! {
     /// Specifies the content type of the message.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct BroadcastContentType {
         pub type_of_network: TypeOfNetwork,
         pub encoding_content_type: EncodingContentType,

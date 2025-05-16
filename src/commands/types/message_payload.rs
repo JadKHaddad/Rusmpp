@@ -5,6 +5,7 @@ use crate::{
 
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct MessagePayload {
         @[length = unchecked]
         pub value: AnyOctetString,

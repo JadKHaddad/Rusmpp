@@ -1,6 +1,7 @@
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum UnitOfTime {
         #[default]
         AsFrequentlyAsPossible = 0x00,
@@ -51,6 +52,7 @@ crate::create! {
     /// This field indicates the frequency interval at which
     /// the broadcasts of a message should be repeated.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct BroadcastFrequencyInterval {
         pub unit: UnitOfTime,
         pub value: u16,

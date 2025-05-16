@@ -69,6 +69,7 @@ pub mod cancel_broadcast_sm;
 pub use cancel_broadcast_sm::CancelBroadcastSm;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub enum Pdu {
     /// Authentication PDU used by a transmitter ESME to bind to
     /// the Message Centre. The PDU contains identification

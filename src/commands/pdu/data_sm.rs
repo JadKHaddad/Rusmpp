@@ -16,6 +16,7 @@ crate::create! {
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
     /// packet-based applications.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct DataSm {
         /// The service_type parameter can be used to indicate the
         /// SMS Application service associated with the message.

@@ -1,6 +1,7 @@
 crate::create! {
     @[repr = u8]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct MsMsgWaitFacilities {
         pub indicator: Indicator,
         pub type_of_message: TypeOfMessage,
@@ -34,6 +35,7 @@ impl From<MsMsgWaitFacilities> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum Indicator {
         #[default]
         Inactive = 0b00000000,
@@ -65,6 +67,7 @@ impl From<Indicator> for u8 {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TypeOfMessage {
         #[default]
         VoicemailMessageWaiting = 0b00000000,

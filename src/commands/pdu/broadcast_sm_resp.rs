@@ -4,6 +4,7 @@ use crate::{tlvs::BroadcastResponseTlv, types::COctetString};
 crate::create! {
     @[skip_test]
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct BroadcastSmResp {
         /// This field contains the MC message ID of the submitted
         /// message. It may be used at a later stage to perform
@@ -108,21 +109,34 @@ mod tests {
             vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
+                    .message_id(
+                        COctetString::from_str("12345678901234567890123456789012345678901234")
+                            .unwrap(),
+                    )
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
-                    .push_tlv(BroadcastResponseTlvValue::BroadcastErrorStatus(CommandStatus::EsmeRalybnd))
+                    .message_id(
+                        COctetString::from_str("12345678901234567890123456789012345678901234")
+                            .unwrap(),
+                    )
+                    .push_tlv(BroadcastResponseTlvValue::BroadcastErrorStatus(
+                        CommandStatus::EsmeRalybnd,
+                    ))
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("12345678901234567890123456789012345678901234").unwrap())
+                    .message_id(
+                        COctetString::from_str("12345678901234567890123456789012345678901234")
+                            .unwrap(),
+                    )
                     .tlvs(vec![
-                        BroadcastResponseTlvValue::BroadcastErrorStatus(CommandStatus::EsmeRbcastcancelfail),
+                        BroadcastResponseTlvValue::BroadcastErrorStatus(
+                            CommandStatus::EsmeRbcastcancelfail,
+                        ),
                         BroadcastResponseTlvValue::BroadcastAreaIdentifier(
                             BroadcastAreaIdentifier::new(
                                 BroadcastAreaFormat::Polygon,
                                 AnyOctetString::new(b"Polygon Area"),
-                            )
+                            ),
                         ),
                     ])
                     .build(),

@@ -13,6 +13,7 @@ crate::create! {
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct BroadcastSm {
         /// The service_type parameter can be used to
         /// indicate the SMS Application service

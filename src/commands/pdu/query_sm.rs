@@ -12,6 +12,7 @@ crate::create! {
     /// Where the original submit_sm, data_sm or submit_multi ‘source address’ was defaulted to
     /// NULL, then the source address in the query_sm command should also be set to NULL.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct QuerySm {
         /// Message ID of the message whose state
         /// is to be queried. This must be the MC

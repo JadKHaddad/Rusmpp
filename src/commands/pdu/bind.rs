@@ -9,6 +9,7 @@ macro_rules! declare_bind {
         crate::create! {
             @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+            #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
             pub struct $name {
                 /// Identifies the ESME system
                 /// requesting to bind with the MC.

@@ -2,6 +2,7 @@ crate::create! {
     #[repr(u8)]
     /// Numeric Plan Indicator.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum Npi {
         #[default]
         Unknown = 0b00000000,

@@ -15,6 +15,7 @@ crate::create! {
     /// replace_sm has a [`CommandId`] = 0x00000007 and its’ response PDU replace_sm_resp has
     /// a [`CommandId`] = 0x80000007.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum CommandId {
         BindReceiver = 0x00000001,
         BindTransmitter = 0x00000002,

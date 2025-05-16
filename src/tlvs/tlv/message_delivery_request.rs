@@ -5,6 +5,7 @@ mod tag {
         #[repr(u16)]
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageDeliveryRequestTlvTag {
             CallbackNum = 0x0381,
             CallbackNumAtag = 0x0303,
@@ -183,6 +184,7 @@ mod value {
 
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageDeliveryRequestTlvValue {
             CallbackNum(OctetString<4, 19>),
             CallbackNumAtag(OctetString<0, 65>),
@@ -235,6 +237,7 @@ mod tlv {
     crate::create! {
         @[skip_test]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub struct MessageDeliveryRequestTlv {
             tag: MessageDeliveryRequestTlvTag,
             value_length: u16,

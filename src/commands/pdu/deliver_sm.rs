@@ -15,6 +15,7 @@ crate::create! {
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct DeliverSm {
         /// The service_type parameter can be used to
         /// indicate the SMS Application service

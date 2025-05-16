@@ -86,6 +86,7 @@ crate::create! {
     ///
     /// See [`GenericServiceType`].
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct ServiceType {
         value: COctetString<1, 6>,
     }

@@ -21,6 +21,7 @@ crate::create! {
     /// recently submitted message with the specified user_message_reference value will be
     /// returned in the query_broadcast_sm_resp.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct QueryBroadcastSm {
         /// Message ID of the message to be queried. This must be
         /// the MC assigned Message ID allocated to the original

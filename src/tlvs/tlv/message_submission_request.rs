@@ -5,6 +5,7 @@ mod tag {
         #[repr(u16)]
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageSubmissionRequestTlvTag {
             AlertOnMessageDelivery = 0x130C,
             BillingIdentification = 0x060B,
@@ -242,6 +243,7 @@ mod value {
 
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum MessageSubmissionRequestTlvValue {
             AlertOnMessageDelivery(AlertOnMessageDelivery),
             BillingIdentification(OctetString<0, 1024>),
@@ -306,6 +308,7 @@ mod tlv {
     crate::create! {
         @[skip_test]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub struct MessageSubmissionRequestTlv {
             tag: MessageSubmissionRequestTlvTag,
             value_length: u16,

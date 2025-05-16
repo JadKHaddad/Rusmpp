@@ -3,6 +3,7 @@ use crate::types::OctetString;
 crate::create! {
     // https://smpp.org/SMPP_v5.pdf#page=165
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct Subaddress {
         pub tag: SubaddressTag,
         // addr can not be empty, because the whole source_subaddress tlv value is between 2 and 23 bytes long, and the tag is 1 byte long
@@ -20,6 +21,7 @@ impl Subaddress {
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum SubaddressTag {
         #[default]
         NsapEven = 0b10000000,

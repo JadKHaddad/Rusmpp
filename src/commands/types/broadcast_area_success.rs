@@ -5,6 +5,7 @@ crate::create! {
     /// number of BTSs that should have accepted the message, for
     /// a particular broadcast_area_identifier.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum BroadcastAreaSuccess {
         #[default]
         InformationNotAvailable,

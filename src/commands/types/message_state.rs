@@ -2,6 +2,7 @@ crate::create! {
     #[repr(u8)]
     /// This field indicates the current status of the broadcast message.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum MessageState {
         /// The message is scheduled. Delivery has not
         /// yet been initiated.

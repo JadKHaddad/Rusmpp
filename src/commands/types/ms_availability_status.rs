@@ -8,6 +8,7 @@ crate::create! {
     /// If the MC does not include the parameter in the alert_notification operation, the ESME should
     /// assume that the MS is in an “available” state.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum MsAvailabilityStatus {
         #[default]
         Available = 0,

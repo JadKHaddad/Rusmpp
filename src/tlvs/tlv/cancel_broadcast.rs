@@ -5,6 +5,7 @@ mod tag {
         #[repr(u16)]
         @[skip_test]
         #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum CancelBroadcastTlvTag {
             UserMessageReference = 0x0204,
             BroadcastContentType = 0x0601,
@@ -53,6 +54,7 @@ mod value {
 
     crate::create_tlv_value! {
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub enum CancelBroadcastTlvValue {
             /// Specifies the content type of the message.
             BroadcastContentType(BroadcastContentType),
@@ -80,6 +82,7 @@ mod tlv {
     crate::create! {
         @[skip_test]
         #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         pub struct CancelBroadcastTlv {
             tag: CancelBroadcastTlvTag,
             value_length: u16,

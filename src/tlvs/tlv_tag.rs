@@ -2,6 +2,7 @@ crate::create! {
     #[repr(u16)]
     @[skip_test]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TlvTag {
         DestAddrSubunit = 0x0005,
         DestNetworkType = 0x0006,

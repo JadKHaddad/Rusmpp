@@ -25,6 +25,7 @@ crate::create! {
     /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
     /// address in the cancel_broadcast_sm command should also be NULL.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct CancelBroadcastSm {
         /// Set to indicate CBS Application service, if
         /// cancellation of a group of application service

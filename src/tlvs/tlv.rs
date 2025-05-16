@@ -1,9 +1,8 @@
 use crate::{
     decode::{Decode, DecodeError, DecodeExt, DecodeWithLength, DecodeWithLengthExt},
     encode::{Encode, EncodeExt, Length},
+    tlvs::{tag::TlvTag, value::TlvValue},
 };
-
-use super::{tlv_tag::TlvTag, tlv_value::TlvValue};
 
 mod broadcast_request;
 pub use broadcast_request::*;

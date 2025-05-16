@@ -60,10 +60,10 @@
 //! all. The very absence of the TLV from the PDU is the
 //! means by which we set the values to NULL.
 
+mod tag;
 mod tlv;
-mod tlv_tag;
-mod tlv_value;
+mod value;
 
+pub use tag::*;
 pub use tlv::*;
-pub use tlv_tag::*;
-pub use tlv_value::*;
+pub use value::*;

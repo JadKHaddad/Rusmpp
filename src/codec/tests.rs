@@ -26,169 +26,16 @@ mod tokio {
                 MessagePayload, MsAvailabilityStatus,
             },
         },
-        pdu::{
-            AlertNotification, BindReceiver, BindReceiverResp, BindTransceiver,
-            BindTransceiverResp, BindTransmitter, BindTransmitterResp, BroadcastSm,
-            BroadcastSmResp, CancelBroadcastSm, CancelSm, DataSm, DataSmResp, DeliverSm,
-            DeliverSmResp, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp,
-            ReplaceSm, SubmitMulti, SubmitMultiResp, SubmitSmResp,
-        },
+        pdu::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm},
+        tests::test_commands,
         tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
         types::{AnyOctetString, COctetString, OctetString},
-        CommandId,
     };
 
     #[tokio::test]
     #[traced_test]
     async fn encode_decode() {
-        let commands = vec![
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransmitter(BindTransmitter::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransmitterResp(BindTransmitterResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindReceiver(BindReceiver::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindReceiverResp(BindReceiverResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransceiver(BindTransceiver::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransceiverResp(BindTransceiverResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::Outbind(Outbind::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::AlertNotification(AlertNotification::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitSm(SubmitSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitSmResp(SubmitSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QuerySm(QuerySm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QuerySmResp(QuerySmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DeliverSm(DeliverSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DeliverSmResp(DeliverSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DataSm(DataSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DataSmResp(DataSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelSm(CancelSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::ReplaceSm(ReplaceSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitMulti(SubmitMulti::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitMultiResp(SubmitMultiResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BroadcastSm(BroadcastSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BroadcastSmResp(BroadcastSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QueryBroadcastSm(QueryBroadcastSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QueryBroadcastSmResp(QueryBroadcastSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelBroadcastSm(CancelBroadcastSm::default()),
-            ),
-            Command::new(Default::default(), Default::default(), Pdu::Unbind),
-            Command::new(Default::default(), Default::default(), Pdu::UnbindResp),
-            Command::new(Default::default(), Default::default(), Pdu::EnquireLink),
-            Command::new(Default::default(), Default::default(), Pdu::EnquireLinkResp),
-            Command::new(Default::default(), Default::default(), Pdu::GenericNack),
-            Command::new(Default::default(), Default::default(), Pdu::CancelSmResp),
-            Command::new(Default::default(), Default::default(), Pdu::ReplaceSmResp),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelBroadcastSmResp,
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::Other {
-                    command_id: CommandId::Other(100),
-                    body: AnyOctetString::new(b"SMPP"),
-                },
-            ),
-        ];
-
+        let commands = test_commands();
         let (server, client) = tokio::io::duplex(1024);
 
         let mut framed_server = Framed::new(server, CommandCodec::new());
@@ -210,7 +57,7 @@ mod tokio {
             client_commands.push(command);
         }
 
-        assert_eq!(client_commands.last(), commands.last());
+        assert_eq!(client_commands, commands);
     }
 
     // cargo test do_codec --features tokio-codec -- --ignored --nocapture

@@ -212,7 +212,7 @@ pub mod tokio {
 
         fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
             if src.len() < 4 {
-                crate::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command_length");
+                crate::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command length");
 
                 return Ok(None);
             }

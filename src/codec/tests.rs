@@ -13,7 +13,7 @@ mod tokio {
     use tracing_test::traced_test;
 
     use crate::{
-        codec::command_codec::CommandCodec,
+        codec::{command_codec::CommandCodec, tokio::DecodeError},
         commands::{
             command::Command,
             pdu::{submit_sm::SubmitSm, Pdu},
@@ -26,6 +26,7 @@ mod tokio {
                 MessagePayload, MsAvailabilityStatus,
             },
         },
+        encode::Length,
         pdu::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm},
         tests::test_commands,
         tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
@@ -36,15 +37,15 @@ mod tokio {
     #[traced_test]
     async fn encode_decode() {
         let commands = test_commands();
-        let (server, client) = tokio::io::duplex(1024);
+        let (writer, reader) = tokio::io::duplex(128);
 
-        let mut framed_server = Framed::new(server, CommandCodec::new());
-        let mut framed_client = Framed::new(client, CommandCodec::new());
+        let mut framed_writer = Framed::new(writer, CommandCodec::new());
+        let mut framed_reader = Framed::new(reader, CommandCodec::new());
 
-        let server_commands = commands.clone();
+        let writer_commands = commands.clone();
         tokio::spawn(async move {
-            for command in server_commands {
-                framed_server
+            for command in writer_commands {
+                framed_writer
                     .send(command)
                     .await
                     .expect("Failed to send PDU");
@@ -53,11 +54,39 @@ mod tokio {
 
         let mut client_commands = Vec::new();
 
-        while let Some(Ok(command)) = framed_client.next().await {
+        while let Some(Ok(command)) = framed_reader.next().await {
             client_commands.push(command);
         }
 
         assert_eq!(client_commands, commands);
+    }
+
+    #[tokio::test]
+    async fn max_command_length() {
+        let max_command_length = 16;
+
+        let (writer, reader) = tokio::io::duplex(1024);
+
+        let mut framed_writer = Framed::new(writer, CommandCodec::new());
+        let mut framed_reader = Framed::new(
+            reader,
+            CommandCodec::new().with_max_command_length(max_command_length),
+        );
+
+        let command = Command::new(Default::default(), Default::default(), SubmitSm::default());
+        let command_length = 4 + command.length();
+
+        framed_writer.send(&command).await.unwrap();
+
+        match framed_reader.next().await.unwrap().unwrap_err() {
+            DecodeError::Length { actual, max } => {
+                assert_eq!(actual, command_length);
+                assert_eq!(max, max_command_length);
+            }
+            _ => {
+                panic!("Decode must fail with `DecodeError::Length`")
+            }
+        }
     }
 
     // cargo test do_codec --features tokio-codec -- --ignored --nocapture

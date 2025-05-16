@@ -53,7 +53,6 @@ pub struct CommandCodec {
     max_command_length: Option<usize>,
 }
 
-// TODO: impl the logic for max_command_length
 impl CommandCodec {
     #[inline]
     pub const fn new() -> Self {
@@ -169,6 +168,7 @@ pub mod tokio {
     pub enum DecodeError {
         Io(std::io::Error),
         Decode(crate::decode::DecodeError),
+        Length { actual: usize, max: usize },
     }
 
     impl From<std::io::Error> for DecodeError {
@@ -182,6 +182,12 @@ pub mod tokio {
             match self {
                 DecodeError::Io(e) => write!(f, "I/O error: {e}"),
                 DecodeError::Decode(e) => write!(f, "Decode error: {e}"),
+                DecodeError::Length { actual, max } => {
+                    write!(
+                        f,
+                        "Maximum command length exceeded. actual: {actual}, max: {max}"
+                    )
+                }
             }
         }
     }
@@ -191,6 +197,7 @@ pub mod tokio {
             match self {
                 DecodeError::Io(e) => Some(e),
                 DecodeError::Decode(e) => Some(e),
+                DecodeError::Length { .. } => None,
             }
         }
 
@@ -213,6 +220,17 @@ pub mod tokio {
             let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
 
             crate::trace!(target: "rusmpp::codec::decode", command_length);
+
+            if let Some(max_command_length) = self.max_command_length {
+                if command_length > max_command_length {
+                    crate::error!(target: "rusmpp::codec::decode", command_length, max_command_length, "Maximum command length exceeded");
+
+                    return Err(DecodeError::Length {
+                        actual: command_length,
+                        max: max_command_length,
+                    });
+                }
+            }
 
             if src.len() < command_length {
                 // Reserve enough space to read the entire command

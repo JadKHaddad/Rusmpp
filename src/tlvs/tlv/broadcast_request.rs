@@ -12,6 +12,7 @@ use crate::{
 };
 
 crate::create_tlv_value! {
+    #[non_exhaustive]
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub enum BroadcastRequestTlvValue {
         BroadcastAreaIdentifier(BroadcastAreaIdentifier),

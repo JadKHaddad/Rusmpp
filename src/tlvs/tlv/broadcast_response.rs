@@ -3,6 +3,7 @@ use crate::commands::types::{
 };
 
 crate::create_tlv_value! {
+    #[non_exhaustive]
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub enum BroadcastResponseTlvValue {
         BroadcastErrorStatus(CommandStatus),

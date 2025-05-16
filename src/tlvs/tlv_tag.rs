@@ -1,6 +1,7 @@
 crate::create! {
     #[repr(u16)]
     @[skip_test]
+    #[non_exhaustive]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TlvTag {

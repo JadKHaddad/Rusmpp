@@ -1,6 +1,7 @@
 use crate::commands::types::{broadcast_content_type::BroadcastContentType, UserMessageReference};
 
 crate::create_tlv_value! {
+    #[non_exhaustive]
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     pub enum CancelBroadcastTlvValue {
         /// Specifies the content type of the message.

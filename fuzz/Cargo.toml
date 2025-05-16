@@ -1,15 +1,17 @@
 [package]
-name = "rusmpp_fuzz"
+name = "rusmpp-fuzz"
 version = "0.0.0"
 publish = false
-edition = "2018"
+edition = "2021"
 
 [package.metadata]
 cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-rusmpp = { path = "../" }
+arbitrary = { version = "1.4.1" }
+rusmpp = { path = "../", features = ["arbitrary"], default-features = false }
+
 
 [workspace]
 members = ["."]

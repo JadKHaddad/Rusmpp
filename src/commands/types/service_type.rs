@@ -8,12 +8,12 @@ use crate::types::COctetString;
 ///
 /// let service_type = ServiceType::new(GenericServiceType::CellularMessaging.into());
 /// assert_eq!(service_type.value().bytes(), b"CMT\0");
-/// assert_eq!(service_type.value().to_str(), Ok("CMT"));
+/// assert_eq!(service_type.value().to_str(), Ok("CMT\0"));
 ///
 /// let generic_service_type = GenericServiceType::VoiceMailAlerting;
 /// let service_type: ServiceType = generic_service_type.into();
 /// assert_eq!(service_type.value().bytes(), b"VMA\0");
-/// assert_eq!(service_type.value().to_str(), Ok("VMA"));
+/// assert_eq!(service_type.value().to_str(), Ok("VMA\0"));
 /// ```
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
 pub enum GenericServiceType {

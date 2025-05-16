@@ -84,10 +84,12 @@ pub(crate) mod tests;
 
 mod dev;
 
+#[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::debug;
+#[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::error;
+#[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::trace;
 
 // TODO: no std
 // TODO: rework the exports
-// TODO: do the fuzz

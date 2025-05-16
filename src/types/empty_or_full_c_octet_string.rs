@@ -139,7 +139,7 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`] including the null terminator.
     #[inline]
     pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
-        core::str::from_utf8(&self.bytes[..self.bytes.len()])
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`EmptyOrFullCOctetString`].
@@ -214,7 +214,7 @@ impl<const N: usize> core::str::FromStr for EmptyOrFullCOctetString<N> {
 impl<const N: usize> core::fmt::Display for EmptyOrFullCOctetString<N> {
     /// Format an [`EmptyOrFullCOctetString`] including the null terminator.
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(&self.bytes[..self.bytes.len()]))
+        f.write_str(&String::from_utf8_lossy(&self.bytes))
     }
 }
 

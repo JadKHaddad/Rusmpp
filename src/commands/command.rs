@@ -42,9 +42,9 @@ crate::create! {
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct Command {
         /// See [`CommandId`]
-        command_id: CommandId,
+        id: CommandId,
         /// See [`CommandStatus`]
-        pub command_status: CommandStatus,
+        pub status: CommandStatus,
         /// The sequence_number represents a means of uniquely
         /// identifying each PDU within a `SMPP` session. It also provides a means of correlating request
         /// and response PDUs based on matching sequence number.
@@ -52,7 +52,7 @@ crate::create! {
         /// See [`Pdu`]
         ///
         /// Optional because incoming commands may not have a PDU.
-        @[key = command_id, length = unchecked]
+        @[key = id, length = unchecked]
         pdu: Option<Pdu>,
     }
 }
@@ -60,8 +60,8 @@ crate::create! {
 impl Default for Command {
     fn default() -> Self {
         Self {
-            command_id: CommandId::EnquireLink,
-            command_status: CommandStatus::EsmeRok,
+            id: CommandId::EnquireLink,
+            status: CommandStatus::EsmeRok,
             sequence_number: 0,
             pdu: Some(Pdu::EnquireLink),
         }
@@ -69,32 +69,36 @@ impl Default for Command {
 }
 
 impl Command {
-    pub fn new(command_status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
+    pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
         let pdu = pdu.into();
 
-        let command_id = pdu.command_id();
+        let id = pdu.command_id();
 
         Self {
-            command_id,
-            command_status,
+            id,
+            status,
             sequence_number,
             pdu: Some(pdu),
         }
     }
 
-    pub const fn new_const(command_status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {
-        let command_id = pdu.command_id();
+    pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {
+        let id = pdu.command_id();
 
         Self {
-            command_id,
-            command_status,
+            id,
+            status,
             sequence_number,
             pdu: Some(pdu),
         }
     }
 
-    pub const fn command_id(&self) -> CommandId {
-        self.command_id
+    pub const fn id(&self) -> CommandId {
+        self.id
+    }
+
+    pub const fn status(&self) -> CommandStatus {
+        self.status
     }
 
     pub const fn pdu(&self) -> Option<&Pdu> {
@@ -104,7 +108,7 @@ impl Command {
     pub fn set_pdu(&mut self, pdu: impl Into<Pdu>) {
         let pdu = pdu.into();
 
-        self.command_id = pdu.command_id();
+        self.id = pdu.command_id();
 
         self.pdu = Some(pdu);
     }
@@ -122,8 +126,8 @@ pub struct CommandStatusBuilder {
 }
 
 impl CommandStatusBuilder {
-    pub fn command_status(mut self, command_status: CommandStatus) -> SequenceNumberBuilder {
-        self.inner.command_status = command_status;
+    pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder {
+        self.inner.status = status;
 
         SequenceNumberBuilder { inner: self.inner }
     }

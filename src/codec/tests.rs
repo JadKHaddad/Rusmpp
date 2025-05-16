@@ -215,7 +215,7 @@ mod tokio {
         let mut framed = Framed::new(stream, CommandCodec::new());
 
         let bind_transmitter = Command::builder()
-            .command_status(CommandStatus::EsmeRok)
+            .status(CommandStatus::EsmeRok)
             .sequence_number(1)
             .pdu(BindTransmitter::builder().build());
 
@@ -240,7 +240,7 @@ mod tokio {
         let mut framed = Framed::new(stream, CommandCodec::new());
 
         let alert_notification = Command::builder()
-            .command_status(CommandStatus::EsmeRok)
+            .status(CommandStatus::EsmeRok)
             .sequence_number(1)
             .pdu(
                 AlertNotification::builder()
@@ -269,7 +269,7 @@ mod tokio {
         let mut framed = Framed::new(stream, CommandCodec::new());
 
         let broadcast_sm = Command::builder()
-            .command_status(CommandStatus::EsmeRok)
+            .status(CommandStatus::EsmeRok)
             .sequence_number(1)
             .pdu(
                 BroadcastSm::builder()
@@ -330,7 +330,7 @@ mod tokio {
         let mut framed = Framed::new(stream, CommandCodec::new());
 
         let submit_sm = Command::builder()
-            .command_status(CommandStatus::EsmeRok)
+            .status(CommandStatus::EsmeRok)
             .sequence_number(1)
             .pdu(
                 SubmitSm::builder()

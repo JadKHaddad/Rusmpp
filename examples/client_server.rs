@@ -23,7 +23,7 @@ async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn core::
         let mut framed = Framed::new(server_stream, CommandCodec::new());
 
         while let Some(Ok(command)) = framed.next().await {
-            if let CommandId::EnquireLink = command.command_id() {
+            if let CommandId::EnquireLink = command.id() {
                 println!("Server: EnquireLink received");
                 let response = Command::new(
                     CommandStatus::EsmeRok,
@@ -51,7 +51,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     framed.send(&enquire_link_command).await?;
 
     while let Some(Ok(command)) = framed.next().await {
-        if let CommandId::EnquireLinkResp = command.command_id() {
+        if let CommandId::EnquireLinkResp = command.id() {
             println!("Client: EnquireLink response received");
             break;
         }

@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     // Build commands. Omitted values will be set to default.
     let bind_transceiver_command = Command::builder()
-        .command_status(CommandStatus::EsmeRok)
+        .status(CommandStatus::EsmeRok)
         .sequence_number(1)
         .pdu(
             BindTransceiver::builder()
@@ -65,7 +65,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         if let Some(Pdu::BindTransceiverResp(_)) = command.pdu() {
             println!("BindTransceiverResp received.");
 
-            if let CommandStatus::EsmeRok = command.command_status {
+            if let CommandStatus::EsmeRok = command.status {
                 println!("Successful bind.");
                 break;
             }
@@ -101,7 +101,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             Some(Pdu::SubmitSmResp(_)) => {
                 println!("SubmitSmResp received.");
 
-                if let CommandStatus::EsmeRok = command.command_status {
+                if let CommandStatus::EsmeRok = command.status {
                     println!("Successful submit.");
                 }
             }
@@ -125,10 +125,10 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     framed_write.send(&unbind_command).await?;
 
     while let Some(Ok(command)) = framed_read.next().await {
-        if let CommandId::UnbindResp = command.command_id() {
+        if let CommandId::UnbindResp = command.id() {
             println!("UnbindResp received.");
 
-            if let CommandStatus::EsmeRok = command.command_status {
+            if let CommandStatus::EsmeRok = command.status {
                 println!("Successful unbind.");
                 break;
             }

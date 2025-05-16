@@ -33,6 +33,7 @@ crate::create! {
     @[skip_test]
     /// See module level documentation.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub struct Tlv {
         tag: TlvTag,
         value_length: u16,

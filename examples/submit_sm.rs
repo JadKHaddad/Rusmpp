@@ -12,7 +12,7 @@ use rusmpp::{
         EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
     },
     pdu::{BindTransceiver, SubmitSm},
-    tlvs::{MessageDeliveryRequestTlvTag, MessageSubmissionRequestTlvValue},
+    tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{AnyOctetString, COctetString, OctetString},
     Command, CommandId, CommandStatus, Pdu,
 };
@@ -109,7 +109,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                 println!("DeliverSm received.");
 
                 for tlv in deliver_sm.tlvs().iter() {
-                    if let MessageDeliveryRequestTlvTag::ReceiptedMessageId = tlv.tag() {
+                    if let TlvTag::ReceiptedMessageId = tlv.tag() {
                         println!("Delivery receipt received.");
 
                         break 'outer;

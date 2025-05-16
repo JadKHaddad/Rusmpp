@@ -6,7 +6,7 @@ use crate::{
         service_type::ServiceType, ton::Ton,
     },
     encode::Length,
-    tlvs::{MessageSubmissionRequestTlv, MessageSubmissionRequestTlvTag},
+    tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
 };
 
@@ -82,9 +82,9 @@ crate::create! {
         /// specified.
         @[length = sm_length]
         short_message: OctetString<0, 255>,
-        /// Message submission request TLVs ([`MessageSubmissionRequestTlv`]).
+        /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<MessageSubmissionRequestTlv>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -108,9 +108,9 @@ impl SubmitSm {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>,
+        tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(Into::into).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         let sm_length = short_message.length() as u8;
 
@@ -160,12 +160,12 @@ impl SubmitSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn tlvs(&self) -> &[MessageSubmissionRequestTlv] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).collect();
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         self.clear_short_message_if_message_payload_exists();
     }
@@ -174,8 +174,8 @@ impl SubmitSm {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlv>) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlvValue>) {
+        self.tlvs.push(Tlv::from(tlv.into()));
 
         self.clear_short_message_if_message_payload_exists();
     }
@@ -186,7 +186,7 @@ impl SubmitSm {
         let message_payload_exists = self
             .tlvs
             .iter()
-            .any(|value| matches!(value.tag(), MessageSubmissionRequestTlvTag::MessagePayload));
+            .any(|value| matches!(value.tag(), TlvTag::MessagePayload));
 
         if message_payload_exists {
             self.short_message = OctetString::empty();
@@ -310,7 +310,7 @@ impl SubmitSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlv>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -320,7 +320,7 @@ impl SubmitSmBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTlv>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTlvValue>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }
@@ -343,7 +343,6 @@ mod tests {
             BearerType, MessagePayload, Subaddress,
         },
         tests::TestInstance,
-        tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
     };
 

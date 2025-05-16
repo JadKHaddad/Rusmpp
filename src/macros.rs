@@ -621,7 +621,7 @@ pub(super) use debug;
 pub(super) use error;
 pub(super) use trace;
 
-/// Creates a `TlvValue`-like and implements `Length`, `Encode`, `DecodeWithKey` and `From<TlvValue>`.
+/// Creates a `TlvValue`-like and implements `Into<TlvValue>` and `Into<Tlv>`.
 #[macro_export]
 #[doc(hidden)]
 macro_rules! create_tlv_value {
@@ -632,11 +632,6 @@ macro_rules! create_tlv_value {
                 $(#[$variant_meta:meta])*
                 $variant:ident($variant_ty:ty),
             )*
-
-            @Other {
-                tag: $tag:ident,
-                value: $other_value:ty,
-            },
         }
     ) => {
         $(#[$enum_meta])*
@@ -645,20 +640,14 @@ macro_rules! create_tlv_value {
                 $(#[$variant_meta])*
                 $variant($variant_ty),
             )*
-
-            Other {
-                tag: $tag,
-                value: $other_value,
-            },
         }
 
         impl $enum_ident {
-            pub const fn tag(&self) -> $tag {
+            pub const fn tag(&self) -> $crate::tlvs::TlvTag {
                 match self {
                     $(
-                        $enum_ident::$variant(_) => $tag::$variant,
+                        $enum_ident::$variant(_) => $crate::tlvs::TlvTag::$variant,
                     )*
-                    $enum_ident::Other { tag, .. } => *tag,
                 }
             }
         }
@@ -669,58 +658,13 @@ macro_rules! create_tlv_value {
                     $(
                         $enum_ident::$variant(value) => $crate::tlvs::TlvValue::$variant(value),
                     )*
-                    $enum_ident::Other { tag, value } => $crate::tlvs::TlvValue::Other {
-                        tag: $crate::tlvs::TlvTag::from(tag),
-                        value,
-                    },
                 }
             }
         }
 
-        impl $crate::encode::Length for $enum_ident {
-            fn length(&self) -> usize {
-                match self {
-                    $(
-                        $enum_ident::$variant(value) => value.length(),
-                    )*
-                    $enum_ident::Other { value, .. } => value.length(),
-                }
-            }
-        }
-
-        impl $crate::encode::Encode for $enum_ident {
-            fn encode(&self, dst: &mut [u8]) -> usize {
-                match self {
-                    $(
-                        $enum_ident::$variant(value) =>value.encode(dst),
-                    )*
-                    $enum_ident::Other { value, .. } => value.encode(dst),
-                }
-            }
-        }
-
-        impl $crate::decode::DecodeWithKey for $enum_ident {
-            type Key = $tag;
-
-            fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), $crate::decode::DecodeError> {
-                use $crate::decode::DecodeResultExt;
-
-                let (value, size) = match key {
-                    $(
-                        $tag::$variant => {
-                            $crate::decode::DecodeWithLength::decode(src, length).map_decoded(|value| {
-                                $enum_ident::$variant(value)
-                            })?
-                        }
-                    )*
-                    $tag::Other(other) => $crate::decode::DecodeWithLength::decode(src, length)
-                        .map_decoded(|value| $enum_ident::Other {
-                            tag: $tag::Other(other),
-                            value,
-                        })?,
-                };
-
-                Ok((value, size))
+        impl From<$enum_ident> for $crate::tlvs::Tlv {
+            fn from(value: $enum_ident) -> Self {
+                Self::new($crate::tlvs::TlvValue::from(value))
             }
         }
     }

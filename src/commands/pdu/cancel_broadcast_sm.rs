@@ -1,7 +1,7 @@
 use super::Pdu;
 use crate::{
     commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
-    tlvs::CancelBroadcastTlv,
+    tlvs::{CancelBroadcastTlvValue, Tlv},
     types::COctetString,
 };
 
@@ -58,9 +58,9 @@ crate::create! {
         //
         // If not known, set to NULL (Unknown).
         pub source_addr: COctetString<1, 21>,
-        /// Cancel broadcast  TLVs ([`CancelBroadcastTlv`]).
+        /// Cancel broadcast  TLVs ([`CancelBroadcastTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<CancelBroadcastTlv>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -71,9 +71,9 @@ impl CancelBroadcastSm {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        tlvs: Vec<impl Into<CancelBroadcastTlv>>,
+        tlvs: Vec<impl Into<CancelBroadcastTlvValue>>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(Into::into).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         Self {
             service_type,
@@ -85,20 +85,20 @@ impl CancelBroadcastSm {
         }
     }
 
-    pub fn tlvs(&self) -> &[CancelBroadcastTlv] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).collect();
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTlvValue>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTlv>) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<CancelBroadcastTlvValue>) {
+        self.tlvs.push(Tlv::from(tlv.into()));
     }
 
     pub fn builder() -> CancelBroadcastSmBuilder {
@@ -147,7 +147,7 @@ impl CancelBroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTlv>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -157,7 +157,7 @@ impl CancelBroadcastSmBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<CancelBroadcastTlv>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<CancelBroadcastTlvValue>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }
@@ -177,8 +177,7 @@ mod tests {
             BroadcastContentType, UserMessageReference,
         },
         tests::TestInstance,
-        tlvs::{CancelBroadcastTlvTag, CancelBroadcastTlvValue},
-        types::AnyOctetString,
+        tlvs::CancelBroadcastTlvValue,
     };
 
     use super::*;
@@ -205,10 +204,6 @@ mod tests {
                         CancelBroadcastTlvValue::UserMessageReference(UserMessageReference::new(
                             16,
                         )),
-                        CancelBroadcastTlvValue::Other {
-                            tag: CancelBroadcastTlvTag::Other(0xF00D),
-                            value: AnyOctetString::new(b"FOOD"),
-                        },
                     ])
                     .build(),
             ]

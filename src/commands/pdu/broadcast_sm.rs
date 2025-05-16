@@ -4,7 +4,7 @@ use crate::{
         data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
         replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
     },
-    tlvs::BroadcastRequestTlv,
+    tlvs::{BroadcastRequestTlvValue, Tlv},
     types::{COctetString, EmptyOrFullCOctetString},
 };
 
@@ -81,9 +81,9 @@ crate::create! {
         ///
         /// If not using a MC canned message, set to NULL.
         pub sm_default_msg_id: u8,
-        /// Broadcast request TLVs ([`BroadcastRequestTlv`]).
+        /// Broadcast request TLVs ([`BroadcastRequestTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<BroadcastRequestTlv>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -101,9 +101,9 @@ impl BroadcastSm {
         replace_if_present_flag: ReplaceIfPresentFlag,
         data_coding: DataCoding,
         sm_default_msg_id: u8,
-        tlvs: Vec<impl Into<BroadcastRequestTlv>>,
+        tlvs: Vec<impl Into<BroadcastRequestTlvValue>>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(Into::into).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         Self {
             service_type,
@@ -121,16 +121,20 @@ impl BroadcastSm {
         }
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).collect();
+    pub fn tlvs(&self) -> &[Tlv] {
+        &self.tlvs
+    }
+
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTlvValue>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastRequestTlv>) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<BroadcastRequestTlvValue>) {
+        self.tlvs.push(Tlv::from(tlv.into()));
     }
 
     pub fn builder() -> BroadcastSmBuilder {
@@ -215,7 +219,7 @@ impl BroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTlv>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -225,7 +229,7 @@ impl BroadcastSmBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<BroadcastRequestTlv>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<BroadcastRequestTlvValue>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

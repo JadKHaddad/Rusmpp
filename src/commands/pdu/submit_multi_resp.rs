@@ -1,6 +1,7 @@
 use super::Pdu;
 use crate::{
-    commands::types::unsuccess_sme::UnsuccessSme, tlvs::MessageSubmissionResponseTlv,
+    commands::types::unsuccess_sme::UnsuccessSme,
+    tlvs::{MessageSubmissionResponseTlvValue, Tlv},
     types::COctetString,
 };
 
@@ -23,9 +24,9 @@ crate::create! {
         /// (Composite Field).
         @[count = no_unsuccess]
         unsuccess_sme: Vec<UnsuccessSme>,
-        /// Message submission response TLVs ([`MessageSubmissionResponseTlv`])
+        /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
         @[length = unchecked]
-        tlvs: Vec<MessageSubmissionResponseTlv>,
+        tlvs: Vec<Tlv>,
     }
 }
 
@@ -33,11 +34,11 @@ impl SubmitMultiResp {
     pub fn new(
         message_id: COctetString<1, 65>,
         unsuccess_sme: Vec<UnsuccessSme>,
-        tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>,
+        tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>,
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
-        let tlvs = tlvs.into_iter().map(Into::into).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         Self {
             message_id,
@@ -70,20 +71,20 @@ impl SubmitMultiResp {
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
 
-    pub fn tlvs(&self) -> &[MessageSubmissionResponseTlv] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).collect();
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTlv>) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTlvValue>) {
+        self.tlvs.push(Tlv::from(tlv.into()));
     }
 
     pub fn builder() -> SubmitMultiRespBuilder {
@@ -127,7 +128,7 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlv>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -137,7 +138,7 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionResponseTlv>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionResponseTlvValue>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

@@ -1,5 +1,8 @@
 use super::Pdu;
-use crate::{tlvs::QueryBroadcastResponseTlv, types::COctetString};
+use crate::{
+    tlvs::{QueryBroadcastResponseTlvValue, Tlv},
+    types::COctetString,
+};
 
 crate::create! {
     @[skip_test]
@@ -11,36 +14,36 @@ crate::create! {
         /// when submitted to the MC by the broadcast_sm, command, and
         /// returned in the broadcast_sm_resp PDU by the MC.
         pub message_id: COctetString<1, 65>,
-        /// Query broadcast response TLVs ([`QueryBroadcastResponseTLV`]).
+        /// Query broadcast response TLVs ([`QueryBroadcastResponseTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<QueryBroadcastResponseTlv>,
+        tlvs: Vec<Tlv>,
     }
 }
 
 impl QueryBroadcastSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>,
+        tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>,
     ) -> Self {
-        let tlvs = tlvs.into_iter().map(Into::into).collect();
+        let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         Self { message_id, tlvs }
     }
 
-    pub fn tlvs(&self) -> &[QueryBroadcastResponseTlv] {
+    pub fn tlvs(&self) -> &[Tlv] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>) {
-        self.tlvs = tlvs.into_iter().map(Into::into).collect();
+    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>) {
+        self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
     pub fn clear_tlvs(&mut self) {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<QueryBroadcastResponseTlv>) {
-        self.tlvs.push(tlv.into());
+    pub fn push_tlv(&mut self, tlv: impl Into<QueryBroadcastResponseTlvValue>) {
+        self.tlvs.push(Tlv::from(tlv.into()));
     }
 
     pub fn builder() -> QueryBroadcastSmRespBuilder {
@@ -69,7 +72,7 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlv>>) -> Self {
+    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -79,7 +82,7 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<QueryBroadcastResponseTlv>) -> Self {
+    pub fn push_tlv(mut self, tlv: impl Into<QueryBroadcastResponseTlvValue>) -> Self {
         self.inner.push_tlv(tlv);
         self
     }

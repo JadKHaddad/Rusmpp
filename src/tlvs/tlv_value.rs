@@ -27,6 +27,7 @@ use crate::{
 
 /// See module level documentation.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub enum TlvValue {
     AdditionalStatusInfoText(COctetString<1, 256>),
     AlertOnMessageDelivery(AlertOnMessageDelivery),

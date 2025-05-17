@@ -1,80 +1,52 @@
+//! If we panic!, we lose.
+//! 
+//! ```not_rust
+//! cargo fuzz run decode
+//! ```
+
 #![no_main]
 
+extern crate alloc;
+
+use arbitrary::Unstructured;
+use bytes::{BytesMut};
 use libfuzzer_sys::fuzz_target;
 use rusmpp::{
-    commands::{
-        command::Command,
-        pdu::{
-            AlertNotification, Bind, BindResp, BroadcastSm, BroadcastSmResp, CancelBroadcastSm,
-            CancelSm, DataSm, DeliverSm, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm,
-            QuerySmResp, ReplaceSm, SmResp, SubmitMulti, SubmitMultiResp, SubmitSm, SubmitSmResp,
-        },
-    },
-    ende::decode::{Decode, DecodeWithLength},
+    codec::CommandCodec, decode::DecodeWithLength, encode::{Encode, Length}, Command
 };
-use std::io::Cursor;
+use tokio_util::codec::Decoder;
+
 
 fuzz_target!(|data: &[u8]| {
-    let mut cursor = Cursor::new(data);
-    let _ = Command::decode_from(&mut cursor, data.len());
+    let mut codec = CommandCodec::new().with_max_length(1024);
 
-    let mut cursor = Cursor::new(data);
-    let _ = AlertNotification::decode_from(&mut cursor, data.len());
+    // Garbage
+    let _ = Command::decode(data, data.len());
 
-    let mut cursor = Cursor::new(data);
-    let _ = BindResp::decode_from(&mut cursor, data.len());
+    let mut bytes = BytesMut::new();
+    bytes.extend_from_slice(data);
 
-    let mut cursor = Cursor::new(data);
-    let _ = Bind::decode_from(&mut cursor);
+    // Garbage with tokio's Decoder
+    let _ = codec.decode(&mut bytes);
 
-    let mut cursor = Cursor::new(data);
-    let _ = BroadcastSmResp::decode_from(&mut cursor, data.len());
+    // Unstructured garbage
+    let mut u = Unstructured::new(data);
 
-    let mut cursor = Cursor::new(data);
-    let _ = BroadcastSm::decode_from(&mut cursor, data.len());
+    let command = u
+        .arbitrary::<Command>()
+        .expect("Failed to generate Command");
 
-    let mut cursor = Cursor::new(data);
-    let _ = CancelBroadcastSm::decode_from(&mut cursor, data.len());
+    let mut buf = ::alloc::vec![0u8; command.length()];
 
-    let mut cursor = Cursor::new(data);
-    let _ = CancelSm::decode_from(&mut cursor);
+    let mut bytes = BytesMut::new();
+    bytes.extend_from_slice(&buf);
 
-    let mut cursor = Cursor::new(data);
-    let _ = DataSm::decode_from(&mut cursor, data.len());
+    // Encode the garbage
+    let size = command.encode(&mut buf);
 
-    let mut cursor = Cursor::new(data);
-    let _ = DeliverSm::decode_from(&mut cursor, data.len());
+    // Decode the garbage
+    let _ = Command::decode(&buf[..size], command.length());
 
-    let mut cursor = Cursor::new(data);
-    let _ = Outbind::decode_from(&mut cursor);
-
-    let mut cursor = Cursor::new(data);
-    let _ = QueryBroadcastSmResp::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = QueryBroadcastSm::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = QuerySmResp::decode_from(&mut cursor);
-
-    let mut cursor = Cursor::new(data);
-    let _ = QuerySm::decode_from(&mut cursor);
-
-    let mut cursor = Cursor::new(data);
-    let _ = ReplaceSm::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = SmResp::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = SubmitMultiResp::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = SubmitMulti::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = SubmitSmResp::decode_from(&mut cursor, data.len());
-
-    let mut cursor = Cursor::new(data);
-    let _ = SubmitSm::decode_from(&mut cursor, data.len());
+    // Decode the garbage with tokio's Decoder
+    let _ = codec.decode(&mut bytes);
 });

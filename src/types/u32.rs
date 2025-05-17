@@ -6,10 +6,9 @@
 //! A 4-octet integer with the decimal value of 31022623
 //! would be encoded as 4 octets with the value 0x1D95E1F
 
-use crate::ende::{
+use crate::{
     decode::{Decode, DecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+    encode::{Encode, Length},
 };
 
 impl Length for u32 {
@@ -19,45 +18,30 @@ impl Length for u32 {
 }
 
 impl Encode for u32 {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(self.to_be_bytes().as_ref())?;
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        let bytes = self.to_be_bytes();
 
-        Ok(())
+        dst[0] = bytes[0];
+        dst[1] = bytes[1];
+        dst[2] = bytes[2];
+        dst[3] = bytes[3];
+
+        4
     }
 }
 
 impl Decode for u32 {
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
+        if src.len() < 4 {
+            return Err(DecodeError::unexpected_eof());
+        }
+
         let mut bytes = [0; 4];
-        reader.read_exact(&mut bytes)?;
+
+        bytes.copy_from_slice(&src[..4]);
 
         let value = u32::from_be_bytes(bytes);
 
-        Ok(value)
-    }
-}
-
-/// A trait for encoding and decoding a value as [`u32`]
-pub(crate) trait EndeU32
-where
-    Self: From<u32> + Copy,
-    u32: From<Self>,
-{
-    fn length(&self) -> usize {
-        4
-    }
-
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        u32::from(*self).encode_to(writer)
-    }
-
-    fn decode_from<R: std::io::Read>(reader: &mut R) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        u32::decode_from(reader).map(Self::from)
+        Ok((value, 4))
     }
 }

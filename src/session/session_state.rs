@@ -1,4 +1,4 @@
-/// The [`SessionState`] represents the state of an ESME session in the SMPP 5.0 protocol.
+/// The [`SessionState`] represents the state of an ESME session in the `SMPP` 5.0 protocol.
 ///
 /// The session state determines what operations are allowed at any given point in the
 /// communication between an ESME (External Short Message Entity) and an MC (Message Center).
@@ -16,7 +16,7 @@ pub enum SessionState {
     /// OPEN state.
     ///
     /// This state is entered after a connection is established between
-    /// the ESME and MC, but before any SMPP bind operation is performed.
+    /// the ESME and MC, but before any `SMPP` bind operation is performed.
     /// In this state, only bind operations are allowed.
     Open,
 

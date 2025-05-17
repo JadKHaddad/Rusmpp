@@ -1,4 +1,5 @@
-name: 'Check spelling'
+name: spellcheck
+
 on:
   pull_request:
   push:

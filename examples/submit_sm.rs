@@ -1,3 +1,5 @@
+//! You can run this example using [SMPP SMSC Simulator](https://github.com/melroselabs/smpp-smsc-simulator).
+//!
 //! Run with
 //!
 //! ```not_rust
@@ -7,43 +9,33 @@
 
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
+    Command, CommandId, CommandStatus, Pdu,
     codec::CommandCodec,
-    commands::{
-        tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
-        types::{EsmClass, InterfaceVersion, Npi, RegisteredDelivery, ServiceType, Ton},
-    },
-    pdu::{BindTransceiver, SubmitSm},
+    pdus::{BindTransceiver, SubmitSm},
+    tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{AnyOctetString, COctetString, OctetString},
-    Command, CommandId, CommandStatus, Pdu, TLVTag,
+    values::{
+        EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
+    },
 };
 use std::str::FromStr;
 use tokio::net::TcpStream;
-use tokio_util::codec::{FramedRead, FramedWrite};
+use tokio_util::codec::Framed;
+use tracing::info;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Set up powerful logging.
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var(
-            "RUST_LOG",
-            "rusmpp::codec::encode=trace,rusmpp::codec::decode=trace",
-        );
-    }
-
+async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_env_filter("submit_sm=info,rusmpp=trace")
         .init();
 
-    let stream = TcpStream::connect("34.242.18.250:2775").await?;
+    let stream = TcpStream::connect("127.0.0.1:2775").await?;
 
-    let (reader, writer) = stream.into_split();
-
-    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
-    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
+    let mut framed = Framed::new(stream, CommandCodec::new());
 
     // Build commands. Omitted values will be set to default.
     let bind_transceiver_command = Command::builder()
-        .command_status(CommandStatus::EsmeRok)
+        .status(CommandStatus::EsmeRok)
         .sequence_number(1)
         .pdu(
             BindTransceiver::builder()
@@ -58,59 +50,61 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
 
     // Send commands.
-    framed_write.send(&bind_transceiver_command).await?;
+    framed.send(bind_transceiver_command).await?;
 
     // Wait for responses.
-    while let Some(Ok(command)) = framed_read.next().await {
+    while let Some(Ok(command)) = framed.next().await {
         if let Some(Pdu::BindTransceiverResp(_)) = command.pdu() {
-            println!("BindTransceiverResp received.");
+            info!("BindTransceiverResp received.");
 
-            if let CommandStatus::EsmeRok = command.command_status {
-                println!("Successful bind.");
+            if let CommandStatus::EsmeRok = command.status() {
+                info!("Successful bind.");
+
                 break;
             }
         }
     }
 
-    let submit_sm_command = Command::new(
-        CommandStatus::EsmeRok,
-        2,
-        SubmitSm::builder()
-            .service_type(ServiceType::default())
-            .source_addr_ton(Ton::Unknown)
-            .source_addr_npi(Npi::Unknown)
-            .source_addr(COctetString::from_str("A-Source")?)
-            .destination_addr(COctetString::from_str("A-Dest")?)
-            .esm_class(EsmClass::default())
-            .registered_delivery(RegisteredDelivery::request_all())
-            .short_message(OctetString::from_str(
-                "Hi, I am a short message. I will be overridden :(",
-            )?)
-            .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
-                AnyOctetString::from_str(
-                    "Hi, I am a very long message. I will override the short message :D",
-                )?,
-            ))
-            .build(),
-    );
+    let submit_sm_command = Command::builder()
+        .status(CommandStatus::EsmeRok)
+        .sequence_number(2)
+        .pdu(
+            SubmitSm::builder()
+                .service_type(ServiceType::default())
+                .source_addr_ton(Ton::Unknown)
+                .source_addr_npi(Npi::Unknown)
+                .source_addr(COctetString::from_str("12345")?)
+                .destination_addr(COctetString::from_str("491701234567")?)
+                .esm_class(EsmClass::default())
+                .registered_delivery(RegisteredDelivery::request_all())
+                .short_message(OctetString::from_str(
+                    "Hi, I am a short message. I will be overridden :(",
+                )?)
+                .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                    MessagePayload::new(AnyOctetString::from_str(
+                        "Hi, I am a very long message. I will override the short message :D",
+                    )?),
+                ))
+                .build(),
+        );
 
-    framed_write.send(&submit_sm_command).await?;
+    framed.send(submit_sm_command).await?;
 
-    'outer: while let Some(Ok(command)) = framed_read.next().await {
+    'outer: while let Some(Ok(command)) = framed.next().await {
         match command.pdu() {
             Some(Pdu::SubmitSmResp(_)) => {
-                println!("SubmitSmResp received.");
+                info!("SubmitSmResp received.");
 
-                if let CommandStatus::EsmeRok = command.command_status {
-                    println!("Successful submit.");
+                if let CommandStatus::EsmeRok = command.status() {
+                    info!("Successful submit.");
                 }
             }
             Some(Pdu::DeliverSm(deliver_sm)) => {
-                println!("DeliverSm received.");
+                info!("DeliverSm received.");
 
                 for tlv in deliver_sm.tlvs().iter() {
-                    if let TLVTag::ReceiptedMessageId = tlv.tag() {
-                        println!("Delivery receipt received.");
+                    if let TlvTag::ReceiptedMessageId = tlv.tag() {
+                        info!("Delivery receipt received.");
 
                         break 'outer;
                     }
@@ -122,14 +116,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let unbind_command = Command::new(CommandStatus::EsmeRok, 3, Pdu::Unbind);
 
-    framed_write.send(&unbind_command).await?;
+    framed.send(unbind_command).await?;
 
-    while let Some(Ok(command)) = framed_read.next().await {
-        if let CommandId::UnbindResp = command.command_id() {
-            println!("UnbindResp received.");
+    while let Some(Ok(command)) = framed.next().await {
+        if let CommandId::UnbindResp = command.id() {
+            info!("UnbindResp received.");
 
-            if let CommandStatus::EsmeRok = command.command_status {
-                println!("Successful unbind.");
+            if let CommandStatus::EsmeRok = command.status() {
+                info!("Successful unbind.");
+
                 break;
             }
         }

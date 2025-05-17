@@ -1,204 +1,48 @@
 #[cfg(feature = "tokio-codec")]
 mod tokio {
-    use std::str::FromStr;
+    use std::{
+        format, println,
+        str::FromStr,
+        string::{String, ToString},
+        vec::Vec,
+    };
 
     use futures::{SinkExt, StreamExt};
     use testcontainers::{
+        GenericImage,
         core::{ContainerPort, WaitFor},
         runners::AsyncRunner,
-        GenericImage,
     };
     use tokio::net::TcpStream;
     use tokio_util::codec::{Framed, FramedRead, FramedWrite};
     use tracing_test::traced_test;
 
     use crate::{
-        codec::command_codec::CommandCodec,
-        commands::{
-            command::Command,
-            pdu::{submit_sm::SubmitSm, Pdu},
-            tlvs::tlv::message_submission_request::MessageSubmissionRequestTLVValue,
-            types::{
-                command_status::CommandStatus, data_coding::DataCoding, esm_class::EsmClass,
-                interface_version::InterfaceVersion, npi::Npi,
-                registered_delivery::RegisteredDelivery,
-                replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-            },
-        },
-        pdu::{
-            AlertNotification, BindReceiver, BindReceiverResp, BindTransceiver,
-            BindTransceiverResp, BindTransmitter, BindTransmitterResp, BroadcastSm,
-            BroadcastSmResp, CancelBroadcastSm, CancelSm, DataSm, DataSmResp, DeliverSm,
-            DeliverSmResp, Outbind, QueryBroadcastSm, QueryBroadcastSmResp, QuerySm, QuerySmResp,
-            ReplaceSm, SubmitMulti, SubmitMultiResp, SubmitSmResp,
-        },
-        types::{
-            any_octet_string::AnyOctetString, c_octet_string::COctetString,
-            octet_string::OctetString,
-        },
-        CommandId,
+        Command, CommandStatus, Pdu,
+        codec::{command_codec::CommandCodec, tokio::DecodeError},
+        encode::Length,
+        pdus::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm, SubmitSm},
+        tests::test_commands,
+        tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
+        types::{AnyOctetString, COctetString, OctetString},
+        values::*,
     };
 
+    /// Encode and decode every possible test command created using [`TestInstance`](crate::tests::TestInstance).
     #[tokio::test]
     #[traced_test]
-    async fn default_encode_decode() {
-        let commands = vec![
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransmitter(BindTransmitter::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransmitterResp(BindTransmitterResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindReceiver(BindReceiver::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindReceiverResp(BindReceiverResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransceiver(BindTransceiver::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BindTransceiverResp(BindTransceiverResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::Outbind(Outbind::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::AlertNotification(AlertNotification::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitSm(SubmitSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitSmResp(SubmitSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QuerySm(QuerySm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QuerySmResp(QuerySmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DeliverSm(DeliverSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DeliverSmResp(DeliverSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DataSm(DataSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::DataSmResp(DataSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelSm(CancelSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::ReplaceSm(ReplaceSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitMulti(SubmitMulti::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::SubmitMultiResp(SubmitMultiResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BroadcastSm(BroadcastSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::BroadcastSmResp(BroadcastSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QueryBroadcastSm(QueryBroadcastSm::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::QueryBroadcastSmResp(QueryBroadcastSmResp::default()),
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelBroadcastSm(CancelBroadcastSm::default()),
-            ),
-            Command::new(Default::default(), Default::default(), Pdu::Unbind),
-            Command::new(Default::default(), Default::default(), Pdu::UnbindResp),
-            Command::new(Default::default(), Default::default(), Pdu::EnquireLink),
-            Command::new(Default::default(), Default::default(), Pdu::EnquireLinkResp),
-            Command::new(Default::default(), Default::default(), Pdu::GenericNack),
-            Command::new(Default::default(), Default::default(), Pdu::CancelSmResp),
-            Command::new(Default::default(), Default::default(), Pdu::ReplaceSmResp),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::CancelBroadcastSmResp,
-            ),
-            Command::new(
-                Default::default(),
-                Default::default(),
-                Pdu::Other {
-                    command_id: CommandId::Other(100),
-                    body: AnyOctetString::new(b"SMPP"),
-                },
-            ),
-        ];
+    async fn encode_decode() {
+        let commands = test_commands();
 
-        let (server, client) = tokio::io::duplex(1024);
+        let (writer, reader) = tokio::io::duplex(128);
 
-        let mut framed_server = Framed::new(server, CommandCodec::new());
-        let mut framed_client = Framed::new(client, CommandCodec::new());
+        let mut framed_writer = Framed::new(writer, CommandCodec::new());
+        let mut framed_reader = Framed::new(reader, CommandCodec::new());
 
-        let server_commands = commands.clone();
+        let writer_commands = commands.clone();
         tokio::spawn(async move {
-            for command in server_commands {
-                framed_server
+            for command in writer_commands {
+                framed_writer
                     .send(command)
                     .await
                     .expect("Failed to send PDU");
@@ -207,13 +51,155 @@ mod tokio {
 
         let mut client_commands = Vec::new();
 
-        while let Some(Ok(command)) = framed_client.next().await {
+        while let Some(Ok(command)) = framed_reader.next().await {
             client_commands.push(command);
         }
 
-        assert_eq!(client_commands.last(), commands.last());
+        assert_eq!(client_commands, commands);
     }
 
+    #[tokio::test]
+    async fn max_length() {
+        let max_length = 16;
+
+        let (writer, reader) = tokio::io::duplex(1024);
+
+        let mut framed_writer = Framed::new(writer, CommandCodec::new());
+        let mut framed_reader =
+            Framed::new(reader, CommandCodec::new().with_max_length(max_length));
+
+        let command = Command::new(Default::default(), Default::default(), SubmitSm::default());
+        let command_length = 4 + command.length();
+
+        framed_writer.send(&command).await.unwrap();
+
+        match framed_reader.next().await.unwrap().unwrap_err() {
+            DecodeError::MaxLength { actual, max } => {
+                assert_eq!(actual, command_length);
+                assert_eq!(max, max_length);
+            }
+            _ => {
+                panic!("Decode must fail with `DecodeError::Length`")
+            }
+        }
+    }
+
+    /// Connect to localhost:2775 and send a command.
+    ///
+    /// I use this function to throw random commands at a server and catch them in wireshark.
+    async fn connect_and_send(command: Command) {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        framed.send(command).await.expect("Failed to send PDU");
+
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
+        }
+    }
+
+    // cargo test send_bind_transmitter --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_bind_transmitter() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(BindTransmitter::builder().build());
+
+        connect_and_send(command).await;
+    }
+
+    // cargo test send_alert_notification --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_alert_notification() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                AlertNotification::builder()
+                    .ms_availability_status(Some(MsAvailabilityStatus::Denied))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    // cargo test send_broadcast_sm --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_broadcast_sm() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                BroadcastSm::builder()
+                    .push_tlv(BroadcastRequestTlvValue::AlertOnMessageDelivery(
+                        AlertOnMessageDelivery::UseMediumPriorityAlert,
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::Polygon,
+                            AnyOctetString::new(b"Polygon Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::AliasName,
+                            AnyOctetString::new(b"AliasName Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 2"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 3"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
+                        BroadcastMessageClass::Class2,
+                    ))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    // cargo test send_submit_sm --features tokio-codec -- --ignored --nocapture
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_submit_sm() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                SubmitSm::builder()
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    ))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    // FIXME: Not really helpful.
     // cargo test do_codec --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "integration test"]
@@ -300,11 +286,13 @@ mod tokio {
                     OctetString::from_str("Hi, I am a short message. I will be overridden :(")
                         .expect("Failed to create short message"),
                 )
-                .push_tlv(MessageSubmissionRequestTLVValue::MessagePayload(
-                    AnyOctetString::from_str(
-                        "Hi, I am a very long message that will override the short message :D",
-                    )
-                    .expect("Failed to create message_payload"),
+                .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                    MessagePayload::new(
+                        AnyOctetString::from_str(
+                            "Hi, I am a very long message that will override the short message :D",
+                        )
+                        .expect("Failed to create message_payload"),
+                    ),
                 ))
                 .build(),
         );

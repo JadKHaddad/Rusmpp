@@ -17,11 +17,14 @@
         "Ermes",
         "ESME",
         "Haddad",
+        "Hellö",
         "hhmmsstnnp",
         "Irdb",
         "Isdn",
         "jadkhaddad",
         "libfuzzer",
+        "macrotest",
+        "monomorphization",
         "nocapture",
         "Nsap",
         "Outbind",
@@ -93,6 +96,7 @@
         "Rtlvnotallwd",
         "Runknownerr",
         "Rusmpp",
+        "rustc",
         "rustdoc",
         "Seqnum",
         "SMPP",
@@ -100,6 +104,7 @@
         "Subaddress",
         "superceded",
         "Swatinem",
+        "taiki",
         "TDMA",
         "Telematics",
         "teleservice",
@@ -108,7 +113,8 @@
         "Udhi",
         "Ussd",
         "Ussn",
-        "Wcmp"
+        "Wcmp",
+        "wireshark"
     ],
     "ignorePaths": [
         "target"

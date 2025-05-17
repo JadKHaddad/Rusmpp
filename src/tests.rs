@@ -176,6 +176,6 @@ fn print_decode_errors() {
 
         let _result = Command::decode(&buf[..size], size);
 
-        crate::debug!(result?_result);
+        crate::debug!(result=?_result);
     }
 }

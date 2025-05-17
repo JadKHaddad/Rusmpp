@@ -56,12 +56,21 @@ impl ::rusmpp::decode::DecodeWithLength for SubmitSm {
         length: usize,
     ) -> Result<(Self, usize), ::rusmpp::decode::DecodeError> {
         let size = 0;
-        let (other, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (sm_length, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (short_message, size) = ::rusmpp::decode::DecodeWithLengthExt::decode_move(
-            src,
-            sm_length as usize,
-            size,
+        let (other, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "other",
+        )?;
+        let (sm_length, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "sm_length",
+        )?;
+        let (short_message, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeWithLengthExt::decode_move(
+                src,
+                sm_length as usize,
+                size,
+            ),
+            "short_message",
         )?;
         Ok((
             Self {

@@ -65,20 +65,26 @@ impl ::rusmpp::decode::DecodeWithLength for Command {
         length: usize,
     ) -> Result<(Self, usize), ::rusmpp::decode::DecodeError> {
         let size = 0;
-        let (command_id, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (command_status, size) = ::rusmpp::decode::DecodeExt::decode_move(
-            src,
-            size,
+        let (command_id, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "command_id",
         )?;
-        let (sequence_number, size) = ::rusmpp::decode::DecodeExt::decode_move(
-            src,
-            size,
+        let (command_status, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "command_status",
         )?;
-        let (pdu, size) = ::rusmpp::decode::DecodeWithKeyOptionalExt::decode_move(
-                command_id,
-                src,
-                length.saturating_sub(size),
-                size,
+        let (sequence_number, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "sequence_number",
+        )?;
+        let (pdu, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+                ::rusmpp::decode::DecodeWithKeyOptionalExt::decode_move(
+                    command_id,
+                    src,
+                    length.saturating_sub(size),
+                    size,
+                ),
+                "pdu",
             )?
             .map(|(this, size)| (Some(this), size))
             .unwrap_or((None, size));

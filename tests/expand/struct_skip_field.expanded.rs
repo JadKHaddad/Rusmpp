@@ -41,7 +41,10 @@ impl ::rusmpp::encode::Encode for DistributionListName {
 impl ::rusmpp::decode::Decode for DistributionListName {
     fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp::decode::DecodeError> {
         let size = 0;
-        let (dl_name, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
+        let (dl_name, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "dl_name",
+        )?;
         Ok((Self::new(dl_name), size))
     }
 }

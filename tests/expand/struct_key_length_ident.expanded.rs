@@ -53,13 +53,22 @@ impl ::rusmpp::encode::Encode for Tlv {
 impl ::rusmpp::decode::Decode for Tlv {
     fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp::decode::DecodeError> {
         let size = 0;
-        let (tag, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (value_length, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (value, size) = ::rusmpp::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
-                tag,
-                src,
-                value_length as usize,
-                size,
+        let (tag, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "tag",
+        )?;
+        let (value_length, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "value_length",
+        )?;
+        let (value, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+                ::rusmpp::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
+                    tag,
+                    src,
+                    value_length as usize,
+                    size,
+                ),
+                "value",
             )?
             .map(|(this, size)| (Some(this), size))
             .unwrap_or((None, size));

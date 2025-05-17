@@ -50,9 +50,18 @@ impl ::rusmpp::encode::Encode for CancelSm {
 impl ::rusmpp::decode::Decode for CancelSm {
     fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp::decode::DecodeError> {
         let size = 0;
-        let (service_type, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (message_id, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
-        let (other, size) = ::rusmpp::decode::DecodeExt::decode_move(src, size)?;
+        let (service_type, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "service_type",
+        )?;
+        let (message_id, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "message_id",
+        )?;
+        let (other, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
+            ::rusmpp::decode::DecodeExt::decode_move(src, size),
+            "other",
+        )?;
         Ok((
             Self {
                 service_type,

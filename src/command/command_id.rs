@@ -1,8 +1,9 @@
 crate::create! {
     #[repr(u32)]
     @[skip_test]
-    /// The [`CommandId`] identifies the SMPP operation e.g. submit_sm, bind_transmitter etc. The
-    /// [`CommandId`] is encoded as a 4-octet integer value.
+    /// Identifies the `SMPP` operation e.g. submit_sm, bind_transmitter etc.
+    ///
+    /// The [`CommandId`] is encoded as a 4-octet integer value.
     ///
     /// [`CommandId`]s for request PDUs are allocated from a range of numbers; 0x00000000 to
     /// 0x000001FF.

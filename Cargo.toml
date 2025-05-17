@@ -10,10 +10,10 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dev-dependencies]
+tracing = { version = "0.1.40" }
 tokio = { version = "1.45.0", features = ["full"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-test = "0.2.5"
-tracing = { version = "0.1.40" }
 futures = "0.3.31"
 testcontainers = "0.24.0"
 macrotest = "1.1.0"
@@ -39,6 +39,10 @@ tracing = ["dep:tracing"]
 arbitrary = ["dep:arbitrary"]
 # Enables verbose DecodeError with DecodeErrorSource.
 verbose = []
+
+[patch.crates-io]
+# TODO: remove the path after issue is resolved. PR https://github.com/eupn/macrotest/pull/124
+macrotest = { git = "https://github.com/JadKHaddad/macrotest.git", branch = "fix/manifest" }
 
 [[example]]
 name = "client_server"

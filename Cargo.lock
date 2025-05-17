@@ -863,8 +863,7 @@ checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
 [[package]]
 name = "macrotest"
 version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0597a8d49ceeea5845b12d1970aa993261e68d4660b327eabab667b3e7ffd60"
+source = "git+https://github.com/JadKHaddad/macrotest.git?branch=fix%2Fmanifest#76303087ebd819cf7dfaed4959112aaa4732624e"
 dependencies = [
  "diff",
  "fastrand",

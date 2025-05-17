@@ -23,10 +23,12 @@ mod tokio {
         Command, CommandStatus, Pdu,
     };
 
+    /// Encode and decode every possible test command created using [`TestInstance`](crate::tests::TestInstance).
     #[tokio::test]
     #[traced_test]
     async fn encode_decode() {
         let commands = test_commands();
+
         let (writer, reader) = tokio::io::duplex(128);
 
         let mut framed_writer = Framed::new(writer, CommandCodec::new());
@@ -52,16 +54,14 @@ mod tokio {
     }
 
     #[tokio::test]
-    async fn max_command_length() {
-        let max_command_length = 16;
+    async fn max_length() {
+        let max_length = 16;
 
         let (writer, reader) = tokio::io::duplex(1024);
 
         let mut framed_writer = Framed::new(writer, CommandCodec::new());
-        let mut framed_reader = Framed::new(
-            reader,
-            CommandCodec::new().with_max_length(max_command_length),
-        );
+        let mut framed_reader =
+            Framed::new(reader, CommandCodec::new().with_max_length(max_length));
 
         let command = Command::new(Default::default(), Default::default(), SubmitSm::default());
         let command_length = 4 + command.length();
@@ -71,7 +71,7 @@ mod tokio {
         match framed_reader.next().await.unwrap().unwrap_err() {
             DecodeError::Length { actual, max } => {
                 assert_eq!(actual, command_length);
-                assert_eq!(max, max_command_length);
+                assert_eq!(max, max_length);
             }
             _ => {
                 panic!("Decode must fail with `DecodeError::Length`")
@@ -79,6 +79,118 @@ mod tokio {
         }
     }
 
+    /// Connect to localhost:2775 and send a command.
+    ///
+    /// I use this function to throw random commands at a server and catch them in wireshark.
+    async fn connect_and_send(command: Command) {
+        let stream = TcpStream::connect("127.0.0.1:2775")
+            .await
+            .expect("Failed to connect");
+
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        framed.send(command).await.expect("Failed to send PDU");
+
+        while let Some(command) = framed.next().await {
+            println!("Received: {:#?}", command);
+        }
+    }
+
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_bind_transmitter() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(BindTransmitter::builder().build());
+
+        connect_and_send(command).await;
+    }
+
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_alert_notification() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                AlertNotification::builder()
+                    .ms_availability_status(Some(MsAvailabilityStatus::Denied))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_broadcast_sm() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                BroadcastSm::builder()
+                    .push_tlv(BroadcastRequestTlvValue::AlertOnMessageDelivery(
+                        AlertOnMessageDelivery::UseMediumPriorityAlert,
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::Polygon,
+                            AnyOctetString::new(b"Polygon Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::AliasName,
+                            AnyOctetString::new(b"AliasName Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 2"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
+                        BroadcastAreaIdentifier::new(
+                            BroadcastAreaFormat::EllipsoidArc,
+                            AnyOctetString::new(b"EllipsoidArc Area 3"),
+                        ),
+                    ))
+                    .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
+                        BroadcastMessageClass::Class2,
+                    ))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    #[tokio::test]
+    #[ignore = "observation test"]
+    async fn send_submit_sm() {
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(1)
+            .pdu(
+                SubmitSm::builder()
+                    .short_message(OctetString::new(b"Short Message").unwrap())
+                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
+                    ))
+                    .build(),
+            );
+
+        connect_and_send(command).await;
+    }
+
+    // FIXME: Not really helpful.
     // cargo test do_codec --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "integration test"]
@@ -192,149 +304,5 @@ mod tokio {
             .expect("Failed to send PDU");
 
         tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
-    }
-
-    // cargo test bind_transmitter --features tokio-codec -- --ignored --nocapture
-    #[tokio::test]
-    #[ignore = "integration test"]
-    async fn bind_transmitter() {
-        let stream = TcpStream::connect("127.0.0.1:2775")
-            .await
-            .expect("Failed to connect");
-
-        let mut framed = Framed::new(stream, CommandCodec::new());
-
-        let bind_transmitter = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(1)
-            .pdu(BindTransmitter::builder().build());
-
-        framed
-            .send(bind_transmitter)
-            .await
-            .expect("Failed to send PDU");
-
-        while let Some(command) = framed.next().await {
-            println!("Received: {:#?}", command);
-        }
-    }
-
-    // cargo test alert_notification --features tokio-codec -- --ignored --nocapture
-    #[tokio::test]
-    #[ignore = "integration test"]
-    async fn alert_notification() {
-        let stream = TcpStream::connect("127.0.0.1:2775")
-            .await
-            .expect("Failed to connect");
-
-        let mut framed = Framed::new(stream, CommandCodec::new());
-
-        let alert_notification = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(1)
-            .pdu(
-                AlertNotification::builder()
-                    .ms_availability_status(Some(MsAvailabilityStatus::Denied))
-                    .build(),
-            );
-
-        framed
-            .send(alert_notification)
-            .await
-            .expect("Failed to send PDU");
-
-        while let Some(command) = framed.next().await {
-            println!("Received: {:#?}", command);
-        }
-    }
-
-    // cargo test broadcast_sm --features tokio-codec -- --ignored --nocapture
-    #[tokio::test]
-    #[ignore = "integration test"]
-    async fn broadcast_sm() {
-        let stream = TcpStream::connect("127.0.0.1:2775")
-            .await
-            .expect("Failed to connect");
-
-        let mut framed = Framed::new(stream, CommandCodec::new());
-
-        let broadcast_sm = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(1)
-            .pdu(
-                BroadcastSm::builder()
-                    .push_tlv(BroadcastRequestTlvValue::AlertOnMessageDelivery(
-                        AlertOnMessageDelivery::UseMediumPriorityAlert,
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
-                        BroadcastAreaIdentifier::new(
-                            BroadcastAreaFormat::Polygon,
-                            AnyOctetString::new(b"Polygon Area"),
-                        ),
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
-                        BroadcastAreaIdentifier::new(
-                            BroadcastAreaFormat::AliasName,
-                            AnyOctetString::new(b"AliasName Area"),
-                        ),
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
-                        BroadcastAreaIdentifier::new(
-                            BroadcastAreaFormat::EllipsoidArc,
-                            AnyOctetString::new(b"EllipsoidArc Area"),
-                        ),
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
-                        BroadcastAreaIdentifier::new(
-                            BroadcastAreaFormat::EllipsoidArc,
-                            AnyOctetString::new(b"EllipsoidArc Area 2"),
-                        ),
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastAreaIdentifier(
-                        BroadcastAreaIdentifier::new(
-                            BroadcastAreaFormat::EllipsoidArc,
-                            AnyOctetString::new(b"EllipsoidArc Area 3"),
-                        ),
-                    ))
-                    .push_tlv(BroadcastRequestTlvValue::BroadcastMessageClass(
-                        BroadcastMessageClass::Class2,
-                    ))
-                    .build(),
-            );
-
-        framed.send(broadcast_sm).await.expect("Failed to send PDU");
-
-        while let Some(command) = framed.next().await {
-            println!("Received: {:#?}", command);
-        }
-    }
-
-    // cargo test submit_sm --features tokio-codec -- --ignored --nocapture
-    #[tokio::test]
-    #[ignore = "integration test"]
-    async fn submit_sm() {
-        let stream = TcpStream::connect("127.0.0.1:2775")
-            .await
-            .expect("Failed to connect");
-
-        let mut framed = Framed::new(stream, CommandCodec::new());
-
-        let submit_sm = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(1)
-            .pdu(
-                SubmitSm::builder()
-                    .short_message(OctetString::new(b"Short Message").unwrap())
-                    .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
-                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
-                    ))
-                    .build(),
-            );
-
-        framed.send(submit_sm).await.expect("Failed to send PDU");
-
-        while let Some(command) = framed.next().await {
-            println!("Received: {:#?}", command);
-        }
     }
 }

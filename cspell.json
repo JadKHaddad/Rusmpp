@@ -112,7 +112,8 @@
         "Udhi",
         "Ussd",
         "Ussn",
-        "Wcmp"
+        "Wcmp",
+        "wireshark"
     ],
     "ignorePaths": [
         "target"

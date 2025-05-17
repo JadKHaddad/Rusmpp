@@ -1,4 +1,4 @@
-name: Tests
+name: Build and Test
 
 on:
   push:
@@ -30,6 +30,11 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
+    
+      - name: Install cargo-expand
+        uses: taiki-e/cache-cargo-install-action@v1
+        with:
+          tool: cargo-expand
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
@@ -46,14 +51,9 @@ jobs:
           command: clippy
           args: --all --all-features -- -D warnings
 
-      - name: Run tests --all-features
+      - name: Run tests
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features
 
-      - name: Run tests --features tokio-codec
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features tokio-codec

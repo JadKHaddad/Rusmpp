@@ -74,7 +74,7 @@ mod tokio {
         framed_writer.send(&command).await.unwrap();
 
         match framed_reader.next().await.unwrap().unwrap_err() {
-            DecodeError::Length { actual, max } => {
+            DecodeError::MaxLength { actual, max } => {
                 assert_eq!(actual, command_length);
                 assert_eq!(max, max_length);
             }

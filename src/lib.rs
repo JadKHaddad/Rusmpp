@@ -92,7 +92,7 @@
 #![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
 
-#[cfg(any(test, feature = "tokio-codec"))]
+#[cfg(any(test, feature = "tokio-codec", feature = "arbitrary"))]
 extern crate std;
 
 extern crate alloc;

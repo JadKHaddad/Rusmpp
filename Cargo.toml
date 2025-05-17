@@ -13,6 +13,7 @@ keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 tokio = { version = "1.45.0", features = ["full"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 tracing-test = "0.2.5"
+tracing = { version = "0.1.40" }
 futures = "0.3.31"
 testcontainers = "0.24.0"
 macrotest = "1.1.0"

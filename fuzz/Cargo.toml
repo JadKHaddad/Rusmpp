@@ -10,7 +10,14 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 arbitrary = { version = "1.4.1" }
-rusmpp = { path = "../", features = ["arbitrary"], default-features = false }
+bytes = "1.10.1"
+tokio-util = { version = "0.7.10", default-features = false, features = [
+    "codec",
+] }
+rusmpp = { path = "../", features = [
+    "arbitrary",
+    "tokio-codec",
+], default-features = false }
 
 [workspace]
 members = ["."]

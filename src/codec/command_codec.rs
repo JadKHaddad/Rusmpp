@@ -47,9 +47,12 @@ pub struct CommandCodec {
 }
 
 impl CommandCodec {
+    /// Creates a new [`CommandCodec`] with a default maximum length of `8192` bytes.
     #[inline]
     pub const fn new() -> Self {
-        Self { max_length: None }
+        Self {
+            max_length: Some(8192),
+        }
     }
 
     #[inline]
@@ -79,7 +82,8 @@ impl Default for CommandCodec {
 #[cfg(feature = "tokio-codec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod tokio {
-    //! Tokio's util [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html)
+    //! Tokio's util [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and
+    //! [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html)
     //! implementations for [`CommandCodec`].
 
     use tokio_util::{
@@ -142,8 +146,8 @@ pub mod tokio {
 
             dst.put_slice(&buf);
 
-            crate::debug!(target: "rusmpp::codec::encode::encoding", command=?command);
-            crate::debug!(target: "rusmpp::codec::encode::encoded", encoded=?crate::utils::HexFormatter(&buf), encoded_length=command.length(), command_length);
+            crate::debug!(target: "rusmpp::codec::encode", command=?command, "Encoding");
+            crate::debug!(target: "rusmpp::codec::encode", encoded=?crate::utils::HexFormatter(&buf), encoded_length=command.length(), command_length, "Encoded");
 
             Ok(())
         }
@@ -162,7 +166,8 @@ pub mod tokio {
     pub enum DecodeError {
         Io(std::io::Error),
         Decode(crate::decode::DecodeError),
-        Length { actual: usize, max: usize },
+        MinLength { actual: usize },
+        MaxLength { actual: usize, max: usize },
     }
 
     impl From<std::io::Error> for DecodeError {
@@ -176,7 +181,13 @@ pub mod tokio {
             match self {
                 DecodeError::Io(e) => write!(f, "I/O error: {e}"),
                 DecodeError::Decode(e) => write!(f, "Decode error: {e}"),
-                DecodeError::Length { actual, max } => {
+                DecodeError::MinLength { actual } => {
+                    write!(
+                        f,
+                        "Minimum command length not met. actual: {actual}, min: 4"
+                    )
+                }
+                DecodeError::MaxLength { actual, max } => {
                     write!(
                         f,
                         "Maximum command length exceeded. actual: {actual}, max: {max}"
@@ -191,7 +202,8 @@ pub mod tokio {
             match self {
                 DecodeError::Io(e) => Some(e),
                 DecodeError::Decode(e) => Some(e),
-                DecodeError::Length { .. } => None,
+                DecodeError::MinLength { .. } => None,
+                DecodeError::MaxLength { .. } => None,
             }
         }
 
@@ -215,11 +227,19 @@ pub mod tokio {
 
             crate::trace!(target: "rusmpp::codec::decode", command_length);
 
+            if command_length < 4 {
+                crate::error!(target: "rusmpp::codec::decode", command_length, min_command_length=4, "Minimum command length not met");
+
+                return Err(DecodeError::MinLength {
+                    actual: command_length,
+                });
+            }
+
             if let Some(max_command_length) = self.max_length {
                 if command_length > max_command_length {
                     crate::error!(target: "rusmpp::codec::decode", command_length, max_command_length, "Maximum command length exceeded");
 
-                    return Err(DecodeError::Length {
+                    return Err(DecodeError::MaxLength {
                         actual: command_length,
                         max: max_command_length,
                     });
@@ -237,11 +257,11 @@ pub mod tokio {
 
             let pdu_len = command_length - 4;
 
-            crate::debug!(target: "rusmpp::codec::decode::decoding", decoding=?crate::utils::HexFormatter(&src[..command_length]));
+            crate::debug!(target: "rusmpp::codec::decode", decoding=?crate::utils::HexFormatter(&src[..command_length]), "Decoding");
 
             let (command, _size) = match Command::decode(&src[4..command_length], pdu_len) {
                 Ok((command, size)) => {
-                    crate::debug!(target: "rusmpp::codec::decode::decoded", command=?command, command_length, decoded_length=size);
+                    crate::debug!(target: "rusmpp::codec::decode", command=?command, command_length, decoded_length=size, "Decoded");
 
                     (command, size)
                 }

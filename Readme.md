@@ -1,5 +1,11 @@
 # Rusmpp
 
+![Build Status](https://github.com/JadKHaddad/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
+[![crates.io](https://img.shields.io/crates/v/rusmpp.svg)](https://crates.io/crates/rusmpp)
+[![docs.rs](https://docs.rs/rusmpp/badge.svg)](https://docs.rs/rusmpp)
+[![Crates.io (Downloads)](https://img.shields.io/crates/d/rusmpp)](https://crates.io/crates/rusmpp)
+[![Crates.io (License)](https://img.shields.io/crates/l/rusmpp)](https://crates.io/crates/rusmpp)
+
 Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
 
 ```rust

@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     launch_server(server_stream).await?;
 
-    // The CommandCodec is encodes/decodes SMPP commands into/from bytes.
+    // The CommandCodec encodes/decodes SMPP commands into/from bytes.
     let mut framed = Framed::new(client_stream, CommandCodec::new());
 
     // Rusmpp takes care of setting the correct command ID.

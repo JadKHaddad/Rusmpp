@@ -76,8 +76,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for Outbind {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .system_id(COctetString::from_str("system_id").unwrap())

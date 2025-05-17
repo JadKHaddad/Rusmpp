@@ -85,7 +85,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message delivery request TLVs ([`MessageDeliveryRequestTlvValue`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
@@ -109,7 +109,7 @@ impl DeliverSm {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<impl Into<MessageDeliveryRequestTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<MessageDeliveryRequestTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -165,7 +165,7 @@ impl DeliverSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageDeliveryRequestTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryRequestTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         self.clear_short_message_if_message_payload_exists();
@@ -311,7 +311,7 @@ impl DeliverSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageDeliveryRequestTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryRequestTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -345,8 +345,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for DeliverSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .source_addr_ton(Ton::International)
@@ -376,7 +376,7 @@ mod tests {
                     .data_coding(DataCoding::default())
                     .sm_default_msg_id(0)
                     .short_message(OctetString::new(b"Short Message").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         MessageDeliveryRequestTlvValue::MessagePayload(MessagePayload::new(
                             AnyOctetString::new(b"Message Payload"),
                         )),
@@ -445,7 +445,7 @@ mod tests {
         // Using tlvs
         let submit_sm = DeliverSm::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageDeliveryRequestTlvValue::MessagePayload(
+            .tlvs(alloc::vec![MessageDeliveryRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             )])
             .build();
@@ -469,7 +469,7 @@ mod tests {
         // Using tlvs
         let submit_sm = DeliverSm::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageDeliveryRequestTlvValue::MessagePayload(
+            .tlvs(alloc::vec![MessageDeliveryRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             )])
             .short_message(short_message.clone())

@@ -23,7 +23,7 @@ fuzz_target!(|data: &[u8]| {
         .arbitrary::<Command>()
         .expect("Failed to generate Command");
 
-    let mut buf = vec![0u8; command.length()];
+    let mut buf = ::alloc::vec![0u8; command.length()];
 
     // Encode the garbage
     let size = command.encode(&mut buf);

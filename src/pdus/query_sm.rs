@@ -118,8 +118,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for QuerySm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("1234567890123456").unwrap())

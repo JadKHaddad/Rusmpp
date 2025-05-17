@@ -16,14 +16,14 @@ crate::create! {
         pub message_id: COctetString<1, 65>,
         /// Query broadcast response TLVs ([`QueryBroadcastResponseTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
 impl QueryBroadcastSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<QueryBroadcastResponseTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -34,7 +34,7 @@ impl QueryBroadcastSmResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<QueryBroadcastResponseTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -72,7 +72,7 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<QueryBroadcastResponseTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<QueryBroadcastResponseTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -104,8 +104,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for QueryBroadcastSmResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("12345678901234567890123").unwrap())

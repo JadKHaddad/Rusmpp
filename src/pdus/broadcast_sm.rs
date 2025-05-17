@@ -80,7 +80,7 @@ crate::create! {
         pub sm_default_msg_id: u8,
         /// Broadcast request TLVs ([`BroadcastRequestTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
@@ -98,7 +98,7 @@ impl BroadcastSm {
         replace_if_present_flag: ReplaceIfPresentFlag,
         data_coding: DataCoding,
         sm_default_msg_id: u8,
-        tlvs: Vec<impl Into<BroadcastRequestTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<BroadcastRequestTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -122,7 +122,7 @@ impl BroadcastSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastRequestTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<BroadcastRequestTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -216,7 +216,7 @@ impl BroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastRequestTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<BroadcastRequestTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -250,8 +250,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for BroadcastSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .service_type(ServiceType::new(
@@ -284,7 +284,7 @@ mod tests {
                     .replace_if_present_flag(ReplaceIfPresentFlag::DoNotReplace)
                     .data_coding(DataCoding::GsmMessageClassControl)
                     .sm_default_msg_id(255)
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         BroadcastRequestTlvValue::CallbackNum(
                             OctetString::from_str("1234567890").unwrap(),
                         ),

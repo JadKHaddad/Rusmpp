@@ -1,5 +1,7 @@
 #![allow(path_statements)]
 
+use alloc::{string::String, string::ToString, vec::Vec};
+
 use crate::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, Length},
@@ -72,7 +74,9 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     pub fn empty() -> Self {
         Self::_ASSERT_NON_ZERO;
 
-        Self { bytes: vec![0] }
+        Self {
+            bytes: alloc::vec![0],
+        }
     }
 
     /// Check if an [`EmptyOrFullCOctetString`] is empty.
@@ -287,7 +291,7 @@ mod tests {
 
     impl<const N: usize> crate::tests::TestInstance for EmptyOrFullCOctetString<N> {
         fn instances() -> Vec<Self> {
-            vec![
+            alloc::vec![
                 Self::empty(),
                 Self::new(
                     core::iter::repeat_n(b'1', N - 1)
@@ -406,7 +410,6 @@ mod tests {
         fn not_ascii() {
             let string = "Hellö"; // ö is 2 bytes. Hellö = 6 bytes, + 1 null terminator = 7 bytes
             let error = EmptyOrFullCOctetString::<7>::from_str(string).unwrap_err();
-            println!("{:?}", error);
             assert!(matches!(error, Error::NotAscii));
         }
 

@@ -10,7 +10,7 @@ pub struct SubmitMulti {
     /// Docs
     ///
     /// More docs
-    dest_address: Vec<DestAddress>,
+    dest_address: ::alloc::vec::Vec<DestAddress>,
 }
 #[automatically_derived]
 impl ::core::fmt::Debug for SubmitMulti {

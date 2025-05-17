@@ -1,5 +1,7 @@
 #![allow(path_statements)]
 
+use alloc::{string::String, string::ToString, vec::Vec};
+
 use crate::{
     decode::{COctetStringDecodeError, Decode, DecodeError},
     encode::{Encode, Length},
@@ -118,7 +120,7 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
         // Fill the buffer with (`MIN` - 1) `NOT` NULL octets
         // And put a NULL octet at the end
 
-        let mut bytes = vec![1; MIN];
+        let mut bytes = alloc::vec![1; MIN];
 
         bytes[MIN - 1] = 0;
 
@@ -328,7 +330,7 @@ mod tests {
 
     impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for COctetString<MIN, MAX> {
         fn instances() -> Vec<Self> {
-            vec![
+            alloc::vec![
                 Self::empty(),
                 Self::new(
                     core::iter::repeat_n(b'1', MIN - 1)

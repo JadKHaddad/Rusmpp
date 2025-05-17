@@ -343,8 +343,8 @@ macro_rules! create {
     }) => {
         #[cfg(test)]
         impl $crate::tests::TestInstance for $name {
-            fn instances() -> Vec<Self> {
-                vec![Self::default(),]
+            fn instances() -> alloc::vec::Vec<Self> {
+                alloc::vec![Self::default(),]
             }
         }
     };

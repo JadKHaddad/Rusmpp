@@ -1,3 +1,5 @@
+use alloc::boxed::Box;
+
 use crate::{
     decode::{Decode, DecodeWithLength},
     encode::Encode,
@@ -15,7 +17,7 @@ use crate::{
 /// Trait for creating test instances of a type.
 pub trait TestInstance: Sized {
     /// Create test instances of the type.
-    fn instances() -> Vec<Self>;
+    fn instances() -> alloc::vec::Vec<Self>;
 }
 
 /// Trait for chaining test commands.
@@ -52,7 +54,7 @@ impl<I: Iterator<Item = Command> + 'static> ChainExt for I {
 }
 
 /// All test commands created using [`TestInstance`].
-pub fn test_commands() -> Vec<Command> {
+pub fn test_commands() -> alloc::vec::Vec<Command> {
     core::iter::empty()
         .chain_instances_as_cmds::<BindTransmitter>()
         .chain_instances_as_cmds::<BindTransmitterResp>()

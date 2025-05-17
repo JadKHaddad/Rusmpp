@@ -459,21 +459,24 @@ pub(crate) trait DecodeExt: Decode {
     }
 
     /// Decode a vector of values from a slice with a specified count.
-    fn counted(src: &[u8], count: usize) -> Result<(Vec<Self>, usize), DecodeError> {
-        (0..count).try_fold((Vec::with_capacity(count), 0), |(mut vec, size), _| {
-            Self::decode(&src[size..]).map(|(item, size_)| {
-                vec.push(item);
+    fn counted(src: &[u8], count: usize) -> Result<(alloc::vec::Vec<Self>, usize), DecodeError> {
+        (0..count).try_fold(
+            (alloc::vec::Vec::with_capacity(count), 0),
+            |(mut vec, size), _| {
+                Self::decode(&src[size..]).map(|(item, size_)| {
+                    vec.push(item);
 
-                (vec, size + size_)
-            })
-        })
+                    (vec, size + size_)
+                })
+            },
+        )
     }
 
     fn counted_move(
         src: &[u8],
         count: usize,
         size: usize,
-    ) -> Result<(Vec<Self>, usize), DecodeError> {
+    ) -> Result<(alloc::vec::Vec<Self>, usize), DecodeError> {
         Self::counted(&src[size..], count).map(|(vec, size_)| (vec, size + size_))
     }
 
@@ -552,10 +555,10 @@ pub(crate) trait DecodeWithKeyOptionalExt: DecodeWithKeyOptional {
 
 impl<T: DecodeWithKeyOptional> DecodeWithKeyOptionalExt for T {}
 
-impl<T: Decode> DecodeWithLength for Vec<T> {
+impl<T: Decode> DecodeWithLength for alloc::vec::Vec<T> {
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         if length == 0 {
-            return Ok((Vec::new(), 0));
+            return Ok((alloc::vec::Vec::new(), 0));
         }
 
         if length > src.len() {
@@ -564,7 +567,7 @@ impl<T: Decode> DecodeWithLength for Vec<T> {
 
         let mut size = 0;
 
-        let mut vec = Vec::new();
+        let mut vec = alloc::vec::Vec::new();
 
         while size < length {
             let (item, size_) = T::decode(&src[size..length])?;
@@ -581,6 +584,7 @@ impl<T: Decode> DecodeWithLength for Vec<T> {
 // TODO: fuzz the decode functions
 #[cfg(test)]
 mod tests {
+    use alloc::vec::Vec;
 
     use crate::types::{COctetString, EmptyOrFullCOctetString};
 
@@ -611,7 +615,7 @@ mod tests {
 
         assert_eq!(size, 10);
         assert!(&buf[size..].is_empty());
-        assert_eq!(values, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
@@ -619,7 +623,7 @@ mod tests {
 
         assert_eq!(size, 20);
         assert!(&buf[size..].is_empty());
-        assert_eq!(values, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let buf = &[
             0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0,
@@ -639,7 +643,7 @@ mod tests {
         assert!(&buf[size..].is_empty());
         assert_eq!(
             values,
-            vec![
+            alloc::vec![
                 COctetString::<1, 6>::new(b"Hello\0").unwrap(),
                 COctetString::<1, 6>::new(b"World\0").unwrap(),
             ]
@@ -653,7 +657,7 @@ mod tests {
         assert!(&buf[size..].is_empty());
         assert_eq!(
             values,
-            vec![
+            alloc::vec![
                 EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
                 EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
             ]
@@ -675,7 +679,7 @@ mod tests {
 
         assert_eq!(size, 5);
         assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
-        assert_eq!(values, vec![0, 1, 2, 3, 4]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
 
         let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
@@ -683,7 +687,7 @@ mod tests {
 
         assert_eq!(size, 10);
         assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
-        assert_eq!(values, vec![0, 1, 2, 3, 4]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
     }
 
     #[test]
@@ -711,7 +715,7 @@ mod tests {
 
         assert_eq!(size, 10);
         assert!(&buf[size..].is_empty());
-        assert_eq!(values, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
@@ -719,7 +723,7 @@ mod tests {
 
         assert_eq!(size, 20);
         assert!(&buf[size..].is_empty());
-        assert_eq!(values, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
         let buf = &[
             0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0,
@@ -739,7 +743,7 @@ mod tests {
         assert!(&buf[size..].is_empty());
         assert_eq!(
             values,
-            vec![
+            alloc::vec![
                 COctetString::<1, 6>::new(b"Hello\0").unwrap(),
                 COctetString::<1, 6>::new(b"World\0").unwrap(),
             ]
@@ -753,7 +757,7 @@ mod tests {
         assert!(&buf[size..].is_empty());
         assert_eq!(
             values,
-            vec![
+            alloc::vec![
                 EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
                 EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
             ]
@@ -776,7 +780,7 @@ mod tests {
 
         assert_eq!(size, 5);
         assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
-        assert_eq!(values, vec![0, 1, 2, 3, 4]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
 
         let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
@@ -784,6 +788,6 @@ mod tests {
 
         assert_eq!(size, 10);
         assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
-        assert_eq!(values, vec![0, 1, 2, 3, 4]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
     }
 }

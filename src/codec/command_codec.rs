@@ -137,7 +137,7 @@ pub mod tokio {
             dst.put_u32(command_length as u32);
 
             // TODO: Can we encode directly into dst?
-            let mut buf = vec![0; command.length()];
+            let mut buf = alloc::vec![0; command.length()];
             let _ = command.encode(buf.as_mut_slice());
 
             dst.put_slice(&buf);

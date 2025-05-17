@@ -174,8 +174,8 @@ mod tests {
     use super::*;
 
     impl crate::tests::TestInstance for DestAddress {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::SmeAddress(SmeAddress::new(
                     Ton::International,
                     Npi::Isdn,

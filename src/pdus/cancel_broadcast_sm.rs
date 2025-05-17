@@ -60,7 +60,7 @@ crate::create! {
         pub source_addr: COctetString<1, 21>,
         /// Cancel broadcast  TLVs ([`CancelBroadcastTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
@@ -71,7 +71,7 @@ impl CancelBroadcastSm {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        tlvs: Vec<impl Into<CancelBroadcastTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<CancelBroadcastTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -89,7 +89,7 @@ impl CancelBroadcastSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<CancelBroadcastTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<CancelBroadcastTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -147,7 +147,7 @@ impl CancelBroadcastSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<CancelBroadcastTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<CancelBroadcastTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -180,8 +180,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for CancelBroadcastSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .service_type(ServiceType::default())
@@ -193,7 +193,7 @@ mod tests {
                 Self::builder()
                     .message_id(COctetString::from_str("1234567890").unwrap())
                     .source_addr(COctetString::from_str("1234567890").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         CancelBroadcastTlvValue::BroadcastContentType(BroadcastContentType::new(
                             TypeOfNetwork::Gsm,
                             EncodingContentType::BusinessFinancialNewsInternational,

@@ -23,18 +23,18 @@ crate::create! {
         ///
         /// (Composite Field).
         @[count = no_unsuccess]
-        unsuccess_sme: Vec<UnsuccessSme>,
+        unsuccess_sme: alloc::vec::Vec<UnsuccessSme>,
         /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
 impl SubmitMultiResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        unsuccess_sme: Vec<UnsuccessSme>,
-        tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+        unsuccess_sme: alloc::vec::Vec<UnsuccessSme>,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
@@ -56,7 +56,7 @@ impl SubmitMultiResp {
         &self.unsuccess_sme
     }
 
-    pub fn set_unsuccess_sme(&mut self, unsuccess_sme: Vec<UnsuccessSme>) {
+    pub fn set_unsuccess_sme(&mut self, unsuccess_sme: alloc::vec::Vec<UnsuccessSme>) {
         self.unsuccess_sme = unsuccess_sme;
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
@@ -75,7 +75,7 @@ impl SubmitMultiResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -113,7 +113,7 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn unsuccess_sme(mut self, unsuccess_sme: Vec<UnsuccessSme>) -> Self {
+    pub fn unsuccess_sme(mut self, unsuccess_sme: alloc::vec::Vec<UnsuccessSme>) -> Self {
         self.inner.set_unsuccess_sme(unsuccess_sme);
         self
     }
@@ -128,7 +128,7 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -162,8 +162,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for SubmitMultiResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("1234567890").unwrap())
@@ -204,7 +204,7 @@ mod tests {
         assert!(submit_multi.unsuccess_sme().is_empty());
 
         let submit_multi = SubmitMultiResp::builder()
-            .unsuccess_sme(vec![
+            .unsuccess_sme(alloc::vec![
                 UnsuccessSme::default(),
                 UnsuccessSme::new(
                     Ton::International,

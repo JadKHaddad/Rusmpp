@@ -1,6 +1,11 @@
 #[cfg(feature = "tokio-codec")]
 mod tokio {
-    use std::str::FromStr;
+    use std::{
+        format, println,
+        str::FromStr,
+        string::{String, ToString},
+        vec::Vec,
+    };
 
     use futures::{SinkExt, StreamExt};
     use testcontainers::{

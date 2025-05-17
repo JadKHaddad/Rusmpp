@@ -44,10 +44,16 @@
 //! }
 //! ```
 
+#![no_std]
 #![forbid(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
+
+#[cfg(any(test, feature = "tokio-codec"))]
+extern crate std;
+
+extern crate alloc;
 
 pub mod codec;
 
@@ -83,5 +89,3 @@ pub(crate) use macros::debug;
 pub(crate) use macros::error;
 #[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::trace;
-
-// TODO: no std

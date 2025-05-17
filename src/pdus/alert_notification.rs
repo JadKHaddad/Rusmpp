@@ -158,8 +158,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for AlertNotification {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .ms_availability_status(Some(MsAvailabilityStatus::Available))

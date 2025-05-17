@@ -258,8 +258,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for ReplaceSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("123456789012345678901234").unwrap())

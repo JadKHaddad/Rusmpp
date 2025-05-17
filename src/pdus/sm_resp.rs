@@ -17,14 +17,14 @@ macro_rules! declare_sm_resp {
                 message_id: COctetString<1, 65>,
                 /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
                 @[length = unchecked]
-                tlvs: Vec<Tlv>,
+                tlvs: alloc::vec::Vec<Tlv>,
             }
         }
 
         impl $name {
             pub fn new(
                 message_id: COctetString<1, 65>,
-                tlvs: Vec<impl Into<MessageDeliveryResponseTlvValue>>,
+                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
             ) -> Self {
                 let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -39,7 +39,7 @@ macro_rules! declare_sm_resp {
                 &self.tlvs
             }
 
-            pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTlvValue>>) {
+            pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>) {
                 self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
             }
 
@@ -67,7 +67,7 @@ macro_rules! declare_sm_resp {
                 self
             }
 
-            pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageDeliveryResponseTlvValue>>) -> Self {
+            pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>) -> Self {
                 self.inner.set_tlvs(tlvs);
                 self
             }
@@ -112,15 +112,15 @@ mod tests {
     use super::*;
 
     impl TestInstance for DeliverSmResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("123456789012345678").unwrap())
                     .build(),
                 Self::builder()
                     .message_id(COctetString::from_str("123456789012345678").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
                             COctetString::from_str("Octets").unwrap(),
                         ),
@@ -134,15 +134,15 @@ mod tests {
     }
 
     impl TestInstance for DataSmResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("123456789012345678").unwrap())
                     .build(),
                 Self::builder()
                     .message_id(COctetString::from_str("123456789012345678").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
                             COctetString::from_str("Octets on steroids").unwrap(),
                         ),

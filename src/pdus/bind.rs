@@ -151,8 +151,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for BindTransmitter {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .system_id(COctetString::from_str("system_id").unwrap())
@@ -168,8 +168,8 @@ mod tests {
     }
 
     impl TestInstance for BindReceiver {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .system_id(COctetString::from_str("system_id").unwrap())
@@ -185,8 +185,8 @@ mod tests {
     }
 
     impl TestInstance for BindTransceiver {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .system_id(COctetString::from_str("system_id").unwrap())

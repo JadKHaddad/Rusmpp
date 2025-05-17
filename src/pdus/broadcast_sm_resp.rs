@@ -15,14 +15,14 @@ crate::create! {
         pub message_id: COctetString<1, 65>,
         /// Broadcast response TLVs ([`BroadcastResponseTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
 impl BroadcastSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        tlvs: Vec<impl Into<BroadcastResponseTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<BroadcastResponseTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -33,7 +33,7 @@ impl BroadcastSmResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<BroadcastResponseTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<BroadcastResponseTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -71,7 +71,7 @@ impl BroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<BroadcastResponseTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<BroadcastResponseTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -106,8 +106,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for BroadcastSmResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(
@@ -129,7 +129,7 @@ mod tests {
                         COctetString::from_str("12345678901234567890123456789012345678901234")
                             .unwrap(),
                     )
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         BroadcastResponseTlvValue::BroadcastErrorStatus(
                             CommandStatus::EsmeRbcastcancelfail,
                         ),

@@ -1,3 +1,5 @@
+use alloc::{string::String, string::ToString, vec::Vec};
+
 use crate::{
     decode::{DecodeError, DecodeWithLength},
     encode::{Encode, Length},
@@ -130,7 +132,7 @@ mod tests {
 
     impl crate::tests::TestInstance for AnyOctetString {
         fn instances() -> Vec<Self> {
-            vec![
+            alloc::vec![
                 Self::empty(),
                 Self::new(std::iter::repeat_n(b'1', 100).collect::<Vec<_>>()),
             ]

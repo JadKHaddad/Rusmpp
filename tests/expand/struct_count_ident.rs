@@ -13,6 +13,6 @@ rusmpp::create! {
         ///
         /// More docs
         @[count = number_of_dests]
-        dest_address: Vec<DestAddress>,
+        dest_address: ::alloc::vec::Vec<DestAddress>,
     }
 }

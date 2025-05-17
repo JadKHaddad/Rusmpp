@@ -1,4 +1,5 @@
 #![allow(path_statements)]
+use alloc::{string::String, string::ToString, vec::Vec};
 
 use crate::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
@@ -82,7 +83,7 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         Self {
-            bytes: vec![0; MIN],
+            bytes: alloc::vec![0; MIN],
         }
     }
 
@@ -231,7 +232,7 @@ mod tests {
 
     impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for OctetString<MIN, MAX> {
         fn instances() -> Vec<Self> {
-            vec![
+            alloc::vec![
                 Self::empty(),
                 Self::new(core::iter::repeat_n(b'1', MIN).collect::<Vec<_>>()).unwrap(),
                 Self::new(core::iter::repeat_n(b'1', MAX / 2).collect::<Vec<_>>()).unwrap(),

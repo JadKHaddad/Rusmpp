@@ -101,7 +101,7 @@ impl<T: Length> Length for Option<T> {
     }
 }
 
-impl<T: Length> Length for Vec<T> {
+impl<T: Length> Length for alloc::vec::Vec<T> {
     fn length(&self) -> usize {
         self.iter().map(Length::length).sum()
     }
@@ -113,7 +113,7 @@ impl<T: Encode> Encode for Option<T> {
     }
 }
 
-impl<T: Encode> Encode for Vec<T> {
+impl<T: Encode> Encode for alloc::vec::Vec<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         self.iter()
             .fold(0, |acc, item| acc + item.encode(&mut dst[acc..]))
@@ -137,31 +137,31 @@ mod tests {
 
     #[test]
     fn length_vec() {
-        let values: Vec<u8> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u8> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert_eq!(values.length(), 10);
 
-        let values: Vec<u16> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u16> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert_eq!(values.length(), 20);
 
-        let values: Vec<u32> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u32> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert_eq!(values.length(), 40);
 
-        let values = vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
+        let values = alloc::vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
         assert_eq!(values.length(), 10);
 
-        let values = vec![
+        let values = alloc::vec![
             COctetString::<1, 6>::new(b"Hello\0").unwrap(),
             COctetString::<1, 6>::new(b"World\0").unwrap(),
         ];
         assert_eq!(values.length(), 12);
 
-        let values = vec![
+        let values = alloc::vec![
             EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
             EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
         ];
         assert_eq!(values.length(), 12);
 
-        let values = vec![
+        let values = alloc::vec![
             OctetString::<0, 5>::new(b"Hello").unwrap(),
             OctetString::<0, 5>::new(b"World").unwrap(),
         ];
@@ -192,7 +192,7 @@ mod tests {
     fn encode_vec() {
         let buf = &mut [0u8; 1024];
 
-        let values: Vec<u8> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u8> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert!(buf.len() >= values.length());
 
         let size = values.encode(buf);
@@ -200,7 +200,7 @@ mod tests {
         assert_eq!(size, 10);
         assert_eq!(&buf[..size], &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-        let values: Vec<u16> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u16> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert!(buf.len() >= values.length());
 
         let size = values.encode(buf);
@@ -211,7 +211,7 @@ mod tests {
             &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9]
         );
 
-        let values: Vec<u32> = vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let values: alloc::vec::Vec<u32> = alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
         assert!(buf.len() >= values.length());
 
         let size = values.encode(buf);
@@ -225,7 +225,7 @@ mod tests {
             ]
         );
 
-        let values = vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
+        let values = alloc::vec![AnyOctetString::new(b"Hello"), AnyOctetString::new(b"World")];
         assert!(buf.len() >= values.length());
 
         let size = values.encode(buf);
@@ -233,7 +233,7 @@ mod tests {
         assert_eq!(size, 10);
         assert_eq!(&buf[..size], b"HelloWorld");
 
-        let values = vec![
+        let values = alloc::vec![
             COctetString::<1, 6>::new(b"Hello\0").unwrap(),
             COctetString::<1, 6>::new(b"World\0").unwrap(),
         ];
@@ -244,7 +244,7 @@ mod tests {
         assert_eq!(size, 12);
         assert_eq!(&buf[..size], b"Hello\0World\0");
 
-        let values = vec![
+        let values = alloc::vec![
             EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
             EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
         ];
@@ -255,7 +255,7 @@ mod tests {
         assert_eq!(size, 12);
         assert_eq!(&buf[..size], b"Hello\0World\0");
 
-        let values = vec![
+        let values = alloc::vec![
             OctetString::<0, 5>::new(b"Hello").unwrap(),
             OctetString::<0, 5>::new(b"World").unwrap(),
         ];

@@ -15,14 +15,14 @@ crate::create! {
         message_id: COctetString<1, 65>,
         /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
 impl SubmitSmResp {
     pub fn new(
         message_id: COctetString<1, 65>,
-        tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -37,7 +37,10 @@ impl SubmitSmResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) {
+    pub fn set_tlvs(
+        &mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+    ) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -75,7 +78,10 @@ impl SubmitSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionResponseTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -106,15 +112,15 @@ mod tests {
     use super::*;
 
     impl TestInstance for SubmitSmResp {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .message_id(COctetString::from_str("12345678901234567890123").unwrap())
                     .build(),
                 Self::builder()
                     .message_id(COctetString::from_str("12345678901234567890123").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(
                             COctetString::from_str("Octets indeed").unwrap(),
                         ),

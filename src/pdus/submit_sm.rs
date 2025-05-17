@@ -83,7 +83,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
@@ -107,7 +107,7 @@ impl SubmitSm {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
     ) -> Self {
         let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
@@ -163,7 +163,7 @@ impl SubmitSm {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         self.clear_short_message_if_message_payload_exists();
@@ -309,7 +309,10 @@ impl SubmitSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -345,8 +348,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for SubmitSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .service_type(ServiceType::new(
@@ -405,13 +408,15 @@ mod tests {
                     .data_coding(DataCoding::Jis)
                     .sm_default_msg_id(96)
                     .short_message(OctetString::new(b"Short Message").unwrap())
-                    .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
-                        MessagePayload::new(AnyOctetString::new(b"Message Payload")),
-                    )])
+                    .tlvs(alloc::vec![
+                        MessageSubmissionRequestTlvValue::MessagePayload(MessagePayload::new(
+                            AnyOctetString::new(b"Message Payload")
+                        ),)
+                    ])
                     .build(),
                 Self::builder()
                     .short_message(OctetString::new(b"Short Message").unwrap())
-                    .tlvs(vec![
+                    .tlvs(alloc::vec![
                         MessageSubmissionRequestTlvValue::MessagePayload(MessagePayload::new(
                             AnyOctetString::new(b"Message Payload"),
                         )),
@@ -477,9 +482,9 @@ mod tests {
         // Using tlvs
         let submit_sm = SubmitSm::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
-                message_payload.clone(),
-            )])
+            .tlvs(alloc::vec![
+                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
+            ])
             .build();
 
         assert_eq!(submit_sm.short_message(), &OctetString::empty());
@@ -501,9 +506,9 @@ mod tests {
         // Using tlvs
         let submit_sm = SubmitSm::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
-                message_payload.clone(),
-            )])
+            .tlvs(alloc::vec![
+                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
+            ])
             .short_message(short_message.clone())
             .build();
 

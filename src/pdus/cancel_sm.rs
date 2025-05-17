@@ -194,8 +194,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for CancelSm {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .service_type(ServiceType::default())

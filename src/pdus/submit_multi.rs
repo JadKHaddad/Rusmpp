@@ -45,7 +45,7 @@ crate::create! {
         number_of_dests: u8,
         /// Composite field.
         @[count = number_of_dests]
-        dest_address: Vec<DestAddress>,
+        dest_address: alloc::vec::Vec<DestAddress>,
         /// Indicates Message Mode and Message Type.
         pub esm_class: EsmClass,
         /// Protocol Identifier.
@@ -94,7 +94,7 @@ crate::create! {
         short_message: OctetString<0, 255>,
         /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
         @[length = unchecked]
-        tlvs: Vec<Tlv>,
+        tlvs: alloc::vec::Vec<Tlv>,
     }
 }
 
@@ -105,7 +105,7 @@ impl SubmitMulti {
         source_addr_ton: Ton,
         source_addr_npi: Npi,
         source_addr: COctetString<1, 21>,
-        dest_address: Vec<DestAddress>,
+        dest_address: alloc::vec::Vec<DestAddress>,
         esm_class: EsmClass,
         protocol_id: u8,
         priority_flag: PriorityFlag,
@@ -116,7 +116,7 @@ impl SubmitMulti {
         data_coding: DataCoding,
         sm_default_msg_id: u8,
         short_message: OctetString<0, 255>,
-        tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
         let number_of_dests = dest_address.len() as u8;
@@ -157,7 +157,7 @@ impl SubmitMulti {
         &self.dest_address
     }
 
-    pub fn set_dest_address(&mut self, dest_address: Vec<DestAddress>) {
+    pub fn set_dest_address(&mut self, dest_address: alloc::vec::Vec<DestAddress>) {
         self.dest_address = dest_address;
         self.number_of_dests = self.dest_address.len() as u8;
     }
@@ -195,7 +195,7 @@ impl SubmitMulti {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
+    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         self.clear_short_message_if_message_payload_exists();
@@ -270,7 +270,7 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn dest_address(mut self, dest_address: Vec<DestAddress>) -> Self {
+    pub fn dest_address(mut self, dest_address: alloc::vec::Vec<DestAddress>) -> Self {
         self.inner.set_dest_address(dest_address);
         self
     }
@@ -341,7 +341,7 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
+    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -375,8 +375,8 @@ mod tests {
     use super::*;
 
     impl TestInstance for SubmitMulti {
-        fn instances() -> Vec<Self> {
-            vec![
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
                 Self::default(),
                 Self::builder()
                     .service_type(ServiceType::default())
@@ -471,7 +471,7 @@ mod tests {
         // Using tlvs
         let submit_sm = SubmitMulti::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
+            .tlvs(alloc::vec![MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             )])
             .build();
@@ -495,7 +495,7 @@ mod tests {
         // Using tlvs
         let submit_multi = SubmitMulti::builder()
             .short_message(short_message.clone())
-            .tlvs(vec![MessageSubmissionRequestTlvValue::MessagePayload(
+            .tlvs(alloc::vec![MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             )])
             .short_message(short_message.clone())
@@ -525,7 +525,7 @@ mod tests {
         assert!(submit_multi.dest_address().is_empty());
 
         let submit_sm = SubmitMulti::builder()
-            .dest_address(vec![
+            .dest_address(alloc::vec![
                 DestAddress::SmeAddress(SmeAddress::new(
                     Ton::International,
                     Npi::Isdn,

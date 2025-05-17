@@ -2,7 +2,7 @@ use alloc::boxed::Box;
 
 use crate::{
     decode::{Decode, DecodeWithLength},
-    encode::Encode,
+    encode::{Encode, Length},
     pdus::{
         AlertNotification, BindReceiver, BindReceiverResp, BindTransceiver, BindTransceiverResp,
         BindTransmitter, BindTransmitterResp, BroadcastSm, BroadcastSmResp, CancelBroadcastSm,
@@ -150,5 +150,32 @@ where
         crate::debug!(decoded=?decoded, decoded_length=_size);
 
         assert_eq!(original, decoded);
+    }
+}
+
+#[test]
+#[ignore = "observation test"]
+fn print_decode_errors() {
+    let _ = tracing_subscriber::fmt()
+        .with_env_filter("rusmpp=trace")
+        .try_init();
+
+    let buf = &mut [0u8; 1024];
+
+    for command in test_commands() {
+        if command.length() > buf.len() {
+            panic!("Buffer is too small to hold the encoded data");
+        }
+
+        let size = command.encode(buf);
+        // Destroy random bytes in the buffer
+        buf[8] = 0xFF;
+        buf[16] = 0xFF;
+        buf[32] = 0xFF;
+        buf[64] = 0xFF;
+
+        let result = Command::decode(&buf[..size], size);
+
+        crate::debug!(?result);
     }
 }

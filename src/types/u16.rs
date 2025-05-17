@@ -31,7 +31,7 @@ impl Encode for u16 {
 impl Decode for u16 {
     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 2 {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         let mut bytes = [0; 2];

@@ -28,7 +28,7 @@ impl Encode for u8 {
 impl Decode for u8 {
     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         if src.is_empty() {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         Ok((src[0], 1))

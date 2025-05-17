@@ -144,7 +144,7 @@ impl<T: Decode> DecodeWithLength for T {
 ///
 ///                 Ok((Foo::B(b), size))
 ///             }
-///             _ => Err(DecodeError::UnsupportedKey { key }),
+///             _ => Err(DecodeError::unsupported_key(key)),
 ///         }
 ///     }
 /// }
@@ -247,7 +247,7 @@ pub trait DecodeWithKey: Sized {
 ///
 ///                 Ok(Some((Foo::C(b), size)))
 ///             }
-///             _ => Err(DecodeError::UnsupportedKey { key }),
+///             _ => Err(DecodeError::unsupported_key(key)),
 ///         }
 ///     }
 /// }
@@ -361,7 +361,89 @@ pub trait DecodeWithKeyOptional: Sized {
 
 /// An error that can occur when decoding `SMPP` values.
 #[derive(Debug)]
-pub enum DecodeError {
+pub struct DecodeError {
+    kind: DecodeErrorKind,
+    #[cfg(feature = "verbose")]
+    source: Option<alloc::boxed::Box<DecodeErrorSource>>,
+}
+
+pub(crate) trait DecodeErrorExt<T> {
+    fn map_as_source(self, field: &'static str) -> Result<T, DecodeError>;
+}
+
+impl<T> DecodeErrorExt<T> for Result<T, DecodeError> {
+    #[cold]
+    fn map_as_source(self, _field: &'static str) -> Result<T, DecodeError> {
+        #[cfg(feature = "verbose")]
+        return self.map_err(|error| error.as_source(_field));
+
+        #[cfg(not(feature = "verbose"))]
+        self
+    }
+}
+
+impl DecodeError {
+    #[inline]
+    pub const fn new(kind: DecodeErrorKind) -> Self {
+        #[cfg(feature = "verbose")]
+        return Self { kind, source: None };
+
+        #[cfg(not(feature = "verbose"))]
+        Self { kind }
+    }
+
+    #[inline]
+    #[cold]
+    #[cfg(feature = "verbose")]
+    pub fn with_source(mut self, field: &'static str, error: DecodeError) -> Self {
+        self.source = Some(alloc::boxed::Box::new(DecodeErrorSource { field, error }));
+        self
+    }
+
+    #[inline]
+    #[cold]
+    #[cfg(feature = "verbose")]
+    pub fn as_source(self, field: &'static str) -> DecodeError {
+        DecodeError::new(self.kind).with_source(field, self)
+    }
+
+    #[inline]
+    pub const fn kind(&self) -> DecodeErrorKind {
+        self.kind
+    }
+
+    #[inline]
+    pub const fn unexpected_eof() -> Self {
+        Self::new(DecodeErrorKind::UnexpectedEof)
+    }
+
+    #[inline]
+    pub const fn c_octet_string_decode_error(error: COctetStringDecodeError) -> Self {
+        Self::new(DecodeErrorKind::COctetStringDecodeError(error))
+    }
+
+    #[inline]
+    pub const fn octet_string_decode_error(error: OctetStringDecodeError) -> Self {
+        Self::new(DecodeErrorKind::OctetStringDecodeError(error))
+    }
+
+    #[inline]
+    pub const fn unsupported_key(key: u32) -> Self {
+        Self::new(DecodeErrorKind::UnsupportedKey { key })
+    }
+}
+
+/// Source of [`DecodeError`].
+#[derive(Debug)]
+pub struct DecodeErrorSource {
+    field: &'static str,
+    error: DecodeError,
+}
+
+/// Kind of [`DecodeError`].
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub enum DecodeErrorKind {
     UnexpectedEof,
     COctetStringDecodeError(COctetStringDecodeError),
     OctetStringDecodeError(OctetStringDecodeError),
@@ -369,7 +451,8 @@ pub enum DecodeError {
 }
 
 /// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString).
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
 pub enum COctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
     NotAscii,
@@ -377,35 +460,69 @@ pub enum COctetStringDecodeError {
 }
 
 /// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString).
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
 pub enum OctetStringDecodeError {
     TooManyBytes { actual: usize, max: usize },
     TooFewBytes { actual: usize, min: usize },
 }
 
+impl core::fmt::Display for DecodeErrorSource {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "field: {}, error: {}", self.field, self.error)
+    }
+}
+
+impl core::error::Error for DecodeErrorSource {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+        Some(&self.error)
+    }
+
+    fn cause(&self) -> Option<&dyn core::error::Error> {
+        self.source()
+    }
+}
+
 impl core::fmt::Display for DecodeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            DecodeError::UnexpectedEof => write!(f, "Unexpected EOF"),
-            DecodeError::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
-            DecodeError::OctetStringDecodeError(e) => write!(f, "OctetString error: {e}"),
-            DecodeError::UnsupportedKey { key } => write!(f, "Unsupported key: {key}"),
-        }
+        #[cfg(feature = "verbose")]
+        return match &self.source {
+            Some(source) => {
+                write!(f, "Decode error. kind: {}, source: [{source}]", self.kind,)
+            }
+            None => write!(f, "Decode error. kind: {}", self.kind),
+        };
+
+        #[cfg(not(feature = "verbose"))]
+        write!(f, "Decode error. kind: {}", self.kind)
     }
 }
 
 impl core::error::Error for DecodeError {
     fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
-        match self {
-            DecodeError::UnexpectedEof => None,
-            DecodeError::COctetStringDecodeError(e) => Some(e),
-            DecodeError::OctetStringDecodeError(e) => Some(e),
-            DecodeError::UnsupportedKey { .. } => None,
-        }
+        #[cfg(feature = "verbose")]
+        return match &self.source {
+            Some(source) => Some(source.as_ref()),
+            None => None,
+        };
+
+        #[cfg(not(feature = "verbose"))]
+        None
     }
 
     fn cause(&self) -> Option<&dyn core::error::Error> {
         self.source()
+    }
+}
+
+impl core::fmt::Display for DecodeErrorKind {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            DecodeErrorKind::UnexpectedEof => write!(f, "Unexpected EOF"),
+            DecodeErrorKind::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
+            DecodeErrorKind::OctetStringDecodeError(e) => write!(f, "OctetString error: {e}"),
+            DecodeErrorKind::UnsupportedKey { key } => write!(f, "Unsupported key: {key}"),
+        }
     }
 }
 
@@ -562,7 +679,7 @@ impl<T: Decode> DecodeWithLength for alloc::vec::Vec<T> {
         }
 
         if length > src.len() {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         let mut size = 0;
@@ -606,7 +723,7 @@ mod tests {
         let buf = &[0, 1, 2];
 
         let error = u8::counted_move(buf, 5, 0).unwrap_err();
-        assert!(matches!(error, DecodeError::UnexpectedEof));
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
         // Count is within the buffer
         let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -633,7 +750,7 @@ mod tests {
         // Actually 10 values, 12 will break
         let error = u32::counted_move(buf, 12, 0).unwrap_err();
 
-        assert!(matches!(error, DecodeError::UnexpectedEof));
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
         let buf = b"Hello\0World\0";
 
@@ -668,8 +785,8 @@ mod tests {
         let error = COctetString::<1, 6>::counted_move(buf, 3, 0).unwrap_err();
 
         assert!(matches!(
-            error,
-            DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+            error.kind(),
+            DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
         ));
 
         // Remaining bytes
@@ -706,7 +823,7 @@ mod tests {
 
         let error = Vec::<u8>::decode(buf, 5).unwrap_err();
 
-        assert!(matches!(error, DecodeError::UnexpectedEof));
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
         // Length is within the buffer
         let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -733,7 +850,7 @@ mod tests {
         // Actually 40 bytes, 50 will break
         let error = Vec::<u32>::decode(buf, 50).unwrap_err();
 
-        assert!(matches!(error, DecodeError::UnexpectedEof));
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
         let buf = b"Hello\0World\0";
 
@@ -769,8 +886,8 @@ mod tests {
         let error = Vec::<COctetString<1, 6>>::decode(buf, 11).unwrap_err();
 
         assert!(matches!(
-            error,
-            DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+            error.kind(),
+            DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
         ));
 
         // Remaining bytes

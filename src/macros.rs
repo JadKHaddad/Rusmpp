@@ -424,9 +424,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeWithLengthExt::decode_move(
             $src, $len.saturating_sub($size), $size
-        )?;
+        ),::core::stringify!($field_ident))?;
     };
 
     // Example: AlertNotification
@@ -435,9 +435,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeExt::length_checked_decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeExt::length_checked_decode_move(
             $src, $len.saturating_sub($size), $size
-        )?
+        ),::core::stringify!($field_ident))?
         .map(|(this, size)| (Some(this), size))
         .unwrap_or((None, $size));
     };
@@ -448,9 +448,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeWithLengthExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeWithLengthExt::decode_move(
             $src, $length_ident as usize, $size
-        )?;
+        ),::core::stringify!($field_ident))?;
     };
 
     // Example: Command
@@ -459,9 +459,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeWithKeyOptionalExt::decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeWithKeyOptionalExt::decode_move(
             $key, $src, $len.saturating_sub($size), $size
-        )?
+        ),::core::stringify!($field_ident))?
         .map(|(this, size)| (Some(this), size))
         .unwrap_or((None, $size));
     };
@@ -472,9 +472,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
             $key, $src, $length_ident as usize, $size
-        )?
+        ),::core::stringify!($field_ident))?
         .map(|(this, size)| (Some(this), size))
         .unwrap_or((None, $size));
     };
@@ -485,9 +485,9 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeExt::counted_move(
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeExt::counted_move(
             $src, $count as usize, $size
-        )?;
+        ),::core::stringify!($field_ident))?;
     };
 
     // Example: CancelSm
@@ -495,7 +495,7 @@ macro_rules! create {
         $field_ident:ident,
         $src:ident, $len:ident, $size:ident
     }) => {
-        let ($field_ident, $size) = $crate::decode::DecodeExt::decode_move($src, $size)?;
+        let ($field_ident, $size) = $crate::decode::DecodeErrorExt::map_as_source($crate::decode::DecodeExt::decode_move($src, $size),::core::stringify!($field_ident))?;
     };
 
     // Enums u8

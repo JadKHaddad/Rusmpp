@@ -115,7 +115,7 @@ impl Encode for AnyOctetString {
 impl DecodeWithLength for AnyOctetString {
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         if src.len() < length {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         let mut bytes = Vec::with_capacity(length);
@@ -164,6 +164,8 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
@@ -171,7 +173,7 @@ mod tests {
             let bytes = b"";
             let error = AnyOctetString::decode(bytes, 5).unwrap_err();
 
-            assert!(matches!(error, DecodeError::UnexpectedEof));
+            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
         }
 
         #[test]

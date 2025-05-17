@@ -288,7 +288,7 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
         Self::_ASSERT_VALID;
 
         if src.len() < MIN {
-            return Err(DecodeError::COctetStringDecodeError(
+            return Err(DecodeError::c_octet_string_decode_error(
                 COctetStringDecodeError::TooFewBytes {
                     actual: src.len(),
                     min: MIN,
@@ -307,13 +307,13 @@ impl<const MIN: usize, const MAX: usize> Decode for COctetString<MIN, MAX> {
         }
 
         if bytes.last() != Some(&0x00) {
-            return Err(DecodeError::COctetStringDecodeError(
+            return Err(DecodeError::c_octet_string_decode_error(
                 COctetStringDecodeError::NotNullTerminated,
             ));
         }
 
         if !bytes.is_ascii() {
-            return Err(DecodeError::COctetStringDecodeError(
+            return Err(DecodeError::c_octet_string_decode_error(
                 COctetStringDecodeError::NotAscii,
             ));
         }
@@ -553,6 +553,8 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
@@ -561,8 +563,8 @@ mod tests {
             let error = COctetString::<1, 6>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
                     actual: 0,
                     min: 1,
                 })
@@ -575,8 +577,10 @@ mod tests {
             let error = COctetString::<1, 6>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(
+                    COctetStringDecodeError::NotNullTerminated
+                )
             ));
         }
 
@@ -586,8 +590,10 @@ mod tests {
             let error = COctetString::<1, 5>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(
+                    COctetStringDecodeError::NotNullTerminated
+                )
             ));
         }
 
@@ -597,8 +603,8 @@ mod tests {
             let error = COctetString::<10, 20>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
                     actual: 6,
                     min: 10,
                 })
@@ -611,8 +617,8 @@ mod tests {
             let error = COctetString::<1, 6>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotAscii)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotAscii)
             ));
         }
 

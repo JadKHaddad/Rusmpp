@@ -33,7 +33,7 @@ impl Encode for u32 {
 impl Decode for u32 {
     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
         if src.len() < 4 {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         let mut bytes = [0; 4];

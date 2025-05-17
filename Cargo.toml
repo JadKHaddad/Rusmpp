@@ -27,7 +27,7 @@ arbitrary = { version = "1.4.1", default-features = false, features = [
 ], optional = true }
 
 [features]
-default = ["tokio-codec", "tracing", "arbitrary"]
+default = ["tokio-codec", "tracing", "arbitrary", "verbose"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
 # Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
@@ -36,6 +36,8 @@ tokio-codec = ["dep:tokio-util"]
 tracing = ["dep:tracing"]
 # Implements arbitrary's Arbitrary trait for fuzz testing.
 arbitrary = ["dep:arbitrary"]
+# Enables verbose decoding errors.
+verbose = []
 
 [[example]]
 name = "client_server"

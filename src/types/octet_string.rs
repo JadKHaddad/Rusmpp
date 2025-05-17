@@ -199,7 +199,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if length > MAX {
-            return Err(DecodeError::OctetStringDecodeError(
+            return Err(DecodeError::octet_string_decode_error(
                 OctetStringDecodeError::TooManyBytes {
                     actual: length,
                     max: MAX,
@@ -208,7 +208,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         }
 
         if length < MIN {
-            return Err(DecodeError::OctetStringDecodeError(
+            return Err(DecodeError::octet_string_decode_error(
                 OctetStringDecodeError::TooFewBytes {
                     actual: length,
                     min: MIN,
@@ -217,7 +217,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         }
 
         if src.len() < length {
-            return Err(DecodeError::UnexpectedEof);
+            return Err(DecodeError::unexpected_eof());
         }
 
         let bytes = src[..length].to_vec();
@@ -307,6 +307,8 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
@@ -314,7 +316,7 @@ mod tests {
             let bytes = b"";
             let error = OctetString::<0, 6>::decode(bytes, 5).unwrap_err();
 
-            assert!(matches!(error, DecodeError::UnexpectedEof));
+            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
         }
 
         #[test]
@@ -323,8 +325,8 @@ mod tests {
             let error = OctetString::<0, 5>::decode(bytes, 15).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooManyBytes {
+                error.kind(),
+                DecodeErrorKind::OctetStringDecodeError(OctetStringDecodeError::TooManyBytes {
                     actual: 15,
                     max: 5,
                 },)
@@ -337,8 +339,8 @@ mod tests {
             let error = OctetString::<6, 10>::decode(bytes, 5).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooFewBytes {
+                error.kind(),
+                DecodeErrorKind::OctetStringDecodeError(OctetStringDecodeError::TooFewBytes {
                     actual: 5,
                     min: 6,
                 },)

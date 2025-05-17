@@ -84,7 +84,7 @@ impl Decode for DestAddress {
             DestFlag::DistributionListName => {
                 DistributionListName::decode_move(src, size).map_decoded(Self::DistributionListName)
             }
-            DestFlag::Other(flag) => Err(DecodeError::UnsupportedKey { key: flag.into() }),
+            DestFlag::Other(flag) => Err(DecodeError::unsupported_key(flag.into())),
         }
     }
 }

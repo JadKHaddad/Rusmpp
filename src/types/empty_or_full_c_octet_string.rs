@@ -250,7 +250,7 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
 
         for i in 0..N {
             if i >= src.len() {
-                return Err(DecodeError::UnexpectedEof);
+                return Err(DecodeError::unexpected_eof());
             }
 
             let byte = src[i];
@@ -261,7 +261,7 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
                 let len = i + 1;
 
                 if bytes.len() > 1 && bytes.len() < N {
-                    return Err(DecodeError::COctetStringDecodeError(
+                    return Err(DecodeError::c_octet_string_decode_error(
                         COctetStringDecodeError::TooFewBytes {
                             actual: bytes.len(),
                             min: N,
@@ -270,7 +270,7 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
                 }
 
                 if !bytes.is_ascii() {
-                    return Err(DecodeError::COctetStringDecodeError(
+                    return Err(DecodeError::c_octet_string_decode_error(
                         COctetStringDecodeError::NotAscii,
                     ));
                 }
@@ -279,7 +279,7 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
             }
         }
 
-        Err(DecodeError::COctetStringDecodeError(
+        Err(DecodeError::c_octet_string_decode_error(
             COctetStringDecodeError::NotNullTerminated,
         ))
     }
@@ -467,6 +467,8 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
@@ -474,7 +476,7 @@ mod tests {
             let bytes = b"";
             let error = EmptyOrFullCOctetString::<6>::decode(bytes).unwrap_err();
 
-            assert!(matches!(error, DecodeError::UnexpectedEof));
+            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
         }
 
         #[test]
@@ -483,8 +485,10 @@ mod tests {
             let error = EmptyOrFullCOctetString::<2>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(
+                    COctetStringDecodeError::NotNullTerminated
+                )
             ));
         }
 
@@ -494,8 +498,10 @@ mod tests {
             let error = EmptyOrFullCOctetString::<5>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated,)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(
+                    COctetStringDecodeError::NotNullTerminated,
+                )
             ));
         }
 
@@ -505,8 +511,8 @@ mod tests {
             let error = EmptyOrFullCOctetString::<5>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::TooFewBytes {
                     actual: 4,
                     min: 5,
                 },)
@@ -519,8 +525,8 @@ mod tests {
             let error = EmptyOrFullCOctetString::<6>::decode(bytes).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::COctetStringDecodeError(COctetStringDecodeError::NotAscii)
+                error.kind(),
+                DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotAscii)
             ));
         }
 

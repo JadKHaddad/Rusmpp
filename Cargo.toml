@@ -28,7 +28,7 @@ arbitrary = { version = "1.4.1", default-features = false, features = [
 ], optional = true }
 
 [features]
-default = []
+default = ["tokio-codec"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
 # Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.

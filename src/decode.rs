@@ -506,17 +506,6 @@ pub(crate) trait DecodeWithLengthExt: DecodeWithLength {
     fn decode_move(src: &[u8], length: usize, size: usize) -> Result<(Self, usize), DecodeError> {
         Self::decode(&src[size..], length).map(|(this, size_)| (this, size + size_))
     }
-
-    fn length_checked_decode_move(
-        src: &[u8],
-        length: usize,
-        size: usize,
-    ) -> Result<Option<(Self, usize)>, DecodeError> {
-        (length > 0)
-            .then_some(())
-            .map(|_| Self::decode_move(src, length, size))
-            .transpose()
-    }
 }
 
 impl<T: DecodeWithLength> DecodeWithLengthExt for T {}

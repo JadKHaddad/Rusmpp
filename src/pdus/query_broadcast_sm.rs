@@ -1,5 +1,5 @@
 use crate::{
-    tlvs::SingleTlv,
+    tlvs::{Tlv, TlvValue},
     types::COctetString,
     values::{Npi, Ton, UserMessageReference},
     Pdu,
@@ -43,11 +43,9 @@ crate::create! {
         ///
         /// If not known, set to NULL (Unknown).
         pub source_addr: COctetString<1, 21>,
-        /// [`TLVValue::UserMessageReference`].
-        ///
-        /// ESME assigned message reference number.
+        /// ESME assigned message reference number. [`UserMessageReference`].
         @[length = checked]
-        user_message_reference: Option<SingleTlv<UserMessageReference>>,
+        user_message_reference: Option<Tlv>,
     }
 }
 
@@ -59,7 +57,9 @@ impl QueryBroadcastSm {
         source_addr: COctetString<1, 21>,
         user_message_reference: Option<UserMessageReference>,
     ) -> Self {
-        let user_message_reference = user_message_reference.map(From::from);
+        let user_message_reference = user_message_reference
+            .map(TlvValue::UserMessageReference)
+            .map(From::from);
 
         Self {
             message_id,
@@ -70,13 +70,16 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub fn user_message_reference_tlv(&self) -> Option<&SingleTlv<UserMessageReference>> {
+    pub fn user_message_reference_tlv(&self) -> Option<&Tlv> {
         self.user_message_reference.as_ref()
     }
 
     pub fn user_message_reference(&self) -> Option<UserMessageReference> {
         self.user_message_reference_tlv()
-            .and_then(SingleTlv::value)
+            .and_then(|tlv| match tlv.value() {
+                Some(TlvValue::UserMessageReference(value)) => Some(value),
+                _ => None,
+            })
             .copied()
     }
 
@@ -84,7 +87,9 @@ impl QueryBroadcastSm {
         &mut self,
         user_message_reference: Option<UserMessageReference>,
     ) {
-        self.user_message_reference = user_message_reference.map(From::from);
+        self.user_message_reference = user_message_reference
+            .map(TlvValue::UserMessageReference)
+            .map(From::from);
     }
 
     pub fn builder() -> QueryBroadcastSmBuilder {

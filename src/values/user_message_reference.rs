@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     /// A reference assigned by the originating SME to the short message. Depending on the
     /// destination network technology, this field may be passed directly to the mobile device.
@@ -31,8 +29,4 @@ impl From<UserMessageReference> for u16 {
     fn from(value: UserMessageReference) -> Self {
         value.value
     }
-}
-
-impl HasTlvTag for UserMessageReference {
-    const TAG: TlvTag = TlvTag::UserMessageReference;
 }

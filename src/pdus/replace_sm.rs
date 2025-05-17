@@ -1,6 +1,6 @@
 use crate::{
     encode::Length,
-    tlvs::SingleTlv,
+    tlvs::{Tlv, TlvValue},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
     values::{MessagePayload, Npi, RegisteredDelivery, Ton},
     Pdu,
@@ -71,9 +71,9 @@ crate::create! {
         /// this case the sm_length field should be set to zero.
         @[length = sm_length]
         short_message: OctetString<0, 255>,
-        /// Message replacement request TLVs.
+        /// Message replacement request TLVs. [`MessagePayload`].
         @[length = checked]
-        message_payload: Option<SingleTlv<MessagePayload>>,
+        message_payload: Option<Tlv>,
     }
 }
 
@@ -91,7 +91,10 @@ impl ReplaceSm {
         short_message: OctetString<0, 255>,
         message_payload: Option<MessagePayload>,
     ) -> Self {
-        let message_payload = message_payload.map(From::from);
+        let message_payload = message_payload
+            .map(TlvValue::MessagePayload)
+            .map(From::from);
+
         let sm_length = short_message.length() as u8;
 
         let mut replace_sm = Self {
@@ -132,18 +135,24 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn message_payload_tlv(&self) -> Option<&SingleTlv<MessagePayload>> {
+    pub fn message_payload_tlv(&self) -> Option<&Tlv> {
         self.message_payload.as_ref()
     }
 
     pub fn message_payload(&self) -> Option<&MessagePayload> {
-        self.message_payload_tlv().and_then(SingleTlv::value)
+        self.message_payload_tlv()
+            .and_then(|tlv| match tlv.value() {
+                Some(TlvValue::MessagePayload(value)) => Some(value),
+                _ => None,
+            })
     }
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
     pub fn set_message_payload(&mut self, message_payload: Option<MessagePayload>) {
-        self.message_payload = message_payload.map(From::from);
+        self.message_payload = message_payload
+            .map(TlvValue::MessagePayload)
+            .map(From::from);
 
         self.clear_short_message_if_message_payload_exists();
     }

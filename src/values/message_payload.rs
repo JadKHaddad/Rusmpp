@@ -1,7 +1,4 @@
-use crate::{
-    tlvs::{HasTlvTag, TlvTag},
-    types::AnyOctetString,
-};
+use crate::types::AnyOctetString;
 
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -28,8 +25,4 @@ impl From<MessagePayload> for AnyOctetString {
     fn from(value: MessagePayload) -> Self {
         value.value
     }
-}
-
-impl HasTlvTag for MessagePayload {
-    const TAG: TlvTag = TlvTag::MessagePayload;
 }

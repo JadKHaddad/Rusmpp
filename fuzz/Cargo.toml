@@ -12,7 +12,6 @@ libfuzzer-sys = "0.4"
 arbitrary = { version = "1.4.1" }
 rusmpp = { path = "../", features = ["arbitrary"], default-features = false }
 
-
 [workspace]
 members = ["."]
 

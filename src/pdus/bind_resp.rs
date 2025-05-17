@@ -1,4 +1,9 @@
-use crate::{tlvs::SingleTlv, types::COctetString, values::InterfaceVersion, Pdu};
+use crate::{
+    tlvs::{Tlv, TlvValue},
+    types::COctetString,
+    values::InterfaceVersion,
+    Pdu,
+};
 
 macro_rules! declare_bind_resp {
     ($name:ident, $builder_name:ident) => {
@@ -11,11 +16,9 @@ macro_rules! declare_bind_resp {
                 ///
                 /// Identifies the MC to the ESME.
                 pub system_id: COctetString<1, 16>,
-                /// [`TlvValue::ScInterfaceVersion`].
-                ///
-                /// `SMPP` version supported by MC.
+                /// `SMPP` version supported by MC. [`ScInterfaceVersion`].
                 @[length = checked]
-                sc_interface_version: Option<SingleTlv<InterfaceVersion>>,
+                sc_interface_version: Option<Tlv>,
             }
         }
 
@@ -26,17 +29,22 @@ macro_rules! declare_bind_resp {
             ) -> Self {
                 Self {
                     system_id,
-                    sc_interface_version: sc_interface_version.map(From::from),
+                    sc_interface_version: sc_interface_version
+                        .map(TlvValue::ScInterfaceVersion)
+                        .map(From::from),
                 }
             }
 
-            pub fn sc_interface_version_tlv(&self) -> Option<&SingleTlv<InterfaceVersion>> {
+            pub fn sc_interface_version_tlv(&self) -> Option<&Tlv> {
                 self.sc_interface_version.as_ref()
             }
 
             pub fn sc_interface_version(&self) -> Option<InterfaceVersion> {
                 self.sc_interface_version_tlv()
-                    .and_then(SingleTlv::value)
+                    .and_then(|tlv| match tlv.value() {
+                        Some(TlvValue::ScInterfaceVersion(value)) => Some(value),
+                        _ => None,
+                    })
                     .copied()
             }
 
@@ -44,7 +52,9 @@ macro_rules! declare_bind_resp {
                 &mut self,
                 sc_interface_version: Option<InterfaceVersion>,
             ) {
-                self.sc_interface_version = sc_interface_version.map(From::from);
+                self.sc_interface_version = sc_interface_version
+                    .map(TlvValue::ScInterfaceVersion)
+                    .map(From::from);
             }
 
             pub fn builder() -> $builder_name {

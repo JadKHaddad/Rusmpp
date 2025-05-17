@@ -96,6 +96,7 @@ mod tokio {
         }
     }
 
+    // cargo test send_bind_transmitter --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "observation test"]
     async fn send_bind_transmitter() {
@@ -107,6 +108,7 @@ mod tokio {
         connect_and_send(command).await;
     }
 
+    // cargo test send_alert_notification --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "observation test"]
     async fn send_alert_notification() {
@@ -122,6 +124,7 @@ mod tokio {
         connect_and_send(command).await;
     }
 
+    // cargo test send_broadcast_sm --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "observation test"]
     async fn send_broadcast_sm() {
@@ -172,6 +175,7 @@ mod tokio {
         connect_and_send(command).await;
     }
 
+    // cargo test send_submit_sm --features tokio-codec -- --ignored --nocapture
     #[tokio::test]
     #[ignore = "observation test"]
     async fn send_submit_sm() {

@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
@@ -33,10 +31,6 @@ impl From<u8> for InterfaceVersion {
             _ => Self::Other(value),
         }
     }
-}
-
-impl HasTlvTag for InterfaceVersion {
-    const TAG: TlvTag = TlvTag::ScInterfaceVersion;
 }
 
 #[cfg(test)]

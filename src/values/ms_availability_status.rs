@@ -1,5 +1,3 @@
-use crate::tlvs::{HasTlvTag, TlvTag};
-
 crate::create! {
     #[repr(u8)]
     /// The ms_availability_status parameter is used in the alert_notification operation to indicate the
@@ -38,10 +36,6 @@ impl From<MsAvailabilityStatus> for u8 {
             MsAvailabilityStatus::Other(other) => other,
         }
     }
-}
-
-impl HasTlvTag for MsAvailabilityStatus {
-    const TAG: TlvTag = TlvTag::MsAvailabilityStatus;
 }
 
 #[cfg(test)]

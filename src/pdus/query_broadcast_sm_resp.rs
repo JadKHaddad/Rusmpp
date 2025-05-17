@@ -72,7 +72,10 @@ impl QueryBroadcastSmRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<QueryBroadcastResponseTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<QueryBroadcastResponseTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }

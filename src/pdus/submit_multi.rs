@@ -341,7 +341,10 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }
@@ -471,9 +474,9 @@ mod tests {
         // Using tlvs
         let submit_sm = SubmitMulti::builder()
             .short_message(short_message.clone())
-            .tlvs(alloc::vec![MessageSubmissionRequestTlvValue::MessagePayload(
-                message_payload.clone(),
-            )])
+            .tlvs(alloc::vec![
+                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
+            ])
             .build();
 
         assert_eq!(submit_sm.short_message(), &OctetString::empty());
@@ -495,9 +498,9 @@ mod tests {
         // Using tlvs
         let submit_multi = SubmitMulti::builder()
             .short_message(short_message.clone())
-            .tlvs(alloc::vec![MessageSubmissionRequestTlvValue::MessagePayload(
-                message_payload.clone(),
-            )])
+            .tlvs(alloc::vec![
+                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
+            ])
             .short_message(short_message.clone())
             .build();
 

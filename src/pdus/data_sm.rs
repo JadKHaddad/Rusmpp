@@ -184,7 +184,10 @@ impl DataSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }

@@ -311,7 +311,10 @@ impl DeliverSmBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryRequestTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageDeliveryRequestTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }

@@ -75,7 +75,10 @@ impl SubmitMultiResp {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>) {
+    pub fn set_tlvs(
+        &mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+    ) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
 
@@ -128,7 +131,10 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>) -> Self {
+    pub fn tlvs(
+        mut self,
+        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+    ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
     }

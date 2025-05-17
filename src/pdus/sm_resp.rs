@@ -39,7 +39,10 @@ macro_rules! declare_sm_resp {
                 &self.tlvs
             }
 
-            pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>) {
+            pub fn set_tlvs(
+                &mut self,
+                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
+            ) {
                 self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
             }
 
@@ -67,7 +70,10 @@ macro_rules! declare_sm_resp {
                 self
             }
 
-            pub fn tlvs(mut self, tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>) -> Self {
+            pub fn tlvs(
+                mut self,
+                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
+            ) -> Self {
                 self.inner.set_tlvs(tlvs);
                 self
             }

@@ -1,10 +1,7 @@
 use crate::{
-    commands::types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
-        registered_delivery::RegisteredDelivery, service_type::ServiceType, ton::Ton,
-    },
     tlvs::{MessageSubmissionRequestTlvValue, Tlv},
     types::COctetString,
+    values::{DataCoding, EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
     Pdu,
 };
 
@@ -212,14 +209,12 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            registered_delivery::{
-                IntermediateNotification, MCDeliveryReceipt, SmeOriginatedAcknowledgement,
-            },
-            AddrSubunit, UssdServiceOp,
-        },
         tests::TestInstance,
         tlvs::MessageSubmissionRequestTlvValue,
+        values::{
+            AddrSubunit, IntermediateNotification, MCDeliveryReceipt, SmeOriginatedAcknowledgement,
+            UssdServiceOp,
+        },
     };
 
     use super::*;

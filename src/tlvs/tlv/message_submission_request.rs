@@ -1,16 +1,6 @@
 use crate::{
-    commands::types::{
-        addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
-        bearer_type::BearerType, callback_num_pres_ind::CallbackNumPresInd,
-        dest_addr_np_resolution::DestAddrNpResolution, display_time::DisplayTime,
-        its_reply_type::ItsReplyType, its_session_info::ItsSessionInfo,
-        language_indicator::LanguageIndicator, more_messages_to_send::MoreMessagesToSend,
-        ms_msg_wait_facilities::MsMsgWaitFacilities, ms_validity::MsValidity,
-        network_type::NetworkType, number_of_messages::NumberOfMessages, payload_type::PayloadType,
-        privacy_indicator::PrivacyIndicator, set_dpf::SetDpf, sub_address::Subaddress,
-        ussd_service_op::UssdServiceOp, MessagePayload, UserMessageReference,
-    },
     types::{COctetString, OctetString},
+    values::*,
 };
 
 crate::create_tlv_value! {

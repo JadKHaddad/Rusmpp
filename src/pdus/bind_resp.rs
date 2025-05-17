@@ -1,6 +1,4 @@
-use crate::{
-    commands::types::interface_version::InterfaceVersion, tlvs::SingleTlv, types::COctetString, Pdu,
-};
+use crate::{tlvs::SingleTlv, types::COctetString, values::InterfaceVersion, Pdu};
 
 macro_rules! declare_bind_resp {
     ($name:ident, $builder_name:ident) => {

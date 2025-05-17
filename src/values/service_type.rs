@@ -4,7 +4,7 @@ use crate::types::COctetString;
 ///
 /// # Example
 /// ```rust
-/// use rusmpp::commands::types::service_type::{GenericServiceType, ServiceType};
+/// use rusmpp::values::{GenericServiceType, ServiceType};
 ///
 /// let service_type = ServiceType::new(GenericServiceType::CellularMessaging.into());
 /// assert_eq!(service_type.value().bytes(), b"CMT\0");

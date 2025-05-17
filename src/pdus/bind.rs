@@ -1,6 +1,6 @@
 use crate::{
-    commands::types::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
     types::COctetString,
+    values::{InterfaceVersion, Npi, Ton},
     Pdu,
 };
 

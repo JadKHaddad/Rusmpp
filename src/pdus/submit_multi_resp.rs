@@ -1,7 +1,7 @@
 use crate::{
-    commands::types::unsuccess_sme::UnsuccessSme,
     tlvs::{MessageSubmissionResponseTlvValue, Tlv},
     types::COctetString,
+    values::UnsuccessSme,
     Pdu,
 };
 
@@ -153,11 +153,9 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            network_error_code::ErrorCodeNetworkType, DpfResult, NetworkErrorCode, Npi, Ton,
-        },
         tests::TestInstance,
         tlvs::MessageSubmissionResponseTlvValue,
+        values::{DpfResult, ErrorCodeNetworkType, NetworkErrorCode, Npi, Ton},
         CommandStatus,
     };
 

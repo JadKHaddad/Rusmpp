@@ -1,10 +1,8 @@
 use crate::{
-    commands::types::{
-        npi::Npi, registered_delivery::RegisteredDelivery, ton::Ton, MessagePayload,
-    },
     encode::Length,
     tlvs::SingleTlv,
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    values::{MessagePayload, Npi, RegisteredDelivery, Ton},
     Pdu,
 };
 
@@ -246,7 +244,7 @@ impl ReplaceSmBuilder {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{commands::types::MessagePayload, tests::TestInstance, types::AnyOctetString};
+    use crate::{tests::TestInstance, types::AnyOctetString, values::MessagePayload};
 
     use super::*;
 

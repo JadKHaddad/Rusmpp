@@ -104,11 +104,9 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            network_error_code::ErrorCodeNetworkType, DeliveryFailureReason, NetworkErrorCode,
-        },
         tests::TestInstance,
         tlvs::MessageDeliveryResponseTlvValue,
+        values::{DeliveryFailureReason, ErrorCodeNetworkType, NetworkErrorCode},
     };
 
     use super::*;

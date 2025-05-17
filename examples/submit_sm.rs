@@ -8,12 +8,12 @@
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     codec::CommandCodec,
-    commands::types::{
-        EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
-    },
     pdus::{BindTransceiver, SubmitSm},
     tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{AnyOctetString, COctetString, OctetString},
+    values::{
+        EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,
+    },
     Command, CommandId, CommandStatus, Pdu,
 };
 use std::str::FromStr;

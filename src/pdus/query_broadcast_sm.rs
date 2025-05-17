@@ -1,7 +1,7 @@
 use crate::{
-    commands::types::{npi::Npi, ton::Ton, UserMessageReference},
     tlvs::SingleTlv,
     types::COctetString,
+    values::{Npi, Ton, UserMessageReference},
     Pdu,
 };
 

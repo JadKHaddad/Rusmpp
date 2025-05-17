@@ -1,6 +1,6 @@
 use crate::{
-    commands::types::{npi::Npi, ton::Ton},
     types::COctetString,
+    values::{Npi, Ton},
     Pdu,
 };
 

@@ -1,12 +1,11 @@
 use crate::{
-    commands::types::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::ServiceType, ton::Ton,
-    },
     encode::Length,
     tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    values::{
+        DataCoding, EsmClass, Npi, PriorityFlag, RegisteredDelivery, ReplaceIfPresentFlag,
+        ServiceType, Ton,
+    },
     Pdu,
 };
 
@@ -335,15 +334,12 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            esm_class::{Ansi41Specific, GsmFeatures, MessageType, MessagingMode},
-            priority_flag::{Ansi136, PriorityFlagType},
-            service_type::GenericServiceType,
-            sub_address::SubaddressTag,
-            BearerType, MessagePayload, Subaddress,
-        },
         tests::TestInstance,
         types::AnyOctetString,
+        values::{
+            Ansi136, Ansi41Specific, BearerType, GenericServiceType, GsmFeatures, MessagePayload,
+            MessageType, MessagingMode, PriorityFlagType, Subaddress, SubaddressTag,
+        },
     };
 
     use super::*;

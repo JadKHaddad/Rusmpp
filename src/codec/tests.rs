@@ -14,18 +14,12 @@ mod tokio {
 
     use crate::{
         codec::{command_codec::CommandCodec, tokio::DecodeError},
-        commands::types::{
-            broadcast_area_identifier::BroadcastAreaFormat, data_coding::DataCoding,
-            esm_class::EsmClass, interface_version::InterfaceVersion, npi::Npi,
-            registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-            service_type::ServiceType, ton::Ton, AlertOnMessageDelivery, BroadcastAreaIdentifier,
-            BroadcastMessageClass, MessagePayload, MsAvailabilityStatus,
-        },
         encode::Length,
         pdus::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm, SubmitSm},
         tests::test_commands,
         tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
         types::{AnyOctetString, COctetString, OctetString},
+        values::*,
         Command, CommandStatus, Pdu,
     };
 
@@ -66,7 +60,7 @@ mod tokio {
         let mut framed_writer = Framed::new(writer, CommandCodec::new());
         let mut framed_reader = Framed::new(
             reader,
-            CommandCodec::new().with_max_command_length(max_command_length),
+            CommandCodec::new().with_max_length(max_command_length),
         );
 
         let command = Command::new(Default::default(), Default::default(), SubmitSm::default());

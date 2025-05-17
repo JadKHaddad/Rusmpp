@@ -59,11 +59,13 @@ pub use command::inner::Command;
 pub mod pdus;
 pub use pdus::pdu::Pdu;
 
-mod session;
-pub use session::SessionState;
+pub mod session;
 
 pub mod tlvs;
+
 pub mod types;
+
+pub mod values;
 
 mod macros;
 
@@ -75,9 +77,6 @@ pub mod encode;
 #[cfg(test)]
 pub(crate) mod tests;
 
-// TODO: extract types into values
-pub mod commands;
-
 #[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::debug;
 #[cfg(any(test, feature = "tokio-codec"))]
@@ -86,4 +85,3 @@ pub(crate) use macros::error;
 pub(crate) use macros::trace;
 
 // TODO: no std
-// TODO: rework the exports

@@ -1,9 +1,6 @@
 use crate::{
-    commands::types::{
-        delivery_failure_reason::DeliveryFailureReason, dpf_result::DpfResult,
-        network_error_code::NetworkErrorCode,
-    },
     types::COctetString,
+    values::{DeliveryFailureReason, DpfResult, NetworkErrorCode},
 };
 
 crate::create_tlv_value! {

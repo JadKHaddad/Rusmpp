@@ -1,4 +1,4 @@
-/// A codec for encoding and decoding `SMPP` PDUs.
+/// Codec for encoding and decoding `SMPP` PDUs.
 ///
 /// # Usage
 /// ```rust
@@ -43,31 +43,29 @@
 /// ```
 #[derive(Debug)]
 pub struct CommandCodec {
-    max_command_length: Option<usize>,
+    max_length: Option<usize>,
 }
 
 impl CommandCodec {
     #[inline]
     pub const fn new() -> Self {
-        Self {
-            max_command_length: None,
-        }
+        Self { max_length: None }
     }
 
     #[inline]
-    pub const fn max_command_length(&self) -> Option<usize> {
-        self.max_command_length
+    pub const fn max_length(&self) -> Option<usize> {
+        self.max_length
     }
 
     #[inline]
-    pub fn with_max_command_length(mut self, max_command_length: usize) -> Self {
-        self.max_command_length = Some(max_command_length);
+    pub fn with_max_length(mut self, max_length: usize) -> Self {
+        self.max_length = Some(max_length);
         self
     }
 
     #[inline]
-    pub fn without_max_command_length(mut self) -> Self {
-        self.max_command_length = None;
+    pub fn without_max_length(mut self) -> Self {
+        self.max_length = None;
         self
     }
 }
@@ -81,6 +79,9 @@ impl Default for CommandCodec {
 #[cfg(feature = "tokio-codec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod tokio {
+    //! Tokio's util [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html)
+    //! implementations for [`CommandCodec`].
+
     use tokio_util::{
         bytes::{Buf, BufMut, BytesMut},
         codec::{Decoder, Encoder},
@@ -214,7 +215,7 @@ pub mod tokio {
 
             crate::trace!(target: "rusmpp::codec::decode", command_length);
 
-            if let Some(max_command_length) = self.max_command_length {
+            if let Some(max_command_length) = self.max_length {
                 if command_length > max_command_length {
                     crate::error!(target: "rusmpp::codec::decode", command_length, max_command_length, "Maximum command length exceeded");
 

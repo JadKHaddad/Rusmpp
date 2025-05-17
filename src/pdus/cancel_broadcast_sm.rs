@@ -1,7 +1,7 @@
 use crate::{
-    commands::types::{npi::Npi, service_type::ServiceType, ton::Ton},
     tlvs::{CancelBroadcastTlvValue, Tlv},
     types::COctetString,
+    values::{Npi, ServiceType, Ton},
     Pdu,
 };
 
@@ -172,12 +172,9 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            broadcast_content_type::{EncodingContentType, TypeOfNetwork},
-            BroadcastContentType, UserMessageReference,
-        },
         tests::TestInstance,
         tlvs::CancelBroadcastTlvValue,
+        values::{BroadcastContentType, EncodingContentType, TypeOfNetwork, UserMessageReference},
     };
 
     use super::*;

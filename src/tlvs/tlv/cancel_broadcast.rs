@@ -1,4 +1,4 @@
-use crate::commands::types::{broadcast_content_type::BroadcastContentType, UserMessageReference};
+use crate::values::{BroadcastContentType, UserMessageReference};
 
 crate::create_tlv_value! {
     #[non_exhaustive]

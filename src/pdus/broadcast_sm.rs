@@ -1,10 +1,7 @@
 use crate::{
-    commands::types::{
-        data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
-        replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-    },
     tlvs::{BroadcastRequestTlvValue, Tlv},
     types::{COctetString, EmptyOrFullCOctetString},
+    values::{DataCoding, Npi, PriorityFlag, ReplaceIfPresentFlag, ServiceType, Ton},
     Pdu,
 };
 
@@ -244,14 +241,10 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            priority_flag::{Ansi136, GsmSms, PriorityFlagType},
-            service_type::GenericServiceType,
-            LanguageIndicator,
-        },
         tests::TestInstance,
         tlvs::BroadcastRequestTlvValue,
         types::OctetString,
+        values::{Ansi136, GenericServiceType, GsmSms, LanguageIndicator, PriorityFlagType},
     };
 
     use super::*;

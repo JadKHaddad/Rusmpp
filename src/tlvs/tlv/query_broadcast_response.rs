@@ -1,8 +1,6 @@
 use crate::{
-    commands::types::{
-        BroadcastAreaIdentifier, BroadcastAreaSuccess, MessageState, UserMessageReference,
-    },
     types::OctetString,
+    values::{BroadcastAreaIdentifier, BroadcastAreaSuccess, MessageState, UserMessageReference},
 };
 
 crate::create_tlv_value! {

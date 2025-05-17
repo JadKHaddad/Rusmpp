@@ -1,12 +1,11 @@
 use crate::{
-    commands::types::{
-        data_coding::DataCoding, dest_address::DestAddress, esm_class::EsmClass, npi::Npi,
-        priority_flag::PriorityFlag, registered_delivery::RegisteredDelivery,
-        replace_if_present_flag::ReplaceIfPresentFlag, service_type::ServiceType, ton::Ton,
-    },
     encode::Length,
     tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    values::{
+        DataCoding, DestAddress, EsmClass, Npi, PriorityFlag, RegisteredDelivery,
+        ReplaceIfPresentFlag, ServiceType, Ton,
+    },
     Pdu,
 };
 
@@ -367,13 +366,10 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            dest_address::{DistributionListName, SmeAddress},
-            MessagePayload,
-        },
         tests::TestInstance,
         tlvs::MessageSubmissionRequestTlvValue,
         types::AnyOctetString,
+        values::{DistributionListName, MessagePayload, SmeAddress},
     };
 
     use super::*;

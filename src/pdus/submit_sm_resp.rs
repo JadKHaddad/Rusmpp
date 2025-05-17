@@ -100,8 +100,7 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::DeliveryFailureReason, tests::TestInstance,
-        tlvs::MessageSubmissionResponseTlvValue,
+        tests::TestInstance, tlvs::MessageSubmissionResponseTlvValue, values::DeliveryFailureReason,
     };
 
     use super::*;

@@ -97,8 +97,8 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::UserMessageReference, tests::TestInstance,
-        tlvs::QueryBroadcastResponseTlvValue, types::OctetString,
+        tests::TestInstance, tlvs::QueryBroadcastResponseTlvValue, types::OctetString,
+        values::UserMessageReference,
     };
 
     use super::*;

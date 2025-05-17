@@ -96,12 +96,10 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
-        commands::types::{
-            broadcast_area_identifier::BroadcastAreaFormat, BroadcastAreaIdentifier,
-        },
         tests::TestInstance,
         tlvs::BroadcastResponseTlvValue,
         types::AnyOctetString,
+        values::{BroadcastAreaFormat, BroadcastAreaIdentifier},
         CommandStatus,
     };
 

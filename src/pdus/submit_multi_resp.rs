@@ -1,8 +1,8 @@
 use crate::{
+    Pdu,
     tlvs::{MessageSubmissionResponseTlvValue, Tlv},
     types::COctetString,
     values::UnsuccessSme,
-    Pdu,
 };
 
 crate::create! {
@@ -159,10 +159,10 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
+        CommandStatus,
         tests::TestInstance,
         tlvs::MessageSubmissionResponseTlvValue,
         values::{DpfResult, ErrorCodeNetworkType, NetworkErrorCode, Npi, Ton},
-        CommandStatus,
     };
 
     use super::*;

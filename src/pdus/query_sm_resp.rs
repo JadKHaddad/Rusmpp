@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     types::{COctetString, EmptyOrFullCOctetString},
     values::MessageState,
-    Pdu,
 };
 
 crate::create! {

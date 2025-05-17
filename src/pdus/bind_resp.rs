@@ -1,8 +1,8 @@
 use crate::{
+    Pdu,
     tlvs::{Tlv, TlvValue},
     types::COctetString,
     values::InterfaceVersion,
-    Pdu,
 };
 
 macro_rules! declare_bind_resp {

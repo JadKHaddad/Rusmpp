@@ -1,6 +1,7 @@
 use alloc::boxed::Box;
 
 use crate::{
+    Command, CommandId, Pdu,
     decode::{Decode, DecodeWithLength},
     encode::{Encode, Length},
     pdus::{
@@ -11,7 +12,6 @@ use crate::{
         SubmitSm, SubmitSmResp,
     },
     types::AnyOctetString,
-    Command, CommandId, Pdu,
 };
 
 /// Trait for creating test instances of a type.

@@ -1,10 +1,10 @@
 use crate::{
+    CommandStatus,
     decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKey, DecodeWithLength},
     encode::{Encode, Length},
     tlvs::TlvTag,
     types::{AnyOctetString, COctetString, OctetString},
     values::*,
-    CommandStatus,
 };
 
 /// See module level documentation.

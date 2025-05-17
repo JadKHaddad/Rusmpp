@@ -1,4 +1,4 @@
-use crate::{types::COctetString, CommandStatus};
+use crate::{CommandStatus, types::COctetString};
 
 use super::{npi::Npi, ton::Ton};
 

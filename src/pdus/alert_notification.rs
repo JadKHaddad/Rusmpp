@@ -1,8 +1,8 @@
 use crate::{
+    Pdu,
     tlvs::{Tlv, TlvValue},
     types::COctetString,
     values::{MsAvailabilityStatus, Npi, Ton},
-    Pdu,
 };
 
 crate::create! {

@@ -92,9 +92,9 @@ pub mod tokio {
     };
 
     use crate::{
+        Command,
         decode::DecodeWithLength,
         encode::{Encode, Length},
-        Command,
     };
 
     use super::CommandCodec;

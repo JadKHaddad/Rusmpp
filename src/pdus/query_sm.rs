@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     types::COctetString,
     values::{Npi, Ton},
-    Pdu,
 };
 
 crate::create! {

@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     tlvs::{BroadcastResponseTlvValue, Tlv},
     types::COctetString,
-    Pdu,
 };
 
 crate::create! {
@@ -96,11 +96,11 @@ mod tests {
     use std::str::FromStr;
 
     use crate::{
+        CommandStatus,
         tests::TestInstance,
         tlvs::BroadcastResponseTlvValue,
         types::AnyOctetString,
         values::{BroadcastAreaFormat, BroadcastAreaIdentifier},
-        CommandStatus,
     };
 
     use super::*;

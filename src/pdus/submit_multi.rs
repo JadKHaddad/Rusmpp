@@ -1,4 +1,5 @@
 use crate::{
+    Pdu,
     encode::Length,
     tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
@@ -6,7 +7,6 @@ use crate::{
         DataCoding, DestAddress, EsmClass, Npi, PriorityFlag, RegisteredDelivery,
         ReplaceIfPresentFlag, ServiceType, Ton,
     },
-    Pdu,
 };
 
 crate::create! {

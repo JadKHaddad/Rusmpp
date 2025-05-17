@@ -1,8 +1,8 @@
 use crate::{
+    CommandId,
     decode::{Decode, DecodeError, DecodeResultExt, DecodeWithKeyOptional, DecodeWithLength},
     encode::{Encode, Length},
     types::AnyOctetString,
-    CommandId,
 };
 
 use super::*;

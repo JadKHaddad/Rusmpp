@@ -1,4 +1,4 @@
-use crate::{types::COctetString, Pdu};
+use crate::{Pdu, types::COctetString};
 
 crate::create! {
     @[skip_test]

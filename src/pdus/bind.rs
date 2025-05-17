@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     types::COctetString,
     values::{InterfaceVersion, Npi, Ton},
-    Pdu,
 };
 
 macro_rules! declare_bind {

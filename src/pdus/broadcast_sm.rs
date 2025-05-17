@@ -1,8 +1,8 @@
 use crate::{
+    Pdu,
     tlvs::{BroadcastRequestTlvValue, Tlv},
     types::{COctetString, EmptyOrFullCOctetString},
     values::{DataCoding, Npi, PriorityFlag, ReplaceIfPresentFlag, ServiceType, Ton},
-    Pdu,
 };
 
 crate::create! {

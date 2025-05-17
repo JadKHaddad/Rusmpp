@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     tlvs::{QueryBroadcastResponseTlvValue, Tlv},
     types::COctetString,
-    Pdu,
 };
 
 crate::create! {

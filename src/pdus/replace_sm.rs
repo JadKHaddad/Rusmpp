@@ -1,9 +1,9 @@
 use crate::{
+    Pdu,
     encode::Length,
     tlvs::{Tlv, TlvValue},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
     values::{MessagePayload, Npi, RegisteredDelivery, Ton},
-    Pdu,
 };
 
 crate::create! {

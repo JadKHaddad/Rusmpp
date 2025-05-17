@@ -1,4 +1,5 @@
 use crate::{
+    Pdu,
     encode::Length,
     tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
@@ -6,7 +7,6 @@ use crate::{
         DataCoding, EsmClass, Npi, PriorityFlag, RegisteredDelivery, ReplaceIfPresentFlag,
         ServiceType, Ton,
     },
-    Pdu,
 };
 
 crate::create! {
@@ -340,7 +340,7 @@ mod tests {
         tests::TestInstance,
         types::AnyOctetString,
         values::{
-            Ansi136, Ansi41Specific, BearerType, GenericServiceType, GsmFeatures, MessagePayload,
+            Ansi41Specific, Ansi136, BearerType, GenericServiceType, GsmFeatures, MessagePayload,
             MessageType, MessagingMode, PriorityFlagType, Subaddress, SubaddressTag,
         },
     };

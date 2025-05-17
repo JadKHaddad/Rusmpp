@@ -1,7 +1,7 @@
 use crate::{
+    Pdu,
     tlvs::{MessageDeliveryResponseTlvValue, Tlv},
     types::COctetString,
-    Pdu,
 };
 
 macro_rules! declare_sm_resp {

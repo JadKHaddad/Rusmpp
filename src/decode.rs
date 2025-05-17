@@ -102,7 +102,7 @@ pub trait Decode: Sized {
 /// assert_eq!(&buf[size..], &[0x09]);
 /// ```
 pub trait DecodeWithLength: Sized {
-    /// Decode a slice from a slice, with a specified length
+    /// Decode a value from a slice, with a specified length
     fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError>;
 }
 

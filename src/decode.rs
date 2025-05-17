@@ -367,21 +367,6 @@ pub struct DecodeError {
     source: Option<alloc::boxed::Box<DecodeErrorSource>>,
 }
 
-pub(crate) trait DecodeErrorExt<T> {
-    fn map_as_source(self, field: &'static str) -> Result<T, DecodeError>;
-}
-
-impl<T> DecodeErrorExt<T> for Result<T, DecodeError> {
-    #[cold]
-    fn map_as_source(self, _field: &'static str) -> Result<T, DecodeError> {
-        #[cfg(feature = "verbose")]
-        return self.map_err(|error| error.as_source(_field));
-
-        #[cfg(not(feature = "verbose"))]
-        self
-    }
-}
-
 impl DecodeError {
     #[inline]
     pub const fn new(kind: DecodeErrorKind) -> Self {
@@ -435,6 +420,7 @@ impl DecodeError {
 
 /// Source of [`DecodeError`].
 #[derive(Debug)]
+#[cfg(feature = "verbose")]
 pub struct DecodeErrorSource {
     field: &'static str,
     error: DecodeError,
@@ -467,12 +453,14 @@ pub enum OctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
 }
 
+#[cfg(feature = "verbose")]
 impl core::fmt::Display for DecodeErrorSource {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "field: {}, error: {}", self.field, self.error)
     }
 }
 
+#[cfg(feature = "verbose")]
 impl core::error::Error for DecodeErrorSource {
     fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
         Some(&self.error)
@@ -567,6 +555,21 @@ impl<T, E> DecodeResultExt<T, E> for Result<(T, usize), E> {
         F: FnOnce(T) -> U,
     {
         self.map(|(this, size)| (op(this), size))
+    }
+}
+
+pub(crate) trait DecodeErrorExt<T> {
+    fn map_as_source(self, field: &'static str) -> Result<T, DecodeError>;
+}
+
+impl<T> DecodeErrorExt<T> for Result<T, DecodeError> {
+    #[cold]
+    fn map_as_source(self, _field: &'static str) -> Result<T, DecodeError> {
+        #[cfg(feature = "verbose")]
+        return self.map_err(|error| error.as_source(_field));
+
+        #[cfg(not(feature = "verbose"))]
+        self
     }
 }
 

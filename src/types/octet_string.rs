@@ -29,8 +29,10 @@ impl core::fmt::Display for Error {
 impl core::error::Error for Error {}
 
 /// An [`OctetString`] is a sequence of octets not necessarily
-/// terminated with a NULL octet. Such fields using Octet
-/// String encoding, typically represent fields that can be
+/// terminated with a NULL octet `0x00`.
+///
+/// Such fields using Octet String encoding,
+/// typically represent fields that can be
 /// used to encode raw binary data. In all circumstances, the
 /// field will be either a fixed length field or explicit length field
 /// where another field indicates the length of the Octet

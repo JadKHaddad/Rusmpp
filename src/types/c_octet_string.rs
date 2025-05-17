@@ -36,7 +36,8 @@ impl core::fmt::Display for Error {
 impl core::error::Error for Error {}
 
 /// A [`COctetString`] is a sequence of ASCII characters
-/// terminated with a NULL octet (0x00).
+/// terminated with a NULL octet `0x00`.
+///
 /// The string “Hello” would be encoded in 6 octets (5
 /// characters of “Hello” and NULL octet) as follows:
 ///

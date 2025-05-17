@@ -596,13 +596,7 @@ macro_rules! create {
     };
 }
 
-macro_rules! trace {
-    ($($arg:tt)*) => {
-        #[cfg(feature = "tracing")]
-        ::tracing::trace!($($arg)*);
-    };
-}
-
+#[cfg(any(test, feature = "tokio-codec"))]
 macro_rules! debug {
     ($($arg:tt)*) => {
         #[cfg(feature = "tracing")]
@@ -610,6 +604,7 @@ macro_rules! debug {
     };
 }
 
+#[cfg(feature = "tokio-codec")]
 macro_rules! error {
     ($($arg:tt)*) => {
         #[cfg(feature = "tracing")]
@@ -617,8 +612,21 @@ macro_rules! error {
     };
 }
 
+#[cfg(feature = "tokio-codec")]
+macro_rules! trace {
+    ($($arg:tt)*) => {
+        #[cfg(feature = "tracing")]
+        ::tracing::trace!($($arg)*);
+    };
+}
+
+#[cfg(any(test, feature = "tokio-codec"))]
 pub(super) use debug;
+
+#[cfg(feature = "tokio-codec")]
 pub(super) use error;
+
+#[cfg(feature = "tokio-codec")]
 pub(super) use trace;
 
 /// Creates a `TlvValue`-like and implements `Into<TlvValue>` and `Into<Tlv>`.

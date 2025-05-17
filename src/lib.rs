@@ -118,7 +118,7 @@ pub(crate) mod tests;
 
 #[cfg(any(test, feature = "tokio-codec"))]
 pub(crate) use macros::debug;
-#[cfg(any(test, feature = "tokio-codec"))]
+#[cfg(feature = "tokio-codec")]
 pub(crate) use macros::error;
-#[cfg(any(test, feature = "tokio-codec"))]
+#[cfg(feature = "tokio-codec")]
 pub(crate) use macros::trace;

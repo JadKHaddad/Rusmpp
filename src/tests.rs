@@ -174,8 +174,8 @@ fn print_decode_errors() {
         buf[32] = 0xFF;
         buf[64] = 0xFF;
 
-        let result = Command::decode(&buf[..size], size);
+        let _result = Command::decode(&buf[..size], size);
 
-        crate::debug!(?result);
+        crate::debug!(result?_result);
     }
 }

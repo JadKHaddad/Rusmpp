@@ -8,6 +8,7 @@ pub struct CommandStatusBuilder {
 }
 
 impl CommandStatusBuilder {
+    #[inline]
     pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder {
         self.inner.status = status;
 
@@ -21,6 +22,7 @@ pub struct SequenceNumberBuilder {
 }
 
 impl SequenceNumberBuilder {
+    #[inline]
     pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder {
         self.inner.sequence_number = sequence_number;
 
@@ -34,6 +36,7 @@ pub struct PduBuilder {
 }
 
 impl PduBuilder {
+    #[inline]
     pub fn pdu(mut self, pdu: impl Into<Pdu>) -> Command {
         self.inner.set_pdu(pdu);
         self.inner

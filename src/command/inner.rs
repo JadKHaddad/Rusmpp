@@ -91,18 +91,27 @@ impl Command {
         }
     }
 
+    #[inline]
     pub const fn id(&self) -> CommandId {
         self.id
     }
 
+    #[inline]
     pub const fn status(&self) -> CommandStatus {
         self.status
     }
 
+    #[inline]
+    pub const fn sequence_number(&self) -> u32 {
+        self.sequence_number
+    }
+
+    #[inline]
     pub const fn pdu(&self) -> Option<&Pdu> {
         self.pdu.as_ref()
     }
 
+    #[inline]
     pub fn set_pdu(&mut self, pdu: impl Into<Pdu>) {
         let pdu = pdu.into();
 
@@ -111,6 +120,7 @@ impl Command {
         self.pdu = Some(pdu);
     }
 
+    #[inline]
     pub fn builder() -> CommandStatusBuilder {
         Default::default()
     }

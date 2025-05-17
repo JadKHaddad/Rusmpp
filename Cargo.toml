@@ -40,11 +40,11 @@ arbitrary = ["dep:arbitrary"]
 [[example]]
 name = "client_server"
 path = "examples/client_server.rs"
-required-features = ["tokio-codec"]
+required-features = ["tokio-codec", "tracing"]
 
 [[example]]
-name = "readme_example"
-path = "examples/readme_example.rs"
+name = "simple"
+path = "examples/simple.rs"
 required-features = ["tokio-codec"]
 
 [[example]]

@@ -2,40 +2,76 @@
 
 Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
 
-TODO: This must be updated
-
 ```rust
+use core::error::Error;
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
-    codec::command_codec::CommandCodec,
-    commands::{
-        command::Command,
-        pdu::Pdu,
-        types::{command_id::CommandId, command_status::CommandStatus},
-    },
+    codec::{tokio::EncodeError, CommandCodec},
+    Command, CommandId, CommandStatus, Pdu,
 };
-use tokio::net::TcpStream;
-use tokio_util::codec::{FramedRead, FramedWrite};
+use tokio::io::DuplexStream;
+use tokio_util::codec::Framed;
+use tracing::info;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn core::error::Error>> {
-    let stream = TcpStream::connect("34.242.18.250:2775").await?;
+async fn main() -> Result<(), Box<dyn Error>> {
+    // Rusmpp produces a lot of logs while decoding and encoding PDUs.
+    // You can filter them out by setting the `rusmpp` target to `off`,
+    // or by disabling the `tracing` feature.
+    tracing_subscriber::fmt()
+        .with_env_filter("client=info,server=info,rusmpp=trace")
+        .init();
 
-    let (reader, writer) = stream.into_split();
-    let mut framed_read = FramedRead::new(reader, CommandCodec::new());
-    let mut framed_write = FramedWrite::new(writer, CommandCodec::new());
+    // In-memory duplex stream to simulate a server and client.
+    let (server_stream, client_stream) = tokio::io::duplex(4096);
 
-    let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
+    launch_server(server_stream).await?;
 
-    // Send commands.
-    framed_write.send(&enquire_link_command).await?;
+    // The CommandCodec is encodes/decodes SMPP commands into/from bytes.
+    let mut framed = Framed::new(client_stream, CommandCodec::new());
 
-    // Wait for responses.
-    while let Some(Ok(command)) = framed_read.next().await {
+    // Rusmpp takes care of setting the correct command ID.
+    let command = Command::new(CommandStatus::EsmeRok, 1, Pdu::EnquireLink);
+
+    info!(target: "client", "EnquireLink sent");
+
+    framed.send(command).await?;
+
+    while let Some(Ok(command)) = framed.next().await {
         if let CommandId::EnquireLinkResp = command.id() {
+            info!(target: "client", "EnquireLink response received");
+
             break;
         }
     }
+
+    Ok(())
+}
+
+async fn launch_server(stream: DuplexStream) -> Result<(), Box<dyn Error>> {
+    tokio::spawn(async move {
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        while let Some(Ok(command)) = framed.next().await {
+            if let CommandId::EnquireLink = command.id() {
+                info!(target: "server", "EnquireLink received");
+
+                // We can also use the Command::builder() to create commands.
+                let response = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(Pdu::EnquireLinkResp);
+
+                framed.send(response).await?;
+
+                info!(target: "server", "EnquireLink response sent");
+
+                break;
+            }
+        }
+
+        Ok::<(), EncodeError>(())
+    });
 
     Ok(())
 }

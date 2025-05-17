@@ -2,53 +2,79 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run --example client_server --features="tokio-codec"
+//! cargo run --example client_server --features="tokio-codec tracing"
 //! ```
 //!
 
+use core::error::Error;
 use futures::{SinkExt, StreamExt};
-use rusmpp::{codec::CommandCodec, Command, CommandId, CommandStatus, Pdu};
+use rusmpp::{
+    codec::{tokio::EncodeError, CommandCodec},
+    Command, CommandId, CommandStatus, Pdu,
+};
 use tokio::io::DuplexStream;
 use tokio_util::codec::Framed;
-
-async fn launch_server(server_stream: DuplexStream) -> Result<(), Box<dyn core::error::Error>> {
-    tokio::spawn(async move {
-        let mut framed = Framed::new(server_stream, CommandCodec::new());
-
-        while let Some(Ok(command)) = framed.next().await {
-            if let CommandId::EnquireLink = command.id() {
-                println!("Server: EnquireLink received");
-                let response = Command::new(
-                    CommandStatus::EsmeRok,
-                    command.sequence_number,
-                    Pdu::EnquireLinkResp,
-                );
-                framed.send(&response).await.unwrap();
-                println!("Server: EnquireLink response sent");
-                break;
-            }
-        }
-    });
-    Ok(())
-}
+use tracing::info;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn core::error::Error>> {
+async fn main() -> Result<(), Box<dyn Error>> {
+    // Rusmpp produces a lot of logs while decoding and encoding PDUs.
+    // You can filter them out by setting the `rusmpp` target to `off`,
+    // or by disabling the `tracing` feature.
+    tracing_subscriber::fmt()
+        .with_env_filter("client=info,server=info,rusmpp=trace")
+        .init();
+
+    // In-memory duplex stream to simulate a server and client.
     let (server_stream, client_stream) = tokio::io::duplex(4096);
+
     launch_server(server_stream).await?;
 
+    // The CommandCodec is encodes/decodes SMPP commands into/from bytes.
     let mut framed = Framed::new(client_stream, CommandCodec::new());
 
-    let enquire_link_command = Command::new(CommandStatus::EsmeRok, 0, Pdu::EnquireLink);
-    println!("Client: EnquireLink sent");
-    framed.send(&enquire_link_command).await?;
+    // Rusmpp takes care of setting the correct command ID.
+    let command = Command::new(CommandStatus::EsmeRok, 1, Pdu::EnquireLink);
+
+    info!(target: "client", "EnquireLink sent");
+
+    framed.send(command).await?;
 
     while let Some(Ok(command)) = framed.next().await {
         if let CommandId::EnquireLinkResp = command.id() {
-            println!("Client: EnquireLink response received");
+            info!(target: "client", "EnquireLink response received");
+
             break;
         }
     }
+
+    Ok(())
+}
+
+async fn launch_server(stream: DuplexStream) -> Result<(), Box<dyn Error>> {
+    tokio::spawn(async move {
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        while let Some(Ok(command)) = framed.next().await {
+            if let CommandId::EnquireLink = command.id() {
+                info!(target: "server", "EnquireLink received");
+
+                // We can also use the Command::builder() to create commands.
+                let response = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(Pdu::EnquireLinkResp);
+
+                framed.send(response).await?;
+
+                info!(target: "server", "EnquireLink response sent");
+
+                break;
+            }
+        }
+
+        Ok::<(), EncodeError>(())
+    });
 
     Ok(())
 }

@@ -25,6 +25,7 @@
         "libfuzzer",
         "macrotest",
         "monomorphization",
+        "MSRV",
         "nocapture",
         "Nsap",
         "Outbind",

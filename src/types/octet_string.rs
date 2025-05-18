@@ -1,9 +1,9 @@
 #![allow(path_statements)]
+use alloc::{string::String, string::ToString, vec::Vec};
 
-use crate::ende::{
+use crate::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
-    encode::{Encode, EncodeError},
-    length::Length,
+    encode::{Encode, Length},
 };
 
 /// An error that can occur when creating an [`OctetString`]
@@ -29,8 +29,10 @@ impl core::fmt::Display for Error {
 impl core::error::Error for Error {}
 
 /// An [`OctetString`] is a sequence of octets not necessarily
-/// terminated with a NULL octet. Such fields using Octet
-/// String encoding, typically represent fields that can be
+/// terminated with a NULL octet `0x00`.
+///
+/// Such fields using Octet String encoding,
+/// typically represent fields that can be
 /// used to encode raw binary data. In all circumstances, the
 /// field will be either a fixed length field or explicit length field
 /// where another field indicates the length of the Octet
@@ -41,16 +43,26 @@ impl core::error::Error for Error {}
 /// A NULL [`OctetString`] is not encoded. The explicit length
 /// field that indicates its length should be set to zero.
 ///
+///
+/// `MIN` is the minimum length of the [`OctetString`].
+/// `MAX` is the maximum length of the [`OctetString`].
+///
+/// Possible values:
+///  - Min: `[..MIN]`
+///  - Max: `[..MAX]`
+///  - Anything in between `MIN` and `MAX`.
+///
 /// # Notes
 ///
 /// `MIN` must be less than or equal to `MAX`.
 /// ```rust, compile_fail
-/// use rusmpp::types::EmptyOrFullCOctetString;
+/// use rusmpp::types::OctetString;
 ///
 /// // does not compile
-/// let string = EmptyOrFullCOctetString::<10,5>::new(b"Hello");
+/// let string = OctetString::<10,5>::new(b"Hello");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
     bytes: Vec<u8>,
 }
@@ -72,7 +84,9 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     pub fn empty() -> Self {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
-        Self { bytes: Vec::new() }
+        Self {
+            bytes: alloc::vec![0; MIN],
+        }
     }
 
     /// Check if an [`OctetString`] is empty.
@@ -162,9 +176,7 @@ impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>>
-    for super::any_octet_string::AnyOctetString
-{
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for super::AnyOctetString {
     fn from(octet_string: OctetString<MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }
@@ -177,22 +189,19 @@ impl<const MIN: usize, const MAX: usize> Length for OctetString<MIN, MAX> {
 }
 
 impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+
+        self.bytes.len()
     }
 }
 
 impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        #[allow(path_statements)]
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if length > MAX {
-            return Err(DecodeError::OctetStringDecodeError(
+            return Err(DecodeError::octet_string_decode_error(
                 OctetStringDecodeError::TooManyBytes {
                     actual: length,
                     max: MAX,
@@ -201,7 +210,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
         }
 
         if length < MIN {
-            return Err(DecodeError::OctetStringDecodeError(
+            return Err(DecodeError::octet_string_decode_error(
                 OctetStringDecodeError::TooFewBytes {
                     actual: length,
                     min: MIN,
@@ -209,17 +218,37 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
             ));
         }
 
-        let mut bytes = vec![0; length];
+        if src.len() < length {
+            return Err(DecodeError::unexpected_eof());
+        }
 
-        reader.read_exact(&mut bytes)?;
+        let bytes = src[..length].to_vec();
 
-        Ok(Self { bytes })
+        Ok((Self { bytes }, length))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for OctetString<MIN, MAX> {
+        fn instances() -> Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(core::iter::repeat_n(b'1', MIN).collect::<Vec<_>>()).unwrap(),
+                Self::new(core::iter::repeat_n(b'1', MAX / 2).collect::<Vec<_>>()).unwrap(),
+                Self::new(core::iter::repeat_n(b'1', MAX).collect::<Vec<_>>()).unwrap(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<0, 5>>();
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<1, 5>>();
+        crate::tests::encode_decode_with_length_test_instances::<OctetString<2, 5>>();
+    }
 
     mod new {
         use super::*;
@@ -239,9 +268,23 @@ mod tests {
         }
 
         #[test]
-        fn ok() {
+        fn ok_min() {
+            let bytes = b"H";
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_max() {
             let bytes = b"Hello\0World!\0";
-            let octet_string = OctetString::<0, 13>::new(bytes).unwrap();
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
+            assert_eq!(octet_string.bytes, bytes);
+        }
+
+        #[test]
+        fn ok_between_min_max() {
+            let bytes = b"Hello\0";
+            let octet_string = OctetString::<1, 13>::new(bytes).unwrap();
             assert_eq!(octet_string.bytes, bytes);
         }
 
@@ -266,26 +309,28 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
-        fn not_enough_bytes() {
+        fn unexpected_eof_empty() {
             let bytes = b"";
-            let error = OctetString::<0, 6>::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+            let error = OctetString::<0, 6>::decode(bytes, 5).unwrap_err();
 
-            assert!(matches!(error, DecodeError::IoError { .. }));
+            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
         }
 
         #[test]
         fn too_many_bytes() {
             let bytes = b"Hello";
-            let error = OctetString::<0, 5>::decode_from(&mut bytes.as_ref(), 15).unwrap_err();
+            let error = OctetString::<0, 5>::decode(bytes, 15).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooManyBytes {
+                error.kind(),
+                DecodeErrorKind::OctetStringDecodeError(OctetStringDecodeError::TooManyBytes {
                     actual: 15,
-                    ..
+                    max: 5,
                 },)
             ));
         }
@@ -293,13 +338,13 @@ mod tests {
         #[test]
         fn too_few_bytes() {
             let bytes = b"Hello";
-            let error = OctetString::<6, 10>::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+            let error = OctetString::<6, 10>::decode(bytes, 5).unwrap_err();
 
             assert!(matches!(
-                error,
-                DecodeError::OctetStringDecodeError(OctetStringDecodeError::TooFewBytes {
+                error.kind(),
+                DecodeErrorKind::OctetStringDecodeError(OctetStringDecodeError::TooFewBytes {
                     actual: 5,
-                    ..
+                    min: 6,
                 },)
             ));
         }
@@ -307,23 +352,24 @@ mod tests {
         #[test]
         fn ok_all() {
             let bytes = b"Hello";
-            let buf = &mut bytes.as_ref();
-            let string = OctetString::<0, 5>::decode_from(buf, 5).unwrap();
+            let (string, size) = OctetString::<0, 5>::decode(bytes, 5).unwrap();
 
             assert_eq!(string.bytes, b"Hello");
             assert_eq!(string.length(), 5);
-            assert_eq!(buf, b"");
+
+            assert_eq!(size, 5);
+            assert_eq!(&bytes[size..], b"");
         }
 
         #[test]
         fn ok_partial() {
             let bytes = b"Hello";
-            let buf = &mut bytes.as_ref();
-            let string = OctetString::<0, 5>::decode_from(buf, 3).unwrap();
+            let (string, size) = OctetString::<0, 5>::decode(bytes, 3).unwrap();
 
             assert_eq!(string.bytes, b"Hel");
             assert_eq!(string.length(), 3);
-            assert_eq!(buf, b"lo");
+            assert_eq!(size, 3);
+            assert_eq!(&bytes[size..], b"lo");
         }
     }
 }

@@ -1,11 +1,13 @@
-use crate::ende::{
+use alloc::{string::String, string::ToString, vec::Vec};
+
+use crate::{
     decode::{DecodeError, DecodeWithLength},
-    encode::{Encode, EncodeError},
-    length::Length,
+    encode::{Encode, Length},
 };
 
-/// No fixed size [`OctetString`](struct@crate::types::octet_string::OctetString)
+/// No fixed size [`OctetString`](struct@crate::types::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 pub struct AnyOctetString {
     bytes: Vec<u8>,
 }
@@ -103,28 +105,44 @@ impl Length for AnyOctetString {
 }
 
 impl Encode for AnyOctetString {
-    fn encode_to<W: std::io::Write>(&self, writer: &mut W) -> Result<(), EncodeError> {
-        writer.write_all(&self.bytes)?;
-        Ok(())
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+
+        self.bytes.len()
     }
 }
 
 impl DecodeWithLength for AnyOctetString {
-    fn decode_from<R: std::io::Read>(reader: &mut R, length: usize) -> Result<Self, DecodeError>
-    where
-        Self: Sized,
-    {
-        let mut bytes = vec![0; length];
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        if src.len() < length {
+            return Err(DecodeError::unexpected_eof());
+        }
 
-        reader.read_exact(&mut bytes)?;
+        let mut bytes = Vec::with_capacity(length);
 
-        Ok(Self { bytes })
+        bytes.extend_from_slice(&src[..length]);
+
+        Ok((Self { bytes }, length))
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    impl crate::tests::TestInstance for AnyOctetString {
+        fn instances() -> Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(std::iter::repeat_n(b'1', 100).collect::<Vec<_>>()),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::encode_decode_with_length_test_instances::<AnyOctetString>();
+    }
 
     mod new {
         use super::*;
@@ -146,36 +164,38 @@ mod tests {
     }
 
     mod decode {
+        use crate::decode::DecodeErrorKind;
+
         use super::*;
 
         #[test]
-        fn not_enough_bytes() {
+        fn unexpected_eof_empty() {
             let bytes = b"";
-            let error = AnyOctetString::decode_from(&mut bytes.as_ref(), 5).unwrap_err();
+            let error = AnyOctetString::decode(bytes, 5).unwrap_err();
 
-            assert!(matches!(error, DecodeError::IoError { .. }));
+            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
         }
 
         #[test]
         fn ok_all() {
             let bytes = b"Hello";
-            let buf = &mut bytes.as_ref();
-            let string = AnyOctetString::decode_from(buf, 5).unwrap();
+            let (string, size) = AnyOctetString::decode(bytes, 5).unwrap();
 
             assert_eq!(string.bytes, b"Hello");
             assert_eq!(string.length(), 5);
-            assert_eq!(buf, b"");
+            assert_eq!(size, 5);
+            assert_eq!(&bytes[size..], b"");
         }
 
         #[test]
         fn ok_partial() {
             let bytes = b"Hello";
-            let buf = &mut bytes.as_ref();
-            let string = AnyOctetString::decode_from(buf, 3).unwrap();
+            let (string, size) = AnyOctetString::decode(bytes, 3).unwrap();
 
             assert_eq!(string.bytes, b"Hel");
             assert_eq!(string.length(), 3);
-            assert_eq!(buf, b"lo");
+            assert_eq!(size, 3);
+            assert_eq!(&bytes[size..], b"lo");
         }
     }
 }

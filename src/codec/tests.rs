@@ -13,14 +13,14 @@ mod tokio {
         core::{ContainerPort, WaitFor},
         runners::AsyncRunner,
     };
-    use tokio::net::TcpStream;
+    use tokio::{io::AsyncWriteExt, net::TcpStream};
     use tokio_util::codec::{Framed, FramedRead, FramedWrite};
     use tracing_test::traced_test;
 
     use crate::{
         Command, CommandStatus, Pdu,
         codec::{command_codec::CommandCodec, tokio::DecodeError},
-        encode::Length,
+        encode::{Encode, Length},
         pdus::{AlertNotification, BindTransceiver, BindTransmitter, BroadcastSm, SubmitSm},
         tests::test_commands,
         tlvs::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
@@ -77,6 +77,33 @@ mod tokio {
             DecodeError::MaxLength { actual, max } => {
                 assert_eq!(actual, command_length);
                 assert_eq!(max, max_length);
+            }
+            _ => {
+                panic!("Decode must fail with `DecodeError::Length`")
+            }
+        }
+    }
+
+    #[tokio::test]
+    async fn min_length() {
+        let (mut writer, reader) = tokio::io::duplex(1024);
+
+        let buf = &mut [0; 16];
+
+        let command = Command::new(Default::default(), Default::default(), Pdu::EnquireLink);
+        let _ = command.encode(buf);
+
+        let wrong_command_length = 15_u32;
+        buf[0..4].copy_from_slice(&wrong_command_length.to_be_bytes());
+
+        writer.write_all(&buf[..]).await.unwrap();
+
+        let mut framed_reader = Framed::new(reader, CommandCodec::new());
+
+        match framed_reader.next().await.unwrap().unwrap_err() {
+            DecodeError::MinLength { actual, min } => {
+                assert_eq!(actual, wrong_command_length as usize);
+                assert_eq!(min, 16);
             }
             _ => {
                 panic!("Decode must fail with `DecodeError::Length`")

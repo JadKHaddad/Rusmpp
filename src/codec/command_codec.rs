@@ -82,9 +82,7 @@ impl Default for CommandCodec {
 #[cfg(feature = "tokio-codec")]
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod tokio {
-    //! Tokio's util [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and
-    //! [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html)
-    //! implementations for [`CommandCodec`].
+    //! Tokio's util [`Encoder`] and [`Decoder`] implementations for [`CommandCodec`].
 
     use tokio_util::{
         bytes::{Buf, BufMut, BytesMut},
@@ -166,7 +164,7 @@ pub mod tokio {
     pub enum DecodeError {
         Io(std::io::Error),
         Decode(crate::decode::DecodeError),
-        MinLength { actual: usize },
+        MinLength { actual: usize, min: usize },
         MaxLength { actual: usize, max: usize },
     }
 
@@ -181,10 +179,10 @@ pub mod tokio {
             match self {
                 DecodeError::Io(e) => write!(f, "I/O error: {e}"),
                 DecodeError::Decode(e) => write!(f, "Decode error: {e}"),
-                DecodeError::MinLength { actual } => {
+                DecodeError::MinLength { actual, min } => {
                     write!(
                         f,
-                        "Minimum command length not met. actual: {actual}, min: 4"
+                        "Minimum command length not met. actual: {actual}, min: {min}"
                     )
                 }
                 DecodeError::MaxLength { actual, max } => {
@@ -217,8 +215,10 @@ pub mod tokio {
         type Error = DecodeError;
 
         fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
-            if src.len() < 4 {
-                crate::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read command length");
+            const HEADER_LENGTH: usize = 16;
+
+            if src.len() < HEADER_LENGTH {
+                crate::trace!(target: "rusmpp::codec::decode", source_length=src.len(), "Not enough bytes to read the header");
 
                 return Ok(None);
             }
@@ -227,11 +227,12 @@ pub mod tokio {
 
             crate::trace!(target: "rusmpp::codec::decode", command_length);
 
-            if command_length < 4 {
-                crate::error!(target: "rusmpp::codec::decode", command_length, min_command_length=4, "Minimum command length not met");
+            if command_length < HEADER_LENGTH {
+                crate::error!(target: "rusmpp::codec::decode", command_length, min_command_length=HEADER_LENGTH, "Minimum command length not met");
 
                 return Err(DecodeError::MinLength {
                     actual: command_length,
+                    min: HEADER_LENGTH,
                 });
             }
 
@@ -255,6 +256,7 @@ pub mod tokio {
                 return Ok(None);
             }
 
+            // command_length is at least 16 bytes
             let pdu_len = command_length - 4;
 
             crate::debug!(target: "rusmpp::codec::decode", decoding=?crate::utils::HexFormatter(&src[..command_length]), "Decoding");

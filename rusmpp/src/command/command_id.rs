@@ -55,6 +55,35 @@ crate::create! {
     }
 }
 
+impl CommandId {
+    /// Returns true if this [`CommandId`] represents an operation (request) PDU.
+    pub fn is_operation(self) -> bool {
+        let id: u32 = self.into();
+        id & 0x80000000 == 0x00000000
+    }
+
+    /// Returns true if this [`CommandId`] represents a response PDU.
+    pub fn is_response(self) -> bool {
+        let id: u32 = self.into();
+        id & 0x80000000 == 0x80000000
+    }
+
+    /// Returns the matching request [`CommandId`]
+    /// Note that this function should be used only on response Ids
+    pub fn get_matching_request(self) -> CommandId {
+        let id: u32 = self.into();
+        (id & 0x0FFFFFFF).into()
+    }
+
+    /// Returns the matching response [`CommandId`]
+    /// Note that this function should be used only on command Ids.
+    /// If the command does not have a response, then it will return [`CommandId::Other`]
+    pub fn get_matching_response(self) -> CommandId {
+        let id: u32 = self.into();
+        (id | 0x80000000).into()
+    }
+}
+
 impl From<u32> for CommandId {
     fn from(value: u32) -> Self {
         match value {
@@ -157,5 +186,39 @@ mod tests {
 
         let id = CommandId::from(0x00000115);
         assert_eq!(id, CommandId::Other(0x00000115));
+    }
+
+    #[test]
+    fn is_operation() {
+        assert!(CommandId::BindReceiver.is_operation());
+        assert!(CommandId::Outbind.is_operation());
+        assert!(!CommandId::BindReceiverResp.is_operation());
+    }
+
+    #[test]
+    fn is_response() {
+        assert!(!CommandId::Outbind.is_response());
+        assert!(!CommandId::SubmitSm.is_response());
+        assert!(CommandId::SubmitSmResp.is_response());
+    }
+
+    #[test]
+    fn get_matching_request() {
+        assert_eq!(
+            CommandId::BroadcastSmResp.get_matching_request(),
+            CommandId::BroadcastSm
+        );
+    }
+
+    #[test]
+    fn get_matching_response() {
+        assert_eq!(
+            CommandId::BroadcastSm.get_matching_response(),
+            CommandId::BroadcastSmResp
+        );
+        assert_eq!(
+            CommandId::Outbind.get_matching_response(),
+            CommandId::Other(0x8000000B)
+        );
     }
 }

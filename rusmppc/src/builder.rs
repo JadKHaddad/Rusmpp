@@ -30,6 +30,15 @@ pub struct ConnectionBuilder {
 }
 
 impl ConnectionBuilder {
+    pub fn new(socket_addr: impl Into<SocketAddr>) -> Self {
+        Self {
+            socket_addr: socket_addr.into(),
+            bind_mode: BindMode::default(),
+            bind_builder: BindAnyBuilder::default(),
+            connection_config: ConnectionConfig::default(),
+        }
+    }
+
     pub async fn connect(
         self,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {

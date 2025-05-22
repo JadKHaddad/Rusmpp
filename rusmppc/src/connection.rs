@@ -1,8 +1,11 @@
-use std::time::Duration;
+use std::{collections::HashMap, sync::Arc, time::Duration};
 
 use futures::{Sink, SinkExt, Stream, StreamExt, channel::mpsc};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
-use tokio::io::{AsyncRead, AsyncWrite};
+use tokio::{
+    io::{AsyncRead, AsyncWrite},
+    sync::oneshot,
+};
 use tokio_util::{
     codec::{FramedRead, FramedWrite},
     sync::CancellationToken,
@@ -17,15 +20,17 @@ use crate::{
 
 #[derive(Debug, Default)]
 pub struct ConnectionConfig {
-    timeouts: ConnectionTimeouts,
+    pub timeouts: ConnectionTimeouts,
 }
+
+type Responses = Arc<parking_lot::Mutex<HashMap<u32, oneshot::Sender<Result<Command, Error>>>>>;
 
 #[derive(Debug)]
 pub struct ConnectionTimeouts {
-    session: Duration,
-    enquire_link: Duration,
-    inactivity: Duration,
-    response: Duration,
+    pub session: Duration,
+    pub enquire_link: Duration,
+    pub inactivity: Duration,
+    pub response: Duration,
 }
 
 impl Default for ConnectionTimeouts {
@@ -87,12 +92,19 @@ where
 
         let mut actions_stream = self.actions_stream;
         let mut reader_events_sink = self.events_sink.clone();
-        let mut writer_events_sink = self.events_sink;
+        let mut writer_events_sink = self.events_sink.clone();
+        let mut enquire_link_events_sink = self.events_sink;
 
         let cancellation_token = CancellationToken::new();
         let reader_token = cancellation_token.clone();
         let writer_token = cancellation_token.clone();
         let enquire_link_token = cancellation_token;
+
+        let enquire_link_timeout = self.config.timeouts.enquire_link;
+
+        let responses: Responses = Arc::new(parking_lot::Mutex::new(HashMap::new()));
+        let reader_responses = responses.clone();
+        let writer_responses = responses;
 
         tokio::spawn(async move {
             const TARGET: &str = "rusmppc::connection::enquire_link";
@@ -120,12 +132,14 @@ where
 
                         let _ = intern_actions_tx.send(Action::SendCommand(action)).await;
 
-                        match tokio::time::timeout(self.config.timeouts.response, response)
+                        match tokio::time::timeout(enquire_link_timeout, response)
                             .await {
                                 Err(timeout) => {
                                     tracing::error!(target: TARGET, ?timeout, "Enquire link timeout");
 
-                                    // TODO
+                                    let _ = enquire_link_events_sink
+                                            .send(Event::Error(Error::EnquireLinkTimeout { timeout: enquire_link_timeout }))
+                                            .await;
 
                                     break;
                                 },
@@ -139,9 +153,11 @@ where
                                             }
                                         }
 
-                                        tracing::warn!(target: TARGET, ?command, "Unexpected enquire link response");
+                                        tracing::error!(target: TARGET, ?command, "Unexpected enquire link response");
 
-                                        // TODO
+                                        let _ = enquire_link_events_sink
+                                            .send(Event::Error(Error::EnquireLinkFailed{response: Box::new(command)}))
+                                            .await;
 
                                         break;
                                     },
@@ -191,6 +207,20 @@ where
                                         .pdu(Pdu::EnquireLinkResp);
 
                                     let _ = intern_tx.send(command).await;
+                                }
+
+                                let sequence_number = command.sequence_number();
+
+                                let response = reader_responses.lock().remove(&sequence_number);
+                                match response {
+                                    None => {
+                                        tracing::trace!(target: TARGET, ?command, "No response for command");
+
+                                        let _ = reader_events_sink.send(Event::Command(command)).await;
+                                    },
+                                    Some(response) => {
+                                        let _ = response.send(Ok(command));
+                                    }
                                 }
 
                             }
@@ -250,7 +280,23 @@ where
                         };
 
                         match action {
-                            Action::SendCommand(send_command_action) => {},
+                            Action::SendCommand(SendCommandAction {command, response}) => {
+                                tracing::trace!(target: TARGET, ?command, "Sending command");
+
+                                if let Err(err) = smpp_writer.send(&command).await {
+                                    let err = Error::from(err);
+
+                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+
+                                    let _ = response.send(Err(err));
+
+                                    break;
+                                }
+
+                                let sequence_number = command.sequence_number();
+
+                                writer_responses.lock().insert(sequence_number, response);
+                            },
                         }
                     }
                     action = intern_actions_rx.next() => {
@@ -261,7 +307,24 @@ where
                         };
 
                         match action {
-                            Action::SendCommand(send_command_action) => {},
+                            // TODO: this is duplicated code
+                            Action::SendCommand(SendCommandAction {command, response}) => {
+                                tracing::trace!(target: TARGET, ?command, "Sending command");
+
+                                if let Err(err) = smpp_writer.send(&command).await {
+                                    let err = Error::from(err);
+
+                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+
+                                    let _ = response.send(Err(err));
+
+                                    break;
+                                }
+
+                                let sequence_number = command.sequence_number();
+
+                                writer_responses.lock().insert(sequence_number, response);
+                            },
                         }
                     }
                 }

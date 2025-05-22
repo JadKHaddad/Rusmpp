@@ -1172,6 +1172,7 @@ dependencies = [
  "rusmpp",
  "thiserror",
  "tokio",
+ "tokio-stream",
  "tokio-util",
  "tracing",
  "tracing-subscriber",

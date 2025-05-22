@@ -3,3 +3,8 @@ pub fn init_tracing() {
         .with_env_filter("rusmppc=trace,rusmpp=debug")
         .try_init();
 }
+
+#[tokio::test]
+async fn bind() {
+    init_tracing();
+}

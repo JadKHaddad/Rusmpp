@@ -1,16 +1,14 @@
 use std::net::SocketAddr;
 
-use futures::{
-    Stream,
-    channel::mpsc::{channel, unbounded},
-};
+use futures::{Stream, channel::mpsc::unbounded};
 use rusmpp::{
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter, builders::BindAnyBuilder},
+    pdus::builders::BindAnyBuilder,
     session::SessionState,
     types::COctetString,
     values::{InterfaceVersion, Npi, Ton},
 };
-use tokio::net::TcpStream;
+use tokio::{net::TcpStream, sync::mpsc::channel};
+use tokio_stream::wrappers::ReceiverStream;
 
 use crate::{
     Client, Event,
@@ -55,17 +53,25 @@ impl ConnectionBuilder {
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
+        let session_timeout = self.connection_config.timeouts.session;
+        let response_timeout = self.connection_config.timeouts.response;
+
         let connection = Connection::new(
             stream,
             events_tx,
-            actions_rx,
+            ReceiverStream::new(actions_rx),
             session_state_holder.clone(),
             self.connection_config,
         );
 
         connection.spawn();
 
-        let client = Client::new(actions_tx, session_state_holder);
+        let client = Client::new(
+            actions_tx,
+            session_timeout,
+            response_timeout,
+            session_state_holder,
+        );
 
         match self.bind_mode {
             BindMode::Tx => {

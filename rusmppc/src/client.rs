@@ -1,22 +1,25 @@
-use std::{ops::Deref, sync::Arc};
+use std::{ops::Deref, sync::Arc, time::Duration};
 
-use futures::{Sink, channel::mpsc::Sender};
 use rusmpp::{
-    Command,
+    Command, CommandStatus, Pdu,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter},
     session::SessionState,
 };
+use tokio::sync::mpsc::Sender;
 
-use crate::{action::Action, error::Error, session_state::SessionStateHolder};
+use crate::{
+    action::{Action, SendCommandAction},
+    error::Error,
+    session_state::SessionStateHolder,
+};
 
 #[derive(Debug)]
 pub struct Client {
-    /// The client must not be generic over the sink type, because it should be easy to use.
-    inner: Arc<ClientInner<Sender<Action>>>,
+    inner: Arc<ClientInner>,
 }
 
 impl Deref for Client {
-    type Target = ClientInner<Sender<Action>>;
+    type Target = ClientInner;
 
     fn deref(&self) -> &Self::Target {
         &self.inner
@@ -34,10 +37,17 @@ impl Clone for Client {
 impl Client {
     pub(crate) fn new(
         actions_sink: Sender<Action>,
+        session_timeout: Duration,
+        response_timeout: Duration,
         session_state_holder: SessionStateHolder,
     ) -> Self {
         Self {
-            inner: Arc::new(ClientInner::new(actions_sink, session_state_holder)),
+            inner: Arc::new(ClientInner::new(
+                actions_sink,
+                session_timeout,
+                response_timeout,
+                session_state_holder,
+            )),
         }
     }
 
@@ -52,42 +62,73 @@ impl Client {
 
 #[doc(hidden)]
 #[derive(Debug)]
-pub struct ClientInner<Sink> {
-    actions_sink: Sink,
+pub struct ClientInner {
+    actions_sink: Sender<Action>,
+    session_timeout: Duration,
+    response_timeout: Duration,
     session_state_holder: SessionStateHolder,
 }
 
-impl<Si> ClientInner<Si> {
-    const fn new(actions_sink: Si, session_state_holder: SessionStateHolder) -> Self {
+impl ClientInner {
+    const fn new(
+        actions_sink: Sender<Action>,
+        session_timeout: Duration,
+        response_timeout: Duration,
+        session_state_holder: SessionStateHolder,
+    ) -> Self {
         Self {
             actions_sink,
+            session_timeout,
+            response_timeout,
             session_state_holder,
         }
     }
 }
 
-impl<Si> ClientInner<Si>
-where
-    Si: Sink<Action> + Unpin + 'static,
-{
+impl ClientInner {
+    fn next_sequence_number(&self) -> u32 {
+        self.session_state_holder.next_sequence_number()
+    }
+
+    async fn bind(&self, bind: impl Into<Pdu>) -> Result<Command, Error> {
+        let sequence_number = self.next_sequence_number();
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(sequence_number)
+            .pdu(bind.into());
+
+        let (action, response) = SendCommandAction::new(command);
+
+        self.actions_sink
+            .send(Action::SendCommand(action))
+            .await
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        // TODO: if session timed out, we should close the connection
+        tokio::time::timeout(self.session_timeout, response)
+            .await
+            .map_err(|_| Error::Timeout)?
+            .map_err(|_| Error::ConnectionClosed)?
+    }
+
     pub(crate) async fn bind_transmitter(
         &self,
         bind: impl Into<BindTransmitter>,
     ) -> Result<Command, Error> {
-        todo!()
+        self.bind(bind.into()).await
     }
 
     pub(crate) async fn bind_receiver(
         &self,
         bind: impl Into<BindReceiver>,
     ) -> Result<Command, Error> {
-        todo!()
+        self.bind(bind.into()).await
     }
 
     pub(crate) async fn bind_transceiver(
         &self,
         bind: impl Into<BindTransceiver>,
     ) -> Result<Command, Error> {
-        todo!()
+        self.bind(bind.into()).await
     }
 }

@@ -1166,6 +1166,13 @@ dependencies = [
 [[package]]
 name = "rusmppc"
 version = "0.0.0"
+dependencies = [
+ "futures",
+ "rusmpp",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
 
 [[package]]
 name = "rustc-demangle"

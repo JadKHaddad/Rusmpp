@@ -11,3 +11,12 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
+rusmpp = { path = "../rusmpp", default-features = false, features = [
+    "tokio-codec",
+    "tracing",
+    "verbose",
+] }
+tokio = { version = "1.45.0", features = ["rt", "net"] }
+tracing = "0.1.41"
+futures = "0.3.31"
+thiserror = "2.0.12"

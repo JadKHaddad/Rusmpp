@@ -7,12 +7,12 @@ use std::{
 };
 
 use futures::{Sink, channel::mpsc::Sender};
+use parking_lot::RwLock;
 use rusmpp::{
     Command,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter},
     session::SessionState,
 };
-use tokio::sync::RwLock;
 
 use crate::{action::Action, error::Error};
 
@@ -46,6 +46,10 @@ impl Client {
         Self {
             inner: Arc::new(ClientInner::new(actions_sink, session_state)),
         }
+    }
+
+    pub fn session_state(&self) -> SessionState {
+        *self.session_state.read()
     }
 }
 

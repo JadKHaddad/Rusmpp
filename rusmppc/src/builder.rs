@@ -4,13 +4,14 @@ use futures::{
     Stream,
     channel::mpsc::{channel, unbounded},
 };
+use parking_lot::RwLock;
 use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, builders::BindAnyBuilder},
     session::SessionState,
     types::COctetString,
     values::{InterfaceVersion, Npi, Ton},
 };
-use tokio::{net::TcpStream, sync::RwLock};
+use tokio::net::TcpStream;
 
 use crate::{
     Client, Event,
@@ -29,7 +30,9 @@ pub struct ConnectionBuilder {
 }
 
 impl ConnectionBuilder {
-    async fn connect(self) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
+    pub async fn connect(
+        self,
+    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
         let stream = TcpStream::connect(self.socket_addr)
             .await
             .map_err(Error::Connect)?;

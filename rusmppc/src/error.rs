@@ -1,9 +1,13 @@
+use std::time::Duration;
+
 use rusmpp::Command;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),
+    #[error("Server did not respond to enquire link: {timeout:?}")]
+    EnquireLinkTimeout { timeout: Duration },
     // This happen when the response timer expires.
     // e.g. We send a bind request and the server doesn't respond.
     #[error("Request timed out: {request:?}")]

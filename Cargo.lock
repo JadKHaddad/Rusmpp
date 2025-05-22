@@ -1168,6 +1168,7 @@ name = "rusmppc"
 version = "0.0.0"
 dependencies = [
  "futures",
+ "parking_lot",
  "rusmpp",
  "thiserror",
  "tokio",

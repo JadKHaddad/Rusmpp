@@ -21,6 +21,7 @@ tokio-util = "0.7.15"
 tracing = "0.1.41"
 futures = "0.3.31"
 thiserror = "2.0.12"
+parking_lot = "0.12.3"
 
 [package.metadata.docs.rs]
 all-features = true

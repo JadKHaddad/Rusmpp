@@ -2,10 +2,7 @@ use std::sync::Arc;
 
 use futures::{Sink, Stream};
 use rusmpp::session::SessionState;
-use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    sync::RwLock,
-};
+use tokio::io::{AsyncRead, AsyncWrite};
 
 use crate::{Event, action::Action};
 
@@ -24,7 +21,7 @@ pub struct Connection<Socket, Sink, Stream> {
     events_sink: Sink,
     /// Receive smpp actions from the client.
     actions_stream: Stream,
-    session_state: Arc<RwLock<SessionState>>,
+    session_state: Arc<parking_lot::RwLock<SessionState>>,
     config: ConnectionConfig,
 }
 
@@ -33,7 +30,7 @@ impl<So, Si, St> Connection<So, Si, St> {
         socket: So,
         events_sink: Si,
         actions_stream: St,
-        session_state: Arc<RwLock<SessionState>>,
+        session_state: Arc<parking_lot::RwLock<SessionState>>,
         config: ConnectionConfig,
     ) -> Self {
         Self {

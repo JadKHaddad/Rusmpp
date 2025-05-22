@@ -69,16 +69,18 @@ impl CommandId {
     }
 
     /// Returns the matching request [`CommandId`]
-    /// Note that this function should be used only on response Ids
-    pub fn get_matching_request(self) -> CommandId {
+    ///
+    /// Note that this function should be used only on response Ids.
+    pub fn matching_request(self) -> CommandId {
         let id: u32 = self.into();
         (id & 0x0FFFFFFF).into()
     }
 
     /// Returns the matching response [`CommandId`]
+    ///
     /// Note that this function should be used only on command Ids.
-    /// If the command does not have a response, then it will return [`CommandId::Other`]
-    pub fn get_matching_response(self) -> CommandId {
+    /// If the command does not have a response, then it will return [`CommandId::Other`].
+    pub fn matching_response(self) -> CommandId {
         let id: u32 = self.into();
         (id | 0x80000000).into()
     }
@@ -205,7 +207,7 @@ mod tests {
     #[test]
     fn get_matching_request() {
         assert_eq!(
-            CommandId::BroadcastSmResp.get_matching_request(),
+            CommandId::BroadcastSmResp.matching_request(),
             CommandId::BroadcastSm
         );
     }
@@ -213,11 +215,11 @@ mod tests {
     #[test]
     fn get_matching_response() {
         assert_eq!(
-            CommandId::BroadcastSm.get_matching_response(),
+            CommandId::BroadcastSm.matching_response(),
             CommandId::BroadcastSmResp
         );
         assert_eq!(
-            CommandId::Outbind.get_matching_response(),
+            CommandId::Outbind.matching_response(),
             CommandId::Other(0x8000000B)
         );
     }

@@ -18,3 +18,8 @@ pub mod error;
 
 mod event;
 pub use event::Event;
+
+mod session_state;
+
+#[cfg(test)]
+mod tests;

@@ -1,6 +1,5 @@
 use rusmpp::Command;
 use tokio::sync::oneshot;
-use tokio_util::sync::CancellationToken;
 
 use crate::error::Error;
 
@@ -12,9 +11,8 @@ pub enum Action {
 #[derive(Debug)]
 pub struct SendCommandAction {
     command: Command,
-    // Should be cancelled, if a client request was dropped with tokio::select!.
-    // So the connection task will cancel the command task.
-    cancellation_token: CancellationToken,
-    // Error: RequestTimeout or UnexpectedResponse.
     response: oneshot::Receiver<Result<Command, Error>>,
+    // We do not use a cancellation token to cancel the outgoing request.
+    // Because this is most likely going to break the connection on the server side.
+    // So dropping the request future will not cancel the request.
 }

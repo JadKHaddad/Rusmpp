@@ -7,14 +7,13 @@ use std::{
 };
 
 use futures::{Sink, channel::mpsc::Sender};
-use parking_lot::RwLock;
 use rusmpp::{
     Command,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter},
     session::SessionState,
 };
 
-use crate::{action::Action, error::Error};
+use crate::{action::Action, error::Error, session_state::SessionStateHolder};
 
 #[derive(Debug)]
 pub struct Client {
@@ -41,15 +40,19 @@ impl Clone for Client {
 impl Client {
     pub(crate) fn new(
         actions_sink: Sender<Action>,
-        session_state: Arc<RwLock<SessionState>>,
+        session_state_holder: SessionStateHolder,
     ) -> Self {
         Self {
-            inner: Arc::new(ClientInner::new(actions_sink, session_state)),
+            inner: Arc::new(ClientInner::new(actions_sink, session_state_holder)),
         }
     }
 
     pub fn session_state(&self) -> SessionState {
-        *self.session_state.read()
+        self.session_state_holder.get()
+    }
+
+    pub fn sequence_number(&self) -> u32 {
+        self.sequence_number.load(Ordering::Relaxed)
     }
 }
 
@@ -58,15 +61,15 @@ impl Client {
 pub struct ClientInner<Sink> {
     actions_sink: Sink,
     sequence_number: AtomicU32,
-    session_state: Arc<RwLock<SessionState>>,
+    session_state_holder: SessionStateHolder,
 }
 
 impl<Si> ClientInner<Si> {
-    const fn new(actions_sink: Si, session_state: Arc<RwLock<SessionState>>) -> Self {
+    const fn new(actions_sink: Si, session_state_holder: SessionStateHolder) -> Self {
         Self {
             actions_sink,
             sequence_number: AtomicU32::new(0),
-            session_state,
+            session_state_holder,
         }
     }
 }

@@ -17,11 +17,15 @@ rusmpp = { path = "../rusmpp", default-features = false, features = [
     "verbose",
 ] }
 tokio = { version = "1.45.0", features = ["rt", "net", "sync"] }
-tokio-util = "0.7.15"
+tokio-util = { version = "0.7.15", features = ["codec"] }
 tracing = "0.1.41"
 futures = "0.3.31"
 thiserror = "2.0.12"
 parking_lot = "0.12.3"
+
+[dev-dependencies]
+tokio = { version = "1.45.0", features = ["full"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 
 [package.metadata.docs.rs]
 all-features = true

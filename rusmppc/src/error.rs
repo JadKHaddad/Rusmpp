@@ -1,11 +1,19 @@
 use std::time::Duration;
 
 use rusmpp::Command;
+use rusmpp::codec::tokio::DecodeError;
+use rusmpp::codec::tokio::EncodeError;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),
+    #[error("Io error: {0}")]
+    Io(#[source] std::io::Error),
+    #[error("Protocol encode error: {0}")]
+    Encode(#[source] EncodeError),
+    #[error("Protocol decode error: {0}")]
+    Decode(#[source] DecodeError),
     #[error("Server did not respond to enquire link: {timeout:?}")]
     EnquireLinkTimeout { timeout: Duration },
     // This happen when the response timer expires.
@@ -18,4 +26,22 @@ pub enum Error {
         request: Box<Command>,
         response: Box<Command>,
     },
+}
+
+impl From<DecodeError> for Error {
+    fn from(value: DecodeError) -> Self {
+        match value {
+            DecodeError::Io(error) => Error::Io(error),
+            error => Error::Decode(error),
+        }
+    }
+}
+
+impl From<EncodeError> for Error {
+    fn from(value: EncodeError) -> Self {
+        match value {
+            EncodeError::Io(error) => Error::Io(error),
+            error => Error::Encode(error),
+        }
+    }
 }

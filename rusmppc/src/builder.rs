@@ -1,10 +1,9 @@
-use std::{net::SocketAddr, sync::Arc};
+use std::net::SocketAddr;
 
 use futures::{
     Stream,
     channel::mpsc::{channel, unbounded},
 };
-use parking_lot::RwLock;
 use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, builders::BindAnyBuilder},
     session::SessionState,
@@ -19,6 +18,7 @@ use crate::{
     bind::BindMode,
     connection::{Connection, ConnectionConfig},
     error::Error,
+    session_state::SessionStateHolder,
 };
 
 #[derive(Debug)]
@@ -33,26 +33,30 @@ impl ConnectionBuilder {
     pub async fn connect(
         self,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
+        tracing::debug!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connecting");
+
         let stream = TcpStream::connect(self.socket_addr)
             .await
             .map_err(Error::Connect)?;
 
+        tracing::trace!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connected");
+
         let (events_tx, events_rx) = unbounded::<Event>();
         let (actions_tx, actions_rx) = channel::<Action>(100);
 
-        let session_state = Arc::new(RwLock::new(SessionState::Open));
+        let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
         let connection = Connection::new(
             stream,
             events_tx,
             actions_rx,
-            session_state.clone(),
+            session_state_holder.clone(),
             self.connection_config,
         );
 
         connection.spawn();
 
-        let client = Client::new(actions_tx, session_state);
+        let client = Client::new(actions_tx, session_state_holder);
 
         match self.bind_mode {
             BindMode::Tx => {

@@ -1,45 +1,7 @@
-[package]
-name = "rusmpp"
-version = "0.2.0"
-edition = "2024"
-rust-version = "1.85.0"
-description = "A Rust SMPP library."
-authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/JadKHaddad/Rusmpp"
-readme = "Readme.md"
-keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
-
-[dev-dependencies]
-tracing = { version = "0.1.40" }
-tokio = { version = "1.45.0", features = ["full"] }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-tracing-test = "0.2.5"
-futures = "0.3.31"
-testcontainers = "0.24.0"
-macrotest = "1.1.0"
-
-[dependencies]
-tokio-util = { version = "0.7.10", default-features = false, features = [
-    "codec",
-], optional = true }
-tracing = { version = "0.1.40", default-features = false, optional = true }
-arbitrary = { version = "1.4.1", default-features = false, features = [
-    "derive_arbitrary",
-], optional = true }
-
-[features]
-default = ["tokio-codec"]
-# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
-pretty-hex-fmt = []
-# Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
-tokio-codec = ["dep:tokio-util"]
-# Enables tracing support.
-tracing = ["dep:tracing"]
-# Implements arbitrary's Arbitrary trait for fuzz testing.
-arbitrary = ["dep:arbitrary"]
-# Enables verbose DecodeError with DecodeErrorSource.
-verbose = []
+[workspace]
+resolver = "2"
+members = ["rusmpp"]
+default-members = ["rusmpp"]
 
 [patch.crates-io]
 # TODO: remove the path after issue is resolved. PR https://github.com/eupn/macrotest/pull/124
@@ -50,22 +12,3 @@ verbose = []
 #  feature `test-feature` includes `dep:tracing`, but `tracing` is not an optional dependency
 #  A non-optional dependency of the same name is defined; consider adding `optional = true` to its definition.
 macrotest = { git = "https://github.com/JadKHaddad/macrotest.git", branch = "fix/manifest" }
-
-[[example]]
-name = "client_server"
-path = "examples/client_server.rs"
-required-features = ["tokio-codec", "tracing"]
-
-[[example]]
-name = "simple"
-path = "examples/simple.rs"
-required-features = ["tokio-codec"]
-
-[[example]]
-name = "submit_sm"
-path = "examples/submit_sm.rs"
-required-features = ["tokio-codec", "tracing"]
-
-[package.metadata.docs.rs]
-all-features = true
-rustdoc-args = ["--cfg", "docsrs"]

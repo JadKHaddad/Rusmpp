@@ -1,4 +1,4 @@
-use std::net::SocketAddr;
+use std::{net::SocketAddr, time::Duration};
 
 use futures::{Stream, channel::mpsc::unbounded};
 use rusmpp::{
@@ -24,16 +24,36 @@ pub struct ConnectionBuilder {
     socket_addr: SocketAddr,
     bind_mode: BindMode,
     bind_builder: BindAnyBuilder,
-    connection_config: ConnectionConfig,
+    timeouts: ConnectionTimeouts,
+}
+
+#[derive(Debug)]
+pub struct ConnectionTimeouts {
+    pub session: Duration,
+    pub enquire_link: Duration,
+    // TODO: not used
+    pub inactivity: Duration,
+    pub response: Duration,
+}
+
+impl Default for ConnectionTimeouts {
+    fn default() -> Self {
+        Self {
+            session: Duration::from_secs(5),
+            enquire_link: Duration::from_secs(30),
+            inactivity: Duration::from_secs(60),
+            response: Duration::from_secs(5),
+        }
+    }
 }
 
 impl ConnectionBuilder {
     pub fn new(socket_addr: impl Into<SocketAddr>) -> Self {
         Self {
             socket_addr: socket_addr.into(),
-            bind_mode: BindMode::default(),
-            bind_builder: BindAnyBuilder::default(),
-            connection_config: ConnectionConfig::default(),
+            bind_mode: Default::default(),
+            bind_builder: Default::default(),
+            timeouts: Default::default(),
         }
     }
 
@@ -53,15 +73,15 @@ impl ConnectionBuilder {
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
-        let session_timeout = self.connection_config.timeouts.session;
-        let response_timeout = self.connection_config.timeouts.response;
+        let session_timeout = self.timeouts.session;
+        let response_timeout = self.timeouts.response;
 
         let connection = Connection::new(
             stream,
             events_tx,
             ReceiverStream::new(actions_rx),
             session_state_holder.clone(),
-            self.connection_config,
+            ConnectionConfig::new(self.timeouts),
         );
 
         connection.spawn();
@@ -100,17 +120,17 @@ impl ConnectionBuilder {
         self
     }
 
-    pub const fn bind_transmitter(mut self) -> Self {
+    pub const fn transmitter(mut self) -> Self {
         self.bind_mode = BindMode::Tx;
         self
     }
 
-    pub const fn bind_receiver(mut self) -> Self {
+    pub const fn receiver(mut self) -> Self {
         self.bind_mode = BindMode::Rx;
         self
     }
 
-    pub const fn bind_transceiver(mut self) -> Self {
+    pub const fn transceiver(mut self) -> Self {
         self.bind_mode = BindMode::TxRx;
         self
     }
@@ -147,6 +167,26 @@ impl ConnectionBuilder {
 
     pub fn address_range(mut self, address_range: COctetString<1, 41>) -> Self {
         self.bind_builder = self.bind_builder.address_range(address_range);
+        self
+    }
+
+    pub fn session_timeout(mut self, session_timeout: Duration) -> Self {
+        self.timeouts.session = session_timeout;
+        self
+    }
+
+    pub fn enquire_link_timeout(mut self, enquire_link_timeout: Duration) -> Self {
+        self.timeouts.enquire_link = enquire_link_timeout;
+        self
+    }
+
+    pub fn inactivity_timeout(mut self, inactivity_timeout: Duration) -> Self {
+        self.timeouts.inactivity = inactivity_timeout;
+        self
+    }
+
+    pub fn response_timeout(mut self, response_timeout: Duration) -> Self {
+        self.timeouts.response = response_timeout;
         self
     }
 }

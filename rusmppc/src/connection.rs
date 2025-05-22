@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc, time::Duration};
+use std::{collections::HashMap, sync::Arc};
 
 use futures::{Sink, SinkExt, Stream, StreamExt, channel::mpsc};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
@@ -14,35 +14,23 @@ use tokio_util::{
 use crate::{
     Event,
     action::{Action, SendCommandAction},
+    builder::ConnectionTimeouts,
     error::Error,
     session_state::SessionStateHolder,
 };
 
 #[derive(Debug, Default)]
 pub struct ConnectionConfig {
-    pub timeouts: ConnectionTimeouts,
+    timeouts: ConnectionTimeouts,
+}
+
+impl ConnectionConfig {
+    pub const fn new(timeouts: ConnectionTimeouts) -> Self {
+        Self { timeouts }
+    }
 }
 
 type Responses = Arc<parking_lot::Mutex<HashMap<u32, oneshot::Sender<Result<Command, Error>>>>>;
-
-#[derive(Debug)]
-pub struct ConnectionTimeouts {
-    pub session: Duration,
-    pub enquire_link: Duration,
-    pub inactivity: Duration,
-    pub response: Duration,
-}
-
-impl Default for ConnectionTimeouts {
-    fn default() -> Self {
-        Self {
-            session: Duration::from_secs(5),
-            enquire_link: Duration::from_secs(30),
-            inactivity: Duration::from_secs(60),
-            response: Duration::from_secs(5),
-        }
-    }
-}
 
 #[derive(Debug)]
 pub struct Connection<Socket, Sink, Stream> {
@@ -188,6 +176,8 @@ where
                 tokio::select! {
                     _ = reader_token.cancelled() => {
                         tracing::debug!(target: TARGET, "Reader task cancelled");
+
+                        break;
                     },
                     command = smpp_reader.next() => {
                         let Some(command) = command else {

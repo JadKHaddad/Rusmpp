@@ -1,14 +1,18 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+#![forbid(unsafe_code)]
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![deny(missing_debug_implementations)]
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+mod action;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+mod builder;
+pub use builder::ConnectionBuilder;
+
+mod client;
+pub use client::Client;
+
+mod connection;
+
+pub mod error;
+
+mod event;
+pub use event::Event;

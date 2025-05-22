@@ -56,7 +56,7 @@ crate::create! {
 }
 
 impl CommandId {
-    /// Returns true if this [`CommandId`] represents an operation (request) PDU.
+    /// Returns true if this [`CommandId`] represents a request PDU.
     pub fn is_operation(self) -> bool {
         let id: u32 = self.into();
         id & 0x80000000 == 0x00000000
@@ -78,7 +78,7 @@ impl CommandId {
 
     /// Returns the matching response [`CommandId`]
     ///
-    /// Note that this function should be used only on command Ids.
+    /// Note that this function should be used only on request Ids.
     /// If the command does not have a response, then it will return [`CommandId::Other`].
     pub fn matching_response(self) -> CommandId {
         let id: u32 = self.into();

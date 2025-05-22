@@ -1,0 +1,13 @@
+[package]
+name = "rusmppc"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85.0"
+description = "A Rust SMPP client."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+readme = "Readme.md"
+keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
+
+[dependencies]

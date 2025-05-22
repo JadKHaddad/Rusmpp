@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["rusmpp"]
+members = ["rusmpp", "rusmppc"]
 default-members = ["rusmpp"]
 
 [patch.crates-io]

@@ -324,6 +324,22 @@ where
 
             writer_session_state_holder.set_session_state(SessionState::Closed);
 
+            let sequence_number = writer_session_state_holder.next_sequence_number();
+            let unbind = Command::builder()
+                .status(CommandStatus::EsmeRok)
+                .sequence_number(sequence_number)
+                .pdu(Pdu::Unbind);
+
+            tracing::trace!(target: TARGET, ?unbind, "Sending unbind");
+
+            if let Err(err) = smpp_writer.send(unbind).await {
+                let err = Error::from(err);
+
+                tracing::error!(target: TARGET, ?err, "Error sending command");
+
+                let _ = writer_events_sink.send(Event::Error(err)).await;
+            }
+
             tracing::debug!(target: TARGET, "Writer task terminated");
         });
     }

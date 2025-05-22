@@ -28,6 +28,7 @@
         "MSRV",
         "nocapture",
         "Nsap",
+        "oneshot",
         "Outbind",
         "pdus",
         "Pssd",

@@ -1,8 +1,20 @@
-use std::{ops::Deref, sync::Arc};
+use std::{
+    ops::Deref,
+    sync::{
+        Arc,
+        atomic::{AtomicU32, Ordering},
+    },
+};
 
 use futures::{Sink, channel::mpsc::Sender};
+use rusmpp::{
+    Command,
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter},
+    session::SessionState,
+};
+use tokio::sync::RwLock;
 
-use crate::action::Action;
+use crate::{action::Action, error::Error};
 
 #[derive(Debug)]
 pub struct Client {
@@ -27,9 +39,12 @@ impl Clone for Client {
 }
 
 impl Client {
-    pub(crate) fn new(actions_sink: Sender<Action>) -> Self {
+    pub(crate) fn new(
+        actions_sink: Sender<Action>,
+        session_state: Arc<RwLock<SessionState>>,
+    ) -> Self {
         Self {
-            inner: Arc::new(ClientInner::new(actions_sink)),
+            inner: Arc::new(ClientInner::new(actions_sink, session_state)),
         }
     }
 }
@@ -38,12 +53,37 @@ impl Client {
 #[derive(Debug)]
 pub struct ClientInner<Sink> {
     actions_sink: Sink,
+    sequence_number: AtomicU32,
+    session_state: Arc<RwLock<SessionState>>,
 }
 
 impl<Si> ClientInner<Si> {
-    const fn new(actions_sink: Si) -> Self {
-        Self { actions_sink }
+    const fn new(actions_sink: Si, session_state: Arc<RwLock<SessionState>>) -> Self {
+        Self {
+            actions_sink,
+            sequence_number: AtomicU32::new(0),
+            session_state,
+        }
     }
 }
 
-impl<Si> ClientInner<Si> where Si: Sink<Action> + Unpin + 'static {}
+impl<Si> ClientInner<Si>
+where
+    Si: Sink<Action> + Unpin + 'static,
+{
+    fn next_sequence_number(&self) -> u32 {
+        self.sequence_number.fetch_add(1, Ordering::Relaxed)
+    }
+
+    pub(crate) async fn bind_transmitter(&self, bind: BindTransmitter) -> Result<Command, Error> {
+        todo!()
+    }
+
+    pub(crate) async fn bind_receiver(&self, bind: BindReceiver) -> Result<Command, Error> {
+        todo!()
+    }
+
+    pub(crate) async fn bind_transceiver(&self, bind: BindTransceiver) -> Result<Command, Error> {
+        todo!()
+    }
+}

@@ -4,6 +4,8 @@
 
 mod action;
 
+mod bind;
+
 mod builder;
 pub use builder::ConnectionBuilder;
 

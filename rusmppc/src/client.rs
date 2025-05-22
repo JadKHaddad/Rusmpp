@@ -75,15 +75,24 @@ where
         self.sequence_number.fetch_add(1, Ordering::Relaxed)
     }
 
-    pub(crate) async fn bind_transmitter(&self, bind: BindTransmitter) -> Result<Command, Error> {
+    pub(crate) async fn bind_transmitter(
+        &self,
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<Command, Error> {
         todo!()
     }
 
-    pub(crate) async fn bind_receiver(&self, bind: BindReceiver) -> Result<Command, Error> {
+    pub(crate) async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<Command, Error> {
         todo!()
     }
 
-    pub(crate) async fn bind_transceiver(&self, bind: BindTransceiver) -> Result<Command, Error> {
+    pub(crate) async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<Command, Error> {
         todo!()
     }
 }

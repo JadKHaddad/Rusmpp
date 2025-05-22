@@ -4,7 +4,9 @@ pub(super) mod pdu;
 
 pub mod builders {
     pub use super::alert_notification::AlertNotificationBuilder;
-    pub use super::bind::{BindReceiverBuilder, BindTransceiverBuilder, BindTransmitterBuilder};
+    pub use super::bind::{
+        BindAnyBuilder, BindReceiverBuilder, BindTransceiverBuilder, BindTransmitterBuilder,
+    };
     pub use super::bind_resp::{
         BindReceiverRespBuilder, BindTransceiverRespBuilder, BindTransmitterRespBuilder,
     };
@@ -31,7 +33,7 @@ mod alert_notification;
 pub use alert_notification::AlertNotification;
 
 mod bind;
-pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
+pub use bind::{BindAny, BindReceiver, BindTransceiver, BindTransmitter};
 
 mod bind_resp;
 pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};

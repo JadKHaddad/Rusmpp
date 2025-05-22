@@ -123,6 +123,7 @@ macro_rules! declare_bind {
 declare_bind!(BindTransmitter, BindTransmitterBuilder);
 declare_bind!(BindReceiver, BindReceiverBuilder);
 declare_bind!(BindTransceiver, BindTransceiverBuilder);
+declare_bind!(BindAny, BindAnyBuilder);
 
 impl From<BindTransmitter> for Pdu {
     fn from(value: BindTransmitter) -> Self {
@@ -139,6 +140,48 @@ impl From<BindReceiver> for Pdu {
 impl From<BindTransceiver> for Pdu {
     fn from(value: BindTransceiver) -> Self {
         Self::BindTransceiver(value)
+    }
+}
+
+impl From<BindAny> for BindTransmitter {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
+    }
+}
+
+impl From<BindAny> for BindReceiver {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
+    }
+}
+
+impl From<BindAny> for BindTransceiver {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
     }
 }
 

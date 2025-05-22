@@ -52,7 +52,7 @@ impl ConnectionBuilder {
         Self {
             socket_addr: socket_addr.into(),
             bind_mode: Default::default(),
-            bind_builder: Default::default(),
+            bind_builder: BindAnyBuilder::default().interface_version(InterfaceVersion::Smpp5_0),
             timeouts: Default::default(),
         }
     }
@@ -147,11 +147,6 @@ impl ConnectionBuilder {
 
     pub fn system_type(mut self, system_type: COctetString<1, 13>) -> Self {
         self.bind_builder = self.bind_builder.system_type(system_type);
-        self
-    }
-
-    pub fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
-        self.bind_builder = self.bind_builder.interface_version(interface_version);
         self
     }
 

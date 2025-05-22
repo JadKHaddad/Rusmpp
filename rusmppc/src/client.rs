@@ -2,7 +2,7 @@ use std::{ops::Deref, sync::Arc, time::Duration};
 
 use rusmpp::{
     Command, CommandStatus, Pdu,
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter},
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm},
     session::SessionState,
 };
 use tokio::sync::mpsc::Sender;
@@ -90,27 +90,6 @@ impl ClientInner {
         self.session_state_holder.next_sequence_number()
     }
 
-    async fn bind(&self, bind: impl Into<Pdu>) -> Result<Command, Error> {
-        let sequence_number = self.next_sequence_number();
-        let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(sequence_number)
-            .pdu(bind.into());
-
-        let (action, response) = SendCommandAction::new(command);
-
-        self.actions_sink
-            .send(Action::SendCommand(action))
-            .await
-            .map_err(|_| Error::ConnectionClosed)?;
-
-        // TODO: if session timed out, we should close the connection
-        tokio::time::timeout(self.session_timeout, response)
-            .await
-            .map_err(|_| Error::Timeout)?
-            .map_err(|_| Error::ConnectionClosed)?
-    }
-
     pub(crate) async fn bind_transmitter(
         &self,
         bind: impl Into<BindTransmitter>,
@@ -130,5 +109,51 @@ impl ClientInner {
         bind: impl Into<BindTransceiver>,
     ) -> Result<Command, Error> {
         self.bind(bind.into()).await
+    }
+
+    // TODO: bind is different than request just in the timeout
+    async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
+        let sequence_number = self.next_sequence_number();
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(sequence_number)
+            .pdu(pdu.into());
+
+        let (action, response) = SendCommandAction::new(command);
+
+        self.actions_sink
+            .send(Action::SendCommand(action))
+            .await
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        // TODO: if session timed out, we should close the connection
+        tokio::time::timeout(self.session_timeout, response)
+            .await
+            .map_err(|_| Error::Timeout)?
+            .map_err(|_| Error::ConnectionClosed)?
+    }
+
+    async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
+        let sequence_number = self.next_sequence_number();
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(sequence_number)
+            .pdu(pdu.into());
+
+        let (action, response) = SendCommandAction::new(command);
+
+        self.actions_sink
+            .send(Action::SendCommand(action))
+            .await
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        tokio::time::timeout(self.response_timeout, response)
+            .await
+            .map_err(|_| Error::Timeout)?
+            .map_err(|_| Error::ConnectionClosed)?
+    }
+
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<Command, Error> {
+        self.request(submit_sm.into()).await
     }
 }

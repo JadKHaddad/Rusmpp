@@ -52,3 +52,13 @@ pub enum SessionState {
     /// No messaging operations are allowed in this state.
     Unbound,
 }
+
+impl SessionState {
+    /// Returns true if the session is a bound state.
+    ///
+    /// One of the following states:
+    /// [`SessionState::BoundTx`], [`SessionState::BoundRx`] or [`SessionState::BoundTrx`].
+    pub fn is_bound(self) -> bool {
+        self == Self::BoundTx || self == Self::BoundRx || self == Self::BoundTrx
+    }
+}

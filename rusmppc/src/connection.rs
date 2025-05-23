@@ -212,6 +212,8 @@ where
                         let Some(command) = command else {
                             tracing::debug!(target: TARGET, "End of stream");
 
+                            reader_session_state_holder.set_session_state(SessionState::Closed);
+
                             break
                         };
 
@@ -394,9 +396,17 @@ where
             let session_state = writer_session_state_holder.session_state();
 
             match session_state {
+                SessionState::Closed => {
+                    // End of stream was reached
+                    // Session state was set to closed and the token has been cancelled
+                }
                 SessionState::Unbound => {
                     // Already received unbind request from server
-                    // Nothing to do here
+                    // Terminating normally
+
+                    writer_token.cancel();
+
+                    writer_session_state_holder.set_session_state(SessionState::Closed);
                 }
                 _ => {
                     // We unbind here
@@ -431,12 +441,12 @@ where
                             tracing::warn!(target: TARGET, "Unbind response timed out");
                         }
                     }
+
+                    writer_token.cancel();
+
+                    writer_session_state_holder.set_session_state(SessionState::Closed);
                 }
             }
-
-            writer_token.cancel();
-
-            writer_session_state_holder.set_session_state(SessionState::Closed);
 
             tracing::debug!(target: TARGET, "Terminated");
         };

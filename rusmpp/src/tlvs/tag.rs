@@ -132,6 +132,15 @@ crate::create! {
         /// The dest_port parameter is used to indicate the application port number associated with the
         /// destination address of the message.
         DestPort = 0x020B,
+        /// The reference number for a particular concatenated short message.
+        ///
+        /// The sar_msg_ref_num parameter is used to indicate the reference number for a particular
+        /// concatenated short message.
+        /// The concatenation related parameters are sar_msg_ref_num, sar_total_segments and
+        /// sar_segment_seqnum. Where these are present the other parameters of the message
+        /// should remain unchanged for each short message fragment which forms part of a mobile
+        /// terminated concatenated short message, with the exception of those parameters for which it
+        /// makes sense to change them (such as the user data in the short_message parameter).
         SarMsgRefNum = 0x020C,
         LanguageIndicator = 0x020D,
         SarTotalSegments = 0x020E,

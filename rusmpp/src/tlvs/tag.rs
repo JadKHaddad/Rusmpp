@@ -27,6 +27,13 @@ crate::create! {
         /// support the indicated bearer type, it may treat this a failure and return a response PDU
         /// reporting a failure.
         DestBearerType = 0x0007,
+        /// The telematics identifier associated with the destination
+        ///
+        /// This parameter defines the telematic interworking to be used by the delivering system for the
+        /// destination address. This is only useful when a specific dest_bearer_type parameter has also
+        /// been specified, as the value is bearer dependent. In the case that the receiving system (e.g.
+        /// MC) does not support the indicated telematic interworking, it may treat this a failure and
+        /// return a response PDU reporting a failure.
         DestTelematicsId = 0x0008,
         SourceAddrSubunit = 0x000D,
         SourceNetworkType = 0x000E,

@@ -336,6 +336,10 @@ crate::create! {
         /// the number of BTSs who accepted the message and the total number of BTSs who should
         /// accept the message, for a particular broadcast_area_identifier.
         BroadcastAreaSuccess = 0x0608,
+        /// The date and time at which the broadcasting state of this message was set to terminated in the Message Centre.
+        ///
+        /// The broadcast_end_time parameter indicates the date and time at which the broadcasting
+        /// state of this message was set to terminated in the Message Centre.
         BroadcastEndTime = 0x0609,
         BroadcastServiceGroup = 0x060A,
         BillingIdentification = 0x060B,

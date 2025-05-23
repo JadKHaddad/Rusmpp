@@ -328,6 +328,13 @@ crate::create! {
         /// The broadcast_error_status parameter specifies the nature of the failure associated with a
         /// particular broadcast_area_identifier specified in a broadcast request.
         BroadcastErrorStatus = 0x0607,
+        /// The success rate indicator, defined as the ratio of the number of BTSs that accepted
+        /// the message and the total number of BTSs that should have accepted
+        /// the message, for a particular broadcast_area_identifier.
+        ///
+        /// The broadcast_area_success parameter is a success rate indicator, defined as the ratio of
+        /// the number of BTSs who accepted the message and the total number of BTSs who should
+        /// accept the message, for a particular broadcast_area_identifier.
         BroadcastAreaSuccess = 0x0608,
         BroadcastEndTime = 0x0609,
         BroadcastServiceGroup = 0x060A,

@@ -296,6 +296,11 @@ crate::create! {
         ///
         /// The broadcast_content_type parameter specifies the content_type of the message content.
         BroadcastContentType = 0x0601,
+        /// This parameter contains additional free format information specific to the
+        /// broadcast_content_type.
+        ///
+        /// The broadcast_content_type_info parameter contains additional information specific to the
+        /// broadcast_content_type.
         BroadcastContentTypeInfo = 0x0602,
         BroadcastMessageClass = 0x0603,
         BroadcastRepNum = 0x0604,

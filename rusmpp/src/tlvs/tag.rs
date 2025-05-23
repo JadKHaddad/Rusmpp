@@ -95,6 +95,9 @@ crate::create! {
         ///
         /// The privacy_indicator indicates the privacy level of the message.
         PrivacyIndicator = 0x0201,
+        /// The sub-address of the message originator.
+        ///
+        /// The source_subaddress parameter specifies a subaddress associated with the originator of the message.
         SourceSubaddress = 0x0202,
         DestSubaddress = 0x0203,
         UserMessageReference = 0x0204,

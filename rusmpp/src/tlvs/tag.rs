@@ -1,6 +1,4 @@
-
 #![warn(missing_docs)]
-
 
 crate::create! {
     #[repr(u16)]
@@ -15,6 +13,12 @@ crate::create! {
         /// station, for example to a smart card in the mobile station or to an external device connected
         /// to the mobile station.
         DestAddrSubunit = 0x0005,
+        /// The correct network for the destination device.
+        ///
+        /// The dest_network_type parameter is used to indicate a network type associated with the
+        /// destination address of a message. In the case that the receiving system (e.g. MC) does not
+        /// support the indicated network type, it may treat this a failure and return a response PDU
+        /// reporting a failure.
         DestNetworkType = 0x0006,
         DestBearerType = 0x0007,
         DestTelematicsId = 0x0008,

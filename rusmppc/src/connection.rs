@@ -21,12 +21,16 @@ use crate::{
 
 #[derive(Debug, Default)]
 pub struct ConnectionConfig {
+    max_command_length: usize,
     timeouts: ConnectionTimeouts,
 }
 
 impl ConnectionConfig {
-    pub const fn new(timeouts: ConnectionTimeouts) -> Self {
-        Self { timeouts }
+    pub const fn new(max_command_length: usize, timeouts: ConnectionTimeouts) -> Self {
+        Self {
+            max_command_length,
+            timeouts,
+        }
     }
 }
 
@@ -73,8 +77,14 @@ where
         let (mut intern_actions_tx, mut intern_actions_rx) = mpsc::unbounded::<Action>();
         let (intern_unbind_tx, intern_unbind_rx) = oneshot::channel::<()>();
 
-        let mut smpp_reader = FramedRead::new(reader, CommandCodec::new());
-        let mut smpp_writer = FramedWrite::new(writer, CommandCodec::new());
+        let mut smpp_reader = FramedRead::new(
+            reader,
+            CommandCodec::new().with_max_length(self.config.max_command_length),
+        );
+        let mut smpp_writer = FramedWrite::new(
+            writer,
+            CommandCodec::new().with_max_length(self.config.max_command_length),
+        );
 
         let reader_session_state_holder = self.session_state_holder.clone();
         let writer_session_state_holder = self.session_state_holder.clone();

@@ -24,22 +24,23 @@ async fn bind() {
     };
 
     init_tracing();
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
 
-    let (client, mut events) = ConnectionBuilder::new(SocketAddr::new(
-        IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)),
-        2775,
-    ))
-    .system_id(COctetString::from_str("NfDfddEKVI0NCxO").unwrap()) // cspell:disable-line
-    .password(COctetString::from_str("rEZYMq5j").unwrap())
-    .system_type(COctetString::empty())
-    .addr_ton(Ton::Unknown)
-    .addr_npi(Npi::Unknown)
-    .address_range(COctetString::empty())
-    .transmitter()
-    .enquire_link_timeout(Duration::from_secs(10))
-    .connect()
-    .await
-    .expect("Failed to connect");
+    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+        .system_id(COctetString::from_str("NfDfddEKVI0NCxO").unwrap()) // cspell:disable-line
+        .password(COctetString::from_str("rEZYMq5j").unwrap())
+        .system_type(COctetString::empty())
+        .addr_ton(Ton::Unknown)
+        .addr_npi(Npi::Unknown)
+        .address_range(COctetString::empty())
+        .transmitter()
+        .enquire_link_timeout(Duration::from_secs(10))
+        .session_timeout(Duration::from_secs(3))
+        .response_timeout(Duration::from_secs(2))
+        .max_command_length(1024)
+        .connect()
+        .await
+        .expect("Failed to connect");
 
     tokio::spawn(async move {
         while let Some(event) = events.next().await {

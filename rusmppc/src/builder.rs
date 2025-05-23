@@ -24,6 +24,7 @@ pub struct ConnectionBuilder {
     socket_addr: SocketAddr,
     bind_mode: BindMode,
     bind_builder: BindAnyBuilder,
+    max_command_length: usize,
     timeouts: ConnectionTimeouts,
 }
 
@@ -53,6 +54,7 @@ impl ConnectionBuilder {
             socket_addr: socket_addr.into(),
             bind_mode: Default::default(),
             bind_builder: BindAnyBuilder::default().interface_version(InterfaceVersion::Smpp5_0),
+            max_command_length: 4096,
             timeouts: Default::default(),
         }
     }
@@ -81,7 +83,7 @@ impl ConnectionBuilder {
             events_tx,
             ReceiverStream::new(actions_rx),
             session_state_holder.clone(),
-            ConnectionConfig::new(self.timeouts),
+            ConnectionConfig::new(self.max_command_length, self.timeouts),
         );
 
         connection.spawn();
@@ -112,6 +114,11 @@ impl ConnectionBuilder {
 impl ConnectionBuilder {
     pub fn socket_addr(mut self, socket_addr: impl Into<SocketAddr>) -> Self {
         self.socket_addr = socket_addr.into();
+        self
+    }
+
+    pub fn max_command_length(mut self, max_command_length: usize) -> Self {
+        self.max_command_length = max_command_length;
         self
     }
 

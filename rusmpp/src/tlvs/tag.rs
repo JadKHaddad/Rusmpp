@@ -235,6 +235,23 @@ crate::create! {
         /// The network_error_code parameter is used to indicate the actual network error code for a
         /// delivery failure. The network error code is technology specific.
         NetworkErrorCode = 0x0423,
+        /// Contains the extended short message user data. Up to
+        /// 64K octets can be transmitted.
+        /// Note: The short message data should be inserted in either
+        /// the short_message or message_payload fields. Both fields
+        /// should not be used simultaneously.
+        /// The sm_length field should be set to zero if using the
+        /// message_payload parameter.
+        /// Note: In the case of data_sm, the message_payload TLV
+        /// is the only means of specifying text.
+        ///
+        /// The message_payload parameter contains the user data. Its function is to provide an
+        /// alternative means of carrying text lengths above the 255 octet limit of the short_message
+        /// field.
+        ///
+        /// Applications, which need to send messages longer than 255 octets, should use the
+        /// message_payload TLV. When used in the context of a submit_sm PDU, the sm_length field
+        /// should be set to zero.
         MessagePayload = 0x0424,
         DeliveryFailureReason = 0x0425,
         MoreMessagesToSend = 0x0426,

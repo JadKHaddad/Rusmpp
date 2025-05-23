@@ -43,7 +43,7 @@ macro_rules! declare_bind {
         }
 
         impl $name {
-            pub fn new(
+            pub const fn new(
                 system_id: COctetString<1, 16>,
                 password: COctetString<1, 9>,
                 system_type: COctetString<1, 13>,
@@ -93,17 +93,17 @@ macro_rules! declare_bind {
                 self
             }
 
-            pub fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
+            pub const fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
                 self.inner.interface_version = interface_version;
                 self
             }
 
-            pub fn addr_ton(mut self, addr_ton: Ton) -> Self {
+            pub const fn addr_ton(mut self, addr_ton: Ton) -> Self {
                 self.inner.addr_ton = addr_ton;
                 self
             }
 
-            pub fn addr_npi(mut self, addr_npi: Npi) -> Self {
+            pub const fn addr_npi(mut self, addr_npi: Npi) -> Self {
                 self.inner.addr_npi = addr_npi;
                 self
             }

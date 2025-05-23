@@ -112,7 +112,7 @@ impl ConnectionBuilder {
         self
     }
 
-    pub fn max_command_length(mut self, max_command_length: usize) -> Self {
+    pub const fn max_command_length(mut self, max_command_length: usize) -> Self {
         self.max_command_length = max_command_length;
         self
     }

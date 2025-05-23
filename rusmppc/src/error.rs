@@ -3,6 +3,7 @@ use std::time::Duration;
 use rusmpp::{
     Command,
     codec::tokio::{DecodeError, EncodeError},
+    session::SessionState,
 };
 
 #[non_exhaustive]
@@ -14,6 +15,8 @@ pub enum Error {
     Io(#[source] std::io::Error),
     #[error("Connection closed")]
     ConnectionClosed,
+    #[error("Invalid session state: {session_state:?}")]
+    InvalidSessionState { session_state: SessionState },
     #[error("Protocol encode error: {0}")]
     Encode(#[source] EncodeError),
     #[error("Protocol decode error: {0}")]
@@ -27,11 +30,16 @@ pub enum Error {
     #[error("Request timed out")]
     Timeout,
     // This happen when we get any other status code than esmeRok.
-    #[error("Unexpected response from the server: request: {request:?}, response: {response:?}")]
-    UnexpectedResponse {
-        request: Box<Command>,
-        response: Box<Command>,
-    },
+    #[error("Unexpected response from the server: response: {response:?}")]
+    UnexpectedResponse { response: Box<Command> },
+}
+
+impl Error {
+    pub(crate) fn unexpected_response(response: Command) -> Self {
+        Self::UnexpectedResponse {
+            response: Box::new(response),
+        }
+    }
 }
 
 impl From<DecodeError> for Error {

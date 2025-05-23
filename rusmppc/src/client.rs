@@ -1,7 +1,7 @@
 use std::{ops::Deref, sync::Arc, time::Duration};
 
 use rusmpp::{
-    Command, CommandStatus, Pdu,
+    Command, CommandId, CommandStatus, Pdu,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm},
     session::SessionState,
 };
@@ -90,25 +90,57 @@ impl ClientInner {
         self.session_state_holder.next_sequence_number()
     }
 
+    fn session_state(&self) -> SessionState {
+        self.session_state_holder.session_state()
+    }
+
+    fn set_session_state(&self, session_state: SessionState) {
+        self.session_state_holder.set_session_state(session_state)
+    }
+
     pub(crate) async fn bind_transmitter(
         &self,
         bind: impl Into<BindTransmitter>,
     ) -> Result<Command, Error> {
-        self.bind(bind.into()).await
+        let response = self.bind(bind.into()).await?;
+
+        let response = response
+            .is_ok_and_matches(CommandId::BindTransmitterResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTx);
+
+        Ok(response)
     }
 
     pub(crate) async fn bind_receiver(
         &self,
         bind: impl Into<BindReceiver>,
     ) -> Result<Command, Error> {
-        self.bind(bind.into()).await
+        let response = self.bind(bind.into()).await?;
+
+        let response = response
+            .is_ok_and_matches(CommandId::BindReceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundRx);
+
+        Ok(response)
     }
 
     pub(crate) async fn bind_transceiver(
         &self,
         bind: impl Into<BindTransceiver>,
     ) -> Result<Command, Error> {
-        self.bind(bind.into()).await
+        let response = self.bind(bind.into()).await?;
+
+        let response = response
+            .is_ok_and_matches(CommandId::BindTransceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTrx);
+
+        Ok(response)
     }
 
     // TODO: bind is different than request just in the timeout
@@ -154,6 +186,17 @@ impl ClientInner {
     }
 
     pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<Command, Error> {
-        self.request(submit_sm.into()).await
+        let session_state = self.session_state();
+
+        let response = match session_state {
+            SessionState::BoundTx | SessionState::BoundTrx => {
+                self.request(submit_sm.into()).await?
+            }
+            session_state => return Err(Error::InvalidSessionState { session_state }),
+        };
+
+        response
+            .is_ok_and_matches(CommandId::SubmitMultiResp)
+            .map_err(Error::unexpected_response)
     }
 }

@@ -71,10 +71,12 @@ where
         let (reader, writer) = tokio::io::split(self.socket);
         let (mut intern_tx, mut intern_rx) = mpsc::unbounded::<Command>();
         let (mut intern_actions_tx, mut intern_actions_rx) = mpsc::unbounded::<Action>();
+        let (intern_unbind_tx, intern_unbind_rx) = oneshot::channel::<()>();
 
         let mut smpp_reader = FramedRead::new(reader, CommandCodec::new());
         let mut smpp_writer = FramedWrite::new(writer, CommandCodec::new());
 
+        let reader_session_state_holder = self.session_state_holder.clone();
         let writer_session_state_holder = self.session_state_holder.clone();
         let enquire_link_session_state_holder = self.session_state_holder;
 
@@ -89,6 +91,7 @@ where
         let enquire_link_token = cancellation_token;
 
         let enquire_link_timeout = self.config.timeouts.enquire_link;
+        let response_timeout = self.config.timeouts.response;
 
         let responses: Responses = Arc::new(parking_lot::Mutex::new(HashMap::new()));
         let reader_responses = responses.clone();
@@ -191,12 +194,41 @@ where
                                 tracing::trace!(target: TARGET, ?command, "Received command");
 
                                 if let CommandId::EnquireLink = command.id() {
+                                    tracing::trace!(target: TARGET, "Enquire link received");
+
                                     let command = Command::builder()
-                                        .status(command.status())
+                                        .status(CommandStatus::EsmeRok)
                                         .sequence_number(command.sequence_number())
                                         .pdu(Pdu::EnquireLinkResp);
 
                                     let _ = intern_tx.send(command).await;
+
+                                    continue
+                                }
+
+                                if let CommandId::Unbind = command.id() {
+                                    tracing::trace!(target: TARGET, "Unbind received");
+
+                                    reader_session_state_holder.set_session_state(SessionState::Unbound);
+
+                                    let command = Command::builder()
+                                        .status(CommandStatus::EsmeRok)
+                                        .sequence_number(command.sequence_number())
+                                        .pdu(Pdu::UnbindResp);
+
+                                    let _ = intern_tx.send(command).await;
+
+                                    continue
+                                }
+
+                                // The writer has sent an unbind and now waiting for the response
+                                if let CommandId::UnbindResp = command.id() {
+                                    tracing::trace!(target: TARGET, "Unbind response received");
+
+                                    // The writer is waiting for this to terminate gracefully
+                                    let _ = intern_unbind_tx.send(());
+
+                                    break;
                                 }
 
                                 let sequence_number = command.sequence_number();
@@ -212,7 +244,6 @@ where
                                         let _ = response.send(Ok(command));
                                     }
                                 }
-
                             }
                             Err(err) => {
                                 let err = Error::from(err);
@@ -242,6 +273,8 @@ where
                 tokio::select! {
                     _ = writer_token.cancelled() => {
                         tracing::debug!(target: TARGET, "Writer task cancelled");
+
+                        break;
                     },
                     command = intern_rx.next() => {
                         let Some(command) = command else {
@@ -252,13 +285,19 @@ where
 
                         tracing::trace!(target: TARGET, ?command, "Sending command");
 
-                        if let Err(err) = smpp_writer.send(command).await {
+                        if let Err(err) = smpp_writer.send(&command).await {
                             let err = Error::from(err);
 
                             tracing::error!(target: TARGET, ?err, "Error sending command");
 
                             let _ = writer_events_sink.send(Event::Error(err)).await;
 
+                            break;
+                        }
+
+                        // We received an Unbind request from server and we responded with unbind response
+                        // we should close the connection.
+                        if let CommandId::UnbindResp = command.id() {
                             break;
                         }
                     }
@@ -320,25 +359,53 @@ where
                 }
             }
 
+            let session_state = writer_session_state_holder.session_state();
+
+            match session_state {
+                SessionState::Unbound => {
+                    // Already received unbind request from server
+                    // Nothing to do here
+                }
+                _ => {
+                    // We unbind here
+
+                    writer_session_state_holder.set_session_state(SessionState::Unbound);
+
+                    let sequence_number = writer_session_state_holder.next_sequence_number();
+                    let unbind = Command::builder()
+                        .status(CommandStatus::EsmeRok)
+                        .sequence_number(sequence_number)
+                        .pdu(Pdu::Unbind);
+
+                    tracing::trace!(target: TARGET, "Sending unbind");
+
+                    if let Err(err) = smpp_writer.send(unbind).await {
+                        let err = Error::from(err);
+
+                        tracing::error!(target: TARGET, ?err, "Error sending command");
+
+                        let _ = writer_events_sink.send(Event::Error(err)).await;
+
+                        // At this point we don not really care if something wrong happens we are terminating
+                    }
+
+                    // Wait for an unbind response to terminate gracefully
+                    tracing::trace!(target: TARGET, "Waiting for unbind response");
+
+                    match tokio::time::timeout(response_timeout, intern_unbind_rx).await {
+                        Ok(_) => {
+                            tracing::debug!(target: TARGET, "Unbound successfully");
+                        }
+                        Err(_) => {
+                            tracing::warn!(target: TARGET, "Unbind response timed out");
+                        }
+                    }
+                }
+            }
+
             writer_token.cancel();
 
             writer_session_state_holder.set_session_state(SessionState::Closed);
-
-            let sequence_number = writer_session_state_holder.next_sequence_number();
-            let unbind = Command::builder()
-                .status(CommandStatus::EsmeRok)
-                .sequence_number(sequence_number)
-                .pdu(Pdu::Unbind);
-
-            tracing::trace!(target: TARGET, ?unbind, "Sending unbind");
-
-            if let Err(err) = smpp_writer.send(unbind).await {
-                let err = Error::from(err);
-
-                tracing::error!(target: TARGET, ?err, "Error sending command");
-
-                let _ = writer_events_sink.send(Event::Error(err)).await;
-            }
 
             tracing::debug!(target: TARGET, "Writer task terminated");
         });

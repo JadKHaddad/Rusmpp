@@ -122,6 +122,8 @@ pub(crate) mod utils;
 pub mod decode;
 pub mod encode;
 
+pub mod fields;
+
 #[cfg(test)]
 pub(crate) mod tests;
 

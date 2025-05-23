@@ -62,11 +62,11 @@ impl ::rusmpp::decode::DecodeWithLength for SubmitMulti {
         let size = 0;
         let (other, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "other",
+            ::rusmpp::fields::SmppField::other,
         )?;
         let (number_of_dests, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "number_of_dests",
+            ::rusmpp::fields::SmppField::number_of_dests,
         )?;
         let (dest_address, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::counted_move(
@@ -74,7 +74,7 @@ impl ::rusmpp::decode::DecodeWithLength for SubmitMulti {
                 number_of_dests as usize,
                 size,
             ),
-            "dest_address",
+            ::rusmpp::fields::SmppField::dest_address,
         )?;
         Ok((
             Self {

@@ -49,7 +49,7 @@ impl ::rusmpp::decode::DecodeWithLength for BroadcastAreaIdentifier {
         let size = 0;
         let (format, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "format",
+            ::rusmpp::fields::SmppField::format,
         )?;
         let (area, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeWithLengthExt::decode_move(
@@ -57,7 +57,7 @@ impl ::rusmpp::decode::DecodeWithLength for BroadcastAreaIdentifier {
                 length.saturating_sub(size),
                 size,
             ),
-            "area",
+            ::rusmpp::fields::SmppField::area,
         )?;
         Ok((Self { format, area }, size))
     }

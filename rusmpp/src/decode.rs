@@ -1,5 +1,7 @@
 //! Traits for decoding `SMPP` values.
 
+use crate::fields::SmppField;
+
 /// Trait for decoding `SMPP` values from a slice.
 ///
 /// # Implementation
@@ -380,7 +382,7 @@ impl DecodeError {
     #[inline]
     #[cold]
     #[cfg(feature = "verbose")]
-    pub fn with_source(mut self, field: &'static str, error: DecodeError) -> Self {
+    pub fn with_source(mut self, field: SmppField, error: DecodeError) -> Self {
         self.source = Some(alloc::boxed::Box::new(DecodeErrorSource { field, error }));
         self
     }
@@ -388,7 +390,7 @@ impl DecodeError {
     #[inline]
     #[cold]
     #[cfg(feature = "verbose")]
-    pub fn as_source(self, field: &'static str) -> DecodeError {
+    pub fn as_source(self, field: SmppField) -> DecodeError {
         DecodeError::new(self.kind).with_source(field, self)
     }
 
@@ -422,7 +424,7 @@ impl DecodeError {
 #[derive(Debug)]
 #[cfg(feature = "verbose")]
 pub struct DecodeErrorSource {
-    field: &'static str,
+    field: SmppField,
     error: DecodeError,
 }
 
@@ -456,7 +458,7 @@ pub enum OctetStringDecodeError {
 #[cfg(feature = "verbose")]
 impl core::fmt::Display for DecodeErrorSource {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(f, "field: {}, error: {}", self.field, self.error)
+        write!(f, "field: {:?}, error: {}", self.field, self.error)
     }
 }
 
@@ -559,12 +561,12 @@ impl<T, E> DecodeResultExt<T, E> for Result<(T, usize), E> {
 }
 
 pub(crate) trait DecodeErrorExt<T> {
-    fn map_as_source(self, field: &'static str) -> Result<T, DecodeError>;
+    fn map_as_source(self, field: SmppField) -> Result<T, DecodeError>;
 }
 
 impl<T> DecodeErrorExt<T> for Result<T, DecodeError> {
     #[cold]
-    fn map_as_source(self, _field: &'static str) -> Result<T, DecodeError> {
+    fn map_as_source(self, _field: SmppField) -> Result<T, DecodeError> {
         #[cfg(feature = "verbose")]
         return self.map_err(|error| error.as_source(_field));
 

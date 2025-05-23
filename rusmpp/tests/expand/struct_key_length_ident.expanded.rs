@@ -55,11 +55,11 @@ impl ::rusmpp::decode::Decode for Tlv {
         let size = 0;
         let (tag, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "tag",
+            ::rusmpp::fields::SmppField::tag,
         )?;
         let (value_length, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "value_length",
+            ::rusmpp::fields::SmppField::value_length,
         )?;
         let (value, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
                 ::rusmpp::decode::DecodeWithKeyExt::optional_length_checked_decode_move(
@@ -68,7 +68,7 @@ impl ::rusmpp::decode::Decode for Tlv {
                     value_length as usize,
                     size,
                 ),
-                "value",
+                ::rusmpp::fields::SmppField::value,
             )?
             .map(|(this, size)| (Some(this), size))
             .unwrap_or((None, size));

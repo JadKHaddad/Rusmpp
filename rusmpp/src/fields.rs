@@ -1,0 +1,76 @@
+//! `SMPP` Fields.
+
+// TODO reorder alphabetically
+
+/// Every field defined in the `SMPP` protocol and extra fields defined in this library.
+///
+/// Used for verbose error handling while decoding invalid pdus, if the `verbose` feature is enabled.
+///
+/// # Example
+/// TODO
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+pub enum SmppField {
+    source_addr_ton,
+    source_addr_npi,
+    source_addr,
+    esme_addr_ton,
+    esme_addr_npi,
+    esme_addr,
+    ms_availability_status,
+    system_id,
+    sc_interface_version,
+    password,
+    system_type,
+    interface_version,
+    addr_ton,
+    addr_npi,
+    address_range,
+    message_id,
+    tlvs,
+    service_type,
+    priority_flag,
+    schedule_delivery_time,
+    validity_period,
+    replace_if_present_flag,
+    data_coding,
+    sm_default_msg_id,
+    format,
+    area,
+    type_of_network,
+    encoding_content_type,
+    unit,
+    value,
+    dest_addr_ton,
+    dest_addr_npi,
+    destination_addr,
+    dl_name,
+    session_number,
+    sequence_number,
+    validity_behavior,
+    validity_information,
+    units_of_time,
+    number_of_time_units,
+    tag,
+    addr,
+    error_status_code,
+    network_type,
+    error_code,
+    value_length,
+    esm_class,
+    registered_delivery,
+    protocol_id,
+    sm_length,
+    short_message,
+    user_message_reference,
+    final_date,
+    message_state,
+    message_payload,
+    number_of_dests,
+    dest_address,
+    no_unsuccess,
+    unsuccess_sme,
+    id,
+    status,
+    pdu,
+}

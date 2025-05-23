@@ -67,15 +67,15 @@ impl ::rusmpp::decode::DecodeWithLength for Command {
         let size = 0;
         let (command_id, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "command_id",
+            ::rusmpp::fields::SmppField::command_id,
         )?;
         let (command_status, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "command_status",
+            ::rusmpp::fields::SmppField::command_status,
         )?;
         let (sequence_number, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "sequence_number",
+            ::rusmpp::fields::SmppField::sequence_number,
         )?;
         let (pdu, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
                 ::rusmpp::decode::DecodeWithKeyOptionalExt::decode_move(
@@ -84,7 +84,7 @@ impl ::rusmpp::decode::DecodeWithLength for Command {
                     length.saturating_sub(size),
                     size,
                 ),
-                "pdu",
+                ::rusmpp::fields::SmppField::pdu,
             )?
             .map(|(this, size)| (Some(this), size))
             .unwrap_or((None, size));

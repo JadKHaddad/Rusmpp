@@ -9,8 +9,11 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TlvTag {
-        /// The subcomponent in the destination device for which the
-        /// user data is intended.
+        /// The subcomponent in the destination device for which the user data is intended.
+        ///
+        /// The dest_addr_subunit parameter is used to route messages when received by a mobile
+        /// station, for example to a smart card in the mobile station or to an external device connected
+        /// to the mobile station.
         DestAddrSubunit = 0x0005,
         DestNetworkType = 0x0006,
         DestBearerType = 0x0007,

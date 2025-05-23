@@ -384,6 +384,9 @@ crate::create! {
         ///
         /// The dest_addr_np_information TLV is used to carry number portability information.
         DestAddrNpInformation = 0x0612,
+        /// E.164 information to the operator country code
+        ///
+        /// The dest_addr_np_country TLV is used to carry E.164 information relating to the operator country code.
         DestAddrNpCountry = 0x0613,
         DisplayTime = 0x1201,
         SmsSignal = 0x1203,

@@ -1,13 +1,12 @@
 //! `SMPP` Fields.
 
+// TODO: Example: how can I use the test as an example if it's behind a feature?
+
 /// Every field defined in the `SMPP` protocol and extra fields defined in this library.
 ///
 /// Used for verbose error handling while decoding invalid pdus, if the `verbose` feature is enabled.
-///
-/// # Example
-/// TODO
 #[allow(non_camel_case_types)]
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub enum SmppField {
     addr,
     addr_npi,
@@ -71,4 +70,62 @@ pub enum SmppField {
     validity_period,
     value,
     value_length,
+}
+
+#[cfg(test)]
+mod tests {
+
+    #[test]
+    #[cfg(feature = "verbose")]
+    fn invalid_password() {
+        use crate::{Command, decode::DecodeWithLength, fields::SmppField};
+
+        // bind_transmitter bytes
+        #[rustfmt::skip]
+        let bytes: [u8; 46] = [
+            // Header
+            0x00, 0x00, 0x00, 0x2E, // Command Length (46 bytes total)
+            0x00, 0x00, 0x00, 0x02, // Command ID (bind_transmitter)
+            0x00, 0x00, 0x00, 0x00, // Command Status (0 - OK)
+            0x00, 0x00, 0x00, 0x01, // Sequence Number (1)
+
+            // Body
+            // system_id: "SMPP3TEST\0"
+            0x53, 0x4D, 0x50, 0x50, 0x33, 0x54, 0x45, 0x53, 0x54, 0x00,
+            // password: "secret08\0" WRONG! not null terminated!
+            0x73, 0x65, 0x63, 0x72, 0x65, 0x74, 0x30, 0x38,
+            // system_type: "SUBMIT1" 
+            0x53, 0x55, 0x42, 0x4D, 0x49, 0x54, 0x31, 0x00,
+            // interface_version
+            0x50, 
+            // addr_ton
+            0x01, 
+            // addr_npi
+            0x01, 
+            // addr_range
+            0x00,
+        ];
+
+        if let Err(err) = Command::decode(&bytes[4..], 46 - 4) {
+            if let Some(source) = err.source() {
+                if let SmppField::pdu = source.field() {
+                    if let Some(source) = source.error().source() {
+                        if let SmppField::password = source.field() {
+                            // Password is invalid!
+                        } else {
+                            panic!("Unexpected field inside PDU");
+                        }
+                    } else {
+                        panic!("No source inside PDU error");
+                    }
+                } else {
+                    panic!("Top-level field is not PDU");
+                }
+            } else {
+                panic!("No source in top-level error");
+            }
+        } else {
+            panic!("No error")
+        }
+    }
 }

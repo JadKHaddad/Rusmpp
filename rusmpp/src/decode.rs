@@ -395,6 +395,12 @@ impl DecodeError {
     }
 
     #[inline]
+    #[cfg(feature = "verbose")]
+    pub fn source(&self) -> Option<&DecodeErrorSource> {
+        self.source.as_deref()
+    }
+
+    #[inline]
     pub const fn kind(&self) -> DecodeErrorKind {
         self.kind
     }
@@ -426,6 +432,17 @@ impl DecodeError {
 pub struct DecodeErrorSource {
     field: SmppField,
     error: DecodeError,
+}
+
+#[cfg(feature = "verbose")]
+impl DecodeErrorSource {
+    pub const fn field(&self) -> SmppField {
+        self.field
+    }
+
+    pub const fn error(&self) -> &DecodeError {
+        &self.error
+    }
 }
 
 /// Kind of [`DecodeError`].
@@ -501,7 +518,7 @@ impl core::error::Error for DecodeError {
     }
 
     fn cause(&self) -> Option<&dyn core::error::Error> {
-        self.source()
+        core::error::Error::source(self)
     }
 }
 

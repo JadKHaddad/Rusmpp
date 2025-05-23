@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, time::Duration};
+use std::{fmt, net::SocketAddr, time::Duration};
 
 use futures::{Stream, channel::mpsc::unbounded};
 use rusmpp::{
@@ -66,7 +66,13 @@ impl ConnectionBuilder {
 
     pub async fn connect(
         self,
-    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
+    ) -> Result<
+        (
+            Client,
+            impl Stream<Item = Event> + Unpin + fmt::Debug + 'static,
+        ),
+        Error,
+    > {
         tracing::debug!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connecting");
 
         let stream = TcpStream::connect(self.socket_addr)
@@ -75,17 +81,23 @@ impl ConnectionBuilder {
 
         tracing::trace!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connected");
 
-        self.bind(stream).await
+        self.assume_connected(stream).await
     }
 
     /// Takes a connected stream and performs the bind operation.
     ///
-    /// This function is separated from [`Self::connect`](Self::connect) to test the library
+    /// This function is separated from [`Self::connect`] to test the library
     /// without actually connecting to a server.
-    async fn bind<S>(
+    pub(crate) async fn assume_connected<S>(
         self,
         stream: S,
-    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error>
+    ) -> Result<
+        (
+            Client,
+            impl Stream<Item = Event> + Unpin + fmt::Debug + 'static,
+        ),
+        Error,
+    >
     where
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {

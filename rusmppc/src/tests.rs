@@ -4,7 +4,11 @@ use std::{
     time::Duration,
 };
 
-use crate::ConnectionBuilder;
+use rusmpp::{CommandId, pdus::SubmitSm};
+use server::run_delay_server;
+use tokio_stream::StreamExt;
+
+use crate::{ConnectionBuilder, Event, error::Error};
 
 mod server;
 
@@ -18,7 +22,6 @@ pub fn init_tracing() {
 #[tokio::test]
 #[ignore = "Integration test"]
 async fn bind() {
-    use futures::StreamExt;
     use rusmpp::{
         pdus::SubmitSm,
         types::{COctetString, OctetString},
@@ -26,6 +29,7 @@ async fn bind() {
     };
 
     init_tracing();
+
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
 
     let (client, mut events) = ConnectionBuilder::new(socket_addr)
@@ -76,4 +80,66 @@ async fn bind() {
     //
     // To ensure graceful shutdown, drop all clients and await the events stream
     let _ = events.await;
+}
+
+#[tokio::test]
+async fn bind_timeout() {
+    init_tracing();
+
+    let (_server, client) = tokio::io::duplex(1024);
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let error = ConnectionBuilder::new(socket_addr)
+        .response_timeout(Duration::from_millis(500))
+        .assume_connected(client)
+        .await
+        .unwrap_err();
+
+    assert!(matches!(error, Error::Timeout));
+
+    // TODO: I have no idea how to check if all tasks are terminated.
+    // See the logs to check if the tasks terminated.
+    tokio::time::sleep(Duration::from_millis(500)).await;
+}
+
+#[tokio::test]
+async fn cancel_request_future() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        run_delay_server(server, Duration::from_millis(500)).await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+        .response_timeout(Duration::from_millis(1000))
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    let future = client.submit_sm(SubmitSm::builder().build());
+
+    tokio::select! {
+        _ = tokio::time::sleep(Duration::from_millis(100)) => {
+            tracing::debug!("Canceling request future");
+        }
+        _ = future => {}
+    }
+
+    // The submit sm response should be sent to the events stream
+
+    let Some(event) = events.next().await else {
+        panic!("No event received");
+    };
+
+    let Event::Command(command) = event else {
+        panic!("Expected command event, got {:?}", event);
+    };
+
+    assert!(matches!(command.id(), CommandId::SubmitSmResp));
+    assert_eq!(command.sequence_number(), 2);
 }

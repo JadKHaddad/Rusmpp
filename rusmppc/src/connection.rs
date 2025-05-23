@@ -178,10 +178,15 @@ where
                                         }
                                     },
                                     Ok(Err(_)) => {
-                                        unreachable!();
+                                        // Failed to send enquire link
+
+                                        break
                                     }
                                     Err(_) => {
-                                        unreachable!();
+                                        // Reader dropped and writer dropped
+                                        // responses map is dropped
+
+                                        break
                                     }
                                 }
                             }
@@ -262,14 +267,22 @@ where
                                 let sequence_number = command.sequence_number();
 
                                 let response = reader_responses.lock().remove(&sequence_number);
+
                                 match response {
                                     None => {
-                                        tracing::trace!(target: TARGET, ?command, "No response for command");
+                                        tracing::warn!(target: TARGET, "No client waiting for response");
 
                                         let _ = reader_events_sink.send(Event::Command(command)).await;
                                     },
                                     Some(response) => {
-                                        let _ = response.send(Ok(command));
+                                        tracing::trace!(target: TARGET, "Found client waiting for response");
+
+                                        if let Err(command) = response.send(Ok(command)){
+                                            tracing::warn!(target: TARGET, "Failed to send response to client");
+                                            tracing::trace!(target: TARGET, "Piping command to events stream");
+
+                                            let _ = reader_events_sink.send(Event::Command(command.expect("Must be ok"))).await;
+                                        }
                                     }
                                 }
                             }
@@ -400,8 +413,11 @@ where
                     // End of stream was reached
                     // Session state was set to closed and the token has been cancelled
                 }
-                SessionState::Unbound => {
+                SessionState::Unbound | SessionState::Open => {
                     // Already received unbind request from server
+                    // Or
+                    // We were not bound to begin with
+
                     // Terminating normally
 
                     writer_token.cancel();

@@ -15,7 +15,7 @@ impl SessionStateHolder {
         Self {
             inner: Arc::new(SessionStateInner {
                 session_state: parking_lot::RwLock::new(session_state),
-                sequence_number: AtomicU32::new(0),
+                sequence_number: AtomicU32::new(1),
             }),
         }
     }

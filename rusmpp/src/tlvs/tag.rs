@@ -125,6 +125,12 @@ crate::create! {
         /// The source_port parameter is used to indicate the application port number associated with
         /// the source address of the message.
         SourcePort = 0x020A,
+        /// Indicates the application port number associated with the
+        /// destination address of the message. This parameter
+        /// should be present for WAP applications.
+        ///
+        /// The dest_port parameter is used to indicate the application port number associated with the
+        /// destination address of the message.
         DestPort = 0x020B,
         SarMsgRefNum = 0x020C,
         LanguageIndicator = 0x020D,

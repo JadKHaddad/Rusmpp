@@ -91,6 +91,9 @@ crate::create! {
         /// The ms_msg_wait_facilities can also specify the type of message associated with the
         /// message waiting indication.
         MsMsgWaitFacilities = 0x0030,
+        /// Indicates the level of privacy associated with the message.
+        ///
+        /// The privacy_indicator indicates the privacy level of the message.
         PrivacyIndicator = 0x0201,
         SourceSubaddress = 0x0202,
         DestSubaddress = 0x0203,

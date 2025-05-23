@@ -71,6 +71,14 @@ crate::create! {
         /// The additional_status_info_text parameter gives an ASCII textual description of the meaning
         /// of a response PDU. It is to be used by an implementation to allow easy diagnosis of problems
         AdditionalStatusInfoText = 0x001D,
+        /// MC message ID of message being receipted. Should be
+        /// present for MC Delivery Receipts and Intermediate
+        /// Notifications.
+        ///
+        /// The receipted_message_id parameter indicates the ID of the message being receipted in a
+        /// MC Delivery Receipt. This is the opaque MC message identifier that was returned in the
+        /// message_id parameter of the SMPP response PDU that acknowledged the submission of the
+        /// original message.
         ReceiptedMessageId = 0x001E,
         MsMsgWaitFacilities = 0x0030,
         PrivacyIndicator = 0x0201,

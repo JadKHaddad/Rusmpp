@@ -281,6 +281,11 @@ crate::create! {
         /// of gauging the congestion. Reaction to a variation in congestion_state would involve
         /// increasing/decreasing the rate as required to maintain the balance in the Optimum range
         CongestionState = 0x0428,
+        /// This parameter is used to identify the required USSD
+        /// Service type when interfacing to a USSD system.
+        ///
+        /// The ussd_service_op parameter is required to define the USSD service operation when
+        /// SMPP is being used as an interface to a (GSM) USSD system.
         UssdServiceOp = 0x0501,
         BroadcastChannelIndicator = 0x0600,
         BroadcastContentType = 0x0601,

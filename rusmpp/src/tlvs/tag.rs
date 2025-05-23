@@ -46,6 +46,10 @@ crate::create! {
         /// The source_network_type parameter is used to indicate the network type associated with the
         /// device that originated the message.
         SourceNetworkType = 0x000E,
+        /// The correct bearer type for delivering the user data to the destination
+        ///
+        ///The source_bearer_type parameter indicates the wireless bearer over which the message
+        /// originated.
         SourceBearerType = 0x000F,
         SourceTelematicsId = 0x0010,
         QosTimeToLive = 0x0017,

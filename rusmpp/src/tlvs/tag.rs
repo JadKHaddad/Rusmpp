@@ -230,6 +230,10 @@ crate::create! {
         /// If the MC does not include the parameter in the alert_notification operation, the ESME should
         /// assume that the MS is in an “available” state.
         MsAvailabilityStatus = 0x0422,
+        /// Error code specific to a wireless network.
+        ///
+        /// The network_error_code parameter is used to indicate the actual network error code for a
+        /// delivery failure. The network error code is technology specific.
         NetworkErrorCode = 0x0423,
         MessagePayload = 0x0424,
         DeliveryFailureReason = 0x0425,

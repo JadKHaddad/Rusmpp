@@ -142,6 +142,9 @@ crate::create! {
         /// terminated concatenated short message, with the exception of those parameters for which it
         /// makes sense to change them (such as the user data in the short_message parameter).
         SarMsgRefNum = 0x020C,
+        /// Indicates the language of an alphanumeric text message.
+        ///
+        /// The language_indicator parameter is used to indicate the language of the short message.
         LanguageIndicator = 0x020D,
         SarTotalSegments = 0x020E,
         SarSegmentSeqnum = 0x020F,

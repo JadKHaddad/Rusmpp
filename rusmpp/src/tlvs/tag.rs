@@ -272,6 +272,14 @@ crate::create! {
         /// to the ESME the final message state for a MC Delivery Receipt. The message_state TLV is
         /// also returned by the MC to the ESME as part of the query_broadcast_sm_resp PDU.
         MessageState = 0x0427,
+        /// The congestion_state parameter is used to pass congestion status information between
+        /// ESME and MC as a means of providing flow control and congestion avoidance capabilities to
+        /// the sending peer. The TLV can be used in any SMPP operation response PDU as a means
+        /// of passing congestion status from one peer to another. Typical uses of this would be in
+        /// submit_sm/submit_sm_resp sequences where an ESME would drive a batch of submissions
+        /// at a high rate and use continual tracking of the returned congestion_state values as a means
+        /// of gauging the congestion. Reaction to a variation in congestion_state would involve
+        /// increasing/decreasing the rate as required to maintain the balance in the Optimum range
         CongestionState = 0x0428,
         UssdServiceOp = 0x0501,
         BroadcastChannelIndicator = 0x0600,

@@ -407,6 +407,13 @@ crate::create! {
         /// The alert_on_message_delivery parameter is set to instruct a MS to alert the user (in a MS
         /// implementation specific manner) when the short message arrives at the MS.
         AlertOnMessageDelivery = 0x130C,
+        /// The MS user’s reply method to an SMS delivery message
+        /// received from the network is indicated and controlled by
+        /// this parameter.
+        ///
+        /// The its_reply_type parameter is a required parameter for the CDMA Interactive Teleservice
+        /// as defined by the Korean PCS carriers [KORITS]. It indicates and controls the MS user’s
+        /// reply method to an SMS delivery message received from the ESME.
         ItsReplyType = 0x1380,
         ItsSessionInfo = 0x1383,
         Other(u16),

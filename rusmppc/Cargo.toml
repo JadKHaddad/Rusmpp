@@ -16,7 +16,13 @@ rusmpp = { path = "../rusmpp", default-features = false, features = [
     "tracing",
     "verbose",
 ] }
-tokio = { version = "1.45.0", features = ["rt", "net", "sync"] }
+tokio = { version = "1.45.0", features = [
+    "rt",
+    "net",
+    "sync",
+    "macros",
+    "io-util",
+] }
 tokio-stream = "0.1.17"
 tokio-util = { version = "0.7.15", features = ["codec"] }
 tracing = "0.1.41"

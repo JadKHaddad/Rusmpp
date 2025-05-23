@@ -110,14 +110,14 @@ where
         tokio::spawn(async move {
             const TARGET: &str = "rusmppc::connection::enquire_link";
 
-            tracing::trace!(target: TARGET, "Enquire link task started");
+            tracing::trace!(target: TARGET, "Started");
 
             loop {
                 tokio::select! {
                     _ = enquire_link_token.cancelled() => {
-                        tracing::debug!(target: TARGET, "Enquire link task cancelled");
+                        tracing::debug!(target: TARGET, "Cancelled");
 
-                        break;
+                        break
                     },
                     _ = tokio::time::sleep(self.config.timeouts.enquire_link) => {
                         tracing::trace!(target: TARGET, "Sending enquire link");
@@ -142,53 +142,53 @@ where
                                             .send(Event::Error(Error::EnquireLinkTimeout { timeout: enquire_link_timeout }))
                                             .await;
 
-                                    break;
+                                    break
                                 },
                                 Ok(result) => match result {
                                     Ok(Ok(command)) => {
-                                        if let Some(Pdu::EnquireLinkResp) = command.pdu() {
-                                            if let CommandStatus::EsmeRok = command.status() {
+                                        match command.is_ok_and_matches(CommandId::EnquireLinkResp) {
+                                            Ok(_) => {
                                                 tracing::trace!(target: TARGET, "Enquire link response received");
 
-                                                continue;
-                                            }
+                                                continue
+                                            },
+                                            Err(command) => {
+                                                tracing::error!(target: TARGET, ?command, "Unexpected enquire link response");
+
+                                                let _ = enquire_link_events_sink
+                                                    .send(Event::Error(Error::EnquireLinkFailed{response: Box::new(command)}))
+                                                    .await;
+
+                                                break
+                                            },
                                         }
-
-                                        tracing::error!(target: TARGET, ?command, "Unexpected enquire link response");
-
-                                        let _ = enquire_link_events_sink
-                                            .send(Event::Error(Error::EnquireLinkFailed{response: Box::new(command)}))
-                                            .await;
-
-                                        break;
                                     },
                                     Ok(Err(_)) => {
                                         unreachable!();
                                     }
                                     Err(_) => {
-                                       unreachable!();
+                                        unreachable!();
                                     }
                                 }
                             }
-
                     }
                 }
             }
 
             enquire_link_token.cancel();
 
-            tracing::debug!(target: TARGET, "Enquire link task terminated");
+            tracing::debug!(target: TARGET, "Terminated");
         });
 
         tokio::spawn(async move {
             const TARGET: &str = "rusmppc::connection::reader";
 
-            tracing::trace!(target: TARGET, "Reader task started");
+            tracing::trace!(target: TARGET, "Started");
 
             loop {
                 tokio::select! {
                     _ = reader_token.cancelled() => {
-                        tracing::debug!(target: TARGET, "Reader task cancelled");
+                        tracing::debug!(target: TARGET, "Cancelled");
 
                         break;
                     },
@@ -196,7 +196,7 @@ where
                         let Some(command) = command else {
                             tracing::debug!(target: TARGET, "End of stream");
 
-                            break;
+                            break
                         };
 
                         match command {
@@ -238,7 +238,7 @@ where
                                     // The writer is waiting for this to terminate gracefully
                                     let _ = intern_unbind_tx.send(());
 
-                                    break;
+                                    break
                                 }
 
                                 let sequence_number = command.sequence_number();
@@ -262,7 +262,7 @@ where
 
                                 let _ = reader_events_sink.send(Event::Error(err)).await;
 
-                                break;
+                                break
                             },
                         }
                     }
@@ -271,26 +271,28 @@ where
 
             reader_token.cancel();
 
-            tracing::debug!(target: TARGET, "Reader task terminated");
+            tracing::debug!(target: TARGET, "Terminated");
         });
 
         tokio::spawn(async move {
             const TARGET: &str = "rusmppc::connection::writer";
 
-            tracing::trace!(target: TARGET, "Writer task started");
+            tracing::trace!(target: TARGET, "Started");
 
             loop {
                 tokio::select! {
                     _ = writer_token.cancelled() => {
-                        tracing::debug!(target: TARGET, "Writer task cancelled");
+                        tracing::debug!(target: TARGET, "Cancelled");
 
-                        break;
+                        break
                     },
                     command = intern_rx.next() => {
-                        let Some(command) = command else {
-                            tracing::debug!(target: TARGET, "intern_tx dropped");
+                        const TARGET: &str = "rusmppc::connection::writer::intern";
 
-                            break;
+                        let Some(command) = command else {
+                            tracing::debug!(target: TARGET, "Tx dropped");
+
+                            break
                         };
 
                         tracing::trace!(target: TARGET, ?command, "Sending command");
@@ -302,20 +304,22 @@ where
 
                             let _ = writer_events_sink.send(Event::Error(err)).await;
 
-                            break;
+                            break
                         }
 
                         // We received an Unbind request from server and we responded with unbind response
                         // we should close the connection.
                         if let CommandId::UnbindResp = command.id() {
-                            break;
+                            break
                         }
                     }
                     action = actions_stream.next() => {
+                        const TARGET: &str = "rusmppc::connection::writer::actions";
+
                         let Some(action) = action else {
                             tracing::debug!(target: TARGET, "No more client actions");
 
-                            break;
+                            break
                         };
 
                         match action {
@@ -329,7 +333,7 @@ where
 
                                     let _ = response.send(Err(err));
 
-                                    break;
+                                    break
                                 }
 
                                 let sequence_number = command.sequence_number();
@@ -339,10 +343,12 @@ where
                         }
                     }
                     action = intern_actions_rx.next() => {
-                        let Some(action) = action else {
-                            tracing::debug!(target: TARGET, "intern_actions_tx dropped");
+                        const TARGET: &str = "rusmppc::connection::writer::intern::actions";
 
-                            break;
+                        let Some(action) = action else {
+                            tracing::debug!(target: TARGET, "Tx dropped");
+
+                            break
                         };
 
                         match action {
@@ -357,7 +363,7 @@ where
 
                                     let _ = response.send(Err(err));
 
-                                    break;
+                                    break
                                 }
 
                                 let sequence_number = command.sequence_number();
@@ -378,7 +384,6 @@ where
                 }
                 _ => {
                     // We unbind here
-
                     writer_session_state_holder.set_session_state(SessionState::Unbound);
 
                     let sequence_number = writer_session_state_holder.next_sequence_number();
@@ -417,7 +422,7 @@ where
 
             writer_session_state_holder.set_session_state(SessionState::Closed);
 
-            tracing::debug!(target: TARGET, "Writer task terminated");
+            tracing::debug!(target: TARGET, "Terminated");
         });
     }
 }

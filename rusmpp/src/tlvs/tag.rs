@@ -162,6 +162,13 @@ crate::create! {
         /// The sc_interface_version parameter is used to indicate the SMPP version supported by the
         /// MC. It is returned in the bind response PDUs.
         ScInterfaceVersion = 0x0210,
+        /// Defines the call-back number presentation and screening.
+        /// If this parameter is present and there are multiple
+        /// instances of the callback_num parameter then this
+        /// parameter must occur an equal number of instances and
+        /// the order of occurrence determines the particular
+        /// callback_num_pres_ind which corresponds to a particular
+        /// callback_num.
         CallbackNumPresInd = 0x0302,
         CallbackNumAtag = 0x0303,
         NumberOfMessages = 0x0304,

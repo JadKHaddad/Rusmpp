@@ -118,6 +118,12 @@ crate::create! {
         /// A response code set by the user in a User Acknowledgement/Reply message. The response
         /// codes are application specific.
         UserResponseCode = 0x0205,
+        /// Indicates the application port number associated with the
+        /// source address of the message. This parameter should be
+        /// present for WAP applications.
+        ///
+        /// The source_port parameter is used to indicate the application port number associated with
+        /// the source address of the message.
         SourcePort = 0x020A,
         DestPort = 0x020B,
         SarMsgRefNum = 0x020C,

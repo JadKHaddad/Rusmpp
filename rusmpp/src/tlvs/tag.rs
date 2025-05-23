@@ -66,7 +66,10 @@ crate::create! {
         ///
         /// The payload_type parameter defines the higher layer PDU type contained in the message payload.
         PayloadType = 0x0019,
-        
+        /// ASCII text giving a description of the meaning of the response.
+        ///
+        /// The additional_status_info_text parameter gives an ASCII textual description of the meaning
+        /// of a response PDU. It is to be used by an implementation to allow easy diagnosis of problems
         AdditionalStatusInfoText = 0x001D,
         ReceiptedMessageId = 0x001E,
         MsMsgWaitFacilities = 0x0030,

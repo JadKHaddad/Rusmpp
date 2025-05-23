@@ -1,3 +1,7 @@
+
+#![warn(missing_docs)]
+
+
 crate::create! {
     #[repr(u16)]
     @[skip_test]
@@ -5,6 +9,8 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     pub enum TlvTag {
+        /// The subcomponent in the destination device for which the
+        /// user data is intended.
         DestAddrSubunit = 0x0005,
         DestNetworkType = 0x0006,
         DestBearerType = 0x0007,

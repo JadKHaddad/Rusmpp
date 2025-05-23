@@ -51,6 +51,10 @@ crate::create! {
         ///The source_bearer_type parameter indicates the wireless bearer over which the message
         /// originated.
         SourceBearerType = 0x000F,
+        /// The telematics identifier associated with the source
+        ///
+        /// The source_telematics_id parameter indicates the type of telematics interface over which the
+        /// message originated.
         SourceTelematicsId = 0x0010,
         QosTimeToLive = 0x0017,
         PayloadType = 0x0019,

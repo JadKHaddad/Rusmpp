@@ -362,6 +362,11 @@ crate::create! {
         /// assignment and management authority. When this TLV is specified, it must be accompanied
         /// with a dest_node_id TLV Ref.4.8.4.27
         DestNetworkId = 0x060E,
+        /// Identification of source node
+        ///
+        /// The source_node_id is a unique number assigned within a single ESME or MC network and must
+        /// uniquely identify an originating node within the context of the MC or ESME. The content of a
+        /// source_node_id is comprised of decimal digits and is at the discretion of the owning ESME or MC.
         SourceNodeId = 0x060F,
         DestNodeId = 0x0610,
         DestAddrNpResolution = 0x0611,

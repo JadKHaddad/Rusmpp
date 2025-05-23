@@ -142,6 +142,7 @@ impl ClientInner {
     // TODO: test if this times out: everything should be dropped and the tasks should all terminate.
     async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
+
         let command = Command::builder()
             .status(CommandStatus::EsmeRok)
             .sequence_number(sequence_number)
@@ -168,6 +169,7 @@ impl ClientInner {
     //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
     async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
+
         let command = Command::builder()
             .status(CommandStatus::EsmeRok)
             .sequence_number(sequence_number)

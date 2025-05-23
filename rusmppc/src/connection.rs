@@ -72,6 +72,20 @@ where
     St: Stream<Item = Action> + Send + Unpin + 'static,
 {
     pub fn spawn(self) {
+        let (enquire_link, reader, writer) = self.futures();
+
+        tokio::spawn(enquire_link);
+        tokio::spawn(reader);
+        tokio::spawn(writer);
+    }
+
+    fn futures(
+        self,
+    ) -> (
+        impl Future<Output = ()>,
+        impl Future<Output = ()>,
+        impl Future<Output = ()>,
+    ) {
         let (reader, writer) = tokio::io::split(self.socket);
         let (mut intern_tx, mut intern_rx) = mpsc::unbounded::<Command>();
         let (mut intern_actions_tx, mut intern_actions_rx) = mpsc::unbounded::<Action>();
@@ -107,7 +121,7 @@ where
         let reader_responses = responses.clone();
         let writer_responses = responses;
 
-        tokio::spawn(async move {
+        let enquire_link = async move {
             const TARGET: &str = "rusmppc::connection::enquire_link";
 
             tracing::trace!(target: TARGET, "Started");
@@ -178,9 +192,9 @@ where
             enquire_link_token.cancel();
 
             tracing::debug!(target: TARGET, "Terminated");
-        });
+        };
 
-        tokio::spawn(async move {
+        let reader = async move {
             const TARGET: &str = "rusmppc::connection::reader";
 
             tracing::trace!(target: TARGET, "Started");
@@ -274,9 +288,9 @@ where
             reader_token.cancel();
 
             tracing::debug!(target: TARGET, "Terminated");
-        });
+        };
 
-        tokio::spawn(async move {
+        let writer = async move {
             const TARGET: &str = "rusmppc::connection::writer";
 
             tracing::trace!(target: TARGET, "Started");
@@ -410,10 +424,10 @@ where
                     tracing::trace!(target: TARGET, "Waiting for unbind response");
 
                     match tokio::time::timeout(response_timeout, intern_unbind_rx).await {
-                        Ok(_) => {
+                        Ok(Ok(_)) => {
                             tracing::debug!(target: TARGET, "Unbound successfully");
                         }
-                        Err(_) => {
+                        Ok(Err(_)) | Err(_) => {
                             tracing::warn!(target: TARGET, "Unbind response timed out");
                         }
                     }
@@ -425,6 +439,8 @@ where
             writer_session_state_holder.set_session_state(SessionState::Closed);
 
             tracing::debug!(target: TARGET, "Terminated");
-        });
+        };
+
+        (enquire_link, reader, writer)
     }
 }

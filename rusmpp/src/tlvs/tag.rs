@@ -388,6 +388,9 @@ crate::create! {
         ///
         /// The dest_addr_np_country TLV is used to carry E.164 information relating to the operator country code.
         DestAddrNpCountry = 0x0613,
+        /// Provides the receiving MS with a display time associated with the message.
+        ///
+        /// The display_time parameter is used to associate a display time of the short message on the MS.
         DisplayTime = 0x1201,
         SmsSignal = 0x1203,
         MsValidity = 0x1204,

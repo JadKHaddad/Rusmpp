@@ -80,6 +80,16 @@ crate::create! {
         /// message_id parameter of the SMPP response PDU that acknowledged the submission of the
         /// original message.
         ReceiptedMessageId = 0x001E,
+        /// This parameter controls the indication and specifies the
+        /// message type (of the message associated with the MWI)
+        /// at the mobile station.
+        ///
+        /// The ms_msg_wait_facilities parameter allows an indication to be provided to an MS that
+        /// there are messages waiting for the subscriber on systems on the PLMN. The indication can
+        /// be an icon on the MS screen or other MMI indication.
+        ///
+        /// The ms_msg_wait_facilities can also specify the type of message associated with the
+        /// message waiting indication.
         MsMsgWaitFacilities = 0x0030,
         PrivacyIndicator = 0x0201,
         SourceSubaddress = 0x0202,

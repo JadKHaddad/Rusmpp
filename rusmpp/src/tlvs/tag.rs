@@ -380,6 +380,9 @@ crate::create! {
         /// The dest_addr_np_resolution TLV is used to pass an indicator relating to a number portability
         /// query. If this TLV is omitted, the default value is assumed.
         DestAddrNpResolution = 0x0611,
+        /// Number portability information for the destination address
+        ///
+        /// The dest_addr_np_information TLV is used to carry number portability information.
         DestAddrNpInformation = 0x0612,
         DestAddrNpCountry = 0x0613,
         DisplayTime = 0x1201,

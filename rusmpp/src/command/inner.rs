@@ -127,8 +127,8 @@ impl Command {
 
     /// Checks if the command has an ok status [`CommandStatus::EsmeRok`].
     #[inline]
-    pub fn ok(self) -> Result<Self, Self> {
-        if self.status() == CommandStatus::EsmeRok {
+    pub const fn ok(self) -> Result<Self, Self> {
+        if matches!(self.status(), CommandStatus::EsmeRok) {
             return Ok(self);
         }
 

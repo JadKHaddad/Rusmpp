@@ -314,6 +314,11 @@ crate::create! {
         /// The broadcast_frequency_interval parameter specifies the frequency interval at which the
         /// broadcasts of a message should be repeated.
         BroadcastFrequencyInterval = 0x0605,
+        /// Identifies the target Broadcast Area(s) for the requested message broadcast.
+        /// This parameter can be included a number of times for multiple target Broadcast Areas(s).
+        ///
+        /// The broadcast_area_identifier defines the Broadcast Area in terms of a geographical
+        /// descriptor.
         BroadcastAreaIdentifier = 0x0606,
         BroadcastErrorStatus = 0x0607,
         BroadcastAreaSuccess = 0x0608,

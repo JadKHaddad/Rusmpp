@@ -3,6 +3,8 @@
 //! Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
 //!
 //! ```rust
+//! # #[cfg(feature = "tokio-codec")]
+//! # {
 //! use core::error::Error;
 //! use futures::{SinkExt, StreamExt};
 //! use rusmpp::{
@@ -75,6 +77,7 @@
 //!
 //!     Ok(())
 //! }
+//! # }
 //!```
 //!
 //! ## Features

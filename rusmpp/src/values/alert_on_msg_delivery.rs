@@ -10,7 +10,6 @@ crate::create! {
         UseHighPriorityAlert = 3,
         Other(u8),
     }
-
 }
 
 impl From<u8> for AlertOnMessageDelivery {

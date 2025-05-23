@@ -341,6 +341,10 @@ crate::create! {
         /// The broadcast_end_time parameter indicates the date and time at which the broadcasting
         /// state of this message was set to terminated in the Message Centre.
         BroadcastEndTime = 0x0609,
+        /// This parameter is used to specify special target groups for broadcast information.
+        ///
+        /// The broadcast_service_group parameter is used to specify special target groups for
+        /// broadcast information.
         BroadcastServiceGroup = 0x060A,
         BillingIdentification = 0x060B,
         SourceNetworkId = 0x060D,

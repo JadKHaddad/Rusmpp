@@ -105,7 +105,7 @@ impl ClientInner {
         let response = self.bind(bind.into()).await?;
 
         let response = response
-            .is_ok_and_matches(CommandId::BindTransmitterResp)
+            .ok_and_matches(CommandId::BindTransmitterResp)
             .map_err(Error::unexpected_response)?;
 
         self.set_session_state(SessionState::BoundTx);
@@ -120,7 +120,7 @@ impl ClientInner {
         let response = self.bind(bind.into()).await?;
 
         let response = response
-            .is_ok_and_matches(CommandId::BindReceiverResp)
+            .ok_and_matches(CommandId::BindReceiverResp)
             .map_err(Error::unexpected_response)?;
 
         self.set_session_state(SessionState::BoundRx);
@@ -135,7 +135,7 @@ impl ClientInner {
         let response = self.bind(bind.into()).await?;
 
         let response = response
-            .is_ok_and_matches(CommandId::BindTransceiverResp)
+            .ok_and_matches(CommandId::BindTransceiverResp)
             .map_err(Error::unexpected_response)?;
 
         self.set_session_state(SessionState::BoundTrx);
@@ -196,7 +196,7 @@ impl ClientInner {
         };
 
         response
-            .is_ok_and_matches(CommandId::SubmitMultiResp)
+            .ok_and_matches(CommandId::SubmitMultiResp)
             .map_err(Error::unexpected_response)
     }
 }

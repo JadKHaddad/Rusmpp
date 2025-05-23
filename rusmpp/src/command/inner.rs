@@ -125,14 +125,30 @@ impl Command {
         Default::default()
     }
 
-    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`] and the given `command_id`.
+    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`].
     #[inline]
-    pub fn is_ok_and_matches(self, command_id: CommandId) -> Result<Self, Self> {
-        if self.status() == CommandStatus::EsmeRok && self.id() == command_id {
+    pub fn ok(self) -> Result<Self, Self> {
+        if self.status() == CommandStatus::EsmeRok {
             return Ok(self);
         }
 
         Err(self)
+    }
+
+    /// Checks if the command has the given `command_id`.
+    #[inline]
+    pub fn matches(self, command_id: CommandId) -> Result<Self, Self> {
+        if self.id() == command_id {
+            return Ok(self);
+        }
+
+        Err(self)
+    }
+
+    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`] and the given `command_id`.
+    #[inline]
+    pub fn ok_and_matches(self, command_id: CommandId) -> Result<Self, Self> {
+        self.ok().and_then(|this| this.matches(command_id))
     }
 }
 

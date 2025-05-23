@@ -146,7 +146,7 @@ where
                                 },
                                 Ok(result) => match result {
                                     Ok(Ok(command)) => {
-                                        match command.is_ok_and_matches(CommandId::EnquireLinkResp) {
+                                        match command.ok_and_matches(CommandId::EnquireLinkResp) {
                                             Ok(_) => {
                                                 tracing::trace!(target: TARGET, "Enquire link response received");
 

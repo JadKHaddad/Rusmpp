@@ -196,7 +196,7 @@ impl ClientInner {
         };
 
         response
-            .ok_and_matches(CommandId::SubmitMultiResp)
+            .ok_and_matches(CommandId::SubmitSmResp)
             .map_err(Error::unexpected_response)
     }
 }

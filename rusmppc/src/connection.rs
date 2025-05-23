@@ -193,6 +193,8 @@ where
                         break;
                     },
                     command = smpp_reader.next() => {
+                        const TARGET: &str = "rusmppc::connection::reader::incoming";
+
                         let Some(command) = command else {
                             tracing::debug!(target: TARGET, "End of stream");
 

@@ -421,6 +421,11 @@ crate::create! {
         /// as defined by the Korean PCS carriers [KORITS]. It contains control information for the
         /// interactive session between an MS and an ESME.
         ItsSessionInfo = 0x1383,
+        /// Tag not recognized by this version; stores the raw value.
+        ///
+        /// This variant allows handling of future extensions or vendor-specific
+        /// TLVs not currently defined. It preserves the raw tag value for processing
+        /// or logging purposes.
         Other(u16),
     }
 }

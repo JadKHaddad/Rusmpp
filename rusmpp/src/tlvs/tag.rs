@@ -348,6 +348,12 @@ crate::create! {
         BroadcastServiceGroup = 0x060A,
         /// Billing information passed from ESME to MC
         BillingIdentification = 0x060B,
+        /// Identification of source network
+        ///
+        /// The source_network_id assigned to a wireless network operator or ESME operator is a
+        /// unique address that may be derived and assigned by the node owner without establishing a
+        /// central assignment and management authority. When this TLV is specified, it must be
+        /// accompanied with a source_node_id TLV Ref. 4.8.4.58.
         SourceNetworkId = 0x060D,
         DestNetworkId = 0x060E,
         SourceNodeId = 0x060F,

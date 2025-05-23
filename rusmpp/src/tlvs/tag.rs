@@ -223,6 +223,12 @@ crate::create! {
         /// as a result may use a deliver_sm or data_sm PDU to carry the dpf_result. For more
         /// information see 4.8.4.32
         SetDpf = 0x0421,
+        /// The status of the mobile station
+        ///
+        /// The ms_availability_status parameter is used in the alert_notification operation to indicate the
+        /// availability state of the MS to the ESME.
+        /// If the MC does not include the parameter in the alert_notification operation, the ESME should
+        /// assume that the MS is in an “available” state.
         MsAvailabilityStatus = 0x0422,
         NetworkErrorCode = 0x0423,
         MessagePayload = 0x0424,

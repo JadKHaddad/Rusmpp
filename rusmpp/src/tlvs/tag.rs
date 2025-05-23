@@ -41,6 +41,10 @@ crate::create! {
         /// mobile station, for example a smart card in the mobile station or an external device
         /// connected to the mobile station.
         SourceAddrSubunit = 0x000D,
+        /// The correct network associated with the originatingdevice.
+        ///
+        /// The source_network_type parameter is used to indicate the network type associated with the
+        /// device that originated the message.
         SourceNetworkType = 0x000E,
         SourceBearerType = 0x000F,
         SourceTelematicsId = 0x0010,

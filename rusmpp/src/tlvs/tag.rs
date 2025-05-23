@@ -103,6 +103,15 @@ crate::create! {
         ///
         /// The dest_subaddress parameter specifies a subaddress associated with the destination of the message.
         DestSubaddress = 0x0203,
+        /// ESME assigned message reference number.
+        ///
+        /// A reference assigned by the originating SME to the short message. Depending on the
+        /// destination network technology, this field may be passed directly to the mobile device.
+        ///
+        /// The user_message_reference TLV is also applicable in ancillary broadcast operations as a
+        /// means of identifying a previously submitted message. In such cases, the
+        /// user_message_reference can be used to substitute an actual message_id or may be used in
+        /// conjunction with a message_id
         UserMessageReference = 0x0204,
         UserResponseCode = 0x0205,
         SourcePort = 0x020A,

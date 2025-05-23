@@ -2,7 +2,7 @@ use std::{ops::Deref, sync::Arc, time::Duration};
 
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm},
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
 use tokio::sync::mpsc::Sender;
@@ -190,7 +190,7 @@ impl ClientInner {
             .map_err(|_| Error::ConnectionClosed)?
     }
 
-    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<Command, Error> {
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
         let session_state = self.session_state();
 
         let response = match session_state {
@@ -201,7 +201,13 @@ impl ClientInner {
         };
 
         response
-            .ok_and_matches(CommandId::SubmitSmResp)
+            .ok()
+            .map_err(Error::unexpected_response)
+            .map(Command::into_parts)
+            .map(|(id, status, sequence_number, pdu)| match pdu {
+                Some(Pdu::SubmitSmResp(response)) => Ok(response),
+                _ => Err(Command::from_parts(id, status, sequence_number, pdu)),
+            })?
             .map_err(Error::unexpected_response)
     }
 }

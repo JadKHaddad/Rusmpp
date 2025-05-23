@@ -260,6 +260,11 @@ crate::create! {
         /// a delivery failure due to a network error is indicated, the ESME may check the
         /// network_error_code parameter (if present) for the actual network error code.
         DeliveryFailureReason = 0x0425,
+        /// Indicates that there are more messages to follow for the destination SME.
+        ///
+        /// The more_messages_to_send parameter is used by the ESME in the submit_sm and
+        /// data_sm operations to indicate to the MC that there are further messages for the same
+        /// destination SME. The MC may use this setting for network resource optimisation.
         MoreMessagesToSend = 0x0426,
         MessageState = 0x0427,
         CongestionState = 0x0428,

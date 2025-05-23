@@ -402,6 +402,10 @@ crate::create! {
         /// The ms_validity parameter is used to provide an MS with validity information associated with
         /// the received short message.
         MsValidity = 0x1204,
+        /// Request an MS alert signal be invoked on message delivery.
+        ///
+        /// The alert_on_message_delivery parameter is set to instruct a MS to alert the user (in a MS
+        /// implementation specific manner) when the short message arrives at the MS.
         AlertOnMessageDelivery = 0x130C,
         ItsReplyType = 0x1380,
         ItsSessionInfo = 0x1383,

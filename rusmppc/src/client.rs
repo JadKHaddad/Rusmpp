@@ -167,6 +167,8 @@ impl ClientInner {
     // 2. Send a remove command_id action to the connection, to remove the command id from the map of responses,
     //      because the response may never come, and this would be a memory leak.
     //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
+    //
+    // TODO: Test cancelling the request-future will cause the corresponding response to go through the events stream
     async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
 

@@ -56,6 +56,11 @@ crate::create! {
         /// The source_telematics_id parameter indicates the type of telematics interface over which the
         /// message originated.
         SourceTelematicsId = 0x0010,
+        /// Time to live as a relative time in seconds from submission.
+        ///
+        /// This parameter defines the number of seconds which the sender requests the MC to keep
+        /// the message if undelivered before it is deemed expired. If the parameter is not present, the
+        /// MC may apply a default value
         QosTimeToLive = 0x0017,
         PayloadType = 0x0019,
         AdditionalStatusInfoText = 0x001D,

@@ -368,6 +368,12 @@ crate::create! {
         /// uniquely identify an originating node within the context of the MC or ESME. The content of a
         /// source_node_id is comprised of decimal digits and is at the discretion of the owning ESME or MC.
         SourceNodeId = 0x060F,
+        /// Identification of destination node
+        ///
+        /// The dest_node_id is a unique number assigned within a single ESME or MC network and
+        /// must uniquely identify a destination node within the context of the MC or ESME. The content
+        /// of a dest_node_id is comprised of decimal digits and is at the discretion of the owning ESME
+        /// or MC.
         DestNodeId = 0x0610,
         DestAddrNpResolution = 0x0611,
         DestAddrNpInformation = 0x0612,

@@ -170,6 +170,17 @@ crate::create! {
         /// callback_num_pres_ind which corresponds to a particular
         /// callback_num.
         CallbackNumPresInd = 0x0302,
+        /// Associates a displayable alphanumeric tag with the call-
+        /// back number.
+        /// If this parameter is present and there are multiple
+        /// instances of the callback_num parameter then this
+        /// parameter must occur an equal number of instances and
+        /// the order of occurrence determines the particular
+        /// callback_num_atag which corresponds to a particular
+        /// callback_num.
+        ///
+        /// The callback_num_atag parameter associates an alphanumeric display with the call back
+        /// number.
         CallbackNumAtag = 0x0303,
         NumberOfMessages = 0x0304,
         CallbackNum = 0x0381,

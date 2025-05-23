@@ -150,6 +150,31 @@ impl Command {
     pub fn ok_and_matches(self, command_id: CommandId) -> Result<Self, Self> {
         self.ok().and_then(|this| this.matches(command_id))
     }
+
+    #[inline]
+    pub fn into_parts(self) -> (CommandId, CommandStatus, u32, Option<Pdu>) {
+        (self.id, self.status, self.sequence_number, self.pdu)
+    }
+
+    /// Creates a new command from it's parts.
+    ///
+    /// # Note
+    ///
+    /// This may create invalid commands. It's up to the caller to ensure that the [`CommandId`] and [`Pdu`] match.
+    #[inline]
+    pub const fn from_parts(
+        id: CommandId,
+        status: CommandStatus,
+        sequence_number: u32,
+        pdu: Option<Pdu>,
+    ) -> Self {
+        Self {
+            id,
+            status,
+            sequence_number,
+            pdu,
+        }
+    }
 }
 
 #[cfg(test)]

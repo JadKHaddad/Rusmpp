@@ -415,6 +415,11 @@ crate::create! {
         /// as defined by the Korean PCS carriers [KORITS]. It indicates and controls the MS user’s
         /// reply method to an SMS delivery message received from the ESME.
         ItsReplyType = 0x1380,
+        /// Session control information for Interactive Teleservice.
+        ///
+        /// The its_session_info parameter is a required parameter for the CDMA Interactive Teleservice
+        /// as defined by the Korean PCS carriers [KORITS]. It contains control information for the
+        /// interactive session between an MS and an ESME.
         ItsSessionInfo = 0x1383,
         Other(u16),
     }

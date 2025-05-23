@@ -182,6 +182,10 @@ crate::create! {
         /// The callback_num_atag parameter associates an alphanumeric display with the call back
         /// number.
         CallbackNumAtag = 0x0303,
+        /// Indicates the number of messages stored in a mail box
+        ///
+        /// The number_of_messages parameter is used to indicate the number of messages stored in a
+        /// mailbox.
         NumberOfMessages = 0x0304,
         CallbackNum = 0x0381,
         DpfResult = 0x0420,

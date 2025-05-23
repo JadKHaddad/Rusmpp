@@ -140,6 +140,7 @@ impl ClientInner {
 
     // TODO: bind is same
     // TODO: test if this times out: everything should be dropped and the tasks should all terminate.
+    // TODO: do we want to check or save the interface version of the server?
     async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
 

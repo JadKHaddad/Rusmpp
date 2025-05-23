@@ -207,6 +207,21 @@ crate::create! {
         /// If the dpf_result parameter is not returned, then the ESME should assume that DPF is not
         /// set.
         DpfResult = 0x0420,
+        /// Indicator for setting Delivery Pending Flag on delivery failure.
+        ///
+        /// An ESME may use the set_dpf parameter to request the setting of a delivery pending flag
+        /// (DPF) for certain delivery failure scenarios, such as MS unavailability (as indicated by the
+        /// HLR).
+        ///
+        /// The MC should respond to such a request with an alert_notification PDU when it detects that
+        /// the destination MS has become available.
+        ///
+        /// The delivery failure scenarios under which DPF is set is MC implementation and network
+        /// implementation specific. If a delivery pending flag is set by the MC or network (e.g. HLR),
+        /// then the MC should indicate this to the ESME in the submit_sm_resp or data_sm_resp PDU
+        /// via the dpf_result parameter. It may also use a delivery receipt to relay this information and
+        /// as a result may use a deliver_sm or data_sm PDU to carry the dpf_result. For more
+        /// information see 4.8.4.32
         SetDpf = 0x0421,
         MsAvailabilityStatus = 0x0422,
         NetworkErrorCode = 0x0423,

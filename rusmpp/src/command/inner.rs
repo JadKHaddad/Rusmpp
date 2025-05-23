@@ -124,6 +124,16 @@ impl Command {
     pub fn builder() -> CommandStatusBuilder {
         Default::default()
     }
+
+    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`] and the given `command_id`.
+    #[inline]
+    pub fn is_ok_and_matches(self, command_id: CommandId) -> Result<Self, Self> {
+        if self.status() == CommandStatus::EsmeRok && self.id() == command_id {
+            return Ok(self);
+        }
+
+        Err(self)
+    }
 }
 
 #[cfg(test)]

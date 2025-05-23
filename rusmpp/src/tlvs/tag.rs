@@ -355,6 +355,12 @@ crate::create! {
         /// central assignment and management authority. When this TLV is specified, it must be
         /// accompanied with a source_node_id TLV Ref. 4.8.4.58.
         SourceNetworkId = 0x060D,
+        /// Identification of destination network
+        ///
+        /// The dest_network_id assigned to a wireless network operator or ESME operator is a unique
+        /// address that may be derived and assigned by the node owner without establishing a central
+        /// assignment and management authority. When this TLV is specified, it must be accompanied
+        /// with a dest_node_id TLV Ref.4.8.4.27
         DestNetworkId = 0x060E,
         SourceNodeId = 0x060F,
         DestNodeId = 0x0610,

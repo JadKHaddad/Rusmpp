@@ -307,7 +307,12 @@ crate::create! {
         /// The broadcast_message_class parameter is used to route messages when received by a
         /// mobile station to user-defined destinations or to Terminal Equipment.
         BroadcastMessageClass = 0x0603,
+        /// This field indicates the number of repeated broadcasts of a message requested by the submitter.
         BroadcastRepNum = 0x0604,
+        /// This field indicates the frequency interval at which the broadcasts of a message should be repeated.
+        ///
+        /// The broadcast_frequency_interval parameter specifies the frequency interval at which the
+        /// broadcasts of a message should be repeated.
         BroadcastFrequencyInterval = 0x0605,
         BroadcastAreaIdentifier = 0x0606,
         BroadcastErrorStatus = 0x0607,

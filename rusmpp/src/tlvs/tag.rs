@@ -287,6 +287,10 @@ crate::create! {
         /// The ussd_service_op parameter is required to define the USSD service operation when
         /// SMPP is being used as an interface to a (GSM) USSD system.
         UssdServiceOp = 0x0501,
+        /// Specifies the Cell Broadcast channel that should be used for broadcasting the message.
+        ///
+        /// The broadcast_channel_indicator parameter specifies the Cell Broadcast channel that should
+        /// be used for broadcasting the message.
         BroadcastChannelIndicator = 0x0600,
         BroadcastContentType = 0x0601,
         BroadcastContentTypeInfo = 0x0602,

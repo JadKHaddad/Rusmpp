@@ -30,10 +30,11 @@ pub struct ConnectionBuilder {
 
 #[derive(Debug)]
 pub struct ConnectionTimeouts {
-    pub session: Duration,
+    /// Not used.
+    session: Duration,
     pub enquire_link: Duration,
-    // TODO: not used
-    pub inactivity: Duration,
+    /// Not used.
+    inactivity: Duration,
     pub response: Duration,
 }
 
@@ -75,7 +76,6 @@ impl ConnectionBuilder {
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
-        let session_timeout = self.timeouts.session;
         let response_timeout = self.timeouts.response;
 
         let connection = Connection::new(
@@ -88,12 +88,7 @@ impl ConnectionBuilder {
 
         connection.spawn();
 
-        let client = Client::new(
-            actions_tx,
-            session_timeout,
-            response_timeout,
-            session_state_holder,
-        );
+        let client = Client::new(actions_tx, response_timeout, session_state_holder);
 
         match self.bind_mode {
             BindMode::Tx => {

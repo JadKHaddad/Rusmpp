@@ -37,14 +37,12 @@ impl Clone for Client {
 impl Client {
     pub(crate) fn new(
         actions_sink: Sender<Action>,
-        session_timeout: Duration,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
     ) -> Self {
         Self {
             inner: Arc::new(ClientInner::new(
                 actions_sink,
-                session_timeout,
                 response_timeout,
                 session_state_holder,
             )),
@@ -64,7 +62,6 @@ impl Client {
 #[derive(Debug)]
 pub struct ClientInner {
     actions_sink: Sender<Action>,
-    session_timeout: Duration,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
 }
@@ -72,13 +69,11 @@ pub struct ClientInner {
 impl ClientInner {
     const fn new(
         actions_sink: Sender<Action>,
-        session_timeout: Duration,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
     ) -> Self {
         Self {
             actions_sink,
-            session_timeout,
             response_timeout,
             session_state_holder,
         }
@@ -143,7 +138,8 @@ impl ClientInner {
         Ok(response)
     }
 
-    // TODO: bind is different than request just in the timeout
+    // TODO: bind is same
+    // TODO: test if this times out: everything should be dropped and the tasks should all terminate.
     async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
         let command = Command::builder()
@@ -158,13 +154,18 @@ impl ClientInner {
             .await
             .map_err(|_| Error::ConnectionClosed)?;
 
-        // TODO: if session timed out, we should close the connection
-        tokio::time::timeout(self.session_timeout, response)
+        tokio::time::timeout(self.response_timeout, response)
             .await
             .map_err(|_| Error::Timeout)?
             .map_err(|_| Error::ConnectionClosed)?
     }
 
+    // TODO: We have two options if this times out:
+    //
+    // 1. Send a disconnect action to the connection to terminate
+    // 2. Send a remove command_id action to the connection, to remove the command id from the map of responses,
+    //      because the response may never come, and this would be a memory leak.
+    //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
     async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
         let command = Command::builder()

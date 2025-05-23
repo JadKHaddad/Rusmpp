@@ -12,6 +12,9 @@ pub use builder::ConnectionBuilder;
 mod client;
 pub use client::Client;
 
+mod command;
+pub(crate) use command::CommandExt;
+
 mod connection;
 
 pub mod error;

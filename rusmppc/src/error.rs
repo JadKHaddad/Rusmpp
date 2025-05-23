@@ -35,9 +35,9 @@ pub enum Error {
 }
 
 impl Error {
-    pub(crate) fn unexpected_response(response: Command) -> Self {
+    pub(crate) fn unexpected_response(response: impl Into<Box<Command>>) -> Self {
         Self::UnexpectedResponse {
-            response: Box::new(response),
+            response: response.into(),
         }
     }
 }

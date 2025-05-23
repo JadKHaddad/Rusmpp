@@ -125,32 +125,6 @@ impl Command {
         Default::default()
     }
 
-    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`].
-    #[inline]
-    pub const fn ok(self) -> Result<Self, Self> {
-        if matches!(self.status(), CommandStatus::EsmeRok) {
-            return Ok(self);
-        }
-
-        Err(self)
-    }
-
-    /// Checks if the command has the given `command_id`.
-    #[inline]
-    pub fn matches(self, command_id: CommandId) -> Result<Self, Self> {
-        if self.id() == command_id {
-            return Ok(self);
-        }
-
-        Err(self)
-    }
-
-    /// Checks if the command has an ok status [`CommandStatus::EsmeRok`] and the given `command_id`.
-    #[inline]
-    pub fn ok_and_matches(self, command_id: CommandId) -> Result<Self, Self> {
-        self.ok().and_then(|this| this.matches(command_id))
-    }
-
     #[inline]
     pub fn into_parts(self) -> (CommandId, CommandStatus, u32, Option<Pdu>) {
         (self.id, self.status, self.sequence_number, self.pdu)

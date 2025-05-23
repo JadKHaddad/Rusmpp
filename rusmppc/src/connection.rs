@@ -12,7 +12,7 @@ use tokio_util::{
 };
 
 use crate::{
-    Event,
+    CommandExt, Event,
     action::{Action, SendCommandAction},
     builder::ConnectionTimeouts,
     error::Error,
@@ -170,7 +170,7 @@ where
                                                 tracing::error!(target: TARGET, ?command, "Unexpected enquire link response");
 
                                                 let _ = enquire_link_events_sink
-                                                    .send(Event::Error(Error::EnquireLinkFailed{response: Box::new(command)}))
+                                                    .send(Event::Error(Error::EnquireLinkFailed{ response: command }))
                                                     .await;
 
                                                 break

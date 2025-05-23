@@ -68,7 +68,7 @@ async fn bind() {
 
     // drop(client);
 
-    // if the events task is done, this means that all tasks has terminated
+    // if the events task is done, this means that all tasks have terminated
     // if got end of stream in the reader task,
     // or all clients were dropped, so we closed the connection.
     //

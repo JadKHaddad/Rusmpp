@@ -8,6 +8,7 @@ use rusmpp::{
 use tokio::sync::mpsc::Sender;
 
 use crate::{
+    CommandExt,
     action::{Action, SendCommandAction},
     error::Error,
     session_state::SessionStateHolder,

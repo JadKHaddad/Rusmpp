@@ -195,6 +195,17 @@ crate::create! {
         /// networks, it is possible to send and receive multiple call-back numbers to/from TDMA mobile
         /// stations.
         CallbackNum = 0x0381,
+        /// Indicates whether the Delivery Pending Flag was set
+        ///
+        /// The dpf_result parameter is used to indicate if delivery pending flag (DPF) was set for a
+        /// delivery failure of a short message.
+        ///
+        /// When used in conjunction with transaction mode, dpf_result can be returned in a
+        /// submit_sm_resp or data_sm_resp PDU. Where store and forward or datagram modes are
+        /// used in the original submission, dpf_result may be returned as part of a delivery receipt in the
+        /// form of a deliver_sm or data_sm PDU.
+        /// If the dpf_result parameter is not returned, then the ESME should assume that DPF is not
+        /// set.
         DpfResult = 0x0420,
         SetDpf = 0x0421,
         MsAvailabilityStatus = 0x0422,

@@ -35,6 +35,11 @@ crate::create! {
         /// MC) does not support the indicated telematic interworking, it may treat this a failure and
         /// return a response PDU reporting a failure.
         DestTelematicsId = 0x0008,
+        /// The subcomponent in the destination device, which created the user data
+        ///
+        /// The source_addr_subunit parameter is used to indicate where a message originated in the
+        /// mobile station, for example a smart card in the mobile station or an external device
+        /// connected to the mobile station.
         SourceAddrSubunit = 0x000D,
         SourceNetworkType = 0x000E,
         SourceBearerType = 0x000F,

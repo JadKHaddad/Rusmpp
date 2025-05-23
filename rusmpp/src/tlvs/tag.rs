@@ -62,7 +62,11 @@ crate::create! {
         /// the message if undelivered before it is deemed expired. If the parameter is not present, the
         /// MC may apply a default value
         QosTimeToLive = 0x0017,
+        /// defines the type of payload (e.g. WDP, WCMP, etc.).
+        ///
+        /// The payload_type parameter defines the higher layer PDU type contained in the message payload.
         PayloadType = 0x0019,
+        
         AdditionalStatusInfoText = 0x001D,
         ReceiptedMessageId = 0x001E,
         MsMsgWaitFacilities = 0x0030,

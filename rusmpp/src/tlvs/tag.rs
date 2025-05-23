@@ -113,6 +113,10 @@ crate::create! {
         /// user_message_reference can be used to substitute an actual message_id or may be used in
         /// conjunction with a message_id
         UserMessageReference = 0x0204,
+        /// A user response code. The actual response codes are implementation specific.
+        ///
+        /// A response code set by the user in a User Acknowledgement/Reply message. The response
+        /// codes are application specific.
         UserResponseCode = 0x0205,
         SourcePort = 0x020A,
         DestPort = 0x020B,

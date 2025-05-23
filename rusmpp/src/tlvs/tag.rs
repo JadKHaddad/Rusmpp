@@ -20,6 +20,12 @@ crate::create! {
         /// support the indicated network type, it may treat this a failure and return a response PDU
         /// reporting a failure.
         DestNetworkType = 0x0006,
+        /// The correct bearer type for delivering the user data to the destination.
+        ///
+        /// The dest_bearer_type parameter is used to request the desired bearer for delivery of the
+        /// message to the destination address. In the case that the receiving system (e.g. MC) does not
+        /// support the indicated bearer type, it may treat this a failure and return a response PDU
+        /// reporting a failure.
         DestBearerType = 0x0007,
         DestTelematicsId = 0x0008,
         SourceAddrSubunit = 0x000D,

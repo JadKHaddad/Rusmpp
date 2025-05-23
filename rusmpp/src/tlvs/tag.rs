@@ -99,6 +99,9 @@ crate::create! {
         ///
         /// The source_subaddress parameter specifies a subaddress associated with the originator of the message.
         SourceSubaddress = 0x0202,
+        /// The sub-address of the message destination.
+        ///
+        /// The dest_subaddress parameter specifies a subaddress associated with the destination of the message.
         DestSubaddress = 0x0203,
         UserMessageReference = 0x0204,
         UserResponseCode = 0x0205,

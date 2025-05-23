@@ -397,6 +397,10 @@ crate::create! {
         /// The sms_signal parameter is used to provide a TDMA MS with alert tone information
         /// associated with the received short message
         SmsSignal = 0x1203,
+        /// Indicates validity information for this message to the recipient MS.
+        ///
+        /// The ms_validity parameter is used to provide an MS with validity information associated with
+        /// the received short message.
         MsValidity = 0x1204,
         AlertOnMessageDelivery = 0x130C,
         ItsReplyType = 0x1380,

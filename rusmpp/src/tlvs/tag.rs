@@ -266,6 +266,11 @@ crate::create! {
         /// data_sm operations to indicate to the MC that there are further messages for the same
         /// destination SME. The MC may use this setting for network resource optimisation.
         MoreMessagesToSend = 0x0426,
+        /// Should be present for MC Delivery Receipts and Intermediate Notifications.
+        ///
+        /// The message_state TLV is used by the MC in the deliver_sm and data_sm PDUs to indicate
+        /// to the ESME the final message state for a MC Delivery Receipt. The message_state TLV is
+        /// also returned by the MC to the ESME as part of the query_broadcast_sm_resp PDU.
         MessageState = 0x0427,
         CongestionState = 0x0428,
         UssdServiceOp = 0x0501,

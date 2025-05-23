@@ -146,6 +146,10 @@ crate::create! {
         ///
         /// The language_indicator parameter is used to indicate the language of the short message.
         LanguageIndicator = 0x020D,
+        /// Indicates the total number of short message segments within the concatenated short message.
+        ///
+        /// The sar_total_segments parameter is used to indicate the total number of short messages
+        /// within the concatenated short message.
         SarTotalSegments = 0x020E,
         SarSegmentSeqnum = 0x020F,
         ScInterfaceVersion = 0x0210,

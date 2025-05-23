@@ -6,6 +6,8 @@ use std::{
 
 use crate::ConnectionBuilder;
 
+mod server;
+
 pub fn init_tracing() {
     _ = tracing_subscriber::fmt()
         .with_env_filter("rusmppc=trace")

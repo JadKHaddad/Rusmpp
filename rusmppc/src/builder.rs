@@ -7,7 +7,11 @@ use rusmpp::{
     types::COctetString,
     values::{InterfaceVersion, Npi, Ton},
 };
-use tokio::{net::TcpStream, sync::mpsc::channel};
+use tokio::{
+    io::{AsyncRead, AsyncWrite},
+    net::TcpStream,
+    sync::mpsc::channel,
+};
 use tokio_stream::wrappers::ReceiverStream;
 
 use crate::{
@@ -71,6 +75,20 @@ impl ConnectionBuilder {
 
         tracing::trace!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connected");
 
+        self.bind(stream).await
+    }
+
+    /// Takes a connected stream and performs the bind operation.
+    ///
+    /// This function is separated from [`Self::connect`](Self::connect) to test the library
+    /// without actually connecting to a server.
+    async fn bind<S>(
+        self,
+        stream: S,
+    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error>
+    where
+        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+    {
         let (events_tx, events_rx) = unbounded::<Event>();
         let (actions_tx, actions_rx) = channel::<Action>(100);
 

@@ -187,6 +187,13 @@ crate::create! {
         /// The number_of_messages parameter is used to indicate the number of messages stored in a
         /// mailbox.
         NumberOfMessages = 0x0304,
+        /// A call-back number associated with the short message.
+        /// This parameter can be included a number of times for
+        /// multiple call-back addresses.
+        ///
+        /// The callback_num parameter associates a call back number with the message. In TDMA
+        /// networks, it is possible to send and receive multiple call-back numbers to/from TDMA mobile
+        /// stations.
         CallbackNum = 0x0381,
         DpfResult = 0x0420,
         SetDpf = 0x0421,

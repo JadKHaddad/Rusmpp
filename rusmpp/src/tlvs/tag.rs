@@ -320,6 +320,13 @@ crate::create! {
         /// The broadcast_area_identifier defines the Broadcast Area in terms of a geographical
         /// descriptor.
         BroadcastAreaIdentifier = 0x0606,
+        /// This field will indicate the nature of the failure associated with the broadcast request for the indicated area.
+        /// If this parameter is present and there are multiple instances of the failed*broadcast_area* identifier(s)
+        /// parameter then this parameter must occur an equal number of instances and the order of occurrence determines the particular
+        /// broadcast*error_status, which corresponds to a particular failed_broadcast_area* identifier(s).
+        ///
+        /// The broadcast_error_status parameter specifies the nature of the failure associated with a
+        /// particular broadcast_area_identifier specified in a broadcast request.
         BroadcastErrorStatus = 0x0607,
         BroadcastAreaSuccess = 0x0608,
         BroadcastEndTime = 0x0609,

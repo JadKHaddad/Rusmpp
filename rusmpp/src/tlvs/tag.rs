@@ -253,6 +253,12 @@ crate::create! {
         /// message_payload TLV. When used in the context of a submit_sm PDU, the sm_length field
         /// should be set to zero.
         MessagePayload = 0x0424,
+        /// Include to indicate reason for delivery failure.
+        ///
+        /// The delivery_failure_reason parameter is used in the data_sm_resp operation to indicate the
+        /// outcome of the message delivery attempt (only applicable for transaction message mode). If
+        /// a delivery failure due to a network error is indicated, the ESME may check the
+        /// network_error_code parameter (if present) for the actual network error code.
         DeliveryFailureReason = 0x0425,
         MoreMessagesToSend = 0x0426,
         MessageState = 0x0427,

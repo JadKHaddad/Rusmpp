@@ -157,6 +157,10 @@ crate::create! {
         /// The sar_segment_seqnum parameter is used to indicate the sequence number of a particular
         /// short message within the concatenated short message.
         SarSegmentSeqnum = 0x020F,
+        /// SMPP version supported by MC
+        ///
+        /// The sc_interface_version parameter is used to indicate the SMPP version supported by the
+        /// MC. It is returned in the bind response PDUs.
         ScInterfaceVersion = 0x0210,
         CallbackNumPresInd = 0x0302,
         CallbackNumAtag = 0x0303,

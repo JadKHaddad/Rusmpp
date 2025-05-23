@@ -346,6 +346,7 @@ crate::create! {
         /// The broadcast_service_group parameter is used to specify special target groups for
         /// broadcast information.
         BroadcastServiceGroup = 0x060A,
+        /// Billing information passed from ESME to MC
         BillingIdentification = 0x060B,
         SourceNetworkId = 0x060D,
         DestNetworkId = 0x060E,

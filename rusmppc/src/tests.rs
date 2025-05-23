@@ -42,7 +42,7 @@ async fn bind() {
         .await
         .expect("Failed to connect");
 
-    tokio::spawn(async move {
+    let events = tokio::spawn(async move {
         while let Some(event) = events.next().await {
             tracing::debug!(?event, "Event",);
         }
@@ -66,5 +66,12 @@ async fn bind() {
         .await
         .expect("Failed to submit_sm");
 
-    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    // drop(client);
+
+    // if the events task is done, this means that all tasks has terminated
+    // if got end of stream in the reader task,
+    // or all clients were dropped, so we closed the connection.
+    //
+    // To ensure graceful shutdown, drop all clients and await the events stream
+    let _ = events.await;
 }

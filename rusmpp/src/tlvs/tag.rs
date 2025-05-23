@@ -375,6 +375,10 @@ crate::create! {
         /// of a dest_node_id is comprised of decimal digits and is at the discretion of the owning ESME
         /// or MC.
         DestNodeId = 0x0610,
+        /// Number portability query indicator
+        ///
+        /// The dest_addr_np_resolution TLV is used to pass an indicator relating to a number portability
+        /// query. If this TLV is omitted, the default value is assumed.
         DestAddrNpResolution = 0x0611,
         DestAddrNpInformation = 0x0612,
         DestAddrNpCountry = 0x0613,

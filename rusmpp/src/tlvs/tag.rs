@@ -392,6 +392,10 @@ crate::create! {
         ///
         /// The display_time parameter is used to associate a display time of the short message on the MS.
         DisplayTime = 0x1201,
+        /// Indicates the alerting mechanism when the message is received by an MS.
+        ///
+        /// The sms_signal parameter is used to provide a TDMA MS with alert tone information
+        /// associated with the received short message
         SmsSignal = 0x1203,
         MsValidity = 0x1204,
         AlertOnMessageDelivery = 0x130C,

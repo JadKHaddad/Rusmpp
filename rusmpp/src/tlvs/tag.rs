@@ -292,6 +292,9 @@ crate::create! {
         /// The broadcast_channel_indicator parameter specifies the Cell Broadcast channel that should
         /// be used for broadcasting the message.
         BroadcastChannelIndicator = 0x0600,
+        /// Specifies the content type of the message.
+        ///
+        /// The broadcast_content_type parameter specifies the content_type of the message content.
         BroadcastContentType = 0x0601,
         BroadcastContentTypeInfo = 0x0602,
         BroadcastMessageClass = 0x0603,

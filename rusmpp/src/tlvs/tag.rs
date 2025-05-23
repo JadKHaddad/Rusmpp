@@ -302,6 +302,10 @@ crate::create! {
         /// The broadcast_content_type_info parameter contains additional information specific to the
         /// broadcast_content_type.
         BroadcastContentTypeInfo = 0x0602,
+        /// This field specifies the class of message to be broadcast.
+        ///
+        /// The broadcast_message_class parameter is used to route messages when received by a
+        /// mobile station to user-defined destinations or to Terminal Equipment.
         BroadcastMessageClass = 0x0603,
         BroadcastRepNum = 0x0604,
         BroadcastFrequencyInterval = 0x0605,

@@ -151,6 +151,11 @@ crate::create! {
         /// The sar_total_segments parameter is used to indicate the total number of short messages
         /// within the concatenated short message.
         SarTotalSegments = 0x020E,
+        /// Indicates the sequence number of a particular short
+        /// message fragment within the concatenated short message
+        ///
+        /// The sar_segment_seqnum parameter is used to indicate the sequence number of a particular
+        /// short message within the concatenated short message.
         SarSegmentSeqnum = 0x020F,
         ScInterfaceVersion = 0x0210,
         CallbackNumPresInd = 0x0302,

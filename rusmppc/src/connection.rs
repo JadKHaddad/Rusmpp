@@ -1,4 +1,10 @@
-use std::{collections::HashMap, sync::Arc};
+use std::{
+    collections::HashMap,
+    sync::{
+        Arc,
+        atomic::{AtomicUsize, Ordering},
+    },
+};
 
 use futures::{Sink, SinkExt, Stream, StreamExt, channel::mpsc};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
@@ -10,6 +16,7 @@ use tokio_util::{
     codec::{FramedRead, FramedWrite},
     sync::CancellationToken,
 };
+use tracing::Instrument;
 
 use crate::{
     CommandExt, Event,
@@ -18,6 +25,12 @@ use crate::{
     error::Error,
     session_state::SessionStateHolder,
 };
+
+static ID: AtomicUsize = AtomicUsize::new(1);
+
+fn next_id() -> usize {
+    ID.fetch_add(1, Ordering::Relaxed)
+}
 
 #[derive(Debug, Default)]
 pub struct ConnectionConfig {
@@ -77,9 +90,12 @@ where
     pub fn spawn(self) {
         let (enquire_link, reader, writer) = self.futures();
 
-        tokio::spawn(enquire_link);
-        tokio::spawn(reader);
-        tokio::spawn(writer);
+        let id = next_id();
+        let _span = tracing::info_span!("connection", id).entered();
+
+        tokio::spawn(enquire_link.instrument(tracing::info_span!("enquire_link")));
+        tokio::spawn(reader.instrument(tracing::info_span!("reader")));
+        tokio::spawn(writer.instrument(tracing::info_span!("writer")));
     }
 
     fn futures(

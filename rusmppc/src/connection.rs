@@ -313,6 +313,7 @@ where
                                 }
 
                                 // The writer has sent an unbind and now waiting for the response
+                                // The unbound response status is not checked
                                 if let CommandId::UnbindResp = command_id {
                                     tracing::trace!(target: TARGET, sequence_number, "Unbind response received");
 
@@ -525,6 +526,7 @@ where
                     // Wait for an unbind response to terminate gracefully
                     tracing::trace!(target: TARGET, "Waiting for unbind response");
 
+                    // The unbound response status is not checked
                     match tokio::time::timeout(response_timeout, intern_unbind_rx).await {
                         Ok(Ok(_)) => {
                             tracing::debug!(target: TARGET, "Unbound successfully");

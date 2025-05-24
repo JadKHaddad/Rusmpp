@@ -3,6 +3,10 @@ use tokio::sync::oneshot;
 
 use crate::error::Error;
 
+/// Actions are used to communicate between the client and the connection.
+///
+/// An action is sent from a client to the open connection.
+/// The connection will process the action and send a response back to the client.
 #[derive(Debug)]
 pub enum Action {
     SendCommand(SendCommand),

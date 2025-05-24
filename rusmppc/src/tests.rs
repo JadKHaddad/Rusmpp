@@ -41,7 +41,6 @@ async fn bind() {
         .address_range(COctetString::empty())
         .transmitter()
         .enquire_link_timeout(Duration::from_secs(10))
-        .session_timeout(Duration::from_secs(3))
         .response_timeout(Duration::from_secs(2))
         .max_command_length(1024)
         .connect()

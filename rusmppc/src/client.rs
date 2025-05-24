@@ -1,4 +1,4 @@
-use std::{ops::Deref, sync::Arc, time::Duration};
+use std::{net::SocketAddr, ops::Deref, sync::Arc, time::Duration};
 
 use parking_lot::Mutex;
 use rusmpp::{
@@ -9,17 +9,24 @@ use rusmpp::{
 use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::{
-    CommandExt,
+    CommandExt, ConnectionBuilder,
     action::{Action, SendCommand, SendCommandNoResponse},
     error::Error,
     session_state::SessionStateHolder,
 };
 
+/// `SMPP` Client.
+///
+/// The client is a handle to communicate with the `SMPP` server through a managed connection in the background.
+///
+/// When all clients are dropped, an `unbind` command is sent to the server, and the connection is closed.
 #[derive(Debug)]
 pub struct Client {
     inner: Arc<ClientInner>,
 }
 
+// TODO: remove the deref impl and move the methods to the `Client` struct.
+// They must appear in the public api of the `Client`.
 impl Deref for Client {
     type Target = ClientInner;
 
@@ -37,6 +44,7 @@ impl Clone for Client {
 }
 
 impl Client {
+    /// Creates a new `SMPP` client.
     pub(crate) fn new(
         actions_sink: Sender<Action>,
         response_timeout: Duration,
@@ -53,10 +61,17 @@ impl Client {
         }
     }
 
+    /// Creates a new `SMPP` client builder.
+    pub fn builder(socket_addr: impl Into<SocketAddr>) -> ConnectionBuilder {
+        ConnectionBuilder::new(socket_addr)
+    }
+
+    /// Returns the current session state of the client.
     pub fn session_state(&self) -> SessionState {
         self.session_state_holder.session_state()
     }
 
+    /// Returns the current sequence number of the client.
     pub fn sequence_number(&self) -> u32 {
         self.session_state_holder.sequence_number()
     }
@@ -218,6 +233,7 @@ impl ClientInner {
         response.await.map_err(|_| Error::ConnectionClosed)?
     }
 
+    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`] response.
     pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
         let session_state = self.session_state();
 
@@ -242,6 +258,10 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) response and terminates the connection.
+    ///
+    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
+    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
     pub async fn unbind(&self) -> Result<(), Error> {
         let session_state = self.session_state();
 
@@ -261,6 +281,7 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
+    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
     pub async fn generic_nack(&self) -> Result<(), Error> {
         let session_state = self.session_state();
 

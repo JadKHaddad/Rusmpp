@@ -58,6 +58,9 @@ impl Default for ConnectionTimeouts {
     }
 }
 
+// TODO: DNS
+// TODO: TLS
+
 impl ConnectionBuilder {
     /// Creates a new [`ConnectionBuilder`] with the given socket address.
     pub fn new(socket_addr: impl Into<SocketAddr>) -> Self {

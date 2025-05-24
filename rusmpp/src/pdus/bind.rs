@@ -43,7 +43,7 @@ macro_rules! declare_bind {
         }
 
         impl $name {
-            pub fn new(
+            pub const fn new(
                 system_id: COctetString<1, 16>,
                 password: COctetString<1, 9>,
                 system_type: COctetString<1, 13>,
@@ -93,17 +93,17 @@ macro_rules! declare_bind {
                 self
             }
 
-            pub fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
+            pub const fn interface_version(mut self, interface_version: InterfaceVersion) -> Self {
                 self.inner.interface_version = interface_version;
                 self
             }
 
-            pub fn addr_ton(mut self, addr_ton: Ton) -> Self {
+            pub const fn addr_ton(mut self, addr_ton: Ton) -> Self {
                 self.inner.addr_ton = addr_ton;
                 self
             }
 
-            pub fn addr_npi(mut self, addr_npi: Npi) -> Self {
+            pub const fn addr_npi(mut self, addr_npi: Npi) -> Self {
                 self.inner.addr_npi = addr_npi;
                 self
             }
@@ -123,6 +123,7 @@ macro_rules! declare_bind {
 declare_bind!(BindTransmitter, BindTransmitterBuilder);
 declare_bind!(BindReceiver, BindReceiverBuilder);
 declare_bind!(BindTransceiver, BindTransceiverBuilder);
+declare_bind!(BindAny, BindAnyBuilder);
 
 impl From<BindTransmitter> for Pdu {
     fn from(value: BindTransmitter) -> Self {
@@ -139,6 +140,48 @@ impl From<BindReceiver> for Pdu {
 impl From<BindTransceiver> for Pdu {
     fn from(value: BindTransceiver) -> Self {
         Self::BindTransceiver(value)
+    }
+}
+
+impl From<BindAny> for BindTransmitter {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
+    }
+}
+
+impl From<BindAny> for BindReceiver {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
+    }
+}
+
+impl From<BindAny> for BindTransceiver {
+    fn from(value: BindAny) -> Self {
+        Self {
+            system_id: value.system_id,
+            password: value.password,
+            system_type: value.system_type,
+            interface_version: value.interface_version,
+            addr_ton: value.addr_ton,
+            addr_npi: value.addr_npi,
+            address_range: value.address_range,
+        }
     }
 }
 

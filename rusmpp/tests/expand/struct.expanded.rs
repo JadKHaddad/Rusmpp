@@ -52,15 +52,15 @@ impl ::rusmpp::decode::Decode for CancelSm {
         let size = 0;
         let (service_type, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "service_type",
+            ::rusmpp::fields::SmppField::service_type,
         )?;
         let (message_id, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "message_id",
+            ::rusmpp::fields::SmppField::message_id,
         )?;
         let (other, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "other",
+            ::rusmpp::fields::SmppField::other,
         )?;
         Ok((
             Self {

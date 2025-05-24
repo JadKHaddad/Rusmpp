@@ -43,11 +43,11 @@ impl ::rusmpp::decode::Decode for DistributionListName {
         let size = 0;
         let (dest_flag, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "dest_flag",
+            ::rusmpp::fields::SmppField::dest_flag,
         )?;
         let (dl_name, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "dl_name",
+            ::rusmpp::fields::SmppField::dl_name,
         )?;
         Ok((Self { dest_flag, dl_name }, size))
     }

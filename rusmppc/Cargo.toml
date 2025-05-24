@@ -11,3 +11,29 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
+rusmpp = { path = "../rusmpp", default-features = false, features = [
+    "tokio-codec",
+    "tracing",
+    "verbose",
+] }
+tokio = { version = "1.45.0", features = [
+    "rt",
+    "net",
+    "sync",
+    "macros",
+    "io-util",
+] }
+tokio-stream = "0.1.17"
+tokio-util = { version = "0.7.15", features = ["codec"] }
+tracing = "0.1.41"
+futures = "0.3.31"
+thiserror = "2.0.12"
+parking_lot = "0.12.3"
+
+[dev-dependencies]
+tokio = { version = "1.45.0", features = ["full"] }
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

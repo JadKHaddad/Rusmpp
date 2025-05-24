@@ -57,7 +57,7 @@ impl ::rusmpp::decode::DecodeWithLength for MsValidity {
         let size = 0;
         let (validity_behavior, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
             ::rusmpp::decode::DecodeExt::decode_move(src, size),
-            "validity_behavior",
+            ::rusmpp::fields::SmppField::validity_behavior,
         )?;
         let (validity_information, size) = ::rusmpp::decode::DecodeErrorExt::map_as_source(
                 ::rusmpp::decode::DecodeExt::length_checked_decode_move(
@@ -65,7 +65,7 @@ impl ::rusmpp::decode::DecodeWithLength for MsValidity {
                     length.saturating_sub(size),
                     size,
                 ),
-                "validity_information",
+                ::rusmpp::fields::SmppField::validity_information,
             )?
             .map(|(this, size)| (Some(this), size))
             .unwrap_or((None, size));

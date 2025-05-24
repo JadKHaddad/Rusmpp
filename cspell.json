@@ -116,7 +116,15 @@
         "Ussd",
         "Ussn",
         "Wcmp",
-        "wireshark"
+        "wireshark",
+        "subcomponent",
+        "telematic",
+        "interworking",
+        "telematic",
+        "interworking",
+        "subcomponent",
+        "PLMN",
+        "KORITS"
     ],
     "ignorePaths": [
         "target"

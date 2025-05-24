@@ -263,7 +263,7 @@ async fn cancel_unbind_future() {
         _ = future => {}
     }
 
-    // The submit sm response should be sent to the events stream
+    // The response should be sent to the events stream
 
     let Some(event) = events.next().await else {
         panic!("No event received");

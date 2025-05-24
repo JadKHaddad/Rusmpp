@@ -341,6 +341,8 @@ async fn enquire_link_timeout() {
 async fn server_crash_on_request() {
     init_tracing();
 
+    // TODO
+
     // Check what happens if we crash the server on a request.
 }
 
@@ -374,4 +376,48 @@ async fn connection_lost() {
     assert!(matches!(error, Error::ConnectionClosed));
 
     let _ = client.terminated().await;
+}
+
+#[tokio::test]
+#[ignore = "Just to see the connection ids"]
+async fn multiple() {
+    init_tracing();
+
+    let mut tasks = vec![];
+
+    for i in 0..10 {
+        let task = tokio::spawn(async move {
+            let (server, client) = tokio::io::duplex(1024);
+
+            tokio::spawn(async move {
+                Server::new()
+                    .bind_delay(Duration::from_millis(200))
+                    .response_delay(Duration::from_secs(1))
+                    .run(server)
+                    .await;
+            });
+
+            let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775 + i);
+
+            let (client, _) = ConnectionBuilder::new(socket_addr)
+                .assume_connected(client)
+                .await
+                .expect("Failed to connect");
+
+            client
+                .submit_sm(SubmitSm::builder().build())
+                .await
+                .expect("Failed to submit_sm");
+
+            client.unbind().await.expect("Failed to unbind");
+
+            let _ = client.terminated().await;
+        });
+
+        tasks.push(task);
+    }
+
+    for task in tasks {
+        let _ = task.await;
+    }
 }

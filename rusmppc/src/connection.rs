@@ -176,7 +176,7 @@ where
                         match tokio::time::timeout(enquire_link_timeout, response)
                             .await {
                                 Err(_) => {
-                                    tracing::error!(target: TARGET, "Enquire link timeout");
+                                    tracing::error!(target: TARGET, sequence_number, "Enquire link timeout");
 
                                     let _ = enquire_link_events_sink
                                             .send(Event::Error(Error::EnquireLinkTimeout { timeout: enquire_link_timeout }))
@@ -186,14 +186,16 @@ where
                                 },
                                 Ok(result) => match result {
                                     Ok(Ok(command)) => {
+                                        let sequence_number = command.sequence_number();
+
                                         match command.ok_and_matches(CommandId::EnquireLinkResp) {
                                             Ok(_) => {
-                                                tracing::trace!(target: TARGET, "Enquire link response received");
+                                                tracing::trace!(target: TARGET, sequence_number, "Enquire link response received");
 
                                                 continue
                                             },
                                             Err(command) => {
-                                                tracing::error!(target: TARGET, ?command, "Unexpected enquire link response");
+                                                tracing::error!(target: TARGET, sequence_number, ?command, "Unexpected enquire link response");
 
                                                 let _ = enquire_link_events_sink
                                                     .send(Event::Error(Error::EnquireLinkFailed{ response: command }))
@@ -254,10 +256,12 @@ where
 
                         match command {
                             Ok(command) => {
-                                tracing::trace!(target: TARGET, ?command, "Received command");
+                                let sequence_number = command.sequence_number();
+
+                                tracing::trace!(target: TARGET, sequence_number, ?command, "Received command");
 
                                 if let CommandId::EnquireLink = command.id() {
-                                    tracing::trace!(target: TARGET, "Enquire link received");
+                                    tracing::trace!(target: TARGET, sequence_number, "Enquire link received");
 
                                     let command = Command::builder()
                                         .status(CommandStatus::EsmeRok)
@@ -270,9 +274,9 @@ where
                                 }
 
                                 if let CommandId::Unbind = command.id() {
-                                    tracing::trace!(target: TARGET, "Unbind received");
+                                    tracing::trace!(target: TARGET, sequence_number, "Unbind received");
 
-                                    tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
+                                    tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
 
                                     reader_session_state_holder.set_session_state(SessionState::Unbound);
 
@@ -288,22 +292,20 @@ where
 
                                 let command_id = command.id();
 
-                                let sequence_number = command.sequence_number();
-
                                 let response = reader_responses.lock().remove(&sequence_number);
 
                                 match response {
                                     None => {
-                                        tracing::warn!(target: TARGET, "No client waiting for response");
+                                        tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
 
                                         let _ = reader_events_sink.send(Event::Command(command)).await;
                                     },
                                     Some(response) => {
-                                        tracing::trace!(target: TARGET, "Found client waiting for response");
+                                        tracing::trace!(target: TARGET, sequence_number, "Found client waiting for response");
 
                                         if let Err(command) = response.send(Ok(command)){
-                                            tracing::warn!(target: TARGET, "Failed to send response to client");
-                                            tracing::trace!(target: TARGET, "Piping command to events stream");
+                                            tracing::warn!(target: TARGET, sequence_number, "Failed to send response to client");
+                                            tracing::trace!(target: TARGET, sequence_number, "Piping command to events stream");
 
                                             let _ = reader_events_sink.send(Event::Command(command.expect("Must be ok"))).await;
                                         }
@@ -312,7 +314,7 @@ where
 
                                 // The writer has sent an unbind and now waiting for the response
                                 if let CommandId::UnbindResp = command_id {
-                                    tracing::trace!(target: TARGET, "Unbind response received");
+                                    tracing::trace!(target: TARGET, sequence_number, "Unbind response received");
 
                                     // The writer is waiting for this to terminate gracefully
                                     let _ = intern_unbind_tx.send(());
@@ -362,12 +364,14 @@ where
                             break
                         };
 
-                        tracing::trace!(target: TARGET, ?command, "Sending command");
+                        let sequence_number = command.sequence_number();
+
+                        tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
 
                         if let Err(err) = smpp_writer.send(&command).await {
                             let err = Error::from(err);
 
-                            tracing::error!(target: TARGET, ?err, "Error sending command");
+                            tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
 
                             let _ = writer_events_sink.send(Event::Error(err)).await;
 
@@ -391,12 +395,14 @@ where
 
                         match action {
                             Action::SendCommand(SendCommand {command, response}) => {
-                                tracing::trace!(target: TARGET, ?command, "Sending command");
+                                let sequence_number = command.sequence_number();
+
+                                tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
 
                                 if let Err(err) = smpp_writer.send(&command).await {
                                     let err = Error::from(err);
 
-                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+                                    tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
 
                                     let _ = response.send(Err(err));
 
@@ -406,24 +412,24 @@ where
                                 if let CommandId::Unbind = command.id() {
                                     tracing::debug!(target: TARGET, "Client requested unbind");
 
-                                    tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
+                                    tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
 
                                     writer_session_state_holder.set_session_state(SessionState::Unbound);
                                 }
-
-                                let sequence_number = command.sequence_number();
 
                                 writer_responses.lock().insert(sequence_number, response);
 
                                 tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
                             },
                             Action::SendCommandNoResponse(SendCommandNoResponse {command, response}) => {
-                                tracing::trace!(target: TARGET, ?command, "Sending command");
+                                let sequence_number = command.sequence_number();
+
+                                tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
 
                                 if let Err(err) = smpp_writer.send(&command).await {
                                     let err = Error::from(err);
 
-                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+                                    tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
 
                                     let _ = response.send(Err(err));
 
@@ -445,12 +451,14 @@ where
 
                         match action {
                             Action::SendCommand(SendCommand {command, response, ..}) => {
-                                tracing::trace!(target: TARGET, ?command, "Sending command");
+                                let sequence_number = command.sequence_number();
+
+                                tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
 
                                 if let Err(err) = smpp_writer.send(&command).await {
                                     let err = Error::from(err);
 
-                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+                                    tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
 
                                     let _ = response.send(Err(err));
 

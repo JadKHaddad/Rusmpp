@@ -1,5 +1,3 @@
-#![warn(missing_docs)]
-
 crate::create! {
     #[repr(u16)]
     @[skip_test]

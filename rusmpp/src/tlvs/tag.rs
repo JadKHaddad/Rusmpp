@@ -41,7 +41,7 @@ crate::create! {
         /// mobile station, for example a smart card in the mobile station or an external device
         /// connected to the mobile station.
         SourceAddrSubunit = 0x000D,
-        /// The correct network associated with the originatingdevice.
+        /// The correct network associated with the originating device.
         ///
         /// The source_network_type parameter is used to indicate the network type associated with the
         /// device that originated the message.
@@ -264,7 +264,7 @@ crate::create! {
         ///
         /// The more_messages_to_send parameter is used by the ESME in the submit_sm and
         /// data_sm operations to indicate to the MC that there are further messages for the same
-        /// destination SME. The MC may use this setting for network resource optimisation.
+        /// destination SME. The MC may use this setting for network resource optimization.
         MoreMessagesToSend = 0x0426,
         /// Should be present for MC Delivery Receipts and Intermediate Notifications.
         ///

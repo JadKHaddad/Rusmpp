@@ -9,42 +9,99 @@ use rusmpp::{
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::Framed;
 
-/// A server that accepts bind requests and submit_sm requests. And responds with delay
-pub async fn run_delay_server<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
-    stream: S,
-    delay: Duration,
+#[derive(Debug)]
+pub struct Server {
+    bind_delay: Duration,
     enquire_link_delay: Duration,
-) {
-    let mut framed = Framed::new(stream, CommandCodec::new());
+    response_delay: Duration,
+    close_connection_delay: Duration,
+}
 
-    while let Some(Ok(command)) = framed.next().await {
-        let pdu: Pdu = match command.id() {
-            CommandId::EnquireLink => {
-                tokio::time::sleep(enquire_link_delay).await;
+impl Server {
+    pub fn new() -> Self {
+        Self {
+            bind_delay: Duration::from_millis(500),
+            enquire_link_delay: Duration::from_millis(500),
+            response_delay: Duration::from_millis(500),
+            close_connection_delay: Duration::from_secs(10),
+        }
+    }
 
-                Pdu::EnquireLinkResp
-            }
-            CommandId::Unbind => Pdu::UnbindResp,
-            CommandId::BindTransmitter => BindTransmitterResp::default().into(),
-            CommandId::BindReceiver => BindReceiverResp::default().into(),
-            CommandId::BindTransceiver => BindTransceiverResp::default().into(),
-            CommandId::SubmitSm => SubmitSmResp::default().into(),
+    pub fn bind_delay(mut self, delay: Duration) -> Self {
+        self.bind_delay = delay;
+        self
+    }
 
-            _ => {
-                break;
+    pub fn enquire_link_delay(mut self, delay: Duration) -> Self {
+        self.enquire_link_delay = delay;
+        self
+    }
+
+    pub fn response_delay(mut self, delay: Duration) -> Self {
+        self.response_delay = delay;
+        self
+    }
+
+    pub fn close_connection_delay(mut self, delay: Duration) -> Self {
+        self.close_connection_delay = delay;
+        self
+    }
+
+    pub async fn run<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(self, stream: S) {
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let future = async move {
+            while let Some(Ok(command)) = framed.next().await {
+                let pdu: Pdu = match command.id() {
+                    CommandId::EnquireLink => {
+                        tokio::time::sleep(self.enquire_link_delay).await;
+
+                        Pdu::EnquireLinkResp
+                    }
+                    CommandId::BindTransmitter => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindTransmitterResp::default().into()
+                    }
+                    CommandId::BindReceiver => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindReceiverResp::default().into()
+                    }
+                    CommandId::BindTransceiver => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindTransceiverResp::default().into()
+                    }
+                    CommandId::SubmitSm => {
+                        tokio::time::sleep(self.response_delay).await;
+
+                        SubmitSmResp::default().into()
+                    }
+                    CommandId::Unbind => {
+                        tokio::time::sleep(self.response_delay).await;
+
+                        Pdu::UnbindResp
+                    }
+
+                    _ => {
+                        // Anything else we crash
+                        break;
+                    }
+                };
+
+                let response = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(pdu);
+
+                framed
+                    .send(response)
+                    .await
+                    .expect("Failed to send response");
             }
         };
 
-        tokio::time::sleep(delay).await;
-
-        let response = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(command.sequence_number())
-            .pdu(pdu);
-
-        framed
-            .send(response)
-            .await
-            .expect("Failed to send response");
+        let _ = tokio::time::timeout(self.close_connection_delay, future).await;
     }
 }

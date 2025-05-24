@@ -13,7 +13,7 @@ use tokio_util::{
 
 use crate::{
     CommandExt, Event,
-    action::{Action, SendCommandAction},
+    action::{Action, SendCommand, SendCommandNoResponse},
     builder::ConnectionTimeouts,
     error::Error,
     session_state::SessionStateHolder,
@@ -153,7 +153,7 @@ where
                             .sequence_number(sequence_number)
                             .pdu(Pdu::EnquireLink);
 
-                        let (action, response) = SendCommandAction::new(command);
+                        let (action, response) = SendCommand::new(command);
 
                         let _ = intern_actions_tx.send(Action::SendCommand(action)).await;
 
@@ -374,7 +374,7 @@ where
                         };
 
                         match action {
-                            Action::SendCommand(SendCommandAction {command, response}) => {
+                            Action::SendCommand(SendCommand {command, response}) => {
                                 tracing::trace!(target: TARGET, ?command, "Sending command");
 
                                 if let Err(err) = smpp_writer.send(&command).await {
@@ -398,6 +398,23 @@ where
                                 let sequence_number = command.sequence_number();
 
                                 writer_responses.lock().insert(sequence_number, response);
+
+                                tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
+                            },
+                            Action::SendCommandNoResponse(SendCommandNoResponse {command, response}) => {
+                                tracing::trace!(target: TARGET, ?command, "Sending command");
+
+                                if let Err(err) = smpp_writer.send(&command).await {
+                                    let err = Error::from(err);
+
+                                    tracing::error!(target: TARGET, ?err, "Error sending command");
+
+                                    let _ = response.send(Err(err));
+
+                                    break
+                                }
+
+                                let _ = response.send(Ok(()));
                             },
                         }
                     }
@@ -411,8 +428,7 @@ where
                         };
 
                         match action {
-                            // TODO: this is duplicated code
-                            Action::SendCommand(SendCommandAction {command, response}) => {
+                            Action::SendCommand(SendCommand {command, response, ..}) => {
                                 tracing::trace!(target: TARGET, ?command, "Sending command");
 
                                 if let Err(err) = smpp_writer.send(&command).await {
@@ -429,6 +445,9 @@ where
 
                                 writer_responses.lock().insert(sequence_number, response);
                             },
+                            _ => {
+                                // Internal actions always wait for a response
+                            }
                         }
                     }
                 }

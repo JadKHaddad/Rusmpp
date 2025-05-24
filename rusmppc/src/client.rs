@@ -10,7 +10,7 @@ use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::{
     CommandExt,
-    action::{Action, SendCommandAction},
+    action::{Action, SendCommand, SendCommandNoResponse},
     error::Error,
     session_state::SessionStateHolder,
 };
@@ -156,7 +156,7 @@ impl ClientInner {
             .sequence_number(sequence_number)
             .pdu(pdu.into());
 
-        let (action, response) = SendCommandAction::new(command);
+        let (action, response) = SendCommand::new(command);
 
         self.actions_sink
             .send(Action::SendCommand(action))
@@ -186,7 +186,7 @@ impl ClientInner {
             .sequence_number(sequence_number)
             .pdu(pdu.into());
 
-        let (action, response) = SendCommandAction::new(command);
+        let (action, response) = SendCommand::new(command);
 
         self.actions_sink
             .send(Action::SendCommand(action))
@@ -197,6 +197,25 @@ impl ClientInner {
             .await
             .map_err(|_| Error::Timeout)?
             .map_err(|_| Error::ConnectionClosed)?
+    }
+
+    async fn request_without_response(&self, pdu: impl Into<Pdu>) -> Result<(), Error> {
+        let sequence_number = self.next_sequence_number();
+
+        let command = Command::builder()
+            .status(CommandStatus::EsmeRok)
+            .sequence_number(sequence_number)
+            .pdu(pdu.into());
+
+        let (action, response) = SendCommandNoResponse::new(command);
+
+        self.actions_sink
+            .send(Action::SendCommandNoResponse(action))
+            .await
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        // No need to timeout here, since we are not waiting for a response from the server.
+        response.await.map_err(|_| Error::ConnectionClosed)?
     }
 
     pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
@@ -240,6 +259,15 @@ impl ClientInner {
             .ok_and_matches(CommandId::UnbindResp)
             .map(|_| ())
             .map_err(Error::unexpected_response)
+    }
+
+    pub async fn generic_nack(&self) -> Result<(), Error> {
+        let session_state = self.session_state();
+
+        match session_state {
+            SessionState::Closed => Err(Error::ConnectionClosed),
+            _ => self.request_without_response(Pdu::GenericNack).await,
+        }
     }
 
     /// Wait for the connection to be terminated.

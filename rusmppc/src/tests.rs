@@ -5,7 +5,7 @@ use std::{
 };
 
 use rusmpp::{CommandId, pdus::SubmitSm, session::SessionState};
-use server::run_delay_server;
+use server::Server;
 use tokio_stream::StreamExt;
 
 use crate::{ConnectionBuilder, Event, error::Error};
@@ -72,13 +72,22 @@ async fn bind() {
         .await
         .expect("Failed to submit_sm");
 
+    // tokio::time::sleep(Duration::from_secs(2)).await;
     // drop(client);
+
+    // or
+
+    // tokio::time::sleep(Duration::from_secs(2)).await;
+    // client.unbind().await.expect("Failed to unbind");
+    // let _ = client.terminated().await;
 
     // if the events task is done, this means that all tasks have terminated
     // if got end of stream in the reader task,
     // or all clients were dropped, so we closed the connection.
     //
-    // To ensure graceful shutdown, drop all clients and await the events stream
+    // To ensure graceful shutdown, drop all clients and await the events stream to finish.
+    // Or client::unbind() then client::terminated().
+
     let _ = events.await;
 }
 
@@ -113,12 +122,7 @@ async fn cancel_request_future() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(
-            server,
-            Duration::from_millis(500),
-            Duration::from_millis(500),
-        )
-        .await;
+        Server::new().run(server).await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -156,6 +160,56 @@ async fn cancel_request_future() {
     let _ = client.terminated().await;
 }
 
+/// The response, if any, should be sent to the events stream.
+#[tokio::test]
+async fn request_timeout() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new()
+            .bind_delay(Duration::from_millis(200))
+            .response_delay(Duration::from_secs(1))
+            .run(server)
+            .await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+        .response_timeout(Duration::from_millis(500))
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    let error = client
+        .submit_sm(SubmitSm::builder().build())
+        .await
+        .unwrap_err();
+
+    assert!(matches!(error, Error::Timeout));
+
+    // The submit sm response should be sent to the events stream
+
+    let Some(event) = events.next().await else {
+        panic!("No event received");
+    };
+
+    let Event::Command(command) = event else {
+        panic!("Expected command event, got {:?}", event);
+    };
+
+    assert!(matches!(command.id(), CommandId::SubmitSmResp));
+    assert_eq!(command.sequence_number(), 2);
+
+    let error = client.unbind().await.unwrap_err();
+
+    assert!(matches!(error, Error::Timeout));
+
+    let _ = client.terminated().await;
+}
+
 #[tokio::test]
 async fn unbind() {
     init_tracing();
@@ -163,12 +217,7 @@ async fn unbind() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(
-            server,
-            Duration::from_millis(500),
-            Duration::from_millis(500),
-        )
-        .await;
+        Server::new().run(server).await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -195,12 +244,7 @@ async fn cancel_unbind_future() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(
-            server,
-            Duration::from_millis(500),
-            Duration::from_millis(500),
-        )
-        .await;
+        Server::new().run(server).await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -243,12 +287,7 @@ async fn request_after_closing() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(
-            server,
-            Duration::from_millis(500),
-            Duration::from_millis(500),
-        )
-        .await;
+        Server::new().run(server).await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -278,7 +317,10 @@ async fn enquire_link_timeout() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(server, Duration::from_millis(500), Duration::from_secs(5)).await;
+        Server::new()
+            .enquire_link_delay(Duration::from_secs(5))
+            .run(server)
+            .await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -291,6 +333,45 @@ async fn enquire_link_timeout() {
         .assume_connected(client)
         .await
         .expect("Failed to connect");
+
+    let _ = client.terminated().await;
+}
+
+#[tokio::test]
+async fn server_crash_on_request() {
+    init_tracing();
+
+    // Check what happens if we crash the server on a request.
+}
+
+#[tokio::test]
+async fn connection_lost() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new()
+            .close_connection_delay(Duration::from_secs(1))
+            .run(server)
+            .await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, _) = ConnectionBuilder::new(socket_addr)
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    tokio::time::sleep(Duration::from_secs(2)).await;
+
+    let error = client
+        .submit_sm(SubmitSm::builder().build())
+        .await
+        .unwrap_err();
+
+    assert!(matches!(error, Error::ConnectionClosed));
 
     let _ = client.terminated().await;
 }

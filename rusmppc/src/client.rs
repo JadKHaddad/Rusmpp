@@ -1,11 +1,12 @@
 use std::{ops::Deref, sync::Arc, time::Duration};
 
+use parking_lot::Mutex;
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
-use tokio::sync::mpsc::Sender;
+use tokio::sync::mpsc::{Receiver, Sender};
 
 use crate::{
     CommandExt,
@@ -40,12 +41,14 @@ impl Client {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
+        termination_rx: Receiver<()>,
     ) -> Self {
         Self {
             inner: Arc::new(ClientInner::new(
                 actions_sink,
                 response_timeout,
                 session_state_holder,
+                termination_rx,
             )),
         }
     }
@@ -65,6 +68,8 @@ pub struct ClientInner {
     actions_sink: Sender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
+    /// await the termination receiver to ensure that the connection tasks were terminated
+    termination_rx: Mutex<Option<Receiver<()>>>,
 }
 
 impl ClientInner {
@@ -72,11 +77,13 @@ impl ClientInner {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
+        termination_rx: Receiver<()>,
     ) -> Self {
         Self {
             actions_sink,
             response_timeout,
             session_state_holder,
+            termination_rx: Mutex::new(Some(termination_rx)),
         }
     }
 }
@@ -209,5 +216,15 @@ impl ClientInner {
                 _ => Err(Command::from_parts(id, status, sequence_number, pdu)),
             })?
             .map_err(Error::unexpected_response)
+    }
+
+    /// Wait for the connection to be terminated.
+    pub async fn terminated(&self) {
+        let termination_rx = self.termination_rx.lock().take();
+
+        if let Some(mut termination_rx) = termination_rx {
+            // wait for the termination signal
+            let _ = termination_rx.recv().await;
+        }
     }
 }

@@ -103,6 +103,7 @@ impl ConnectionBuilder {
     {
         let (events_tx, events_rx) = unbounded::<Event>();
         let (actions_tx, actions_rx) = channel::<Action>(100);
+        let (termination_tx, termination_rx) = channel::<()>(1);
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
@@ -112,13 +113,19 @@ impl ConnectionBuilder {
             stream,
             events_tx,
             ReceiverStream::new(actions_rx),
+            termination_tx,
             session_state_holder.clone(),
             ConnectionConfig::new(self.max_command_length, self.timeouts),
         );
 
         connection.spawn();
 
-        let client = Client::new(actions_tx, response_timeout, session_state_holder);
+        let client = Client::new(
+            actions_tx,
+            response_timeout,
+            session_state_holder,
+            termination_rx,
+        );
 
         match self.bind_mode {
             BindMode::Tx => {

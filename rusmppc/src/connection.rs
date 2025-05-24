@@ -43,6 +43,7 @@ pub struct Connection<Socket, Sink, Stream> {
     events_sink: Sink,
     /// Receive smpp actions from the client.
     actions_stream: Stream,
+    termination_tx: tokio::sync::mpsc::Sender<()>,
     session_state_holder: SessionStateHolder,
     config: ConnectionConfig,
 }
@@ -52,12 +53,14 @@ impl<So, Si, St> Connection<So, Si, St> {
         socket: So,
         events_sink: Si,
         actions_stream: St,
+        termination_tx: tokio::sync::mpsc::Sender<()>,
         session_state_holder: SessionStateHolder,
         config: ConnectionConfig,
     ) -> Self {
         Self {
             socket,
             events_sink,
+            termination_tx,
             actions_stream,
             session_state_holder,
             config,
@@ -121,8 +124,15 @@ where
         let reader_responses = responses.clone();
         let writer_responses = responses;
 
+        // When these are dropped, the client knows that the connection is closed
+        let enquire_link_termination_tx = self.termination_tx.clone();
+        let reader_termination_tx = self.termination_tx.clone();
+        let writer_termination_tx = self.termination_tx;
+
         let enquire_link = async move {
             const TARGET: &str = "rusmppc::connection::enquire_link";
+
+            let _enquire_link_termination_tx = enquire_link_termination_tx;
 
             tracing::trace!(target: TARGET, "Started");
 
@@ -201,6 +211,8 @@ where
 
         let reader = async move {
             const TARGET: &str = "rusmppc::connection::reader";
+
+            let _reader_termination_tx = reader_termination_tx;
 
             tracing::trace!(target: TARGET, "Started");
 
@@ -307,6 +319,8 @@ where
 
         let writer = async move {
             const TARGET: &str = "rusmppc::connection::writer";
+
+            let _writer_termination_tx = writer_termination_tx;
 
             tracing::trace!(target: TARGET, "Started");
 

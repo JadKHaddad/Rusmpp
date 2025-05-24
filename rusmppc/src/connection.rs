@@ -159,8 +159,8 @@ where
 
                         match tokio::time::timeout(enquire_link_timeout, response)
                             .await {
-                                Err(timeout) => {
-                                    tracing::error!(target: TARGET, ?timeout, "Enquire link timeout");
+                                Err(_) => {
+                                    tracing::error!(target: TARGET, "Enquire link timeout");
 
                                     let _ = enquire_link_events_sink
                                             .send(Event::Error(Error::EnquireLinkTimeout { timeout: enquire_link_timeout }))
@@ -229,6 +229,8 @@ where
                         let Some(command) = command else {
                             tracing::debug!(target: TARGET, "End of stream");
 
+                            tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
+
                             reader_session_state_holder.set_session_state(SessionState::Closed);
 
                             break
@@ -254,6 +256,8 @@ where
                                 if let CommandId::Unbind = command.id() {
                                     tracing::trace!(target: TARGET, "Unbind received");
 
+                                    tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
+
                                     reader_session_state_holder.set_session_state(SessionState::Unbound);
 
                                     let command = Command::builder()
@@ -266,15 +270,7 @@ where
                                     continue
                                 }
 
-                                // The writer has sent an unbind and now waiting for the response
-                                if let CommandId::UnbindResp = command.id() {
-                                    tracing::trace!(target: TARGET, "Unbind response received");
-
-                                    // The writer is waiting for this to terminate gracefully
-                                    let _ = intern_unbind_tx.send(());
-
-                                    break
-                                }
+                                let command_id = command.id();
 
                                 let sequence_number = command.sequence_number();
 
@@ -296,6 +292,16 @@ where
                                             let _ = reader_events_sink.send(Event::Command(command.expect("Must be ok"))).await;
                                         }
                                     }
+                                }
+
+                                // The writer has sent an unbind and now waiting for the response
+                                if let CommandId::UnbindResp = command_id {
+                                    tracing::trace!(target: TARGET, "Unbind response received");
+
+                                    // The writer is waiting for this to terminate gracefully
+                                    let _ = intern_unbind_tx.send(());
+
+                                    break
                                 }
                             }
                             Err(err) => {
@@ -381,6 +387,14 @@ where
                                     break
                                 }
 
+                                if let CommandId::Unbind = command.id() {
+                                    tracing::debug!(target: TARGET, "Client requested unbind");
+
+                                    tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
+
+                                    writer_session_state_holder.set_session_state(SessionState::Unbound);
+                                }
+
                                 let sequence_number = command.sequence_number();
 
                                 writer_responses.lock().insert(sequence_number, response);
@@ -436,10 +450,15 @@ where
 
                     writer_token.cancel();
 
+                    tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
+
                     writer_session_state_holder.set_session_state(SessionState::Closed);
                 }
                 _ => {
                     // We unbind here
+
+                    tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
+
                     writer_session_state_holder.set_session_state(SessionState::Unbound);
 
                     let sequence_number = writer_session_state_holder.next_sequence_number();

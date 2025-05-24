@@ -13,15 +13,23 @@ use tokio_util::codec::Framed;
 pub async fn run_delay_server<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(
     stream: S,
     delay: Duration,
+    enquire_link_delay: Duration,
 ) {
     let mut framed = Framed::new(stream, CommandCodec::new());
 
     while let Some(Ok(command)) = framed.next().await {
         let pdu: Pdu = match command.id() {
+            CommandId::EnquireLink => {
+                tokio::time::sleep(enquire_link_delay).await;
+
+                Pdu::EnquireLinkResp
+            }
+            CommandId::Unbind => Pdu::UnbindResp,
             CommandId::BindTransmitter => BindTransmitterResp::default().into(),
             CommandId::BindReceiver => BindReceiverResp::default().into(),
             CommandId::BindTransceiver => BindTransceiverResp::default().into(),
             CommandId::SubmitSm => SubmitSmResp::default().into(),
+
             _ => {
                 break;
             }

@@ -176,6 +176,8 @@ impl ClientInner {
     //      because the response may never come, and this would be a memory leak.
     //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
     // We should probably do 2.
+    //
+    // We have the same problem on cancellation, but we can't send a remove command id action on cancellation,
     async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
         let sequence_number = self.next_sequence_number();
 
@@ -204,6 +206,9 @@ impl ClientInner {
             SessionState::BoundTx | SessionState::BoundTrx => {
                 self.request(submit_sm.into()).await?
             }
+            SessionState::Closed => {
+                return Err(Error::ConnectionClosed);
+            }
             session_state => return Err(Error::InvalidSessionState { session_state }),
         };
 
@@ -215,6 +220,25 @@ impl ClientInner {
                 Some(Pdu::SubmitSmResp(response)) => Ok(response),
                 _ => Err(Command::from_parts(id, status, sequence_number, pdu)),
             })?
+            .map_err(Error::unexpected_response)
+    }
+
+    pub async fn unbind(&self) -> Result<(), Error> {
+        let session_state = self.session_state();
+
+        let response = match session_state {
+            SessionState::BoundTx | SessionState::BoundRx | SessionState::BoundTrx => {
+                self.request(Pdu::Unbind).await?
+            }
+            SessionState::Closed => {
+                return Err(Error::ConnectionClosed);
+            }
+            session_state => return Err(Error::InvalidSessionState { session_state }),
+        };
+
+        response
+            .ok_and_matches(CommandId::UnbindResp)
+            .map(|_| ())
             .map_err(Error::unexpected_response)
     }
 

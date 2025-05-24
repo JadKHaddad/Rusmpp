@@ -4,7 +4,7 @@ use std::{
     time::Duration,
 };
 
-use rusmpp::{CommandId, pdus::SubmitSm};
+use rusmpp::{CommandId, pdus::SubmitSm, session::SessionState};
 use server::run_delay_server;
 use tokio_stream::StreamExt;
 
@@ -103,6 +103,9 @@ async fn bind_timeout() {
     tokio::time::sleep(Duration::from_millis(500)).await;
 }
 
+/// Cancelling the request future should not cancel the request itself.
+///
+/// The response, if any, should be sent to the events stream.
 #[tokio::test]
 async fn cancel_request_future() {
     init_tracing();
@@ -110,7 +113,12 @@ async fn cancel_request_future() {
     let (server, client) = tokio::io::duplex(1024);
 
     tokio::spawn(async move {
-        run_delay_server(server, Duration::from_millis(500)).await;
+        run_delay_server(
+            server,
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+        )
+        .await;
     });
 
     let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
@@ -142,4 +150,147 @@ async fn cancel_request_future() {
 
     assert!(matches!(command.id(), CommandId::SubmitSmResp));
     assert_eq!(command.sequence_number(), 2);
+
+    client.unbind().await.expect("Failed to unbind");
+
+    let _ = client.terminated().await;
+}
+
+#[tokio::test]
+async fn unbind() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        run_delay_server(
+            server,
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+        )
+        .await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, _events) = ConnectionBuilder::new(socket_addr)
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    client.unbind().await.expect("Failed to unbind");
+
+    // Can't assert the state of the client to be unbound here.
+
+    let _ = client.terminated().await;
+
+    let session_state = client.session_state();
+    assert!(matches!(session_state, SessionState::Closed));
+}
+
+#[tokio::test]
+async fn cancel_unbind_future() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        run_delay_server(
+            server,
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+        )
+        .await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+        .response_timeout(Duration::from_millis(1000))
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    let future = client.unbind();
+
+    tokio::select! {
+        _ = tokio::time::sleep(Duration::from_millis(100)) => {
+            tracing::debug!("Canceling request future");
+        }
+        _ = future => {}
+    }
+
+    // The submit sm response should be sent to the events stream
+
+    let Some(event) = events.next().await else {
+        panic!("No event received");
+    };
+
+    let Event::Command(command) = event else {
+        panic!("Expected command event, got {:?}", event);
+    };
+
+    assert!(matches!(command.id(), CommandId::UnbindResp));
+    assert_eq!(command.sequence_number(), 2);
+
+    let _ = client.terminated().await;
+}
+
+#[tokio::test]
+async fn request_after_closing() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        run_delay_server(
+            server,
+            Duration::from_millis(500),
+            Duration::from_millis(500),
+        )
+        .await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, _) = ConnectionBuilder::new(socket_addr)
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    client.unbind().await.expect("Failed to unbind");
+
+    let error = client
+        .submit_sm(SubmitSm::builder().build())
+        .await
+        .unwrap_err();
+
+    assert!(matches!(error, Error::ConnectionClosed));
+
+    let _ = client.terminated().await;
+}
+
+/// Enquire link timeout should close the connection.
+#[tokio::test]
+async fn enquire_link_timeout() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        run_delay_server(server, Duration::from_millis(500), Duration::from_secs(5)).await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, _) = ConnectionBuilder::new(socket_addr)
+        // Send enquire link every 2 seconds
+        .enquire_link_timeout(Duration::from_secs(2))
+        // Wait for 1 second for the response
+        .response_timeout(Duration::from_secs(1))
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    let _ = client.terminated().await;
 }

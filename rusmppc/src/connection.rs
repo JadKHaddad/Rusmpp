@@ -203,7 +203,6 @@ where
                                     }
                                     Err(_) => {
                                         // Reader dropped and writer dropped
-                                        // responses map is dropped
 
                                         break
                                     }
@@ -483,6 +482,8 @@ where
                 }
                 SessionState::Unbound | SessionState::Open => {
                     // Already received unbind request from server
+                    // Or
+                    // Client requested unbind
                     // Or
                     // We were not bound to begin with
 

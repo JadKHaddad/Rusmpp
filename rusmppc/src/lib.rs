@@ -5,6 +5,7 @@
 mod action;
 
 mod bind;
+pub use bind::BindMode;
 
 mod builder;
 pub use builder::ConnectionBuilder;

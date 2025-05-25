@@ -27,12 +27,12 @@ fn next_id() -> usize {
 }
 
 #[derive(Debug, Default)]
-pub struct ConnectionConfig {
+pub struct ManagedConnectionConfig {
     max_command_length: usize,
     timeouts: ConnectionTimeouts,
 }
 
-impl ConnectionConfig {
+impl ManagedConnectionConfig {
     pub const fn new(max_command_length: usize, timeouts: ConnectionTimeouts) -> Self {
         Self {
             max_command_length,
@@ -51,7 +51,7 @@ pub struct Connection<Socket, Sink, Stream> {
     termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
     pending_responses: PendingResponses,
-    config: ConnectionConfig,
+    config: ManagedConnectionConfig,
 }
 
 impl<So, Si, St> Connection<So, Si, St> {
@@ -62,7 +62,7 @@ impl<So, Si, St> Connection<So, Si, St> {
         termination_token: CancellationToken,
         session_state_holder: SessionStateHolder,
         pending_responses: PendingResponses,
-        config: ConnectionConfig,
+        config: ManagedConnectionConfig,
     ) -> Self {
         Self {
             socket,

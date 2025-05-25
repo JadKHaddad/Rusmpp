@@ -294,7 +294,7 @@ impl ClientInner {
 
         match session_state {
             SessionState::BoundRx | SessionState::BoundTrx => {
-                // If BoundRx, we should have not received a DeliverSm
+                // If BoundTx, we should have not received a DeliverSm
                 self.request_without_response(deliver_sm_resp.into(), Some(sequence_number))
                     .await
             }

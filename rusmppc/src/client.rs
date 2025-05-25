@@ -7,13 +7,13 @@ use std::{
     time::Duration,
 };
 
-use parking_lot::Mutex;
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
-use tokio::sync::mpsc::{Receiver, UnboundedSender};
+use tokio::sync::mpsc::UnboundedSender;
+use tokio_util::sync::CancellationToken;
 
 use crate::{
     CommandExt, ConnectionBuilder,
@@ -58,14 +58,14 @@ impl Client {
         actions_sink: UnboundedSender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        termination_rx: Receiver<()>,
+        termination_token: CancellationToken,
     ) -> Self {
         Self {
             inner: Arc::new(ClientInner::new(
                 actions_sink,
                 response_timeout,
                 session_state_holder,
-                termination_rx,
+                termination_token,
             )),
         }
     }
@@ -93,8 +93,8 @@ pub struct ClientInner {
     actions_sink: UnboundedSender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
-    /// Await the termination receiver to ensure that the connection tasks were terminated
-    termination_rx: Mutex<Option<Receiver<()>>>,
+    /// Await the termination token to ensure that the connection tasks were terminated
+    termination_token: CancellationToken,
 }
 
 impl ClientInner {
@@ -102,13 +102,13 @@ impl ClientInner {
         actions_sink: UnboundedSender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        termination_rx: Receiver<()>,
+        termination_token: CancellationToken,
     ) -> Self {
         Self {
             actions_sink,
             response_timeout,
             session_state_holder,
-            termination_rx: Mutex::new(Some(termination_rx)),
+            termination_token,
         }
     }
 }
@@ -278,19 +278,9 @@ impl ClientInner {
         }
     }
 
-    // TODO: cancel safety. If this function was called and immediately dropped. The next call to it will resolve immediately.
-    // Which is obviously wrong.
-    // Its not even clone safe, since the a cloned client call to this function will resolve immediately.
-    // Use a cancellation token and cancel it in the connection when every task is terminated.
-
     /// Wait for the connection to be terminated.
     pub async fn terminated(&self) {
-        let termination_rx = self.termination_rx.lock().take();
-
-        if let Some(mut termination_rx) = termination_rx {
-            // wait for the termination signal
-            let _ = termination_rx.recv().await;
-        }
+        self.termination_token.cancelled().await;
     }
 }
 
@@ -299,7 +289,7 @@ use pin_project_lite::pin_project;
 pin_project! {
     /// The [`RequestFuture`] is used to wrap a pending request future and remove it's corresponding sequence number
     /// from the pending responses if the future got dropped.
-    pub struct RequestFuture<'a, F> {
+    struct RequestFuture<'a, F> {
         done: bool,
         sequence_number: u32,
         actions_sink: &'a UnboundedSender<Action>,

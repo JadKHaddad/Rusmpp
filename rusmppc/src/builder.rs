@@ -12,6 +12,7 @@ use tokio::{
     net::TcpStream,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
+use tokio_util::sync::CancellationToken;
 
 use crate::{
     Client, Event,
@@ -117,7 +118,7 @@ impl ConnectionBuilder {
     {
         let (events_tx, events_rx) = futures::channel::mpsc::unbounded::<Event>();
         let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
-        let (termination_tx, termination_rx) = tokio::sync::mpsc::channel::<()>(1);
+        let termination_token = CancellationToken::new();
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
@@ -127,7 +128,7 @@ impl ConnectionBuilder {
             stream,
             events_tx,
             UnboundedReceiverStream::new(actions_rx),
-            termination_tx,
+            termination_token.clone(),
             session_state_holder.clone(),
             ConnectionConfig::new(self.max_command_length, self.timeouts),
         );
@@ -138,7 +139,7 @@ impl ConnectionBuilder {
             actions_tx,
             response_timeout,
             session_state_holder,
-            termination_rx,
+            termination_token,
         );
 
         match self.bind_mode {

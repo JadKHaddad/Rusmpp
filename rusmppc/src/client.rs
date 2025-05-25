@@ -24,7 +24,7 @@ use crate::{
 ///
 /// The client is a handle to communicate with the `SMPP` server through a managed connection in the background.
 ///
-/// When all clients are dropped, an `unbind` command is sent to the server, and the connection is closed.
+/// When all clients are dropped, an [`Unbind`](Pdu::Unbind) command is sent to the server, and the connection is closed.
 #[derive(Debug)]
 pub struct Client {
     inner: Arc<ClientInner>,

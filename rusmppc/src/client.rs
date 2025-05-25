@@ -109,8 +109,8 @@ impl Client {
     }
 
     /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
-    pub async fn generic_nack(&self) -> Result<(), Error> {
-        self.inner.generic_nack().await
+    pub async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
+        self.inner.generic_nack(sequence_number).await
     }
 
     /// Wait for the connection to be terminated.
@@ -193,8 +193,12 @@ impl ClientInner {
         RequestFuture::new(&self.actions_sink, sequence_number, future)
     }
 
-    async fn request_without_response(&self, pdu: impl Into<Pdu>) -> Result<(), Error> {
-        let sequence_number = self.next_sequence_number();
+    async fn request_without_response(
+        &self,
+        pdu: impl Into<Pdu>,
+        sequence_number: Option<u32>,
+    ) -> Result<(), Error> {
+        let sequence_number = sequence_number.unwrap_or(self.next_sequence_number());
 
         let command = Command::builder()
             .status(CommandStatus::EsmeRok)
@@ -290,12 +294,15 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
-    async fn generic_nack(&self) -> Result<(), Error> {
+    async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
         let session_state = self.session_state();
 
         match session_state {
             SessionState::Closed => Err(Error::ConnectionClosed),
-            _ => self.request_without_response(Pdu::GenericNack).await,
+            _ => {
+                self.request_without_response(Pdu::GenericNack, Some(sequence_number))
+                    .await
+            }
         }
     }
 

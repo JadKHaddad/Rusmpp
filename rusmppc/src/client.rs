@@ -11,11 +11,11 @@ use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
-use tokio::sync::mpsc::UnboundedSender;
+use tokio::sync::mpsc::Sender;
 use tokio_util::sync::CancellationToken;
 
 use crate::{
-    CommandExt, ConnectionBuilder,
+    CommandExt, ConnectionBuilder, PendingRequests,
     action::{Action, SendCommand, SendCommandNoResponse},
     error::Error,
     session_state::SessionStateHolder,
@@ -44,9 +44,10 @@ impl Clone for Client {
 impl Client {
     /// Creates a new `SMPP` client.
     pub(crate) fn new(
-        actions_sink: UnboundedSender<Action>,
+        actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
+        pending_requests: PendingRequests,
         termination_token: CancellationToken,
     ) -> Self {
         Self {
@@ -54,6 +55,7 @@ impl Client {
                 actions_sink,
                 response_timeout,
                 session_state_holder,
+                pending_requests,
                 termination_token,
             )),
         }
@@ -72,6 +74,11 @@ impl Client {
     /// Returns the current sequence number of the client.
     pub fn sequence_number(&self) -> u32 {
         self.inner.sequence_number()
+    }
+
+    /// Returns the count of pending requests.
+    pub fn pending_requests(&self) -> usize {
+        self.inner.pending_requests()
     }
 
     pub(crate) async fn bind_transmitter(
@@ -121,25 +128,27 @@ impl Client {
 
 #[derive(Debug)]
 struct ClientInner {
-    /// Must be unbounded or else we need `AsyncDrop`. See [`RequestFuture`].
-    actions_sink: UnboundedSender<Action>,
+    actions_sink: Sender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
+    pending_requests: PendingRequests,
     /// Await the termination token to ensure that the connection tasks were terminated
     termination_token: CancellationToken,
 }
 
 impl ClientInner {
     const fn new(
-        actions_sink: UnboundedSender<Action>,
+        actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
+        pending_requests: PendingRequests,
         termination_token: CancellationToken,
     ) -> Self {
         Self {
             actions_sink,
             response_timeout,
             session_state_holder,
+            pending_requests,
             termination_token,
         }
     }
@@ -162,6 +171,10 @@ impl ClientInner {
         self.session_state_holder.set_session_state(session_state)
     }
 
+    fn pending_requests(&self) -> usize {
+        self.pending_requests.lock().len()
+    }
+
     fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
         let sequence_number = self.next_sequence_number();
 
@@ -175,6 +188,7 @@ impl ClientInner {
 
             self.actions_sink
                 .send(Action::SendCommand(action))
+                .await
                 .map_err(|_| Error::ConnectionClosed)?;
 
             tokio::time::timeout(self.response_timeout, response)
@@ -182,15 +196,14 @@ impl ClientInner {
                 .map_err(|_| Error::Timeout)
                 .inspect_err(|_| {
                     tracing::warn!(target: TARGET, sequence_number, "Request timed out");
+                    tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
 
-                    let _ = self
-                        .actions_sink
-                        .send(Action::RemoveSequenceNumber(sequence_number));
+                    self.pending_requests.lock().remove(&sequence_number);
                 })?
                 .map_err(|_| Error::ConnectionClosed)?
         };
 
-        RequestFuture::new(&self.actions_sink, sequence_number, future)
+        RequestFuture::new(&self.pending_requests, sequence_number, future)
     }
 
     async fn request_without_response(
@@ -209,6 +222,7 @@ impl ClientInner {
 
         self.actions_sink
             .send(Action::SendCommandNoResponse(action))
+            .await
             .map_err(|_| Error::ConnectionClosed)?;
 
         // No need to timeout here, since we are not waiting for a response from the server.
@@ -319,7 +333,7 @@ pin_project! {
     struct RequestFuture<'a, F> {
         done: bool,
         sequence_number: u32,
-        actions_sink: &'a UnboundedSender<Action>,
+        pending_requests: &'a PendingRequests,
         #[pin]
         fut: F,
     }
@@ -332,19 +346,20 @@ pin_project! {
                 let sequence_number = *this.sequence_number;
 
                 tracing::debug!(target: TARGET, sequence_number, "Request was cancelled");
+                tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
 
-                let _ = this.actions_sink.send(Action::RemoveSequenceNumber(*this.sequence_number));
+                (*this.pending_requests).lock().remove(&sequence_number);
             }
         }
     }
 }
 
 impl<'a, F> RequestFuture<'a, F> {
-    pub fn new(actions_sink: &'a UnboundedSender<Action>, sequence_number: u32, fut: F) -> Self {
+    pub fn new(pending_requests: &'a PendingRequests, sequence_number: u32, fut: F) -> Self {
         Self {
             done: false,
             sequence_number,
-            actions_sink,
+            pending_requests,
             fut,
         }
     }

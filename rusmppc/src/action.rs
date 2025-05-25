@@ -12,9 +12,6 @@ pub enum Action {
     SendCommand(SendCommand),
     /// Command will be sent without waiting for a response. e.g. `GenericNack`.
     SendCommandNoResponse(SendCommandNoResponse),
-    /// When a request times out, or the future is dropped, the corresponding
-    /// sequence number should be removed from the pending responses to prevent memory leaks.
-    RemoveSequenceNumber(u32),
 }
 
 #[derive(Debug)]

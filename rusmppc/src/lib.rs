@@ -22,6 +22,9 @@ pub mod error;
 mod event;
 pub use event::Event;
 
+mod request;
+pub(crate) use request::PendingRequests;
+
 mod session_state;
 
 #[cfg(test)]

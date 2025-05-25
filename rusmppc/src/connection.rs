@@ -1,10 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    },
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use futures::{Sink, SinkExt, Stream, StreamExt, channel::mpsc};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
@@ -19,7 +13,7 @@ use tokio_util::{
 use tracing::Instrument;
 
 use crate::{
-    CommandExt, Event,
+    CommandExt, Event, PendingRequests,
     action::{Action, SendCommand, SendCommandNoResponse},
     builder::ConnectionTimeouts,
     error::Error,
@@ -47,8 +41,6 @@ impl ConnectionConfig {
     }
 }
 
-type Responses = Arc<parking_lot::Mutex<HashMap<u32, oneshot::Sender<Result<Command, Error>>>>>;
-
 #[derive(Debug)]
 pub struct Connection<Socket, Sink, Stream> {
     socket: Socket,
@@ -58,6 +50,7 @@ pub struct Connection<Socket, Sink, Stream> {
     actions_stream: Stream,
     termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
+    pending_requests: PendingRequests,
     config: ConnectionConfig,
 }
 
@@ -68,6 +61,7 @@ impl<So, Si, St> Connection<So, Si, St> {
         actions_stream: St,
         termination_token: CancellationToken,
         session_state_holder: SessionStateHolder,
+        pending_requests: PendingRequests,
         config: ConnectionConfig,
     ) -> Self {
         Self {
@@ -76,6 +70,7 @@ impl<So, Si, St> Connection<So, Si, St> {
             termination_token,
             actions_stream,
             session_state_holder,
+            pending_requests,
             config,
         }
     }
@@ -136,9 +131,9 @@ where
         let enquire_link_timeout = self.config.timeouts.enquire_link;
         let response_timeout = self.config.timeouts.response;
 
-        let responses: Responses = Arc::new(parking_lot::Mutex::new(HashMap::new()));
-        let reader_responses = responses.clone();
-        let writer_responses = responses;
+        let pending_requests = self.pending_requests;
+        let reader_pending_requests = pending_requests.clone();
+        let writer_pending_requests = pending_requests;
 
         // When this is cancelled, the client knows that the connection is closed
         let termination_token = self.termination_token;
@@ -286,7 +281,7 @@ where
 
                                 let command_id = command.id();
 
-                                let response = reader_responses.lock().remove(&sequence_number);
+                                let response = reader_pending_requests.lock().remove(&sequence_number);
 
                                 match response {
                                     None => {
@@ -410,7 +405,7 @@ where
                                     writer_session_state_holder.set_session_state(SessionState::Unbound);
                                 }
 
-                                writer_responses.lock().insert(sequence_number, response);
+                                writer_pending_requests.lock().insert(sequence_number, response);
 
                                 tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
                             },
@@ -430,13 +425,6 @@ where
                                 }
 
                                 let _ = response.send(Ok(()));
-                            },
-                            Action::RemoveSequenceNumber(sequence_number) => {
-                                tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
-
-                                if writer_responses.lock().remove(&sequence_number).is_none() {
-                                    tracing::warn!(target: TARGET, sequence_number, "No response found for sequence number");
-                                }
                             },
                         }
                     }
@@ -467,7 +455,7 @@ where
 
                                 let sequence_number = command.sequence_number();
 
-                                writer_responses.lock().insert(sequence_number, response);
+                                writer_pending_requests.lock().insert(sequence_number, response);
                             },
                             _ => {
                                 // Internal actions always wait for a response

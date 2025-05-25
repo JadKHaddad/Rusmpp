@@ -1,4 +1,4 @@
-use std::{fmt, net::SocketAddr, time::Duration};
+use std::{collections::HashMap, fmt, net::SocketAddr, sync::Arc, time::Duration};
 
 use futures::Stream;
 use rusmpp::{
@@ -11,7 +11,7 @@ use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpStream,
 };
-use tokio_stream::wrappers::UnboundedReceiverStream;
+use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::sync::CancellationToken;
 
 use crate::{
@@ -117,19 +117,21 @@ impl ConnectionBuilder {
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {
         let (events_tx, events_rx) = futures::channel::mpsc::unbounded::<Event>();
-        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
+        let (actions_tx, actions_rx) = tokio::sync::mpsc::channel::<Action>(100);
         let termination_token = CancellationToken::new();
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
+        let pending_requests = Arc::new(parking_lot::Mutex::new(HashMap::new()));
 
         let response_timeout = self.timeouts.response;
 
         let connection = Connection::new(
             stream,
             events_tx,
-            UnboundedReceiverStream::new(actions_rx),
+            ReceiverStream::new(actions_rx),
             termination_token.clone(),
             session_state_holder.clone(),
+            pending_requests.clone(),
             ConnectionConfig::new(self.max_command_length, self.timeouts),
         );
 
@@ -139,6 +141,7 @@ impl ConnectionBuilder {
             actions_tx,
             response_timeout,
             session_state_holder,
+            pending_requests,
             termination_token,
         );
 

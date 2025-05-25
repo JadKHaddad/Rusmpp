@@ -439,6 +439,13 @@ where
 
                                 let _ = response.send(Ok(()));
                             },
+                            Action::RemoveSequenceNumber(sequence_number) => {
+                                tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
+
+                                if writer_responses.lock().remove(&sequence_number).is_none() {
+                                    tracing::warn!(target: TARGET, sequence_number, "No response found for sequence number");
+                                }
+                            },
                         }
                     }
                     action = intern_actions_rx.next() => {

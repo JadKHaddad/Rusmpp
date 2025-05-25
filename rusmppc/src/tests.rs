@@ -114,6 +114,7 @@ async fn bind_timeout() {
 /// Cancelling the request future should not cancel the request itself.
 ///
 /// The response, if any, should be sent to the events stream.
+/// The sequence number should also be removed from the pending responses
 #[tokio::test]
 async fn cancel_request_future() {
     init_tracing();
@@ -141,6 +142,8 @@ async fn cancel_request_future() {
         _ = future => {}
     }
 
+    // Checking the pending responses number is not accurate.
+
     // The submit sm response should be sent to the events stream
 
     let Some(event) = events.next().await else {
@@ -160,6 +163,7 @@ async fn cancel_request_future() {
 }
 
 /// The response, if any, should be sent to the events stream.
+/// The sequence number should also be removed from the pending responses
 #[tokio::test]
 async fn request_timeout() {
     init_tracing();

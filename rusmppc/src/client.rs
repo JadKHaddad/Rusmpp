@@ -1,4 +1,11 @@
-use std::{net::SocketAddr, ops::Deref, sync::Arc, time::Duration};
+use std::{
+    net::SocketAddr,
+    ops::Deref,
+    pin::Pin,
+    sync::Arc,
+    task::{Context, Poll},
+    time::Duration,
+};
 
 use parking_lot::Mutex;
 use rusmpp::{
@@ -6,7 +13,7 @@ use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::{Receiver, UnboundedSender};
 
 use crate::{
     CommandExt, ConnectionBuilder,
@@ -14,6 +21,8 @@ use crate::{
     error::Error,
     session_state::SessionStateHolder,
 };
+
+const TARGET: &str = "rusmppc::client";
 
 /// `SMPP` Client.
 ///
@@ -46,7 +55,7 @@ impl Clone for Client {
 impl Client {
     /// Creates a new `SMPP` client.
     pub(crate) fn new(
-        actions_sink: Sender<Action>,
+        actions_sink: UnboundedSender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
         termination_rx: Receiver<()>,
@@ -80,16 +89,17 @@ impl Client {
 #[doc(hidden)]
 #[derive(Debug)]
 pub struct ClientInner {
-    actions_sink: Sender<Action>,
+    /// Must be unbounded or else we need `AsyncDrop`. See [`RequestFuture`].
+    actions_sink: UnboundedSender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
-    /// await the termination receiver to ensure that the connection tasks were terminated
+    /// Await the termination receiver to ensure that the connection tasks were terminated
     termination_rx: Mutex<Option<Receiver<()>>>,
 }
 
 impl ClientInner {
     const fn new(
-        actions_sink: Sender<Action>,
+        actions_sink: UnboundedSender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
         termination_rx: Receiver<()>,
@@ -175,7 +185,6 @@ impl ClientInner {
 
         self.actions_sink
             .send(Action::SendCommand(action))
-            .await
             .map_err(|_| Error::ConnectionClosed)?;
 
         tokio::time::timeout(self.response_timeout, response)
@@ -184,34 +193,35 @@ impl ClientInner {
             .map_err(|_| Error::ConnectionClosed)?
     }
 
-    // TODO: We have two options if this times out:
-    //
-    // 1. Send a disconnect action to the connection to terminate
-    // 2. Send a remove command_id action to the connection, to remove the command id from the map of responses,
-    //      because the response may never come, and this would be a memory leak.
-    //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
-    // We should probably do 2.
-    //
-    // We have the same problem on cancellation, but we can't send a remove command id action on cancellation,
-    async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
+    fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
         let sequence_number = self.next_sequence_number();
 
-        let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(sequence_number)
-            .pdu(pdu.into());
+        let future = async move {
+            let command = Command::builder()
+                .status(CommandStatus::EsmeRok)
+                .sequence_number(sequence_number)
+                .pdu(pdu.into());
 
-        let (action, response) = SendCommand::new(command);
+            let (action, response) = SendCommand::new(command);
 
-        self.actions_sink
-            .send(Action::SendCommand(action))
-            .await
-            .map_err(|_| Error::ConnectionClosed)?;
+            self.actions_sink
+                .send(Action::SendCommand(action))
+                .map_err(|_| Error::ConnectionClosed)?;
 
-        tokio::time::timeout(self.response_timeout, response)
-            .await
-            .map_err(|_| Error::Timeout)?
-            .map_err(|_| Error::ConnectionClosed)?
+            tokio::time::timeout(self.response_timeout, response)
+                .await
+                .map_err(|_| Error::Timeout)
+                .inspect_err(|_| {
+                    tracing::warn!(target: TARGET, sequence_number, "Request timed out");
+
+                    let _ = self
+                        .actions_sink
+                        .send(Action::RemoveSequenceNumber(sequence_number));
+                })?
+                .map_err(|_| Error::ConnectionClosed)?
+        };
+
+        RequestFuture::new(&self.actions_sink, sequence_number, future)
     }
 
     async fn request_without_response(&self, pdu: impl Into<Pdu>) -> Result<(), Error> {
@@ -226,7 +236,6 @@ impl ClientInner {
 
         self.actions_sink
             .send(Action::SendCommandNoResponse(action))
-            .await
             .map_err(|_| Error::ConnectionClosed)?;
 
         // No need to timeout here, since we are not waiting for a response from the server.
@@ -291,6 +300,11 @@ impl ClientInner {
         }
     }
 
+    // TODO: cancel safety. If this function was called and immediately dropped. The next call to it will resolve immediately.
+    // Which is obviously wrong.
+    // Its not even clone safe, since the a cloned client call to this function will resolve immediately.
+    // Use a cancellation token and cancel it in the connection when every task is terminated.
+
     /// Wait for the connection to be terminated.
     pub async fn terminated(&self) {
         let termination_rx = self.termination_rx.lock().take();
@@ -298,6 +312,63 @@ impl ClientInner {
         if let Some(mut termination_rx) = termination_rx {
             // wait for the termination signal
             let _ = termination_rx.recv().await;
+        }
+    }
+}
+
+use pin_project_lite::pin_project;
+
+pin_project! {
+    /// The [`RequestFuture`] is used to wrap a pending request future and remove it's corresponding sequence number
+    /// from the pending responses if the future got dropped.
+    pub struct RequestFuture<'a, F> {
+        done: bool,
+        sequence_number: u32,
+        actions_sink: &'a UnboundedSender<Action>,
+        #[pin]
+        fut: F,
+    }
+
+    impl<F> PinnedDrop for RequestFuture<'_, F> {
+        fn drop(this: Pin<&mut Self>) {
+            let this = this.project();
+
+            if !*this.done {
+                let sequence_number = *this.sequence_number;
+
+                tracing::debug!(target: TARGET, sequence_number, "Request was cancelled");
+
+                let _ = this.actions_sink.send(Action::RemoveSequenceNumber(*this.sequence_number));
+            }
+        }
+    }
+}
+
+impl<'a, F> RequestFuture<'a, F> {
+    pub fn new(actions_sink: &'a UnboundedSender<Action>, sequence_number: u32, fut: F) -> Self {
+        Self {
+            done: false,
+            sequence_number,
+            actions_sink,
+            fut,
+        }
+    }
+}
+
+impl<'a, F: Future> Future for RequestFuture<'a, F> {
+    type Output = F::Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.project();
+
+        match this.fut.poll(cx) {
+            Poll::Ready(result) => {
+                // Mark as done to prevent removing the sequence number on drop
+                *this.done = true;
+
+                Poll::Ready(result)
+            }
+            Poll::Pending => Poll::Pending,
         }
     }
 }

@@ -1,6 +1,6 @@
 use std::{fmt, net::SocketAddr, time::Duration};
 
-use futures::{Stream, channel::mpsc::unbounded};
+use futures::Stream;
 use rusmpp::{
     pdus::builders::BindAnyBuilder,
     session::SessionState,
@@ -10,9 +10,8 @@ use rusmpp::{
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::TcpStream,
-    sync::mpsc::channel,
 };
-use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
     Client, Event,
@@ -116,9 +115,9 @@ impl ConnectionBuilder {
     where
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {
-        let (events_tx, events_rx) = unbounded::<Event>();
-        let (actions_tx, actions_rx) = channel::<Action>(100);
-        let (termination_tx, termination_rx) = channel::<()>(1);
+        let (events_tx, events_rx) = futures::channel::mpsc::unbounded::<Event>();
+        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
+        let (termination_tx, termination_rx) = tokio::sync::mpsc::channel::<()>(1);
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
 
@@ -127,7 +126,7 @@ impl ConnectionBuilder {
         let connection = Connection::new(
             stream,
             events_tx,
-            ReceiverStream::new(actions_rx),
+            UnboundedReceiverStream::new(actions_rx),
             termination_tx,
             session_state_holder.clone(),
             ConnectionConfig::new(self.max_command_length, self.timeouts),

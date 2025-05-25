@@ -1,6 +1,5 @@
 use std::{
     net::SocketAddr,
-    ops::Deref,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -32,16 +31,6 @@ const TARGET: &str = "rusmppc::client";
 #[derive(Debug)]
 pub struct Client {
     inner: Arc<ClientInner>,
-}
-
-// TODO: remove the deref impl and move the methods to the `Client` struct.
-// They must appear in the public api of the `Client`.
-impl Deref for Client {
-    type Target = ClientInner;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
 }
 
 impl Clone for Client {
@@ -77,18 +66,61 @@ impl Client {
 
     /// Returns the current session state of the client.
     pub fn session_state(&self) -> SessionState {
-        self.session_state_holder.session_state()
+        self.inner.session_state()
     }
 
     /// Returns the current sequence number of the client.
     pub fn sequence_number(&self) -> u32 {
-        self.session_state_holder.sequence_number()
+        self.inner.sequence_number()
+    }
+
+    pub(crate) async fn bind_transmitter(
+        &self,
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_transmitter(bind).await
+    }
+
+    pub(crate) async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_receiver(bind).await
+    }
+
+    pub(crate) async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_transceiver(bind).await
+    }
+
+    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+        self.inner.submit_sm(submit_sm).await
+    }
+
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) and terminates the connection.
+    ///
+    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
+    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
+    pub async fn unbind(&self) -> Result<(), Error> {
+        self.inner.unbind().await
+    }
+
+    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
+    pub async fn generic_nack(&self) -> Result<(), Error> {
+        self.inner.generic_nack().await
+    }
+
+    /// Wait for the connection to be terminated.
+    pub async fn terminated(&self) {
+        self.inner.terminated().await;
     }
 }
 
-#[doc(hidden)]
 #[derive(Debug)]
-pub struct ClientInner {
+struct ClientInner {
     /// Must be unbounded or else we need `AsyncDrop`. See [`RequestFuture`].
     actions_sink: UnboundedSender<Action>,
     response_timeout: Duration,
@@ -114,6 +146,10 @@ impl ClientInner {
 }
 
 impl ClientInner {
+    fn sequence_number(&self) -> u32 {
+        self.session_state_holder.sequence_number()
+    }
+
     fn next_sequence_number(&self) -> u32 {
         self.session_state_holder.next_sequence_number()
     }
@@ -175,10 +211,7 @@ impl ClientInner {
         response.await.map_err(|_| Error::ConnectionClosed)?
     }
 
-    pub(crate) async fn bind_transmitter(
-        &self,
-        bind: impl Into<BindTransmitter>,
-    ) -> Result<Command, Error> {
+    async fn bind_transmitter(&self, bind: impl Into<BindTransmitter>) -> Result<Command, Error> {
         let response = self.request(bind.into()).await?;
 
         let response = response
@@ -190,10 +223,7 @@ impl ClientInner {
         Ok(response)
     }
 
-    pub(crate) async fn bind_receiver(
-        &self,
-        bind: impl Into<BindReceiver>,
-    ) -> Result<Command, Error> {
+    async fn bind_receiver(&self, bind: impl Into<BindReceiver>) -> Result<Command, Error> {
         let response = self.request(bind.into()).await?;
 
         let response = response
@@ -205,10 +235,7 @@ impl ClientInner {
         Ok(response)
     }
 
-    pub(crate) async fn bind_transceiver(
-        &self,
-        bind: impl Into<BindTransceiver>,
-    ) -> Result<Command, Error> {
+    async fn bind_transceiver(&self, bind: impl Into<BindTransceiver>) -> Result<Command, Error> {
         let response = self.request(bind.into()).await?;
 
         let response = response
@@ -220,8 +247,7 @@ impl ClientInner {
         Ok(response)
     }
 
-    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`] response.
-    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+    async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
         let session_state = self.session_state();
 
         let response = match session_state {
@@ -245,11 +271,7 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
-    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) response and terminates the connection.
-    ///
-    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
-    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
-    pub async fn unbind(&self) -> Result<(), Error> {
+    async fn unbind(&self) -> Result<(), Error> {
         let session_state = self.session_state();
 
         let response = match session_state {
@@ -268,8 +290,7 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
-    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
-    pub async fn generic_nack(&self) -> Result<(), Error> {
+    async fn generic_nack(&self) -> Result<(), Error> {
         let session_state = self.session_state();
 
         match session_state {
@@ -278,8 +299,7 @@ impl ClientInner {
         }
     }
 
-    /// Wait for the connection to be terminated.
-    pub async fn terminated(&self) {
+    async fn terminated(&self) {
         self.termination_token.cancelled().await;
     }
 }

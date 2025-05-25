@@ -126,73 +126,6 @@ impl ClientInner {
         self.session_state_holder.set_session_state(session_state)
     }
 
-    pub(crate) async fn bind_transmitter(
-        &self,
-        bind: impl Into<BindTransmitter>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransmitterResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTx);
-
-        Ok(response)
-    }
-
-    pub(crate) async fn bind_receiver(
-        &self,
-        bind: impl Into<BindReceiver>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindReceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundRx);
-
-        Ok(response)
-    }
-
-    pub(crate) async fn bind_transceiver(
-        &self,
-        bind: impl Into<BindTransceiver>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTrx);
-
-        Ok(response)
-    }
-
-    // TODO: bind is same
-    // TODO: do we want to check or save the interface version of the server?
-    async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
-        let sequence_number = self.next_sequence_number();
-
-        let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(sequence_number)
-            .pdu(pdu.into());
-
-        let (action, response) = SendCommand::new(command);
-
-        self.actions_sink
-            .send(Action::SendCommand(action))
-            .map_err(|_| Error::ConnectionClosed)?;
-
-        tokio::time::timeout(self.response_timeout, response)
-            .await
-            .map_err(|_| Error::Timeout)?
-            .map_err(|_| Error::ConnectionClosed)?
-    }
-
     fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
         let sequence_number = self.next_sequence_number();
 
@@ -240,6 +173,51 @@ impl ClientInner {
 
         // No need to timeout here, since we are not waiting for a response from the server.
         response.await.map_err(|_| Error::ConnectionClosed)?
+    }
+
+    pub(crate) async fn bind_transmitter(
+        &self,
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindTransmitterResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTx);
+
+        Ok(response)
+    }
+
+    pub(crate) async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindReceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundRx);
+
+        Ok(response)
+    }
+
+    pub(crate) async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindTransceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTrx);
+
+        Ok(response)
     }
 
     /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`] response.

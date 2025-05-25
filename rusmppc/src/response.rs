@@ -5,5 +5,5 @@ use tokio::sync::oneshot;
 
 use crate::error::Error;
 
-pub type PendingRequests =
+pub type PendingResponses =
     Arc<parking_lot::Mutex<HashMap<u32, oneshot::Sender<Result<Command, Error>>>>>;

@@ -13,7 +13,7 @@ use tokio_util::{
 use tracing::Instrument;
 
 use crate::{
-    CommandExt, Event, PendingRequests,
+    CommandExt, Event, PendingResponses,
     action::{Action, SendCommand, SendCommandNoResponse},
     builder::ConnectionTimeouts,
     error::Error,
@@ -50,7 +50,7 @@ pub struct Connection<Socket, Sink, Stream> {
     actions_stream: Stream,
     termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
-    pending_requests: PendingRequests,
+    pending_responses: PendingResponses,
     config: ConnectionConfig,
 }
 
@@ -61,7 +61,7 @@ impl<So, Si, St> Connection<So, Si, St> {
         actions_stream: St,
         termination_token: CancellationToken,
         session_state_holder: SessionStateHolder,
-        pending_requests: PendingRequests,
+        pending_responses: PendingResponses,
         config: ConnectionConfig,
     ) -> Self {
         Self {
@@ -70,7 +70,7 @@ impl<So, Si, St> Connection<So, Si, St> {
             termination_token,
             actions_stream,
             session_state_holder,
-            pending_requests,
+            pending_responses,
             config,
         }
     }
@@ -131,9 +131,9 @@ where
         let enquire_link_timeout = self.config.timeouts.enquire_link;
         let response_timeout = self.config.timeouts.response;
 
-        let pending_requests = self.pending_requests;
-        let reader_pending_requests = pending_requests.clone();
-        let writer_pending_requests = pending_requests;
+        let pending_responses = self.pending_responses;
+        let reader_pending_responses = pending_responses.clone();
+        let writer_pending_responses = pending_responses;
 
         // When this is cancelled, the client knows that the connection is closed
         let termination_token = self.termination_token;
@@ -281,7 +281,7 @@ where
 
                                 let command_id = command.id();
 
-                                let response = reader_pending_requests.lock().remove(&sequence_number);
+                                let response = reader_pending_responses.lock().remove(&sequence_number);
 
                                 match response {
                                     None => {
@@ -405,7 +405,7 @@ where
                                     writer_session_state_holder.set_session_state(SessionState::Unbound);
                                 }
 
-                                writer_pending_requests.lock().insert(sequence_number, response);
+                                writer_pending_responses.lock().insert(sequence_number, response);
 
                                 tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
                             },
@@ -455,7 +455,7 @@ where
 
                                 let sequence_number = command.sequence_number();
 
-                                writer_pending_requests.lock().insert(sequence_number, response);
+                                writer_pending_responses.lock().insert(sequence_number, response);
                             },
                             _ => {
                                 // Internal actions always wait for a response

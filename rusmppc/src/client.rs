@@ -15,13 +15,11 @@ use tokio::sync::mpsc::Sender;
 use tokio_util::sync::CancellationToken;
 
 use crate::{
-    CommandExt, ConnectionBuilder, PendingRequests,
+    CommandExt, ConnectionBuilder, PendingResponses,
     action::{Action, SendCommand, SendCommandNoResponse},
     error::Error,
     session_state::SessionStateHolder,
 };
-
-const TARGET: &str = "rusmppc::client";
 
 /// `SMPP` Client.
 ///
@@ -47,7 +45,7 @@ impl Client {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        pending_requests: PendingRequests,
+        pending_responses: PendingResponses,
         termination_token: CancellationToken,
     ) -> Self {
         Self {
@@ -55,7 +53,7 @@ impl Client {
                 actions_sink,
                 response_timeout,
                 session_state_holder,
-                pending_requests,
+                pending_responses,
                 termination_token,
             )),
         }
@@ -74,11 +72,6 @@ impl Client {
     /// Returns the current sequence number of the client.
     pub fn sequence_number(&self) -> u32 {
         self.inner.sequence_number()
-    }
-
-    /// Returns the count of pending requests.
-    pub fn pending_requests(&self) -> usize {
-        self.inner.pending_requests()
     }
 
     pub(crate) async fn bind_transmitter(
@@ -131,7 +124,7 @@ struct ClientInner {
     actions_sink: Sender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
-    pending_requests: PendingRequests,
+    pending_responses: PendingResponses,
     /// Await the termination token to ensure that the connection tasks were terminated
     termination_token: CancellationToken,
 }
@@ -141,14 +134,14 @@ impl ClientInner {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        pending_requests: PendingRequests,
+        pending_responses: PendingResponses,
         termination_token: CancellationToken,
     ) -> Self {
         Self {
             actions_sink,
             response_timeout,
             session_state_holder,
-            pending_requests,
+            pending_responses,
             termination_token,
         }
     }
@@ -171,10 +164,6 @@ impl ClientInner {
         self.session_state_holder.set_session_state(session_state)
     }
 
-    fn pending_requests(&self) -> usize {
-        self.pending_requests.lock().len()
-    }
-
     fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
         let sequence_number = self.next_sequence_number();
 
@@ -195,15 +184,12 @@ impl ClientInner {
                 .await
                 .map_err(|_| Error::Timeout)
                 .inspect_err(|_| {
-                    tracing::warn!(target: TARGET, sequence_number, "Request timed out");
-                    tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
-
-                    self.pending_requests.lock().remove(&sequence_number);
+                    self.pending_responses.lock().remove(&sequence_number);
                 })?
                 .map_err(|_| Error::ConnectionClosed)?
         };
 
-        RequestFuture::new(&self.pending_requests, sequence_number, future)
+        RequestFuture::new(&self.pending_responses, sequence_number, future)
     }
 
     async fn request_without_response(
@@ -333,7 +319,7 @@ pin_project! {
     struct RequestFuture<'a, F> {
         done: bool,
         sequence_number: u32,
-        pending_requests: &'a PendingRequests,
+        pending_responses: &'a PendingResponses,
         #[pin]
         fut: F,
     }
@@ -343,23 +329,18 @@ pin_project! {
             let this = this.project();
 
             if !*this.done {
-                let sequence_number = *this.sequence_number;
-
-                tracing::debug!(target: TARGET, sequence_number, "Request was cancelled");
-                tracing::trace!(target: TARGET, sequence_number, "Removing sequence number");
-
-                (*this.pending_requests).lock().remove(&sequence_number);
+                (*this.pending_responses).lock().remove(&*this.sequence_number);
             }
         }
     }
 }
 
 impl<'a, F> RequestFuture<'a, F> {
-    pub fn new(pending_requests: &'a PendingRequests, sequence_number: u32, fut: F) -> Self {
+    pub fn new(pending_responses: &'a PendingResponses, sequence_number: u32, fut: F) -> Self {
         Self {
             done: false,
             sequence_number,
-            pending_requests,
+            pending_responses,
             fut,
         }
     }

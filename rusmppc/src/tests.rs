@@ -1,6 +1,10 @@
 use std::{str::FromStr, time::Duration};
 
-use rusmpp::{CommandId, pdus::SubmitSm, session::SessionState};
+use rusmpp::{
+    CommandId,
+    pdus::{DeliverSmResp, SubmitSm},
+    session::SessionState,
+};
 use server::Server;
 use tokio_stream::StreamExt;
 
@@ -33,7 +37,7 @@ async fn bind() {
         .addr_ton(Ton::Unknown)
         .addr_npi(Npi::Unknown)
         .address_range(COctetString::empty())
-        .transmitter()
+        .transceiver()
         .enquire_link_timeout(Duration::from_secs(3))
         .response_timeout(Duration::from_secs(2))
         .max_command_length(1024)
@@ -41,9 +45,20 @@ async fn bind() {
         .await
         .expect("Failed to connect");
 
+    let client_clone = client.clone();
     let events = tokio::spawn(async move {
         while let Some(event) = events.next().await {
             tracing::debug!(?event, "Event",);
+
+            if let Event::Command(command) = event {
+                if command.id() == CommandId::DeliverSm {
+                    tracing::debug!("Received DeliverSm");
+
+                    let _ = client_clone
+                        .deliver_sm_resp(command.sequence_number(), DeliverSmResp::default())
+                        .await;
+                }
+            }
         }
 
         tracing::debug!("Event stream closed");

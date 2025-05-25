@@ -281,22 +281,31 @@ where
 
                                 let command_id = command.id();
 
-                                let response = reader_pending_responses.lock().remove(&sequence_number);
+                                // The server may send us a request like DeliverSm, No clients are waiting for it so we pipe it to the events stream
+                                if command_id.is_operation() {
+                                    let _ = reader_events_sink.send(Event::Command(command)).await;
 
-                                match response {
-                                    None => {
-                                        tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
+                                    continue;
+                                }
 
-                                        let _ = reader_events_sink.send(Event::Command(command)).await;
-                                    },
-                                    Some(response) => {
-                                        tracing::trace!(target: TARGET, sequence_number, "Found client waiting for response");
+                                if command_id.is_response() {
+                                    let response = reader_pending_responses.lock().remove(&sequence_number);
 
-                                        if let Err(command) = response.send(Ok(command)){
-                                            tracing::warn!(target: TARGET, sequence_number, "Failed to send response to client");
-                                            tracing::trace!(target: TARGET, sequence_number, "Piping command to events stream");
+                                    match response {
+                                        None => {
+                                            tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
 
-                                            let _ = reader_events_sink.send(Event::Command(command.expect("Must be ok"))).await;
+                                            let _ = reader_events_sink.send(Event::Command(command)).await;
+                                        },
+                                        Some(response) => {
+                                            tracing::trace!(target: TARGET, sequence_number, "Found client waiting for response");
+
+                                            if let Err(command) = response.send(Ok(command)){
+                                                tracing::warn!(target: TARGET, sequence_number, "Failed to send response to client");
+                                                tracing::trace!(target: TARGET, sequence_number, "Piping command through events stream");
+
+                                                let _ = reader_events_sink.send(Event::Command(command.expect("Must be ok"))).await;
+                                            }
                                         }
                                     }
                                 }

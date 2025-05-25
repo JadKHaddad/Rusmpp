@@ -59,7 +59,7 @@ impl Client {
         }
     }
 
-    /// Creates a new `SMPP` client builder.
+    /// Creates a new `SMPP` connection builder.
     pub fn builder(socket_addr: impl Into<SocketAddr>) -> ConnectionBuilder {
         ConnectionBuilder::new(socket_addr)
     }

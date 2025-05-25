@@ -344,9 +344,25 @@ async fn enquire_link_timeout() {
 async fn server_crash_on_request() {
     init_tracing();
 
-    // TODO
+    let (server, client) = tokio::io::duplex(1024);
 
-    // Check what happens if we crash the server on a request.
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
+
+    let (client, _) = ConnectionBuilder::new(socket_addr)
+        .assume_connected(client)
+        .await
+        .expect("Failed to connect");
+
+    client
+        .generic_nack(1)
+        .await
+        .expect("Failed to send generic_nack");
+
+    let _ = client.terminated().await;
 }
 
 #[tokio::test]

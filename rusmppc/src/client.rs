@@ -1,15 +1,20 @@
-use std::{net::SocketAddr, ops::Deref, sync::Arc, time::Duration};
+use std::{
+    pin::Pin,
+    sync::Arc,
+    task::{Context, Poll},
+    time::Duration,
+};
 
-use parking_lot::Mutex;
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
-use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::mpsc::Sender;
+use tokio_util::sync::CancellationToken;
 
 use crate::{
-    CommandExt, ConnectionBuilder,
+    CommandExt, ConnectionBuilder, PendingResponses,
     action::{Action, SendCommand, SendCommandNoResponse},
     error::Error,
     session_state::SessionStateHolder,
@@ -19,20 +24,10 @@ use crate::{
 ///
 /// The client is a handle to communicate with the `SMPP` server through a managed connection in the background.
 ///
-/// When all clients are dropped, an `unbind` command is sent to the server, and the connection is closed.
+/// When all clients are dropped, an [`Unbind`](Pdu::Unbind) command is sent to the server, and the connection is closed.
 #[derive(Debug)]
 pub struct Client {
     inner: Arc<ClientInner>,
-}
-
-// TODO: remove the deref impl and move the methods to the `Client` struct.
-// They must appear in the public api of the `Client`.
-impl Deref for Client {
-    type Target = ClientInner;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
 }
 
 impl Clone for Client {
@@ -49,42 +44,88 @@ impl Client {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        termination_rx: Receiver<()>,
+        pending_responses: PendingResponses,
+        termination_token: CancellationToken,
     ) -> Self {
         Self {
             inner: Arc::new(ClientInner::new(
                 actions_sink,
                 response_timeout,
                 session_state_holder,
-                termination_rx,
+                pending_responses,
+                termination_token,
             )),
         }
     }
 
-    /// Creates a new `SMPP` client builder.
-    pub fn builder(socket_addr: impl Into<SocketAddr>) -> ConnectionBuilder {
-        ConnectionBuilder::new(socket_addr)
+    /// Creates a new `SMPP` connection builder.
+    pub fn builder() -> ConnectionBuilder {
+        ConnectionBuilder::new()
     }
 
     /// Returns the current session state of the client.
     pub fn session_state(&self) -> SessionState {
-        self.session_state_holder.session_state()
+        self.inner.session_state()
     }
 
     /// Returns the current sequence number of the client.
     pub fn sequence_number(&self) -> u32 {
-        self.session_state_holder.sequence_number()
+        self.inner.sequence_number()
+    }
+
+    pub(crate) async fn bind_transmitter(
+        &self,
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_transmitter(bind).await
+    }
+
+    pub(crate) async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_receiver(bind).await
+    }
+
+    pub(crate) async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<Command, Error> {
+        self.inner.bind_transceiver(bind).await
+    }
+
+    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+        self.inner.submit_sm(submit_sm).await
+    }
+
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) and terminates the connection.
+    ///
+    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
+    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
+    pub async fn unbind(&self) -> Result<(), Error> {
+        self.inner.unbind().await
+    }
+
+    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
+    pub async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
+        self.inner.generic_nack(sequence_number).await
+    }
+
+    /// Wait for the connection to be terminated.
+    pub async fn terminated(&self) {
+        self.inner.terminated().await;
     }
 }
 
-#[doc(hidden)]
 #[derive(Debug)]
-pub struct ClientInner {
+struct ClientInner {
     actions_sink: Sender<Action>,
     response_timeout: Duration,
     session_state_holder: SessionStateHolder,
-    /// await the termination receiver to ensure that the connection tasks were terminated
-    termination_rx: Mutex<Option<Receiver<()>>>,
+    pending_responses: PendingResponses,
+    /// Await the termination token to ensure that the connection tasks were terminated
+    termination_token: CancellationToken,
 }
 
 impl ClientInner {
@@ -92,18 +133,24 @@ impl ClientInner {
         actions_sink: Sender<Action>,
         response_timeout: Duration,
         session_state_holder: SessionStateHolder,
-        termination_rx: Receiver<()>,
+        pending_responses: PendingResponses,
+        termination_token: CancellationToken,
     ) -> Self {
         Self {
             actions_sink,
             response_timeout,
             session_state_holder,
-            termination_rx: Mutex::new(Some(termination_rx)),
+            pending_responses,
+            termination_token,
         }
     }
 }
 
 impl ClientInner {
+    fn sequence_number(&self) -> u32 {
+        self.session_state_holder.sequence_number()
+    }
+
     fn next_sequence_number(&self) -> u32 {
         self.session_state_holder.next_sequence_number()
     }
@@ -116,106 +163,40 @@ impl ClientInner {
         self.session_state_holder.set_session_state(session_state)
     }
 
-    pub(crate) async fn bind_transmitter(
-        &self,
-        bind: impl Into<BindTransmitter>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransmitterResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTx);
-
-        Ok(response)
-    }
-
-    pub(crate) async fn bind_receiver(
-        &self,
-        bind: impl Into<BindReceiver>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindReceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundRx);
-
-        Ok(response)
-    }
-
-    pub(crate) async fn bind_transceiver(
-        &self,
-        bind: impl Into<BindTransceiver>,
-    ) -> Result<Command, Error> {
-        let response = self.bind(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTrx);
-
-        Ok(response)
-    }
-
-    // TODO: bind is same
-    // TODO: do we want to check or save the interface version of the server?
-    async fn bind(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
+    fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
         let sequence_number = self.next_sequence_number();
 
-        let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(sequence_number)
-            .pdu(pdu.into());
+        let future = async move {
+            let command = Command::builder()
+                .status(CommandStatus::EsmeRok)
+                .sequence_number(sequence_number)
+                .pdu(pdu.into());
 
-        let (action, response) = SendCommand::new(command);
+            let (action, response) = SendCommand::new(command);
 
-        self.actions_sink
-            .send(Action::SendCommand(action))
-            .await
-            .map_err(|_| Error::ConnectionClosed)?;
+            self.actions_sink
+                .send(Action::SendCommand(action))
+                .await
+                .map_err(|_| Error::ConnectionClosed)?;
 
-        tokio::time::timeout(self.response_timeout, response)
-            .await
-            .map_err(|_| Error::Timeout)?
-            .map_err(|_| Error::ConnectionClosed)?
+            tokio::time::timeout(self.response_timeout, response)
+                .await
+                .map_err(|_| Error::Timeout)
+                .inspect_err(|_| {
+                    self.pending_responses.lock().remove(&sequence_number);
+                })?
+                .map_err(|_| Error::ConnectionClosed)?
+        };
+
+        RequestFuture::new(&self.pending_responses, sequence_number, future)
     }
 
-    // TODO: We have two options if this times out:
-    //
-    // 1. Send a disconnect action to the connection to terminate
-    // 2. Send a remove command_id action to the connection, to remove the command id from the map of responses,
-    //      because the response may never come, and this would be a memory leak.
-    //      If the response came too late, it would be then forwarded to the events stream, since no client is waiting for it.
-    // We should probably do 2.
-    //
-    // We have the same problem on cancellation, but we can't send a remove command id action on cancellation,
-    async fn request(&self, pdu: impl Into<Pdu>) -> Result<Command, Error> {
-        let sequence_number = self.next_sequence_number();
-
-        let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
-            .sequence_number(sequence_number)
-            .pdu(pdu.into());
-
-        let (action, response) = SendCommand::new(command);
-
-        self.actions_sink
-            .send(Action::SendCommand(action))
-            .await
-            .map_err(|_| Error::ConnectionClosed)?;
-
-        tokio::time::timeout(self.response_timeout, response)
-            .await
-            .map_err(|_| Error::Timeout)?
-            .map_err(|_| Error::ConnectionClosed)?
-    }
-
-    async fn request_without_response(&self, pdu: impl Into<Pdu>) -> Result<(), Error> {
-        let sequence_number = self.next_sequence_number();
+    async fn request_without_response(
+        &self,
+        pdu: impl Into<Pdu>,
+        sequence_number: Option<u32>,
+    ) -> Result<(), Error> {
+        let sequence_number = sequence_number.unwrap_or(self.next_sequence_number());
 
         let command = Command::builder()
             .status(CommandStatus::EsmeRok)
@@ -233,8 +214,43 @@ impl ClientInner {
         response.await.map_err(|_| Error::ConnectionClosed)?
     }
 
-    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`] response.
-    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+    async fn bind_transmitter(&self, bind: impl Into<BindTransmitter>) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindTransmitterResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTx);
+
+        Ok(response)
+    }
+
+    async fn bind_receiver(&self, bind: impl Into<BindReceiver>) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindReceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundRx);
+
+        Ok(response)
+    }
+
+    async fn bind_transceiver(&self, bind: impl Into<BindTransceiver>) -> Result<Command, Error> {
+        let response = self.request(bind.into()).await?;
+
+        let response = response
+            .ok_and_matches(CommandId::BindTransceiverResp)
+            .map_err(Error::unexpected_response)?;
+
+        self.set_session_state(SessionState::BoundTrx);
+
+        Ok(response)
+    }
+
+    async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
         let session_state = self.session_state();
 
         let response = match session_state {
@@ -258,11 +274,7 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
-    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) response and terminates the connection.
-    ///
-    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
-    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
-    pub async fn unbind(&self) -> Result<(), Error> {
+    async fn unbind(&self) -> Result<(), Error> {
         let session_state = self.session_state();
 
         let response = match session_state {
@@ -281,23 +293,72 @@ impl ClientInner {
             .map_err(Error::unexpected_response)
     }
 
-    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
-    pub async fn generic_nack(&self) -> Result<(), Error> {
+    async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
         let session_state = self.session_state();
 
         match session_state {
             SessionState::Closed => Err(Error::ConnectionClosed),
-            _ => self.request_without_response(Pdu::GenericNack).await,
+            _ => {
+                self.request_without_response(Pdu::GenericNack, Some(sequence_number))
+                    .await
+            }
         }
     }
 
-    /// Wait for the connection to be terminated.
-    pub async fn terminated(&self) {
-        let termination_rx = self.termination_rx.lock().take();
+    async fn terminated(&self) {
+        self.termination_token.cancelled().await;
+    }
+}
 
-        if let Some(mut termination_rx) = termination_rx {
-            // wait for the termination signal
-            let _ = termination_rx.recv().await;
+use pin_project_lite::pin_project;
+
+pin_project! {
+    /// The [`RequestFuture`] is used to wrap a pending request future and remove it's corresponding sequence number
+    /// from the pending responses if the future got dropped.
+    struct RequestFuture<'a, F> {
+        done: bool,
+        sequence_number: u32,
+        pending_responses: &'a PendingResponses,
+        #[pin]
+        fut: F,
+    }
+
+    impl<F> PinnedDrop for RequestFuture<'_, F> {
+        fn drop(this: Pin<&mut Self>) {
+            let this = this.project();
+
+            if !*this.done {
+                (*this.pending_responses).lock().remove(&*this.sequence_number);
+            }
+        }
+    }
+}
+
+impl<'a, F> RequestFuture<'a, F> {
+    pub fn new(pending_responses: &'a PendingResponses, sequence_number: u32, fut: F) -> Self {
+        Self {
+            done: false,
+            sequence_number,
+            pending_responses,
+            fut,
+        }
+    }
+}
+
+impl<'a, F: Future> Future for RequestFuture<'a, F> {
+    type Output = F::Output;
+
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        let this = self.project();
+
+        match this.fut.poll(cx) {
+            Poll::Ready(result) => {
+                // Mark as done to prevent removing the sequence number on drop
+                *this.done = true;
+
+                Poll::Ready(result)
+            }
+            Poll::Pending => Poll::Pending,
         }
     }
 }

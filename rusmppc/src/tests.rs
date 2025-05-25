@@ -1,8 +1,4 @@
-use std::{
-    net::{IpAddr, Ipv4Addr, SocketAddr},
-    str::FromStr,
-    time::Duration,
-};
+use std::{str::FromStr, time::Duration};
 
 use rusmpp::{CommandId, pdus::SubmitSm, session::SessionState};
 use server::Server;
@@ -30,9 +26,7 @@ async fn bind() {
 
     init_tracing();
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+    let (client, mut events) = ConnectionBuilder::new()
         .system_id(COctetString::from_str("NfDfddEKVI0NCxO").unwrap()) // cspell:disable-line
         .password(COctetString::from_str("rEZYMq5j").unwrap())
         .system_type(COctetString::empty())
@@ -40,10 +34,10 @@ async fn bind() {
         .addr_npi(Npi::Unknown)
         .address_range(COctetString::empty())
         .transmitter()
-        .enquire_link_timeout(Duration::from_secs(10))
+        .enquire_link_timeout(Duration::from_secs(3))
         .response_timeout(Duration::from_secs(2))
         .max_command_length(1024)
-        .connect()
+        .connect("127.0.0.1:2775")
         .await
         .expect("Failed to connect");
 
@@ -76,9 +70,9 @@ async fn bind() {
 
     // or
 
-    // tokio::time::sleep(Duration::from_secs(2)).await;
-    // client.unbind().await.expect("Failed to unbind");
-    // let _ = client.terminated().await;
+    tokio::time::sleep(Duration::from_secs(20)).await;
+    client.unbind().await.expect("Failed to unbind");
+    let _ = client.terminated().await;
 
     // if the events task is done, this means that all tasks have terminated
     // if got end of stream in the reader task,
@@ -88,6 +82,7 @@ async fn bind() {
     // Or client::unbind() then client::terminated().
 
     let _ = events.await;
+    let _ = client.terminated().await;
 }
 
 #[tokio::test]
@@ -96,11 +91,9 @@ async fn bind_timeout() {
 
     let (_server, client) = tokio::io::duplex(1024);
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let error = ConnectionBuilder::new(socket_addr)
+    let error = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(500))
-        .assume_connected(client)
+        .connected(client)
         .await
         .unwrap_err();
 
@@ -114,6 +107,7 @@ async fn bind_timeout() {
 /// Cancelling the request future should not cancel the request itself.
 ///
 /// The response, if any, should be sent to the events stream.
+/// The sequence number should also be removed from the pending responses
 #[tokio::test]
 async fn cancel_request_future() {
     init_tracing();
@@ -124,11 +118,9 @@ async fn cancel_request_future() {
         Server::new().run(server).await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .assume_connected(client)
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -140,6 +132,8 @@ async fn cancel_request_future() {
         }
         _ = future => {}
     }
+
+    // Checking the pending responses number is not accurate.
 
     // The submit sm response should be sent to the events stream
 
@@ -160,6 +154,7 @@ async fn cancel_request_future() {
 }
 
 /// The response, if any, should be sent to the events stream.
+/// The sequence number should also be removed from the pending responses
 #[tokio::test]
 async fn request_timeout() {
     init_tracing();
@@ -174,11 +169,9 @@ async fn request_timeout() {
             .await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(500))
-        .assume_connected(client)
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -219,10 +212,8 @@ async fn unbind() {
         Server::new().run(server).await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, _events) = ConnectionBuilder::new(socket_addr)
-        .assume_connected(client)
+    let (client, _events) = ConnectionBuilder::new()
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -246,11 +237,9 @@ async fn cancel_unbind_future() {
         Server::new().run(server).await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, mut events) = ConnectionBuilder::new(socket_addr)
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .assume_connected(client)
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -263,7 +252,7 @@ async fn cancel_unbind_future() {
         _ = future => {}
     }
 
-    // The submit sm response should be sent to the events stream
+    // The response should be sent to the events stream
 
     let Some(event) = events.next().await else {
         panic!("No event received");
@@ -289,10 +278,8 @@ async fn request_after_closing() {
         Server::new().run(server).await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, _) = ConnectionBuilder::new(socket_addr)
-        .assume_connected(client)
+    let (client, _) = ConnectionBuilder::new()
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -322,14 +309,12 @@ async fn enquire_link_timeout() {
             .await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, _) = ConnectionBuilder::new(socket_addr)
+    let (client, _) = ConnectionBuilder::new()
         // Send enquire link every 2 seconds
         .enquire_link_timeout(Duration::from_secs(2))
         // Wait for 1 second for the response
         .response_timeout(Duration::from_secs(1))
-        .assume_connected(client)
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -340,9 +325,23 @@ async fn enquire_link_timeout() {
 async fn server_crash_on_request() {
     init_tracing();
 
-    // TODO
+    let (server, client) = tokio::io::duplex(1024);
 
-    // Check what happens if we crash the server on a request.
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, _) = ConnectionBuilder::new()
+        .connected(client)
+        .await
+        .expect("Failed to connect");
+
+    client
+        .generic_nack(1)
+        .await
+        .expect("Failed to send generic_nack");
+
+    let _ = client.terminated().await;
 }
 
 #[tokio::test]
@@ -358,10 +357,8 @@ async fn connection_lost() {
             .await;
     });
 
-    let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775);
-
-    let (client, _) = ConnectionBuilder::new(socket_addr)
-        .assume_connected(client)
+    let (client, _) = ConnectionBuilder::new()
+        .connected(client)
         .await
         .expect("Failed to connect");
 
@@ -384,7 +381,7 @@ async fn multiple() {
 
     let mut tasks = vec![];
 
-    for i in 0..10 {
+    for _ in 0..10 {
         let task = tokio::spawn(async move {
             let (server, client) = tokio::io::duplex(1024);
 
@@ -396,10 +393,8 @@ async fn multiple() {
                     .await;
             });
 
-            let socket_addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 2775 + i);
-
-            let (client, _) = ConnectionBuilder::new(socket_addr)
-                .assume_connected(client)
+            let (client, _) = ConnectionBuilder::new()
+                .connected(client)
                 .await
                 .expect("Failed to connect");
 

@@ -1169,6 +1169,7 @@ version = "0.0.0"
 dependencies = [
  "futures",
  "parking_lot",
+ "pin-project-lite",
  "rusmpp",
  "thiserror",
  "tokio",

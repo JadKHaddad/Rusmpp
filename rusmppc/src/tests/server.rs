@@ -83,10 +83,13 @@ impl Server {
 
                         Pdu::UnbindResp
                     }
+                    CommandId::GenericNack => {
+                        tracing::warn!("Received GenericNack. Crashing");
 
-                    _ => {
-                        // Anything else we crash
                         break;
+                    }
+                    _ => {
+                        continue;
                     }
                 };
 

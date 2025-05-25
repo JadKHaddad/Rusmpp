@@ -1,10 +1,4 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc,
-        atomic::{AtomicUsize, Ordering},
-    },
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use futures::{Sink, SinkExt, Stream, StreamExt, channel::mpsc};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
@@ -19,7 +13,7 @@ use tokio_util::{
 use tracing::Instrument;
 
 use crate::{
-    CommandExt, Event,
+    CommandExt, Event, PendingResponses,
     action::{Action, SendCommand, SendCommandNoResponse},
     builder::ConnectionTimeouts,
     error::Error,
@@ -47,8 +41,6 @@ impl ConnectionConfig {
     }
 }
 
-type Responses = Arc<parking_lot::Mutex<HashMap<u32, oneshot::Sender<Result<Command, Error>>>>>;
-
 #[derive(Debug)]
 pub struct Connection<Socket, Sink, Stream> {
     socket: Socket,
@@ -56,8 +48,9 @@ pub struct Connection<Socket, Sink, Stream> {
     events_sink: Sink,
     /// Receive smpp actions from the client.
     actions_stream: Stream,
-    termination_tx: tokio::sync::mpsc::Sender<()>,
+    termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
+    pending_responses: PendingResponses,
     config: ConnectionConfig,
 }
 
@@ -66,16 +59,18 @@ impl<So, Si, St> Connection<So, Si, St> {
         socket: So,
         events_sink: Si,
         actions_stream: St,
-        termination_tx: tokio::sync::mpsc::Sender<()>,
+        termination_token: CancellationToken,
         session_state_holder: SessionStateHolder,
+        pending_responses: PendingResponses,
         config: ConnectionConfig,
     ) -> Self {
         Self {
             socket,
             events_sink,
-            termination_tx,
+            termination_token,
             actions_stream,
             session_state_holder,
+            pending_responses,
             config,
         }
     }
@@ -136,19 +131,15 @@ where
         let enquire_link_timeout = self.config.timeouts.enquire_link;
         let response_timeout = self.config.timeouts.response;
 
-        let responses: Responses = Arc::new(parking_lot::Mutex::new(HashMap::new()));
-        let reader_responses = responses.clone();
-        let writer_responses = responses;
+        let pending_responses = self.pending_responses;
+        let reader_pending_responses = pending_responses.clone();
+        let writer_pending_responses = pending_responses;
 
-        // When these are dropped, the client knows that the connection is closed
-        let enquire_link_termination_tx = self.termination_tx.clone();
-        let reader_termination_tx = self.termination_tx.clone();
-        let writer_termination_tx = self.termination_tx;
+        // When this is cancelled, the client knows that the connection is closed
+        let termination_token = self.termination_token;
 
         let enquire_link = async move {
             const TARGET: &str = "rusmppc::connection::enquire_link";
-
-            let _enquire_link_termination_tx = enquire_link_termination_tx;
 
             tracing::trace!(target: TARGET, "Started");
 
@@ -230,8 +221,6 @@ where
         let reader = async move {
             const TARGET: &str = "rusmppc::connection::reader";
 
-            let _reader_termination_tx = reader_termination_tx;
-
             tracing::trace!(target: TARGET, "Started");
 
             loop {
@@ -292,7 +281,7 @@ where
 
                                 let command_id = command.id();
 
-                                let response = reader_responses.lock().remove(&sequence_number);
+                                let response = reader_pending_responses.lock().remove(&sequence_number);
 
                                 match response {
                                     None => {
@@ -344,8 +333,6 @@ where
 
         let writer = async move {
             const TARGET: &str = "rusmppc::connection::writer";
-
-            let _writer_termination_tx = writer_termination_tx;
 
             tracing::trace!(target: TARGET, "Started");
 
@@ -418,7 +405,7 @@ where
                                     writer_session_state_holder.set_session_state(SessionState::Unbound);
                                 }
 
-                                writer_responses.lock().insert(sequence_number, response);
+                                writer_pending_responses.lock().insert(sequence_number, response);
 
                                 tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
                             },
@@ -468,7 +455,7 @@ where
 
                                 let sequence_number = command.sequence_number();
 
-                                writer_responses.lock().insert(sequence_number, response);
+                                writer_pending_responses.lock().insert(sequence_number, response);
                             },
                             _ => {
                                 // Internal actions always wait for a response
@@ -543,6 +530,8 @@ where
             }
 
             tracing::debug!(target: TARGET, "Terminated");
+
+            termination_token.cancel();
         };
 
         (enquire_link, reader, writer)

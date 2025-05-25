@@ -9,6 +9,8 @@ use rusmpp::{
 #[non_exhaustive]
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
+    #[error("DNS resolution failed: {0}")]
+    Dns(#[source] std::io::Error),
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),
     #[error("Io error: {0}")]

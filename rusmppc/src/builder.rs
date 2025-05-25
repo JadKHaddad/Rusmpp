@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, net::SocketAddr, sync::Arc, time::Duration};
+use std::{collections::HashMap, fmt, sync::Arc, time::Duration};
 
 use futures::Stream;
 use rusmpp::{
@@ -9,7 +9,7 @@ use rusmpp::{
 };
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    net::TcpStream,
+    net::{TcpStream, ToSocketAddrs},
 };
 use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::sync::CancellationToken;
@@ -26,7 +26,6 @@ use crate::{
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
 pub struct ConnectionBuilder {
-    socket_addr: SocketAddr,
     bind_mode: BindMode,
     bind_builder: BindAnyBuilder,
     max_command_length: usize,
@@ -58,14 +57,16 @@ impl Default for ConnectionTimeouts {
     }
 }
 
-// TODO: DNS
-// TODO: TLS
+impl Default for ConnectionBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl ConnectionBuilder {
-    /// Creates a new [`ConnectionBuilder`] with the given socket address.
-    pub fn new(socket_addr: impl Into<SocketAddr>) -> Self {
+    /// Creates a new [`ConnectionBuilder`].
+    pub fn new() -> Self {
         Self {
-            socket_addr: socket_addr.into(),
             bind_mode: Default::default(),
             bind_builder: BindAnyBuilder::default().interface_version(InterfaceVersion::Smpp5_0),
             max_command_length: 4096,
@@ -81,6 +82,7 @@ impl ConnectionBuilder {
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
     pub async fn connect(
         self,
+        host: impl ToSocketAddrs,
     ) -> Result<
         (
             Client,
@@ -88,22 +90,37 @@ impl ConnectionBuilder {
         ),
         Error,
     > {
-        tracing::debug!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connecting");
+        tracing::debug!(target: "rusmppc::connection", "DNS resolution");
 
-        let stream = TcpStream::connect(self.socket_addr)
+        let socket_addr = tokio::net::lookup_host(host)
+            .await
+            .map_err(Error::Dns)?
+            .next()
+            .ok_or_else(|| {
+                Error::Dns(std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "No addresses found for the given host",
+                ))
+            })?;
+
+        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connecting");
+
+        let stream = TcpStream::connect(socket_addr)
             .await
             .map_err(Error::Connect)?;
 
-        tracing::trace!(target: "rusmppc::connection", socket_addr=%self.socket_addr, "Connected");
+        tracing::trace!(target: "rusmppc::connection", %socket_addr, "Connected");
 
-        self.assume_connected(stream).await
+        self.connected(stream).await
     }
 
-    /// Takes a connected stream and performs the bind operation.
+    /// Performs the bind operation on an already connected stream.
     ///
-    /// This function is separated from [`Self::connect`] to test the library
-    /// without actually connecting to a server.
-    pub(crate) async fn assume_connected<S>(
+    /// Manages a connection in the background and returns a client and an event stream.
+    ///
+    /// - The client is used as a handle to communicate with the server through the managed connection.
+    /// - The event stream is used to receive events from the server, such as incoming messages or errors.
+    pub async fn connected<S>(
         self,
         stream: S,
     ) -> Result<
@@ -162,12 +179,6 @@ impl ConnectionBuilder {
 }
 
 impl ConnectionBuilder {
-    /// Sets the socket address to connect to.
-    pub fn socket_addr(mut self, socket_addr: impl Into<SocketAddr>) -> Self {
-        self.socket_addr = socket_addr.into();
-        self
-    }
-
     /// Sets the maximum command length for incoming commands.
     pub const fn max_command_length(mut self, max_command_length: usize) -> Self {
         self.max_command_length = max_command_length;

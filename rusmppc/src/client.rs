@@ -1,5 +1,4 @@
 use std::{
-    net::SocketAddr,
     pin::Pin,
     sync::Arc,
     task::{Context, Poll},
@@ -60,8 +59,8 @@ impl Client {
     }
 
     /// Creates a new `SMPP` connection builder.
-    pub fn builder(socket_addr: impl Into<SocketAddr>) -> ConnectionBuilder {
-        ConnectionBuilder::new(socket_addr)
+    pub fn builder() -> ConnectionBuilder {
+        ConnectionBuilder::new()
     }
 
     /// Returns the current session state of the client.

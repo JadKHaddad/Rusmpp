@@ -119,7 +119,8 @@
         "Ussd",
         "Ussn",
         "Wcmp",
-        "wireshark"
+        "wireshark",
+        "NfDfddEKVI0NCxO",
     ],
     "ignorePaths": [
         "target"

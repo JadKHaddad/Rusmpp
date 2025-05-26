@@ -97,7 +97,6 @@ async fn bind() {
     // Or client::unbind() then client::terminated().
 
     let _ = events.await;
-    let _ = client.terminated().await;
 }
 
 #[tokio::test]

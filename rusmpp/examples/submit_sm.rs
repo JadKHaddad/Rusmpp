@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .sequence_number(1)
         .pdu(
             BindTransceiver::builder()
-                .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?) // cspell:disable-line
+                .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?)
                 .password(COctetString::from_str("rEZYMq5j")?)
                 .system_type(COctetString::empty())
                 .interface_version(InterfaceVersion::Smpp5_0)

@@ -49,6 +49,7 @@ pub struct Connection<Socket, Sink, Stream> {
     events_sink: Sink,
     /// Receive smpp actions from the client.
     actions_stream: Stream,
+    /// When cancelled, the client knows that the connection is closed
     termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
     config: ManagedConnectionConfig,
@@ -93,26 +94,14 @@ where
     Si: Sink<Event> + Send + Clone + Unpin + 'static,
     St: Stream<Item = Action> + Send + Unpin + 'static,
 {
-    pub async fn run(self) {
+    pub async fn run(mut self) {
         let mut framed = Framed::new(
             self.socket,
             CommandCodec::new().with_max_length(self.config.max_command_length),
         );
 
-        let session_state_holder = self.session_state_holder;
-
-        let mut actions_stream = self.actions_stream;
-
-        let mut events_sink = self.events_sink;
-
-        let enquire_link_timeout = self.config.timeouts.enquire_link;
-        let response_timeout = self.config.timeouts.response;
-
         let mut pending_responses: HashMap<u32, oneshot::Sender<Result<Command, Error>>> =
             HashMap::new();
-
-        // When this is cancelled, the client knows that the connection is closed
-        let termination_token = self.termination_token;
 
         let mut last_enquire_link_sequence_number: Option<u32> = None;
 
@@ -129,10 +118,10 @@ where
 
                     break
                 }
-                _ = tokio::time::sleep(enquire_link_timeout) => {
+                _ = tokio::time::sleep(self.config.timeouts.enquire_link) => {
                     const TARGET: &str = "rusmppc::connection::enquire_link";
 
-                    let sequence_number = session_state_holder.next_sequence_number();
+                    let sequence_number = self.session_state_holder.next_sequence_number();
 
                     tracing::trace!(target: TARGET, sequence_number, "Sending EnquireLink");
 
@@ -149,7 +138,7 @@ where
 
                     last_enquire_link_sequence_number = Some(sequence_number);
 
-                    enquire_link_resp_timer.as_mut().activate(response_timeout);
+                    enquire_link_resp_timer.as_mut().activate(self.config.timeouts.response);
 
                     tracing::trace!(target: TARGET, "EnquireLink timer activated");
                 }
@@ -161,7 +150,7 @@ where
 
                         tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
 
-                        session_state_holder.set_session_state(SessionState::Closed);
+                        self.session_state_holder.set_session_state(SessionState::Closed);
 
                         break
                     };
@@ -186,7 +175,7 @@ where
 
                                     tracing::error!(target: TARGET, ?err, "Failed to send EnquireLink response");
 
-                                    let _ = events_sink.send(Event::Error(err)).await;
+                                    let _ = self.events_sink.send(Event::Error(err)).await;
 
                                     break
                                 }
@@ -199,7 +188,7 @@ where
 
                                 tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
 
-                                session_state_holder.set_session_state(SessionState::Unbound);
+                                self.session_state_holder.set_session_state(SessionState::Unbound);
 
                                 let command = Command::builder()
                                     .status(CommandStatus::EsmeRok)
@@ -211,7 +200,7 @@ where
 
                                     tracing::error!(target: TARGET, ?err, "Failed to send Unbind response");
 
-                                    let _ = events_sink.send(Event::Error(err)).await;
+                                    let _ = self.events_sink.send(Event::Error(err)).await;
 
                                     break
                                 }
@@ -246,7 +235,7 @@ where
 
                             // The server may send us a request like DeliverSm, No clients are waiting for it so we pipe it to the events stream
                             if command_id.is_operation() {
-                                let _ = events_sink.send(Event::Command(command)).await;
+                                let _ = self.events_sink.send(Event::Command(command)).await;
 
                                 continue;
                             }
@@ -258,7 +247,7 @@ where
                                     None => {
                                         tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
 
-                                        let _ = events_sink.send(Event::Command(command)).await;
+                                        let _ = self.events_sink.send(Event::Command(command)).await;
                                     },
                                     Some(response) => {
                                         tracing::trace!(target: TARGET, sequence_number, "Found client waiting for response");
@@ -267,7 +256,7 @@ where
                                             tracing::warn!(target: TARGET, sequence_number, "Failed to send response to client");
                                             tracing::trace!(target: TARGET, sequence_number, "Piping command through events stream");
 
-                                            let _ = events_sink.send(Event::Command(command.expect("Must be ok"))).await;
+                                            let _ = self.events_sink.send(Event::Command(command.expect("Must be ok"))).await;
                                         }
                                     }
                                 }
@@ -277,7 +266,7 @@ where
                             if let CommandId::UnbindResp = command_id {
                                 tracing::trace!(target: TARGET, sequence_number, "Unbind response received");
 
-                                let session_state = session_state_holder.session_state();
+                                let session_state = self.session_state_holder.session_state();
 
                                 if !matches!(session_state, SessionState::Unbound) {
                                     tracing::warn!(target: TARGET, session_state=?session_state, "Received UnbindResp in unexpected session state");
@@ -293,13 +282,13 @@ where
 
                             tracing::error!(target: TARGET, ?err, "Error reading command");
 
-                            let _ = events_sink.send(Event::Error(err)).await;
+                            let _ = self.events_sink.send(Event::Error(err)).await;
 
                             break
                         },
                     }
                 }
-                action = actions_stream.next() => {
+                action = self.actions_stream.next() => {
                     const TARGET: &str = "rusmppc::connection::actions";
 
                     let Some(action) = action else {
@@ -338,7 +327,7 @@ where
 
                                 tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
 
-                                session_state_holder.set_session_state(SessionState::Unbound);
+                                self.session_state_holder.set_session_state(SessionState::Unbound);
                             }
 
                             pending_responses.insert(sequence_number, response);
@@ -370,7 +359,7 @@ where
 
         const TARGET: &str = "rusmppc::connection";
 
-        let session_state = session_state_holder.session_state();
+        let session_state = self.session_state_holder.session_state();
 
         match session_state {
             SessionState::Closed => {
@@ -388,16 +377,18 @@ where
 
                 tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
 
-                session_state_holder.set_session_state(SessionState::Closed);
+                self.session_state_holder
+                    .set_session_state(SessionState::Closed);
             }
             _ => {
                 // We unbind here
 
                 tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
 
-                session_state_holder.set_session_state(SessionState::Unbound);
+                self.session_state_holder
+                    .set_session_state(SessionState::Unbound);
 
-                let sequence_number = session_state_holder.next_sequence_number();
+                let sequence_number = self.session_state_holder.next_sequence_number();
 
                 let unbind = Command::builder()
                     .status(CommandStatus::EsmeRok)
@@ -411,14 +402,14 @@ where
 
                     tracing::error!(target: TARGET, ?err, "Error sending command");
 
-                    let _ = events_sink.send(Event::Error(err)).await;
+                    let _ = self.events_sink.send(Event::Error(err)).await;
                 }
 
                 // Wait for an unbind response to terminate gracefully
                 tracing::trace!(target: TARGET, "Waiting for unbind response");
 
                 tokio::select! {
-                    _ = tokio::time::sleep(response_timeout) => {
+                    _ = tokio::time::sleep(self.config.timeouts.response) => {
                         tracing::warn!(target: TARGET, "Unbind response timed out");
                     },
                     _ = async {
@@ -429,7 +420,7 @@ where
 
                                     tracing::error!(target: TARGET, ?err, "Error reading unbind response");
 
-                                    let _ = events_sink.send(Event::Error(err)).await;
+                                    let _ = self.events_sink.send(Event::Error(err)).await;
 
                                     break
                                 },
@@ -445,7 +436,7 @@ where
                                             break;
                                         },
                                         _ => {
-                                            let _ = events_sink.send(Event::Command(command)).await;
+                                            let _ = self.events_sink.send(Event::Command(command)).await;
                                         }
                                     }
                                 }
@@ -454,12 +445,13 @@ where
                     } => {}
                 }
 
-                session_state_holder.set_session_state(SessionState::Closed);
+                self.session_state_holder
+                    .set_session_state(SessionState::Closed);
             }
         }
 
         tracing::debug!(target: TARGET, "Terminated");
 
-        termination_token.cancel();
+        self.termination_token.cancel();
     }
 }

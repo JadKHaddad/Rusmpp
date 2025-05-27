@@ -18,7 +18,7 @@ use crate::{
     Client, Event,
     action::Action,
     bind::BindMode,
-    connection::{Connection, ConnectionConfig},
+    connection::{Connection, ManagedConnectionConfig},
     error::Error,
     session_state::SessionStateHolder,
 };
@@ -149,7 +149,7 @@ impl ConnectionBuilder {
             termination_token.clone(),
             session_state_holder.clone(),
             pending_requests.clone(),
-            ConnectionConfig::new(self.max_command_length, self.timeouts),
+            ManagedConnectionConfig::new(self.max_command_length, self.timeouts),
         );
 
         connection.spawn();

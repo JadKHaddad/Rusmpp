@@ -38,3 +38,8 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+
+[[example]]
+name = "submit_sm"
+path = "examples/submit_sm.rs"
+required-features = []

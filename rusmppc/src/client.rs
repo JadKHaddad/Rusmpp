@@ -7,7 +7,7 @@ use std::{
 
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter, SubmitSm, SubmitSmResp},
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp, SubmitSm, SubmitSmResp},
     session::SessionState,
 };
 use tokio::sync::mpsc::Sender;
@@ -97,6 +97,17 @@ impl Client {
     /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
     pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
         self.inner.submit_sm(submit_sm).await
+    }
+
+    /// Sends a [`DeliverSmResp`] command to the server.
+    pub async fn deliver_sm_resp(
+        &self,
+        sequence_number: u32,
+        deliver_sm_resp: impl Into<DeliverSmResp>,
+    ) -> Result<(), Error> {
+        self.inner
+            .deliver_sm_resp(sequence_number, deliver_sm_resp)
+            .await
     }
 
     /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) and terminates the connection.
@@ -272,6 +283,24 @@ impl ClientInner {
                 _ => Err(Command::from_parts(id, status, sequence_number, pdu)),
             })?
             .map_err(Error::unexpected_response)
+    }
+
+    async fn deliver_sm_resp(
+        &self,
+        sequence_number: u32,
+        deliver_sm_resp: impl Into<DeliverSmResp>,
+    ) -> Result<(), Error> {
+        let session_state = self.session_state();
+
+        match session_state {
+            SessionState::BoundRx | SessionState::BoundTrx => {
+                // If BoundTx, we should have not received a DeliverSm
+                self.request_without_response(deliver_sm_resp.into(), Some(sequence_number))
+                    .await
+            }
+            SessionState::Closed => Err(Error::ConnectionClosed),
+            session_state => Err(Error::InvalidSessionState { session_state }),
+        }
     }
 
     async fn unbind(&self) -> Result<(), Error> {

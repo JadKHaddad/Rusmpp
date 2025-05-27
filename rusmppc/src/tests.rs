@@ -38,7 +38,7 @@ async fn bind() {
         .addr_npi(Npi::Unknown)
         .address_range(COctetString::empty())
         .transceiver()
-        .enquire_link_timeout(Duration::from_secs(3))
+        .enquire_link_interval(Duration::from_secs(3))
         .response_timeout(Duration::from_secs(2))
         .max_command_length(1024)
         .connect("127.0.0.1:2775")
@@ -325,7 +325,7 @@ async fn enquire_link_timeout() {
 
     let (client, _) = ConnectionBuilder::new()
         // Send enquire link every 2 seconds
-        .enquire_link_timeout(Duration::from_secs(2))
+        .enquire_link_interval(Duration::from_secs(2))
         // Wait for 1 second for the response
         .response_timeout(Duration::from_secs(1))
         .connected(client)

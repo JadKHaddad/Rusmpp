@@ -245,11 +245,11 @@ impl ConnectionBuilder {
         self
     }
 
-    /// Sets the enquire link timeout.
+    /// Sets the enquire link interval.
     ///
-    /// This timeout is used to determine how often an enquire link command should be sent to the server.
-    pub fn enquire_link_timeout(mut self, enquire_link_timeout: Duration) -> Self {
-        self.timeouts.enquire_link = enquire_link_timeout;
+    /// Used to determine how often an enquire link command should be sent to the server.
+    pub fn enquire_link_interval(mut self, enquire_link_interval: Duration) -> Self {
+        self.timeouts.enquire_link = enquire_link_interval;
         self
     }
 

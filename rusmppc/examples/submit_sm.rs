@@ -36,7 +36,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         // bind as a transceiver
         .transceiver()
         // every 5 seconds send an enquire link command to the server
-        .enquire_link_timeout(Duration::from_secs(5))
+        .enquire_link_interval(Duration::from_secs(5))
         // if the server does not respond within 2 seconds, consider it a timeout
         .response_timeout(Duration::from_secs(2))
         .connect("127.0.0.1:2775")

@@ -121,6 +121,15 @@
         "Wcmp",
         "wireshark",
         "NfDfddEKVI0NCxO",
+        "wireshark",
+        "subcomponent",
+        "telematic",
+        "interworking",
+        "telematic",
+        "interworking",
+        "subcomponent",
+        "PLMN",
+        "KORITS"
     ],
     "ignorePaths": [
         "target"

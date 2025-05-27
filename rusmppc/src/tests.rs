@@ -5,7 +5,7 @@ use rusmpp::{
     pdus::{DeliverSmResp, SubmitSm},
     session::SessionState,
 };
-use server::Server;
+use server::{Server, UnbindServer};
 use tokio_stream::StreamExt;
 
 use crate::{ConnectionBuilder, Event, error::Error};
@@ -408,7 +408,23 @@ async fn connection_lost() {
     let _ = client.terminated().await;
 }
 
-// TODO: Server issues unbind
+#[tokio::test]
+async fn server_wants_unbind() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        UnbindServer::new(Duration::from_secs(1)).run(server).await;
+    });
+
+    let (client, _) = ConnectionBuilder::new()
+        .connected(client)
+        .await
+        .expect("Failed to connect");
+
+    let _ = client.terminated().await;
+}
 
 #[tokio::test]
 #[ignore = "Just to see the connection ids"]

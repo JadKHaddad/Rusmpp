@@ -1,0 +1,31 @@
+[package]
+name = "rusmpps"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.85.0"
+description = "A Rust SMPP simulator."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+readme = "Readme.md"
+keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
+publish = false
+
+[dependencies]
+rusmpp = { path = "../rusmpp", default-features = false, features = [
+    "tokio-codec",
+    "tracing",
+    "verbose",
+] }
+tokio = { version = "1.45.0", features = [
+    "rt",
+    "net",
+    "sync",
+    "macros",
+    "io-util",
+] }
+tokio-util = { version = "0.7.15", features = ["codec"] }
+parking_lot = "0.12.3"
+futures = "0.3.31"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

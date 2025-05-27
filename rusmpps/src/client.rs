@@ -1,12 +1,6 @@
-use std::{
-    collections::HashMap,
-    sync::{
-        Arc,
-        atomic::{AtomicU32, Ordering},
-    },
-};
+use std::{collections::HashMap, sync::Arc};
 
-use rusmpp::session::SessionState;
+use rusmpp::{Command, session::SessionState};
 use tokio::sync::{RwLock, RwLockReadGuard, mpsc::Sender};
 
 #[derive(Debug)]
@@ -16,7 +10,34 @@ pub struct Client {
 }
 
 #[derive(Debug)]
-pub enum Action {}
+pub enum Action {
+    Send(Command),
+}
+
+#[derive(Debug)]
+pub struct SequenceNumber {
+    current: u32,
+}
+
+impl Default for SequenceNumber {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl SequenceNumber {
+    pub fn new() -> Self {
+        Self { current: 1 }
+    }
+
+    pub fn current_and_increment(&mut self) -> u32 {
+        let seq = self.current;
+
+        self.current += 1;
+
+        seq
+    }
+}
 
 #[derive(Debug, Default)]
 pub struct ConnectedClient {
@@ -47,7 +68,6 @@ impl ConnectedClient {
 pub struct ClientSession {
     pub tx: Sender<Action>,
     pub session_state: SessionState,
-    sequence_number: AtomicU32,
 }
 
 impl ClientSession {
@@ -55,12 +75,7 @@ impl ClientSession {
         Self {
             tx: sender,
             session_state,
-            sequence_number: AtomicU32::new(1),
         }
-    }
-
-    pub fn next_sequence_number(&self) -> u32 {
-        self.sequence_number.fetch_add(1, Ordering::SeqCst)
     }
 }
 

@@ -4,7 +4,7 @@ use futures::{SinkExt, StreamExt, TryStreamExt, future};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
     codec::CommandCodec,
-    pdus::{BindReceiverResp, BindTransceiverResp},
+    pdus::{BindReceiverResp, BindTransceiverResp, SubmitSmResp},
     types::COctetString,
     values::InterfaceVersion,
 };
@@ -12,9 +12,15 @@ use tokio::{
     io::{AsyncRead, AsyncWrite},
     sync::mpsc,
 };
+use tokio_stream::wrappers::ReceiverStream;
 use tokio_util::codec::{FramedRead, FramedWrite};
 
-use crate::{bind_mode::BindMode, client::ClientSession, config::Config};
+use crate::{
+    bind_mode::BindMode,
+    client::{Action, ClientSession, SequenceNumber},
+    config::Config,
+    timer::Timer,
+};
 
 #[derive(Debug)]
 pub struct Connection {
@@ -47,7 +53,7 @@ impl Connection {
             ))
         });
 
-        let (sequence_number, system_id, password, bind_mode) = tokio::select! {
+        let (sequence_number, system_id, _, bind_mode) = tokio::select! {
             _ = tokio::time::sleep(self.config.session_timeout) => {
                 tracing::warn!(session_id, "Session timeout reached, closing connection");
 
@@ -137,17 +143,18 @@ impl Connection {
 
         tokio::time::sleep(self.config.bind_delay).await;
 
-        tracing::debug!(session_id, id=?command.id(), "Sending bind response");
-        tracing::trace!(session_id, ?command, "Sending bind response");
+        tracing::debug!(session_id, id=?command.id(), "Sending response");
+        tracing::trace!(session_id, ?command, "Sending response");
 
         if let Err(err) = writer.send(command).await {
-            tracing::error!(session_id, ?err, "Failed to send bind response");
+            tracing::error!(session_id, ?err, "Failed to send response");
 
             return;
         }
 
         let (tx, rx) = mpsc::channel(100);
 
+        let mut sequence_number = SequenceNumber::new();
         let system_id = system_id.to_string();
         let session = ClientSession::new(tx, bind_mode.into());
 
@@ -156,7 +163,136 @@ impl Connection {
             .insert_session(system_id.clone(), session_id, session)
             .await;
 
-        while let Some(command) = reader.next().await {}
+        let mut actions = ReceiverStream::new(rx);
+
+        let mut last_enquire_link_sequence_number = None;
+
+        let enquire_link_resp_timer = Timer::new();
+        tokio::pin!(enquire_link_resp_timer);
+
+        loop {
+            tokio::select! {
+                _ = &mut enquire_link_resp_timer => {
+                    tracing::warn!(session_id, "EnquireLink response timeout reached, closing connection");
+
+                    break
+                }
+                _ = tokio::time::sleep(self.config.enquire_link_interval) => {
+                    tracing::debug!(session_id, "Sending EnquireLink command");
+
+                    let sequence_number = sequence_number.current_and_increment();
+
+                    last_enquire_link_sequence_number = Some(sequence_number);
+
+                    let command = Command::builder()
+                        .status(CommandStatus::EsmeRok)
+                        .sequence_number(sequence_number)
+                        .pdu(Pdu::EnquireLink);
+
+                    if let Err(err) = writer.send(command).await {
+                        tracing::error!(session_id, ?err, "Failed to send EnquireLink command");
+
+                        break
+                    }
+
+                    enquire_link_resp_timer.as_mut().activate(self.config.response_timeout);
+
+                    tracing::debug!(session_id, "EnquireLink response timer activated");
+                }
+                action = actions.next() => {
+                    let action = match action {
+                        None => break,
+                        Some(action) => action,
+                    };
+
+                    match action {
+                        Action::Send(command) => {
+                            tracing::debug!(session_id, id=?command.id(), "Sending command");
+                            tracing::trace!(session_id, ?command, "Sending command");
+
+                            if let Err(err) = writer.send(command).await {
+                                tracing::error!(session_id, ?err, "Failed to send command");
+
+                                break
+                            }
+                        }
+                    }
+                }
+                command = reader.next() => {
+                    let command = match command {
+                        None =>  break,
+                        Some(Ok(command)) => command,
+                        Some(Err(err)) => {
+                            tracing::error!(session_id, ?err, "Failed to read command");
+
+                            break
+                        }
+                    };
+
+                    tracing::debug!(session_id, id=?command.id(), "Received command");
+                    tracing::trace!(session_id, ?command, "Received command");
+
+                    let (id, _, sequence_number, pdu) = command.into_parts();
+
+                    let pdu: Pdu = match pdu {
+                        Some(Pdu::Unbind) => {
+                            Pdu::UnbindResp
+                        },
+                        Some(Pdu::EnquireLink) => {
+                            Pdu::EnquireLinkResp
+                        },
+                        Some(Pdu::SubmitSm(_)) => {
+                            SubmitSmResp::builder()
+                                .build()
+                                .into()
+                        },
+                        Some(Pdu::EnquireLinkResp) => {
+                            match last_enquire_link_sequence_number {
+                                Some(seq) => {
+                                    if sequence_number != seq {
+                                        tracing::warn!(session_id, id=?id, expected=seq, got=sequence_number, "Received EnquireLinkResp with unexpected sequence number");
+
+                                        return
+                                    }
+
+                                    tracing::trace!(session_id, id=?id, "Received EnquireLinkResp");
+
+                                    last_enquire_link_sequence_number = None;
+
+                                    enquire_link_resp_timer.as_mut().disable();
+
+                                    tracing::debug!(session_id, "EnquireLink response timer disabled");
+                                }
+                                None => {
+                                    tracing::warn!(session_id, "Received EnquireLinkResp without a previous EnquireLink");
+                                }
+                            }
+
+                            continue
+                        }
+                        _ => {
+                            tracing::warn!(session_id, id=?id, "Received unsupported command");
+
+                            continue
+                        }
+                    };
+
+                    let command = Command::builder()
+                        .status(CommandStatus::EsmeRok)
+                        .sequence_number(sequence_number)
+                        .pdu(pdu);
+
+                    tracing::debug!(session_id, id=?command.id(), "Sending response");
+                    tracing::trace!(session_id, ?command, "Sending response");
+
+                    if let Err(err) = writer.send(command).await {
+                        tracing::error!(session_id, ?err, "Failed to send response");
+
+                        break;
+                    }
+                }
+            };
+        }
 
         self.config
             .connected_clients

@@ -1191,8 +1191,10 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "futures",
+ "pin-project-lite",
  "rusmpp",
  "tokio",
+ "tokio-stream",
  "tokio-util",
  "tracing",
  "tracing-subscriber",

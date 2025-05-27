@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     let parameters = ServerParameters {
         clients: vec![],
-        enquire_link_interval: Duration::from_secs(15),
+        enquire_link_interval: Duration::from_secs(3),
         response_timeout: Duration::from_secs(3),
         session_timeout: Duration::from_secs(3),
         bind_delay: Duration::from_millis(100),

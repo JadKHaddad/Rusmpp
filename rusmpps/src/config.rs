@@ -1,12 +1,10 @@
-use std::{sync::Arc, time::Duration};
-
-use tokio::sync::RwLock;
+use std::time::Duration;
 
 use crate::client::{Client, ConnectedClients};
 
 #[derive(Debug)]
 pub struct Config {
-    pub connected_clients: Arc<RwLock<ConnectedClients>>,
+    pub connected_clients: ConnectedClients,
     pub clients: Vec<Client>,
     pub enquire_link_interval: Duration,
     pub response_timeout: Duration,

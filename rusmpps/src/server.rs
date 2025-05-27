@@ -1,9 +1,14 @@
-use std::{collections::HashMap, net::SocketAddr, sync::Arc, time::Duration};
+use std::{net::SocketAddr, sync::Arc, time::Duration};
 
 use anyhow::Context;
-use tokio::{net::TcpListener, sync::RwLock};
 
-use crate::{client::Client, config::Config, connection::Connection};
+use tokio::net::TcpListener;
+
+use crate::{
+    client::{Client, ConnectedClients},
+    config::Config,
+    connection::Connection,
+};
 
 #[derive(Debug)]
 pub struct ServerParameters {
@@ -20,12 +25,13 @@ pub struct ServerParameters {
 pub struct Server {
     config: Arc<Config>,
     socket_addr: SocketAddr,
+    session_id: u64,
 }
 
 impl Server {
     pub fn new(parameters: ServerParameters) -> Self {
         let config = Arc::new(Config {
-            connected_clients: Arc::new(RwLock::new(HashMap::new())),
+            connected_clients: ConnectedClients::new(),
             clients: parameters.clients,
             enquire_link_interval: parameters.enquire_link_interval,
             response_timeout: parameters.response_timeout,
@@ -37,10 +43,19 @@ impl Server {
         Self {
             config,
             socket_addr: parameters.socket_addr,
+            session_id: 0,
         }
     }
 
-    pub async fn run(self) -> Result<(), anyhow::Error> {
+    fn next_session_id(&mut self) -> u64 {
+        let session_id = self.session_id;
+
+        self.session_id += 1;
+
+        session_id
+    }
+
+    pub async fn run(mut self) -> Result<(), anyhow::Error> {
         let listener = TcpListener::bind(self.socket_addr)
             .await
             .context("Failed to bind")?;
@@ -53,14 +68,16 @@ impl Server {
                 .await
                 .context("Failed to accept connection")?;
 
-            tracing::info!(%addr, "Accepted connection");
+            let session_id = self.next_session_id();
 
-            let connection = Connection::new(self.config.clone());
+            tracing::info!(%addr, session_id, "Accepted connection");
+
+            let connection = Connection::new(session_id, self.config.clone());
 
             tokio::spawn(async move {
                 connection.run(stream).await;
 
-                tracing::info!(%addr, "Connection closed");
+                tracing::info!(%addr, session_id, "Connection closed");
             });
         }
     }

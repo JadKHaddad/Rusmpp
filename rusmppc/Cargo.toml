@@ -40,6 +40,6 @@ all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
 
 [[example]]
-name = "submit_sm"
-path = "examples/submit_sm.rs"
+name = "rusmppc_submit_sm"
+path = "examples/rusmppc_submit_sm.rs"
 required-features = []

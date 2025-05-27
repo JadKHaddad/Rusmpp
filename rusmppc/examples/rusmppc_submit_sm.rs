@@ -3,7 +3,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example submit_sm
+//! cargo run -p rusmppc --example rusmppc_submit_sm
 //! ```
 //!
 

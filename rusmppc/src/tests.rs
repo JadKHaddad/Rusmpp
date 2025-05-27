@@ -242,6 +242,26 @@ async fn unbind() {
 }
 
 #[tokio::test]
+async fn drop_client() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, events) = ConnectionBuilder::new()
+        .connected(client)
+        .await
+        .expect("Failed to connect");
+
+    drop(client);
+
+    let _ = events.collect::<Vec<_>>().await;
+}
+
+#[tokio::test]
 async fn cancel_unbind_future() {
     init_tracing();
 

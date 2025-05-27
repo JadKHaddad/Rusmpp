@@ -150,7 +150,7 @@ where
 
                         break
                     },
-                    _ = tokio::time::sleep(self.config.timeouts.enquire_link) => {
+                    _ = tokio::time::sleep(enquire_link_timeout) => {
                         tracing::trace!(target: TARGET, "Sending enquire link");
 
                         let sequence_number = enquire_link_session_state_holder.next_sequence_number();
@@ -164,7 +164,7 @@ where
 
                         let _ = intern_actions_tx.send(Action::SendCommand(action)).await;
 
-                        match tokio::time::timeout(enquire_link_timeout, response)
+                        match tokio::time::timeout(response_timeout, response)
                             .await {
                                 Err(_) => {
                                     tracing::error!(target: TARGET, sequence_number, "Enquire link timeout");

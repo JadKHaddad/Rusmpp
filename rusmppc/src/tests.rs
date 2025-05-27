@@ -408,6 +408,8 @@ async fn connection_lost() {
     let _ = client.terminated().await;
 }
 
+// TODO: Server issues unbind
+
 #[tokio::test]
 #[ignore = "Just to see the connection ids"]
 async fn multiple() {

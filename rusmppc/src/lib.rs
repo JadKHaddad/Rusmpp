@@ -27,9 +27,6 @@ pub mod error;
 mod event;
 pub use event::Event;
 
-mod response;
-pub(crate) use response::PendingResponses;
-
 mod session_state;
 
 mod timer;

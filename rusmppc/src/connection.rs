@@ -1,13 +1,19 @@
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{
+    collections::HashMap,
+    sync::atomic::{AtomicUsize, Ordering},
+};
 
 use futures::{Sink, SinkExt, Stream, StreamExt};
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
-use tokio::io::{AsyncRead, AsyncWrite};
+use tokio::{
+    io::{AsyncRead, AsyncWrite},
+    sync::oneshot,
+};
 use tokio_util::{codec::Framed, sync::CancellationToken};
 use tracing::Instrument;
 
 use crate::{
-    Event, PendingResponses,
+    Event,
     action::{Action, SendCommand, SendCommandNoResponse},
     builder::ConnectionTimeouts,
     error::Error,
@@ -45,7 +51,6 @@ pub struct Connection<Socket, Sink, Stream> {
     actions_stream: Stream,
     termination_token: CancellationToken,
     session_state_holder: SessionStateHolder,
-    pending_responses: PendingResponses,
     config: ManagedConnectionConfig,
 }
 
@@ -56,7 +61,6 @@ impl<So, Si, St> Connection<So, Si, St> {
         actions_stream: St,
         termination_token: CancellationToken,
         session_state_holder: SessionStateHolder,
-        pending_responses: PendingResponses,
         config: ManagedConnectionConfig,
     ) -> Self {
         Self {
@@ -65,7 +69,6 @@ impl<So, Si, St> Connection<So, Si, St> {
             termination_token,
             actions_stream,
             session_state_holder,
-            pending_responses,
             config,
         }
     }
@@ -105,7 +108,8 @@ where
         let enquire_link_timeout = self.config.timeouts.enquire_link;
         let response_timeout = self.config.timeouts.response;
 
-        let pending_responses = self.pending_responses;
+        let mut pending_responses: HashMap<u32, oneshot::Sender<Result<Command, Error>>> =
+            HashMap::new();
 
         // When this is cancelled, the client knows that the connection is closed
         let termination_token = self.termination_token;
@@ -119,18 +123,18 @@ where
         loop {
             tokio::select! {
                 _ = &mut enquire_link_resp_timer => {
-                    const TARGET: &str = "rusmppc::connection::enquire_link";
+                    const TARGET: &str = "rusmppc::connection::enquire_link::timer";
 
-                    tracing::error!(target: TARGET, "Enquire link timeout");
+                    tracing::error!(target: TARGET, "EnquireLink timeout");
 
                     break
                 }
                 _ = tokio::time::sleep(enquire_link_timeout) => {
                     const TARGET: &str = "rusmppc::connection::enquire_link";
 
-                    tracing::trace!(target: TARGET, "Sending enquire link");
-
                     let sequence_number = session_state_holder.next_sequence_number();
+
+                    tracing::trace!(target: TARGET, sequence_number, "Sending EnquireLink");
 
                     let command = Command::builder()
                         .status(CommandStatus::EsmeRok)
@@ -143,12 +147,14 @@ where
                         break
                     }
 
+                    last_enquire_link_sequence_number = Some(sequence_number);
+
                     enquire_link_resp_timer.as_mut().activate(response_timeout);
 
-                    tracing::debug!(target: TARGET, "EnquireLink response timer activated");
+                    tracing::trace!(target: TARGET, "EnquireLink timer activated");
                 }
                 command = framed.next() => {
-                    const TARGET: &str = "rusmppc::connection::reader";
+                    const TARGET: &str = "rusmppc::connection::read";
 
                     let Some(command) = command else {
                         tracing::debug!(target: TARGET, "End of stream");
@@ -164,10 +170,11 @@ where
                         Ok(command) => {
                             let sequence_number = command.sequence_number();
 
+                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Received command");
                             tracing::trace!(target: TARGET, sequence_number, ?command, "Received command");
 
                             if let CommandId::EnquireLink = command.id() {
-                                tracing::trace!(target: TARGET, sequence_number, "Enquire link received");
+                                tracing::trace!(target: TARGET, sequence_number, "EnquireLink received");
 
                                 let command = Command::builder()
                                     .status(CommandStatus::EsmeRok)
@@ -213,19 +220,19 @@ where
                             }
 
                             if let CommandId::EnquireLinkResp = command.id() {
+                                tracing::trace!(target: TARGET, sequence_number,  "Received EnquireLinkResp");
+
                                 match last_enquire_link_sequence_number {
                                     Some(seq) => {
                                         if sequence_number != seq {
                                             tracing::warn!(target: TARGET, sequence_number, expected=seq, got=sequence_number, "Received EnquireLinkResp with unexpected sequence number");
                                         }
 
-                                        tracing::trace!(target: TARGET, sequence_number,  "Received EnquireLinkResp");
-
                                         last_enquire_link_sequence_number = None;
 
                                         enquire_link_resp_timer.as_mut().disable();
 
-                                        tracing::debug!(target: TARGET, sequence_number,  "EnquireLink response timer disabled");
+                                        tracing::trace!(target: TARGET, sequence_number,  "EnquireLink timer disabled");
                                     }
                                     None => {
                                         tracing::warn!(target: TARGET, sequence_number,  "Received EnquireLinkResp without a previous EnquireLink");
@@ -245,7 +252,7 @@ where
                             }
 
                             if command_id.is_response() {
-                                let response = pending_responses.lock().remove(&sequence_number);
+                                let response = pending_responses.remove(&sequence_number);
 
                                 match response {
                                     None => {
@@ -302,10 +309,19 @@ where
                     };
 
                     match action {
+                        Action::RemovePendingResponse(sequence_number) => {
+                            tracing::trace!(target: TARGET, sequence_number, "Removing pending response");
+
+                            if pending_responses.remove(&sequence_number).is_none() {
+                                tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
+                            }
+                        },
                         Action::SendCommand(SendCommand { command, response }) => {
                             let sequence_number = command.sequence_number();
 
+                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Sending command");
                             tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
+
 
                             if let Err(err) = framed.send(&command).await {
                                 let err = Error::from(err);
@@ -325,13 +341,14 @@ where
                                 session_state_holder.set_session_state(SessionState::Unbound);
                             }
 
-                            pending_responses.lock().insert(sequence_number, response);
+                            pending_responses.insert(sequence_number, response);
 
                             tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
                         },
                         Action::SendCommandNoResponse(SendCommandNoResponse { command, response }) => {
                             let sequence_number = command.sequence_number();
 
+                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Sending command");
                             tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
 
                             if let Err(err) = framed.send(&command).await {

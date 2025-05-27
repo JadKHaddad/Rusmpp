@@ -17,15 +17,9 @@ rusmpp = { path = "../rusmpp", default-features = false, features = [
     "tracing",
     "verbose",
 ] }
-tokio = { version = "1.45.0", features = [
-    "rt",
-    "net",
-    "sync",
-    "macros",
-    "io-util",
-] }
+tokio = { version = "1.45.0", features = ["full"] }
 tokio-util = { version = "0.7.15", features = ["codec"] }
-parking_lot = "0.12.3"
 futures = "0.3.31"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+anyhow = "1"

@@ -109,7 +109,9 @@ impl ConnectionBuilder {
             .await
             .map_err(Error::Connect)?;
 
-        tracing::trace!(target: "rusmppc::connection", %socket_addr, "Connected");
+        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
+
+        tracing::debug!(target: "rusmppc::connection", bind_mode=?self.bind_mode, "Binding");
 
         self.connected(stream).await
     }
@@ -169,10 +171,12 @@ impl ConnectionBuilder {
             BindMode::Rx => {
                 client.bind_receiver(self.bind_builder.build()).await?;
             }
-            BindMode::TxRx => {
+            BindMode::Trx => {
                 client.bind_transceiver(self.bind_builder.build()).await?;
             }
         }
+
+        tracing::debug!(target: "rusmppc::connection", bind_mode=?self.bind_mode, "Bound");
 
         Ok((client, events_rx))
     }
@@ -205,7 +209,7 @@ impl ConnectionBuilder {
 
     /// Sets the bind mode to transceiver (both transmitter and receiver).
     pub const fn transceiver(mut self) -> Self {
-        self.bind_mode = BindMode::TxRx;
+        self.bind_mode = BindMode::Trx;
         self
     }
 

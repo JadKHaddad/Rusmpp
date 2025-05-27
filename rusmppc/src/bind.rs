@@ -7,5 +7,5 @@ pub enum BindMode {
     /// Receiver.
     Rx,
     /// Transceiver (both transmitter and receiver).
-    TxRx,
+    Trx,
 }

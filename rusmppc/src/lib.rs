@@ -32,5 +32,7 @@ pub(crate) use response::PendingResponses;
 
 mod session_state;
 
+mod timer;
+
 #[cfg(test)]
 mod tests;

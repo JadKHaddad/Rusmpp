@@ -170,6 +170,9 @@ impl Connection {
         let enquire_link_resp_timer = Timer::new();
         tokio::pin!(enquire_link_resp_timer);
 
+        let enquire_link_timer = Timer::new().activated(self.config.enquire_link_interval);
+        tokio::pin!(enquire_link_timer);
+
         loop {
             tokio::select! {
                 _ = &mut enquire_link_resp_timer => {
@@ -177,7 +180,7 @@ impl Connection {
 
                     break
                 }
-                _ = tokio::time::sleep(self.config.enquire_link_interval) => {
+                _ = &mut enquire_link_timer => {
                     tracing::debug!(session_id, "Sending EnquireLink command");
 
                     let sequence_number = sequence_number.current_and_increment();
@@ -190,14 +193,15 @@ impl Connection {
                         .pdu(Pdu::EnquireLink);
 
                     if let Err(err) = writer.send(command).await {
-                        tracing::error!(session_id, ?err, "Failed to send EnquireLink command");
+                        tracing::error!(session_id, sequence_number, ?err, "Failed to send EnquireLink command");
 
                         break
                     }
 
                     enquire_link_resp_timer.as_mut().activate(self.config.response_timeout);
+                    enquire_link_timer.as_mut().activate(self.config.enquire_link_interval);
 
-                    tracing::debug!(session_id, "EnquireLink response timer activated");
+                    tracing::debug!(session_id, sequence_number, "EnquireLink response timer activated");
                 }
                 action = actions.next() => {
                     let action = match action {
@@ -207,8 +211,10 @@ impl Connection {
 
                     match action {
                         Action::Send(command) => {
-                            tracing::debug!(session_id, id=?command.id(), "Sending command");
-                            tracing::trace!(session_id, ?command, "Sending command");
+                            let sequence_number = command.sequence_number();
+
+                            tracing::debug!(session_id, sequence_number, id=?command.id(), "Sending command");
+                            tracing::trace!(session_id, sequence_number, ?command, "Sending command");
 
                             if let Err(err) = writer.send(command).await {
                                 tracing::error!(session_id, ?err, "Failed to send command");
@@ -229,8 +235,10 @@ impl Connection {
                         }
                     };
 
-                    tracing::debug!(session_id, id=?command.id(), "Received command");
-                    tracing::trace!(session_id, ?command, "Received command");
+                    let sequence_number = command.sequence_number();
+
+                    tracing::debug!(session_id, sequence_number, id=?command.id(), "Received command");
+                    tracing::trace!(session_id, sequence_number, ?command, "Received command");
 
                     let (id, _, sequence_number, pdu) = command.into_parts();
 
@@ -255,23 +263,23 @@ impl Connection {
                                         return
                                     }
 
-                                    tracing::trace!(session_id, id=?id, "Received EnquireLinkResp");
+                                    tracing::trace!(session_id, sequence_number, id=?id, "Received EnquireLinkResp");
 
                                     last_enquire_link_sequence_number = None;
 
                                     enquire_link_resp_timer.as_mut().disable();
 
-                                    tracing::debug!(session_id, "EnquireLink response timer disabled");
+                                    tracing::debug!(session_id, sequence_number, "EnquireLink response timer disabled");
                                 }
                                 None => {
-                                    tracing::warn!(session_id, "Received EnquireLinkResp without a previous EnquireLink");
+                                    tracing::warn!(session_id, sequence_number, "Received EnquireLinkResp without a previous EnquireLink");
                                 }
                             }
 
                             continue
                         }
                         _ => {
-                            tracing::warn!(session_id, id=?id, "Received unsupported command");
+                            tracing::warn!(session_id, sequence_number, id=?id, "Received unsupported command");
 
                             continue
                         }
@@ -282,11 +290,11 @@ impl Connection {
                         .sequence_number(sequence_number)
                         .pdu(pdu);
 
-                    tracing::debug!(session_id, id=?command.id(), "Sending response");
-                    tracing::trace!(session_id, ?command, "Sending response");
+                    tracing::debug!(session_id, sequence_number, id=?command.id(), "Sending response");
+                    tracing::trace!(session_id, sequence_number, ?command, "Sending response");
 
                     if let Err(err) = writer.send(command).await {
-                        tracing::error!(session_id, ?err, "Failed to send response");
+                        tracing::error!(session_id, sequence_number, ?err, "Failed to send response");
 
                         break;
                     }

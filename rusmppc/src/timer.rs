@@ -24,6 +24,11 @@ impl Timer {
         Self { state: None }
     }
 
+    pub fn activated(mut self, duration: Duration) -> Timer {
+        self.state = Some(tokio::time::sleep(duration));
+        self
+    }
+
     pub fn activate(self: Pin<&mut Self>, duration: Duration) {
         let mut this = self.project();
 

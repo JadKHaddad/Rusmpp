@@ -109,6 +109,10 @@ where
 
         tokio::pin!(enquire_link_resp_timer);
 
+        let enquire_link_timer = Timer::new().activated(self.config.timeouts.enquire_link);
+
+        tokio::pin!(enquire_link_timer);
+
         loop {
             tokio::select! {
                 _ = &mut enquire_link_resp_timer => {
@@ -118,7 +122,7 @@ where
 
                     break
                 }
-                _ = tokio::time::sleep(self.config.timeouts.enquire_link) => {
+                _ = &mut enquire_link_timer => {
                     const TARGET: &str = "rusmppc::connection::enquire_link";
 
                     let sequence_number = self.session_state_holder.next_sequence_number();
@@ -139,6 +143,7 @@ where
                     last_enquire_link_sequence_number = Some(sequence_number);
 
                     enquire_link_resp_timer.as_mut().activate(self.config.timeouts.response);
+                    enquire_link_timer.as_mut().activate(self.config.timeouts.enquire_link);
 
                     tracing::trace!(target: TARGET, "EnquireLink timer activated");
                 }

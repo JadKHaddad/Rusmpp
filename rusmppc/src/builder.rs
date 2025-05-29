@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt, sync::Arc, time::Duration};
+use std::{fmt, time::Duration};
 
 use futures::Stream;
 use rusmpp::{
@@ -11,7 +11,7 @@ use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpStream, ToSocketAddrs},
 };
-use tokio_stream::wrappers::ReceiverStream;
+use tokio_stream::wrappers::UnboundedReceiverStream;
 use tokio_util::sync::CancellationToken;
 
 use crate::{
@@ -109,7 +109,9 @@ impl ConnectionBuilder {
             .await
             .map_err(Error::Connect)?;
 
-        tracing::trace!(target: "rusmppc::connection", %socket_addr, "Connected");
+        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
+
+        tracing::debug!(target: "rusmppc::connection", bind_mode=?self.bind_mode, "Binding");
 
         self.connected(stream).await
     }
@@ -134,21 +136,19 @@ impl ConnectionBuilder {
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {
         let (events_tx, events_rx) = futures::channel::mpsc::unbounded::<Event>();
-        let (actions_tx, actions_rx) = tokio::sync::mpsc::channel::<Action>(100);
+        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
         let termination_token = CancellationToken::new();
 
         let session_state_holder = SessionStateHolder::new(SessionState::Open);
-        let pending_requests = Arc::new(parking_lot::Mutex::new(HashMap::new()));
 
         let response_timeout = self.timeouts.response;
 
         let connection = Connection::new(
             stream,
             events_tx,
-            ReceiverStream::new(actions_rx),
+            UnboundedReceiverStream::new(actions_rx),
             termination_token.clone(),
             session_state_holder.clone(),
-            pending_requests.clone(),
             ManagedConnectionConfig::new(self.max_command_length, self.timeouts),
         );
 
@@ -158,7 +158,6 @@ impl ConnectionBuilder {
             actions_tx,
             response_timeout,
             session_state_holder,
-            pending_requests,
             termination_token,
         );
 
@@ -169,10 +168,12 @@ impl ConnectionBuilder {
             BindMode::Rx => {
                 client.bind_receiver(self.bind_builder.build()).await?;
             }
-            BindMode::TxRx => {
+            BindMode::Trx => {
                 client.bind_transceiver(self.bind_builder.build()).await?;
             }
         }
+
+        tracing::debug!(target: "rusmppc::connection", bind_mode=?self.bind_mode, "Bound");
 
         Ok((client, events_rx))
     }
@@ -205,7 +206,7 @@ impl ConnectionBuilder {
 
     /// Sets the bind mode to transceiver (both transmitter and receiver).
     pub const fn transceiver(mut self) -> Self {
-        self.bind_mode = BindMode::TxRx;
+        self.bind_mode = BindMode::Trx;
         self
     }
 
@@ -245,11 +246,11 @@ impl ConnectionBuilder {
         self
     }
 
-    /// Sets the enquire link timeout.
+    /// Sets the enquire link interval.
     ///
-    /// This timeout is used to determine how often an enquire link command should be sent to the server.
-    pub fn enquire_link_timeout(mut self, enquire_link_timeout: Duration) -> Self {
-        self.timeouts.enquire_link = enquire_link_timeout;
+    /// Used to determine how often an enquire link command should be sent to the server.
+    pub fn enquire_link_interval(mut self, enquire_link_interval: Duration) -> Self {
+        self.timeouts.enquire_link = enquire_link_interval;
         self
     }
 

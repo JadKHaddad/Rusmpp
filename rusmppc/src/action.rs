@@ -12,6 +12,8 @@ pub enum Action {
     SendCommand(SendCommand),
     /// Command will be sent without waiting for a response. e.g. `GenericNack`.
     SendCommandNoResponse(SendCommandNoResponse),
+    /// Remove a a pending response if the request times out or is cancelled.
+    RemovePendingResponse(u32),
 }
 
 #[derive(Debug)]

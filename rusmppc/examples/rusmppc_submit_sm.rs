@@ -80,18 +80,18 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     tracing::info!("SubmitSm command sent");
 
-    // tokio::time::sleep(Duration::from_secs(20)).await;
+    tokio::time::sleep(Duration::from_secs(20)).await;
 
-    // tracing::info!("Unbinding from the server");
+    tracing::info!("Unbinding from the server");
 
-    // // Issue an unbind command to close the connection gracefully.
+    // Issue an unbind command to close the connection gracefully.
 
-    // // You don't have to manually preform an unbind.
-    // // When all clients are dropped, the connection will be closed automatically.
+    // You don't have to manually preform an unbind.
+    // When all clients are dropped, the connection will be closed automatically.
 
-    // client.unbind().await?;
+    client.unbind().await?;
 
-    // tracing::info!("Waiting for the client to terminate");
+    tracing::info!("Waiting for the client to terminate");
 
     // Wait for the client to terminate.
     let _ = client.terminated().await;

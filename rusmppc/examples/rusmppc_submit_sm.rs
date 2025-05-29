@@ -33,11 +33,11 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .addr_ton(Ton::Unknown)
         .addr_npi(Npi::Unknown)
         .address_range(COctetString::empty())
-        // bind as a transceiver
+        // Bind as a transceiver.
         .transceiver()
-        // every 5 seconds send an enquire link command to the server
+        // Every 5 seconds send an enquire link command to the server.
         .enquire_link_interval(Duration::from_secs(5))
-        // if the server does not respond within 2 seconds, consider it a timeout
+        // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
         .connect("127.0.0.1:2775")
         .await?;
@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     let client_clone = client.clone();
 
     let events_task = tokio::spawn(async move {
-        // listen for events like incoming commands and background errors
+        // Listen for events like incoming commands and background errors.
         while let Some(event) = events.next().await {
             tracing::info!(?event, "Event");
 
@@ -94,9 +94,9 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing::info!("Waiting for the client to terminate");
 
     // Wait for the client to terminate.
-    let _ = client.terminated().await;
+    client.terminated().await;
 
-    let _ = events_task.await;
+    events_task.await?;
 
     Ok(())
 }

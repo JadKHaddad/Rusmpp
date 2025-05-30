@@ -10,5 +10,6 @@ pub struct Config {
     pub response_timeout: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
+    pub enquire_link_response_delay: Duration,
     pub response_delay: Duration,
 }

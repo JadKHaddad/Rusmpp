@@ -17,6 +17,7 @@ pub struct ServerParameters {
     pub response_timeout: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
+    pub enquire_link_response_delay: Duration,
     pub response_delay: Duration,
     pub socket_addr: SocketAddr,
 }
@@ -37,6 +38,7 @@ impl Server {
             response_timeout: parameters.response_timeout,
             session_timeout: parameters.session_timeout,
             bind_delay: parameters.bind_delay,
+            enquire_link_response_delay: parameters.enquire_link_response_delay,
             response_delay: parameters.response_delay,
         });
 

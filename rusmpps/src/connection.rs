@@ -247,6 +247,8 @@ impl Connection {
                             Pdu::UnbindResp
                         },
                         Some(Pdu::EnquireLink) => {
+                            tokio::time::sleep(self.config.enquire_link_response_delay).await;
+
                             Pdu::EnquireLinkResp
                         },
                         Some(Pdu::SubmitSm(_)) => {

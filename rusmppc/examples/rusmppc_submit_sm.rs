@@ -11,7 +11,7 @@ use std::{str::FromStr, time::Duration};
 
 use futures::StreamExt;
 use rusmpp::{
-    CommandId,
+    CommandId, CommandStatus,
     pdus::{BindTransceiver, DeliverSmResp, SubmitSm},
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
@@ -68,24 +68,62 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         tracing::info!("Connection closed");
     });
 
+    let submit = SubmitSm::builder()
+        .service_type(ServiceType::default())
+        .source_addr_ton(Ton::Unknown)
+        .source_addr_npi(Npi::Unknown)
+        .source_addr(COctetString::from_str("12345")?)
+        .destination_addr(COctetString::from_str("491701234567")?)
+        .esm_class(EsmClass::default())
+        .registered_delivery(RegisteredDelivery::request_all())
+        .short_message(OctetString::from_str("Hi, I am a short message.")?)
+        .build();
+
     tracing::info!("Sending SubmitSm");
 
+    let response = client.submit_sm(submit.clone()).await?;
+
+    tracing::info!(?response, "Got SubmitSmResp");
+
+    // Send a command with a custom timeout.
+
+    tracing::info!("Sending SubmitSm wit a custom timeout");
+
     let response = client
-        .submit_sm(
-            SubmitSm::builder()
-                .service_type(ServiceType::default())
-                .source_addr_ton(Ton::Unknown)
-                .source_addr_npi(Npi::Unknown)
-                .source_addr(COctetString::from_str("12345")?)
-                .destination_addr(COctetString::from_str("491701234567")?)
-                .esm_class(EsmClass::default())
-                .registered_delivery(RegisteredDelivery::request_all())
-                .short_message(OctetString::from_str("Hi, I am a short message.")?)
-                .build(),
-        )
+        .timeout(Duration::from_secs(30))
+        .submit_sm(submit.clone())
         .await?;
 
-    tracing::info!(?response, "SubmitSm response");
+    tracing::info!(?response, "Got SubmitSmResp");
+
+    // Send a command without a timeout.
+
+    tracing::info!("Sending SubmitSm without a timeout");
+
+    let response = client.no_timeout().submit_sm(submit.clone()).await?;
+
+    tracing::info!(?response, "Got SubmitSmResp");
+
+    // Send a command without waiting for a response.
+    // The response, if any, will be passed to the events stream.
+
+    tracing::info!("Sending SubmitSm without waiting for a response");
+
+    let sequence_number = client.no_wait().submit_sm(submit.clone()).await?;
+
+    tracing::info!(?sequence_number, "Sent SubmitSm");
+
+    // Send a command with a custom status.
+
+    tracing::info!("Sending SubmitSm with a custom status");
+
+    client
+        .status(CommandStatus::EsmeRunknownerr) // This error code does not make any sense, but it is just an example.
+        .submit_sm(submit.clone())
+        .await
+        .ok();
+
+    // Wait a little bit to see the incoming events.
 
     tokio::time::sleep(Duration::from_secs(10)).await;
 

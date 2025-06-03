@@ -12,11 +12,11 @@
 //!     types::{COctetString, OctetString},
 //!     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 //! };
-//! use rusmppc::{ConnectionBuilder, Event};
+//! use rusmppc::{ClientBuilder, Event};
 //!
 //! #[tokio::main]
 //! async fn main() -> Result<(), Box<dyn std::error::Error>> {
-//! let (client, mut events) = ConnectionBuilder::new()
+//! let (client, mut events) = ClientBuilder::new()
 //!     // Every 5 seconds send an enquire link command to the server.
 //!     .enquire_link_interval(Duration::from_secs(5))
 //!     // If the server does not respond within 2 seconds, consider it a timeout.

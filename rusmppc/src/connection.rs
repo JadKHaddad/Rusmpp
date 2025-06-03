@@ -238,7 +238,12 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
 
                     match self.as_mut().project().actions.poll_next(cx) {
                         Poll::Ready(Some(action)) => match action {
-                            Action::Ping => {}
+                            Action::Ping => {
+                                // If we get here,
+                                // this means that the connection is still active (did not close the actions channel) and can receive actions from the client.
+                                // The client relies on the Action::Ping to be sent successfully to the connection, to determine if the connection is still active,
+                                // using the `Client::is_active` method.
+                            }
                             Action::PendingResponses(pending_responses) => {
                                 let pending = self
                                     .as_mut()

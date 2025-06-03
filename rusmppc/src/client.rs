@@ -390,10 +390,6 @@ impl<'a> RegisteredRequestBuilder<'a> {
         }
     }
 
-    const fn no_wait_request(&self) -> NoWaitRequestBuilder {
-        NoWaitRequestBuilder::new(self.client, self.status)
-    }
-
     pub const fn status(mut self, status: CommandStatus) -> Self {
         self.status = status;
         self
@@ -407,10 +403,6 @@ impl<'a> RegisteredRequestBuilder<'a> {
     pub fn no_timeout(mut self) -> Self {
         self.timeout = None;
         self
-    }
-
-    pub const fn no_wait(&self) -> NoWaitRequestBuilder {
-        self.no_wait_request()
     }
 
     fn check_interface_version(&self, interface_version: InterfaceVersion) -> Result<(), Error> {

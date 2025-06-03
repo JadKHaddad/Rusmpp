@@ -10,6 +10,7 @@
         "Cdpd",
         "clippy",
         "Datagram",
+        "Deque",
         "dests",
         "devcontainers",
         "docsrs",

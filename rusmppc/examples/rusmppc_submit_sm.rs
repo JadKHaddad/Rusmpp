@@ -31,7 +31,6 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
-        .no_response_timeout()
         .connect("127.0.0.1:2775")
         .await?;
 
@@ -77,18 +76,18 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                 .service_type(ServiceType::default())
                 .source_addr_ton(Ton::Unknown)
                 .source_addr_npi(Npi::Unknown)
-                .source_addr(COctetString::from_str("12345").unwrap())
-                .destination_addr(COctetString::from_str("491701234567").unwrap())
+                .source_addr(COctetString::from_str("12345")?)
+                .destination_addr(COctetString::from_str("491701234567")?)
                 .esm_class(EsmClass::default())
                 .registered_delivery(RegisteredDelivery::request_all())
-                .short_message(OctetString::from_str("Hi, I am a short message.").unwrap())
+                .short_message(OctetString::from_str("Hi, I am a short message.")?)
                 .build(),
         )
         .await?;
 
     tracing::info!(?response, "SubmitSm response");
 
-    tokio::time::sleep(Duration::from_secs(20)).await;
+    tokio::time::sleep(Duration::from_secs(10)).await;
 
     tracing::info!("Unbinding from the server");
 

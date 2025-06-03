@@ -310,12 +310,13 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             match Sink::<Command>::poll_ready(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(())) => {
                                     let sequence_number = request.command().sequence_number();
+                                    let status = request.command().status();
                                     let id = request.command().id();
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())
                                     {
-                                        tracing::error!(target: CONN, sequence_number, ?id, ?err);
+                                        tracing::error!(target: CONN, sequence_number, ?status, ?id, ?err);
 
                                         self.as_mut().set_state(State::Errored);
 
@@ -340,11 +341,11 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                         cx,
                                     ) {
                                         Poll::Ready(Ok(_)) => {
-                                            tracing::debug!(target: CONN, sequence_number, ?id, "Sent command");
+                                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
 
                                             match request {
                                                 Request::Registered(request) => {
-                                                    tracing::debug!(target: CONN, sequence_number, ?id, "Registered");
+                                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Registered");
 
                                                     let _ = request.ack.send(Ok(()));
 
@@ -449,9 +450,10 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                     match self.as_mut().project().framed.poll_next(cx) {
                         Poll::Ready(Some(Ok(command))) => {
                             let sequence_number = command.sequence_number();
+                            let status = command.status();
                             let id = command.id();
 
-                            tracing::debug!(target: CONN, sequence_number, ?id, "Received command");
+                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Received command");
 
                             if let CommandId::EnquireLink = command.id() {
                                 let response = Command::builder()
@@ -490,7 +492,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             if id.is_response() {
                                 match self.as_mut().remove_response(sequence_number) {
                                     Some(response) => {
-                                        tracing::trace!(target: CONN, sequence_number, ?id, "Found response");
+                                        tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Found response");
 
                                         match response.send(command) {
                                             Ok(()) => {
@@ -499,7 +501,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                             Err(command) => {
                                                 // Client not waiting, return the command as an incoming event instead
 
-                                                tracing::trace!(target: CONN, sequence_number, ?id, "Client not waiting");
+                                                tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Client not waiting");
 
                                                 let _ = self
                                                     .as_mut()
@@ -509,7 +511,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                         }
                                     }
                                     None => {
-                                        tracing::trace!(target: CONN, sequence_number, ?id, "No response found");
+                                        tracing::trace!(target: CONN, sequence_number, ?status, ?id, "No response found");
 
                                         // The client might have cancelled the request or it timed out.
                                         // In this case we just send the command as an incoming event.

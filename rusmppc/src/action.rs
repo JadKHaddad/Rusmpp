@@ -1,48 +1,27 @@
-use rusmpp::Command;
-use tokio::sync::oneshot;
+use crate::{CloseRequest, PendingResponses, RegisteredRequest, Request, UnregisteredRequest};
 
-use crate::error::Error;
-
-/// Actions are used to communicate between the client and the connection.
-///
-/// An action is sent from a client to the open connection.
-/// The connection will process the action and send a response back to the client.
+#[allow(clippy::large_enum_variant)]
 #[derive(Debug)]
 pub enum Action {
-    SendCommand(SendCommand),
-    /// Command will be sent without waiting for a response. e.g. `GenericNack`.
-    SendCommandNoResponse(SendCommandNoResponse),
-    /// Remove a a pending response if the request times out or is cancelled.
-    RemovePendingResponse(u32),
+    Request(Request),
+    /// Removes a pending response from the connection's pending responses map.
+    Remove(u32),
+    /// The connection will stop reading from the server, stop time keeping, close the requests channel, flush pending requests and terminate.
+    Close(CloseRequest),
+    /// Sent from the client to the connection to check if the connection is closed or not.
+    ///
+    /// The client would fail to send this action through the channel if the connection is closed.
+    Ping,
+    /// Retrieves pending responses from the connection.
+    PendingResponses(PendingResponses),
 }
 
-#[derive(Debug)]
-pub struct SendCommand {
-    pub command: Command,
-    pub response: oneshot::Sender<Result<Command, Error>>,
-    // We do not use a cancellation token to cancel the outgoing request.
-    // Because this is most likely going to break the connection on the server side.
-    // So dropping the request future will not cancel the request.
-}
-
-impl SendCommand {
-    pub fn new(command: Command) -> (Self, oneshot::Receiver<Result<Command, Error>>) {
-        let (response, rx) = oneshot::channel();
-
-        (Self { command, response }, rx)
+impl Action {
+    pub const fn registered_request(request: RegisteredRequest) -> Self {
+        Self::Request(Request::Registered(request))
     }
-}
 
-#[derive(Debug)]
-pub struct SendCommandNoResponse {
-    pub command: Command,
-    pub response: oneshot::Sender<Result<(), Error>>,
-}
-
-impl SendCommandNoResponse {
-    pub fn new(command: Command) -> (Self, oneshot::Receiver<Result<(), Error>>) {
-        let (response, rx) = oneshot::channel();
-
-        (Self { command, response }, rx)
+    pub const fn unregistered_request(request: UnregisteredRequest) -> Self {
+        Self::Request(Request::Unregistered(request))
     }
 }

@@ -5,7 +5,7 @@ use std::time::Duration;
 use rusmpp::{
     Command,
     codec::tokio::{DecodeError, EncodeError},
-    session::SessionState,
+    values::InterfaceVersion,
 };
 
 /// Errors that can occur during `SMPP` operations.
@@ -24,12 +24,6 @@ pub enum Error {
     /// The connection to the `SMPP` server is closed.
     #[error("Connection closed")]
     ConnectionClosed,
-    /// Invalid session state.
-    ///
-    /// This error occurs when an operation is attempted that is not valid for the current session state.    
-    /// E.g. trying to send [`SubmitSm`](rusmpp::Pdu::SubmitSm) in a [`BoundRx`](rusmpp::session::SessionState::BoundRx) state.
-    #[error("Invalid session state: {session_state:?}")]
-    InvalidSessionState { session_state: SessionState },
     /// Protocol encode error.
     #[error("Protocol encode error: {0}")]
     Encode(#[source] EncodeError),
@@ -37,30 +31,59 @@ pub enum Error {
     #[error("Protocol decode error: {0}")]
     Decode(#[source] DecodeError),
     /// The `SMPP` server did not respond to the [`EnquireLink`](rusmpp::Pdu::EnquireLink) request within the specified timeout.
-    #[error("Server did not respond to enquire link: {timeout:?}")]
-    EnquireLinkTimeout { timeout: Duration },
-    /// The [`EnquireLink`](rusmpp::Pdu::EnquireLink) operation failed with an invalid response from the server.
-    #[error("Enquire link response invalid: {response:?}")]
-    EnquireLinkFailed { response: Box<Command> },
+    #[error("Server did not respond to enquire link: timeout: {timeout:?}")]
+    EnquireLinkTimeout {
+        /// The timeout duration.
+        timeout: Duration,
+    },
     /// The `SMPP` operation timed out.
     ///
     /// The server did not respond to the request within the specified timeout.
     // This happen when the response timer expires.
     // e.g. We send a bind request and the server doesn't respond.
-    #[error("Request timed out")]
-    Timeout,
+    #[error("Request timed out: sequence number: {sequence_number}, timeout: {timeout:?}")]
+    Timeout {
+        /// The sequence number of the request that timed out.
+        sequence_number: u32,
+        /// The timeout duration.
+        timeout: Duration,
+    },
     /// The `SMPP` operation failed with an error response from the server.
     ///
     /// Error responses are responses with the status code other than [`EsmeRok`](rusmpp::CommandStatus::EsmeRok).
-    // This happen when we get any other status code than esmeRok.
     #[error("Unexpected response from the server: response: {response:?}")]
-    UnexpectedResponse { response: Box<Command> },
+    UnexpectedResponse {
+        /// The response that was received from the server.
+        response: Box<Command>,
+    },
+    /// The client used an interface version that is not supported by the library.
+    #[error("Unsupported interface version: {version:?}, supported version: {supported_version:?}")]
+    UnsupportedInterfaceVersion {
+        /// The requested interface version.
+        version: InterfaceVersion,
+        /// The version that is supported by the library.
+        supported_version: InterfaceVersion,
+    },
 }
 
 impl Error {
     pub(crate) fn unexpected_response(response: impl Into<Box<Command>>) -> Self {
         Self::UnexpectedResponse {
             response: response.into(),
+        }
+    }
+
+    pub(crate) const fn unsupported_interface_version(version: InterfaceVersion) -> Self {
+        Self::UnsupportedInterfaceVersion {
+            version,
+            supported_version: InterfaceVersion::Smpp5_0,
+        }
+    }
+
+    pub(crate) const fn timeout(sequence_number: u32, timeout: Duration) -> Self {
+        Self::Timeout {
+            sequence_number,
+            timeout,
         }
     }
 }

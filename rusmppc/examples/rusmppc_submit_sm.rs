@@ -12,11 +12,11 @@ use std::{str::FromStr, time::Duration};
 use futures::StreamExt;
 use rusmpp::{
     CommandId,
-    pdus::{DeliverSmResp, SubmitSm},
+    pdus::{BindTransceiver, DeliverSmResp, SubmitSm},
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 };
-use rusmppc::{ConnectionBuilder, Event};
+use rusmppc::{ClientBuilder, Event};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
@@ -26,30 +26,36 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("submit_sm=info,rusmpp=off,rusmppc=debug")
         .init();
 
-    let (client, mut events) = ConnectionBuilder::new()
-        .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?)
-        .password(COctetString::from_str("rEZYMq5j")?)
-        .system_type(COctetString::empty())
-        .addr_ton(Ton::Unknown)
-        .addr_npi(Npi::Unknown)
-        .address_range(COctetString::empty())
-        // Bind as a transceiver.
-        .transceiver()
+    let (client, mut events) = ClientBuilder::new()
         // Every 5 seconds send an enquire link command to the server.
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
+        .no_response_timeout()
         .connect("127.0.0.1:2775")
+        .await?;
+
+    client
+        .bind_transceiver(
+            BindTransceiver::builder()
+                .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?)
+                .password(COctetString::from_str("rEZYMq5j")?)
+                .system_type(COctetString::empty())
+                .addr_ton(Ton::Unknown)
+                .addr_npi(Npi::Unknown)
+                .address_range(COctetString::empty())
+                .build(),
+        )
         .await?;
 
     let client_clone = client.clone();
 
-    let events_task = tokio::spawn(async move {
+    let events = tokio::spawn(async move {
         // Listen for events like incoming commands and background errors.
         while let Some(event) = events.next().await {
             tracing::info!(?event, "Event");
 
-            if let Event::Command(command) = event {
+            if let Event::Incoming(command) = event {
                 if command.id() == CommandId::DeliverSm {
                     tracing::info!("Received DeliverSm");
 
@@ -60,43 +66,43 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             }
         }
 
-        tracing::info!("Events stream closed");
+        tracing::info!("Connection closed");
     });
 
-    client
+    tracing::info!("Sending SubmitSm");
+
+    let response = client
         .submit_sm(
             SubmitSm::builder()
                 .service_type(ServiceType::default())
                 .source_addr_ton(Ton::Unknown)
                 .source_addr_npi(Npi::Unknown)
-                .source_addr(COctetString::from_str("12345")?)
-                .destination_addr(COctetString::from_str("491701234567")?)
+                .source_addr(COctetString::from_str("12345").unwrap())
+                .destination_addr(COctetString::from_str("491701234567").unwrap())
                 .esm_class(EsmClass::default())
                 .registered_delivery(RegisteredDelivery::request_all())
-                .short_message(OctetString::from_str("Hi, I am a short message.")?)
+                .short_message(OctetString::from_str("Hi, I am a short message.").unwrap())
                 .build(),
         )
         .await?;
 
-    tracing::info!("SubmitSm command sent");
+    tracing::info!(?response, "SubmitSm response");
 
     tokio::time::sleep(Duration::from_secs(20)).await;
 
     tracing::info!("Unbinding from the server");
 
-    // Issue an unbind command to close the connection gracefully.
-
-    // You don't have to manually preform an unbind.
-    // When all clients are dropped, the connection will be closed automatically.
-
     client.unbind().await?;
 
-    tracing::info!("Waiting for the client to terminate");
+    tracing::info!("Closing the connection");
 
-    // Wait for the client to terminate.
-    client.terminated().await;
+    client.close().await?;
 
-    events_task.await?;
+    tracing::info!("Waiting for the connection to terminate");
+
+    client.closed().await;
+
+    events.await?;
 
     Ok(())
 }

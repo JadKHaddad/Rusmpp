@@ -28,7 +28,6 @@ tokio-util = { version = "0.7.15", features = ["codec"] }
 tracing = "0.1.41"
 futures = "0.3.31"
 thiserror = "2.0.12"
-parking_lot = "0.12.3"
 pin-project-lite = "0.2.16"
 
 [dev-dependencies]

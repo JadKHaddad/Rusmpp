@@ -7,6 +7,7 @@ use std::{
 use pin_project_lite::pin_project;
 
 pin_project! {
+    #[derive(Debug)]
     pub struct Timer {
         #[pin]
         state: Option<tokio::time::Sleep>,
@@ -15,13 +16,17 @@ pin_project! {
 
 impl Default for Timer {
     fn default() -> Self {
-        Self::new()
+        Self::inactive()
     }
 }
 
 impl Timer {
-    pub fn new() -> Self {
+    pub const fn inactive() -> Self {
         Self { state: None }
+    }
+
+    pub fn active(duration: Duration) -> Self {
+        Self::inactive().activated(duration)
     }
 
     pub fn activated(mut self, duration: Duration) -> Timer {
@@ -29,28 +34,23 @@ impl Timer {
         self
     }
 
-    pub fn activate(self: Pin<&mut Self>, duration: Duration) {
-        let mut this = self.project();
-
-        this.state.set(Some(tokio::time::sleep(duration)));
+    pub fn deactivate(self: Pin<&mut Self>) {
+        self.project().state.set(None);
     }
 
-    pub fn disable(self: Pin<&mut Self>) {
-        let mut this = self.project();
-
-        this.state.set(None);
+    pub fn activate(self: Pin<&mut Self>, duration: Duration) {
+        self.project().state.set(Some(tokio::time::sleep(duration)));
     }
 }
 
 impl Future for Timer {
     type Output = ();
 
-    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let state = self.as_mut().project().state;
-
-        match state.as_pin_mut() {
-            Some(sleep) => sleep.poll(cx),
-            None => Poll::Pending,
-        }
+    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        self.project()
+            .state
+            .as_pin_mut()
+            .map(|sleep| sleep.poll(cx))
+            .unwrap_or(Poll::Pending)
     }
 }

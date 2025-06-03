@@ -8,7 +8,17 @@ use crate::error::Error;
 #[derive(Debug)]
 pub enum Event {
     /// An error occurred.
-    Error(Error),
+    Incoming(Command),
     /// A command was received from the server.
-    Command(Command),
+    Error(Error),
+}
+
+impl Event {
+    pub(crate) const fn incoming(command: Command) -> Self {
+        Event::Incoming(command)
+    }
+
+    pub(crate) const fn error(error: Error) -> Self {
+        Event::Error(error)
+    }
 }

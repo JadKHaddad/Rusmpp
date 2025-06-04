@@ -71,7 +71,7 @@ impl ClientBuilder {
 
         tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
 
-        Ok(self.connected(stream).await)
+        Ok(self.connected(stream))
     }
 
     /// Performs the bind operation on an already connected stream.
@@ -80,10 +80,7 @@ impl ClientBuilder {
     ///
     /// - The client is used as a handle to communicate with the server through the managed connection.
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
-    pub async fn connected<S>(
-        self,
-        stream: S,
-    ) -> (Client, impl Stream<Item = Event> + Unpin + 'static)
+    pub fn connected<S>(self, stream: S) -> (Client, impl Stream<Item = Event> + Unpin + 'static)
     where
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {

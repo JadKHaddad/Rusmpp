@@ -82,7 +82,7 @@
 #![forbid(unsafe_code)]
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_debug_implementations)]
-#![deny(missing_docs)]
+// #![deny(missing_docs)]
 
 mod action;
 pub(crate) use action::Action;
@@ -118,3 +118,6 @@ pub(crate) use response::PendingResponses;
 
 #[cfg(test)]
 mod tests;
+
+mod reconnect;
+pub(crate) use reconnect::ReconnectingConnection;

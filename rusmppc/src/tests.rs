@@ -189,8 +189,7 @@ async fn cancel_request_future_should_remove_pending_response() {
 
     let (client, mut events) = ClientBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let future = client.submit_sm(SubmitSm::default());
 
@@ -243,8 +242,7 @@ async fn request_timeout_should_remove_pending_response() {
 
     let (client, mut events) = ClientBuilder::new()
         .response_timeout(Duration::from_millis(500))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let Error::Timeout {
         sequence_number, ..
@@ -291,8 +289,7 @@ async fn no_wait_request_should_pipe_response_through_events() {
 
     let (client, mut events) = ClientBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let sequence_number = client
         .no_wait()
@@ -326,7 +323,7 @@ async fn drop_client_should_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client).await;
+    let (client, events) = ClientBuilder::new().connected(client);
 
     drop(client);
 
@@ -343,7 +340,7 @@ async fn drop_events_should_not_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, _) = ClientBuilder::new().connected(client).await;
+    let (client, _) = ClientBuilder::new().connected(client);
 
     client
         .submit_sm(SubmitSm::default())
@@ -365,7 +362,7 @@ async fn request_after_closing_connection_should_fail() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client).await;
+    let (client, events) = ClientBuilder::new().connected(client);
 
     client.close().await.expect("Failed to close connection");
 
@@ -388,7 +385,7 @@ async fn close_connection_twice_should_fail() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client).await;
+    let (client, events) = ClientBuilder::new().connected(client);
 
     client.close().await.expect("Failed to close connection");
 
@@ -415,8 +412,7 @@ async fn enquire_link_timeout_idle_should_close_connection() {
     let (_client, events) = ClientBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let now = Instant::now();
 
@@ -447,8 +443,7 @@ async fn enquire_link_timeout_busy_sequential_should_close_connection() {
     let (client, events) = ClientBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let now = Instant::now();
 
@@ -486,8 +481,7 @@ async fn enquire_link_timeout_busy_concurrent_should_close_connection() {
     let (client, events) = ClientBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let now = Instant::now();
 
@@ -526,7 +520,7 @@ async fn server_crashes_on_request_should_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client).await;
+    let (client, events) = ClientBuilder::new().connected(client);
 
     // Our test server crashes on GenericNack command
     client
@@ -551,7 +545,7 @@ async fn connection_lost_should_close_connection() {
             .await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client).await;
+    let (client, events) = ClientBuilder::new().connected(client);
 
     tokio::time::sleep(Duration::from_secs(2)).await;
 
@@ -572,7 +566,7 @@ async fn server_unbinds_and_closes_connection_should_close_connection() {
         UnbindServer::new(Duration::from_secs(1)).run(server).await;
     });
 
-    let (client, mut events) = ClientBuilder::new().connected(client).await;
+    let (client, mut events) = ClientBuilder::new().connected(client);
 
     while let Some(event) = events.next().await {
         if let Event::Incoming(command) = event {
@@ -632,8 +626,7 @@ async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_re
 
     let (client, mut events) = ClientBuilder::new()
         .response_timeout(Duration::from_millis(500))
-        .connected(client)
-        .await;
+        .connected(client);
 
     let events = tokio::spawn(async move {
         // The server sent an AlertNotification with the same sequence number as the pending response
@@ -687,8 +680,7 @@ async fn server_ddos_client_should_still_send_requests_and_connection_should_sti
         .enquire_link_interval(Duration::from_secs(1))
         .enquire_link_response_timeout(Duration::from_millis(500))
         .response_timeout(Duration::from_millis(500))
-        .connected(client)
-        .await;
+        .connected(client);
 
     client
         .no_wait() // Server will not respond anyway, so we don't care about the response

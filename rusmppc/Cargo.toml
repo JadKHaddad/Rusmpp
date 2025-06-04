@@ -44,6 +44,11 @@ path = "examples/reconnect.rs"
 required-features = []
 
 [[example]]
+name = "reconnect_dev"
+path = "examples/reconnect_dev.rs"
+required-features = []
+
+[[example]]
 name = "rusmppc_submit_sm"
 path = "examples/rusmppc_submit_sm.rs"
 required-features = []

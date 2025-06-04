@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{pin::Pin, time::Duration};
 
 use futures::Stream;
 
@@ -8,7 +8,7 @@ use tokio::{
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
-use crate::{Action, Client, Connection, Event, error::Error};
+use crate::{Action, Client, Connection, Event, ReconnectingConnection, error::Error};
 
 /// Builder for creating a new `SMPP` client.
 #[derive(Debug)]
@@ -71,7 +71,7 @@ impl ClientBuilder {
 
         tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
 
-        Ok(self.connected(stream).await)
+        Ok(self.connected(stream))
     }
 
     /// Performs the bind operation on an already connected stream.
@@ -80,10 +80,7 @@ impl ClientBuilder {
     ///
     /// - The client is used as a handle to communicate with the server through the managed connection.
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
-    pub async fn connected<S>(
-        self,
-        stream: S,
-    ) -> (Client, impl Stream<Item = Event> + Unpin + 'static)
+    pub fn connected<S>(self, stream: S) -> (Client, impl Stream<Item = Event> + Unpin + 'static)
     where
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {
@@ -113,6 +110,84 @@ impl ClientBuilder {
         tokio::spawn(connection);
 
         (client, UnboundedReceiverStream::new(events_rx))
+    }
+
+    pub async fn reconnect<S>(
+        self,
+        connect: fn() -> Pin<Box<dyn Future<Output = Result<S, std::io::Error>> + Send>>,
+    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error>
+    where
+        S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
+    {
+        let stream = connect().await.map_err(Error::Connect)?;
+
+        let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
+        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
+        let (watch_tx, watch_rx) = tokio::sync::watch::channel(());
+
+        let reconnecting_connection = ReconnectingConnection::new(
+            Box::new(move || {
+                Box::pin(async move {
+                    let stream = connect().await.map_err(Error::Connect)?;
+
+                    let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
+                    let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
+                    let (_, watch_rx) = tokio::sync::watch::channel(());
+
+                    let connection = Connection::new(
+                        stream,
+                        1024,
+                        events_tx,
+                        UnboundedReceiverStream::new(actions_rx),
+                        Duration::from_secs(10),
+                        Duration::from_secs(2),
+                        watch_rx,
+                    );
+
+                    Ok::<_, Error>((
+                        connection,
+                        actions_tx,
+                        UnboundedReceiverStream::new(events_rx),
+                    ))
+                })
+            }),
+            events_tx,
+            UnboundedReceiverStream::new(actions_rx),
+            watch_rx,
+        );
+
+        let client = Client::new(
+            actions_tx,
+            self.response_timeout,
+            self.check_interface_version,
+            watch_tx,
+        );
+
+        let (events_tx, _events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
+        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
+        let (_, watch_rx) = tokio::sync::watch::channel(());
+
+        let connection = Connection::new(
+            stream,
+            self.max_command_length,
+            events_tx,
+            UnboundedReceiverStream::new(actions_rx),
+            self.enquire_link_interval,
+            self.enquire_link_response_timeout,
+            watch_rx,
+        );
+
+        tokio::spawn(async move {
+            reconnecting_connection
+                .run((
+                    connection,
+                    actions_tx,
+                    UnboundedReceiverStream::new(_events_rx),
+                ))
+                .await
+        });
+
+        Ok((client, UnboundedReceiverStream::new(events_rx)))
     }
 }
 

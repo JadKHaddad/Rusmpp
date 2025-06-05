@@ -1,4 +1,4 @@
-use std::{pin::Pin, time::Duration};
+use std::time::Duration;
 
 use futures::Stream;
 
@@ -105,9 +105,9 @@ impl ConnectionBuilder {
     }
 
     // TODO: add the ReconnectConnectionBuilder
-    pub async fn reconnect<S>(
+    pub async fn reconnect<S, F, Fut>(
         self,
-        connect: fn() -> Pin<Box<dyn Future<Output = Result<S, std::io::Error>> + Send>>,
+        connect: F,
     ) -> Result<
         (
             Client,
@@ -117,6 +117,8 @@ impl ConnectionBuilder {
     >
     where
         S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
+        F: Fn() -> Fut + Send + Clone + 'static,
+        Fut: Future<Output = Result<S, std::io::Error>> + Send,
     {
         let stream = connect().await.map_err(Error::Connect)?;
 
@@ -129,8 +131,10 @@ impl ConnectionBuilder {
 
         let (reconnecting_connection, watch, actions, events) = ReconnectingConnection::new(
             connected,
-            Box::new(move || {
-                Box::pin(async move {
+            move || {
+                let connect = connect.clone();
+
+                async move {
                     let stream = connect().await.map_err(Error::Connect)?;
 
                     Ok::<_, Error>(Connection::new(
@@ -139,8 +143,8 @@ impl ConnectionBuilder {
                         self.enquire_link_interval,
                         self.enquire_link_response_timeout,
                     ))
-                })
-            }), // TODO:
+                }
+            }, // TODO:
             Duration::from_secs(5),
             5,
         );

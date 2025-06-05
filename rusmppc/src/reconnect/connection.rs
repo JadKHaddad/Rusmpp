@@ -1,6 +1,6 @@
 //! Automatically reconnecting connection.
 
-use std::{pin::Pin, time::Duration};
+use std::time::Duration;
 
 use futures::StreamExt;
 use tokio::{
@@ -15,25 +15,6 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use crate::{Action, Connection, Event, error::Error};
 
 const TARGET: &str = "rusmppc::connection::reconnect";
-
-// The output of the future matches the constructor of the `Connection` type.
-pub type ConnectFunction<S> = Box<
-    dyn Fn() -> Pin<
-            Box<
-                dyn Future<
-                        Output = Result<
-                            (
-                                Connection<S>,
-                                watch::Sender<()>,
-                                UnboundedSender<Action>,
-                                UnboundedReceiverStream<Event>,
-                            ),
-                            Error,
-                        >,
-                    > + Send,
-            >,
-        > + Send,
->;
 
 #[derive(Debug)]
 pub enum ReconnectingEvent {
@@ -85,17 +66,31 @@ enum ConnectType {
 }
 
 #[allow(clippy::type_complexity)]
-struct Connector<S> {
+struct Connector<S, F> {
     connected: Option<(
         Connection<S>,
         watch::Sender<()>,
         UnboundedSender<Action>,
         UnboundedReceiverStream<Event>,
     )>,
-    connect: ConnectFunction<S>,
+    connect: F,
 }
 
-impl<S> Connector<S> {
+impl<S, F, Fut> Connector<S, F>
+where
+    F: Fn() -> Fut,
+    Fut: Future<
+        Output = Result<
+            (
+                Connection<S>,
+                watch::Sender<()>,
+                UnboundedSender<Action>,
+                UnboundedReceiverStream<Event>,
+            ),
+            Error,
+        >,
+    >,
+{
     fn new(
         connected: (
             Connection<S>,
@@ -103,7 +98,7 @@ impl<S> Connector<S> {
             UnboundedSender<Action>,
             UnboundedReceiverStream<Event>,
         ),
-        connect: ConnectFunction<S>,
+        connect: F,
     ) -> Self {
         Self {
             connected: Some(connected),
@@ -132,8 +127,8 @@ impl<S> Connector<S> {
     }
 }
 
-pub struct ReconnectingConnection<S> {
-    connector: Connector<S>,
+pub struct ReconnectingConnection<S, F> {
+    connector: Connector<S, F>,
     events: UnboundedSender<ReconnectingEvent>,
     actions: UnboundedReceiverStream<Action>,
     _watch: watch::Receiver<()>,
@@ -141,7 +136,22 @@ pub struct ReconnectingConnection<S> {
     max_retries: usize,
 }
 
-impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S> {
+impl<S, F, Fut> ReconnectingConnection<S, F>
+where
+    S: AsyncRead + AsyncWrite + Send + Sync + 'static,
+    F: Fn() -> Fut,
+    Fut: Future<
+        Output = Result<
+            (
+                Connection<S>,
+                watch::Sender<()>,
+                UnboundedSender<Action>,
+                UnboundedReceiverStream<Event>,
+            ),
+            Error,
+        >,
+    >,
+{
     pub fn new(
         connected: (
             Connection<S>,
@@ -149,7 +159,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
             UnboundedSender<Action>,
             UnboundedReceiverStream<Event>,
         ),
-        connect: ConnectFunction<S>,
+        connect: F,
         delay: Duration,
         max_retries: usize,
     ) -> (

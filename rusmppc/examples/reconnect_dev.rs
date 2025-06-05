@@ -32,13 +32,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
-        .reconnect(|| {
-            Box::pin(async {
-                let stream = TcpStream::connect("127.0.0.1:2775").await?;
-
-                Ok(stream)
-            })
-        })
+        .reconnect(|| Box::pin(TcpStream::connect("127.0.0.1:2775")))
         .await?;
 
     client

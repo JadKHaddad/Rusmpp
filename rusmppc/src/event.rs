@@ -7,10 +7,12 @@ use crate::error::Error;
 /// Events are sent from the open connection through the events stream.
 #[derive(Debug)]
 pub enum Event {
-    /// An error occurred.
-    Incoming(Command),
     /// A command was received from the server.
+    Incoming(Command),
+    /// An error occurred.
     Error(Error),
+    Connected,
+    Disconnected,
 }
 
 impl Event {

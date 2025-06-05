@@ -6,9 +6,8 @@ use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpStream, ToSocketAddrs},
 };
-use tokio_stream::wrappers::UnboundedReceiverStream;
 
-use crate::{Action, Client, Connection, Event, ReconnectingConnection, error::Error};
+use crate::{Client, Connection, Event, ReconnectingConnection, error::Error};
 
 /// Builder for creating a new `SMPP` client.
 #[derive(Debug)]
@@ -84,32 +83,25 @@ impl ClientBuilder {
     where
         S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
     {
-        let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
-        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
-        let (watch_tx, watch_rx) = tokio::sync::watch::channel(());
-
-        let connection = Connection::new(
+        let (connection, watch, actions, events) = Connection::new(
             stream,
             self.max_command_length,
-            events_tx,
-            UnboundedReceiverStream::new(actions_rx),
             self.enquire_link_interval,
             self.enquire_link_response_timeout,
-            watch_rx,
         );
 
         let client = Client::new(
-            actions_tx,
+            actions,
             self.response_timeout,
             self.check_interface_version,
-            watch_tx,
+            watch,
         );
 
         // If you don't want to spawn the connection and give it to the user to spawn it.
         // Check the comments on `Connection` first. You might want to fuse it first.
         tokio::spawn(connection);
 
-        (client, UnboundedReceiverStream::new(events_rx))
+        (client, events)
     }
 
     pub async fn reconnect<S>(
@@ -121,73 +113,41 @@ impl ClientBuilder {
     {
         let stream = connect().await.map_err(Error::Connect)?;
 
-        let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
-        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
-        let (watch_tx, watch_rx) = tokio::sync::watch::channel(());
+        let connected = Connection::new(
+            stream,
+            self.max_command_length,
+            self.enquire_link_interval,
+            self.enquire_link_response_timeout,
+        );
 
-        let reconnecting_connection = ReconnectingConnection::new(
+        let (reconnecting_connection, watch, actions, events) = ReconnectingConnection::new(
+            connected,
             Box::new(move || {
                 Box::pin(async move {
                     let stream = connect().await.map_err(Error::Connect)?;
 
-                    let (events_tx, events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
-                    let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
-                    let (_, watch_rx) = tokio::sync::watch::channel(());
-
-                    let connection = Connection::new(
+                    Ok::<_, Error>(Connection::new(
                         stream,
-                        1024,
-                        events_tx,
-                        UnboundedReceiverStream::new(actions_rx),
-                        Duration::from_secs(10),
-                        Duration::from_secs(2),
-                        watch_rx,
-                    );
-
-                    Ok::<_, Error>((
-                        connection,
-                        actions_tx,
-                        UnboundedReceiverStream::new(events_rx),
+                        self.max_command_length,
+                        self.enquire_link_interval,
+                        self.enquire_link_response_timeout,
                     ))
                 })
             }),
-            events_tx,
-            UnboundedReceiverStream::new(actions_rx),
-            watch_rx,
+            Duration::from_secs(5),
+            5,
         );
 
         let client = Client::new(
-            actions_tx,
+            actions,
             self.response_timeout,
             self.check_interface_version,
-            watch_tx,
+            watch,
         );
 
-        let (events_tx, _events_rx) = tokio::sync::mpsc::unbounded_channel::<Event>();
-        let (actions_tx, actions_rx) = tokio::sync::mpsc::unbounded_channel::<Action>();
-        let (_, watch_rx) = tokio::sync::watch::channel(());
+        tokio::spawn(reconnecting_connection.run());
 
-        let connection = Connection::new(
-            stream,
-            self.max_command_length,
-            events_tx,
-            UnboundedReceiverStream::new(actions_rx),
-            self.enquire_link_interval,
-            self.enquire_link_response_timeout,
-            watch_rx,
-        );
-
-        tokio::spawn(async move {
-            reconnecting_connection
-                .run((
-                    connection,
-                    actions_tx,
-                    UnboundedReceiverStream::new(_events_rx),
-                ))
-                .await
-        });
-
-        Ok((client, UnboundedReceiverStream::new(events_rx)))
+        Ok((client, events))
     }
 }
 

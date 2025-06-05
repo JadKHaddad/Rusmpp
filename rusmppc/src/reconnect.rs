@@ -3,12 +3,18 @@ use std::{pin::Pin, time::Duration};
 use futures::StreamExt;
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    sync::{mpsc::UnboundedSender, watch},
+    sync::{
+        mpsc::{self, UnboundedSender},
+        watch,
+    },
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{Action, Connection, Event, error::Error};
 
+const TARGET: &str = "rusmppc::connection::reconnect";
+
+// The output of the future matches the constructor of the `Connection` type.
 pub type ConnectFunction<S> = Box<
     dyn Fn() -> Pin<
             Box<
@@ -16,6 +22,7 @@ pub type ConnectFunction<S> = Box<
                         Output = Result<
                             (
                                 Connection<S>,
+                                watch::Sender<()>,
                                 UnboundedSender<Action>,
                                 UnboundedReceiverStream<Event>,
                             ),
@@ -26,86 +33,162 @@ pub type ConnectFunction<S> = Box<
         > + Send,
 >;
 
-pub struct ReconnectingConnection<S> {
+#[allow(clippy::type_complexity)]
+struct Connector<S> {
+    connected: Option<(
+        Connection<S>,
+        watch::Sender<()>,
+        UnboundedSender<Action>,
+        UnboundedReceiverStream<Event>,
+    )>,
     connect: ConnectFunction<S>,
+}
+
+impl<S> Connector<S> {
+    fn new(
+        connected: (
+            Connection<S>,
+            watch::Sender<()>,
+            UnboundedSender<Action>,
+            UnboundedReceiverStream<Event>,
+        ),
+        connect: ConnectFunction<S>,
+    ) -> Self {
+        Self {
+            connected: Some(connected),
+            connect,
+        }
+    }
+
+    async fn connect(
+        &mut self,
+    ) -> Result<
+        (
+            Connection<S>,
+            watch::Sender<()>,
+            UnboundedSender<Action>,
+            UnboundedReceiverStream<Event>,
+        ),
+        Error,
+    > {
+        match self.connected.take() {
+            Some(connected) => Ok(connected),
+            None => (self.connect)().await,
+        }
+    }
+}
+
+pub struct ReconnectingConnection<S> {
+    connector: Connector<S>,
     events: UnboundedSender<Event>,
     actions: UnboundedReceiverStream<Action>,
     _watch: watch::Receiver<()>,
+    delay: Duration,
+    max_retries: usize,
 }
 
 impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S> {
     pub fn new(
-        connect: ConnectFunction<S>,
-        events: UnboundedSender<Event>,
-        actions: UnboundedReceiverStream<Action>,
-        _watch: watch::Receiver<()>,
-    ) -> Self {
-        Self {
-            connect,
-            events,
-            actions,
-            _watch,
-        }
-    }
-
-    pub async fn run(
-        self,
         connected: (
             Connection<S>,
+            watch::Sender<()>,
             UnboundedSender<Action>,
             UnboundedReceiverStream<Event>,
         ),
+        connect: ConnectFunction<S>,
+        delay: Duration,
+        max_retries: usize,
+    ) -> (
+        Self,
+        watch::Sender<()>,
+        UnboundedSender<Action>,
+        UnboundedReceiverStream<Event>,
     ) {
-        let connect = self.connect;
+        let (events_tx, events_rx) = mpsc::unbounded_channel::<Event>();
+        let (actions_tx, actions_rx) = mpsc::unbounded_channel::<Action>();
+        let (watch_tx, watch_rx) = watch::channel(());
+
+        (
+            Self {
+                connector: Connector::new(connected, connect),
+                events: events_tx,
+                actions: UnboundedReceiverStream::new(actions_rx),
+                _watch: watch_rx,
+                delay,
+                max_retries,
+            },
+            watch_tx,
+            actions_tx,
+            UnboundedReceiverStream::new(events_rx),
+        )
+    }
+
+    pub async fn run(self) {
         let events = self.events;
         let mut actions = self.actions;
-
-        let (connection, mut connection_actions, mut connection_events) = connected;
-
-        tokio::spawn(connection);
+        let mut connector = self.connector;
+        let mut max_retries = self.max_retries;
 
         'outer: loop {
-            'inner: loop {
-                tokio::select! {
-                    event = connection_events.next() => {
-                        match event {
-                            None => {
-                                tracing::warn!("Disconnected");
+            match connector.connect().await {
+                Err(err) => {
+                    tracing::error!(target: TARGET, ?err, "Failed to connect");
+
+                    let _ = events.send(Event::error(err));
+                }
+                Ok((connection, _, connection_actions, mut connection_events)) => {
+                    max_retries = self.max_retries;
+
+                    tokio::pin!(connection);
+
+                    'inner: loop {
+                        tokio::select! {
+                            _ = &mut connection => {
+                                tracing::warn!(target: TARGET, "Disconnected");
+
+                                let _ = events.send(Event::Disconnected);
 
                                 break 'inner;
                             }
-                            Some(event) => {
-                                let _ = events.send(event);
-                            }
-                        }
-                    }
-                    action = actions.next() => {
-                        match action {
-                            None => {
-                                tracing::warn!("Client dropped");
+                            event = connection_events.next() => {
+                                // If event is None, the connection is closed.
+                                // But we check for this already in the `connection` select branch.
 
-                                break 'outer;
+                                if let Some(event) = event {
+                                    let _ = events.send(event);
+                                }
                             }
-                            Some(action) => {
-                                // If this fails, the connection might be terminating.
-                                let _ = connection_actions.send(action);
+                            action = actions.next() => {
+                                match action {
+                                    None => {
+                                        tracing::debug!(target: TARGET, "Client dropped");
+
+                                        break 'outer;
+                                    }
+                                    Some(action) => {
+                                        // If this fails, the connection might be terminating.
+                                        let _ = connection_actions.send(action);
+                                    }
+                                }
                             }
                         }
                     }
                 }
             }
 
-            tokio::time::sleep(Duration::from_secs(5)).await;
+            if max_retries == 0 {
+                tracing::error!(target: TARGET, max_retries=%self.max_retries, "Max retries exceeded");
 
-            tracing::debug!("Reconnecting");
+                let _ = events.send(Event::error(Error::max_retries_exceeded(self.max_retries)));
 
-            let (connection, new_connection_actions, new_connection_events) =
-                connect().await.unwrap();
+                break 'outer;
+            }
 
-            connection_actions = new_connection_actions;
-            connection_events = new_connection_events;
+            max_retries -= 1;
 
-            tokio::spawn(connection);
+            tokio::time::sleep(self.delay).await;
+
+            tracing::debug!(target: TARGET, current_retry=%max_retries, max_retries=%self.max_retries, "Reconnecting");
         }
     }
 }

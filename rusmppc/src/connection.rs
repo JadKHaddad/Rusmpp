@@ -13,7 +13,10 @@ use pin_project_lite::pin_project;
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    sync::{mpsc::UnboundedSender, oneshot, watch},
+    sync::{
+        mpsc::{self, UnboundedSender},
+        oneshot, watch,
+    },
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use tokio_util::codec::Framed;
@@ -62,30 +65,41 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
     pub fn new(
         stream: S,
         max_command_length: usize,
-        events: UnboundedSender<Event>,
-        actions: UnboundedReceiverStream<Action>,
         enquire_link_interval: Duration,
         enquire_link_response_timeout: Duration,
-        _watch: watch::Receiver<()>,
-    ) -> Self {
-        Self {
-            state: State::Active,
-            sequence_number: 2,
-            requests: VecDeque::new(),
-            responses: BTreeMap::new(),
-            enquire_link_interval,
-            last_enquire_link_sequence_number: None,
-            enquire_link_response_timeout,
-            enquire_link_timer: Timer::active(enquire_link_interval),
-            enquire_link_response_timer: Timer::inactive(),
-            _watch,
-            events,
-            framed: Framed::new(
-                stream,
-                CommandCodec::new().with_max_length(max_command_length),
-            ),
-            actions,
-        }
+    ) -> (
+        Self,
+        watch::Sender<()>,
+        UnboundedSender<Action>,
+        UnboundedReceiverStream<Event>,
+    ) {
+        let (events_tx, events_rx) = mpsc::unbounded_channel::<Event>();
+        let (actions_tx, actions_rx) = mpsc::unbounded_channel::<Action>();
+        let (watch_tx, watch_rx) = watch::channel(());
+
+        (
+            Self {
+                state: State::Active,
+                sequence_number: 2,
+                requests: VecDeque::new(),
+                responses: BTreeMap::new(),
+                enquire_link_interval,
+                last_enquire_link_sequence_number: None,
+                enquire_link_response_timeout,
+                enquire_link_timer: Timer::active(enquire_link_interval),
+                enquire_link_response_timer: Timer::inactive(),
+                _watch: watch_rx,
+                events: events_tx,
+                framed: Framed::new(
+                    stream,
+                    CommandCodec::new().with_max_length(max_command_length),
+                ),
+                actions: UnboundedReceiverStream::new(actions_rx),
+            },
+            watch_tx,
+            actions_tx,
+            UnboundedReceiverStream::new(events_rx),
+        )
     }
 
     fn insert_response(

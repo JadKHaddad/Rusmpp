@@ -30,7 +30,10 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
-        .reconnect(|| TcpStream::connect("127.0.0.1:2775"))
+        .reconnect_with(|| TcpStream::connect("127.0.0.1:2775"))
+        .delay(Duration::from_secs(5))
+        .max_retries(5)
+        .connect()
         .await?;
 
     let bind = BindTransceiver::builder()

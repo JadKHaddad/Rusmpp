@@ -7,22 +7,18 @@ use tokio::{
     net::{TcpStream, ToSocketAddrs},
 };
 
-use crate::{
-    Client, Connection, Event,
-    error::Error,
-    reconnect::{ReconnectingEvent, connection::ReconnectingConnection},
-};
+use crate::{Client, Connection, Event, error::Error, reconnect::ReconnectingConnectionBuilder};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
 pub struct ConnectionBuilder {
-    max_command_length: usize,
-    enquire_link_interval: Duration,
+    pub(crate) max_command_length: usize,
+    pub(crate) enquire_link_interval: Duration,
     /// Timeout for waiting for a an enquire link response from the server.
-    enquire_link_response_timeout: Duration,
+    pub(crate) enquire_link_response_timeout: Duration,
     /// Timeout for waiting for a response from the server.
-    response_timeout: Option<Duration>,
-    check_interface_version: bool,
+    pub(crate) response_timeout: Option<Duration>,
+    pub(crate) check_interface_version: bool,
 }
 
 impl Default for ConnectionBuilder {
@@ -108,61 +104,13 @@ impl ConnectionBuilder {
         (client, events)
     }
 
-    // TODO: add the ReconnectConnectionBuilder
-    pub async fn reconnect<S, F, Fut>(
-        self,
-        connect: F,
-    ) -> Result<
-        (
-            Client,
-            impl Stream<Item = ReconnectingEvent> + Unpin + 'static,
-        ),
-        Error,
-    >
+    pub fn reconnect_with<S, F, Fut>(self, connect: F) -> ReconnectingConnectionBuilder<F>
     where
         S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
         F: Fn() -> Fut + Send + Clone + 'static,
         Fut: Future<Output = Result<S, std::io::Error>> + Send,
     {
-        let stream = connect().await.map_err(Error::Connect)?;
-
-        let connected = Connection::new(
-            stream,
-            self.max_command_length,
-            self.enquire_link_interval,
-            self.enquire_link_response_timeout,
-        );
-
-        let (reconnecting_connection, watch, actions, events) = ReconnectingConnection::new(
-            connected,
-            move || {
-                let connect = connect.clone();
-
-                async move {
-                    let stream = connect().await.map_err(Error::Connect)?;
-
-                    Ok::<_, Error>(Connection::new(
-                        stream,
-                        self.max_command_length,
-                        self.enquire_link_interval,
-                        self.enquire_link_response_timeout,
-                    ))
-                }
-            }, // TODO:
-            Duration::from_secs(5),
-            5,
-        );
-
-        let client = Client::new(
-            actions,
-            self.response_timeout,
-            self.check_interface_version,
-            watch,
-        );
-
-        tokio::spawn(reconnecting_connection.run());
-
-        Ok((client, events))
+        ReconnectingConnectionBuilder::new(self, connect)
     }
 }
 

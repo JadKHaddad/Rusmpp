@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use futures::Stream;
+use futures::{Stream, future::Ready};
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -104,13 +104,19 @@ impl ConnectionBuilder {
         (client, events)
     }
 
-    pub fn reconnect_with<S, F, Fut>(self, connect: F) -> ReconnectingConnectionBuilder<F>
+    pub fn reconnect_with<S, F, Fut>(
+        self,
+        connect: F,
+    ) -> ReconnectingConnectionBuilder<
+        F,
+        fn(Client) -> Ready<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>,
+    >
     where
         S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
         F: Fn() -> Fut + Send + Clone + 'static,
         Fut: Future<Output = Result<S, std::io::Error>> + Send,
     {
-        ReconnectingConnectionBuilder::new(self, connect)
+        ReconnectingConnectionBuilder::new(self, connect, |_| futures::future::ready(Ok(())))
     }
 }
 

@@ -13,7 +13,7 @@ use tokio::{
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
 use crate::{
-    Action, Connection, Event,
+    Action, Client, Connection, Event,
     error::Error,
     reconnect::{ReconnectingEvent, connector::ConnectType, error::ReconnectingError},
 };
@@ -22,16 +22,21 @@ use super::connector::Connector;
 
 const TARGET: &str = "rusmppc::connection::reconnect";
 
-pub(crate) struct ReconnectingConnection<S, F> {
+pub(crate) struct ReconnectingConnection<S, F, OnF> {
     connector: Connector<S, F>,
+    on_connect: OnF,
     events: UnboundedSender<ReconnectingEvent>,
     actions: UnboundedReceiverStream<Action>,
     _watch: watch::Receiver<()>,
     delay: Duration,
     max_retries: Option<usize>,
+    /// Used in the on_connect callback.
+    response_timeout: Option<Duration>,
+    /// Used in the on_connect callback.
+    check_interface_version: bool,
 }
 
-impl<S, F, Fut> ReconnectingConnection<S, F>
+impl<S, F, Fut, OnF, OnFut> ReconnectingConnection<S, F, OnF>
 where
     S: AsyncRead + AsyncWrite + Send + Sync + 'static,
     F: Fn() -> Fut,
@@ -46,6 +51,8 @@ where
             Error,
         >,
     >,
+    OnF: Fn(Client) -> OnFut,
+    OnFut: Future<Output = Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>,
 {
     pub fn new(
         connected: (
@@ -55,8 +62,11 @@ where
             UnboundedReceiverStream<Event>,
         ),
         connect: F,
+        on_connect: OnF,
         delay: Duration,
         max_retries: Option<usize>,
+        response_timeout: Option<Duration>,
+        check_interface_version: bool,
     ) -> (
         Self,
         watch::Sender<()>,
@@ -70,11 +80,14 @@ where
         (
             Self {
                 connector: Connector::new(connected, connect),
+                on_connect,
                 events: events_tx,
                 actions: UnboundedReceiverStream::new(actions_rx),
                 _watch: watch_rx,
                 delay,
                 max_retries,
+                response_timeout,
+                check_interface_version,
             },
             watch_tx,
             actions_tx,
@@ -86,6 +99,7 @@ where
         let events = self.events;
         let mut actions = self.actions;
         let mut connector = self.connector;
+        let on_connect = self.on_connect;
         let mut retries = 0;
         let mut close = false;
 
@@ -96,14 +110,48 @@ where
 
                     let _ = events.send(ReconnectingEvent::Connection(Event::error(err)));
                 }
-                Ok((connect_type, (connection, _, connection_actions, mut connection_events))) => {
+                Ok((
+                    connect_type,
+                    (connection, _watch, connection_actions, mut connection_events),
+                )) => {
+                    tracing::debug!(target: TARGET, "Connected");
+
+                    tokio::pin!(connection);
+
+                    // on_connect takes ownership of the client, so we don't have to drop it to prevent holding a reference to actions channel.
+                    let client = Client::new(
+                        connection_actions.clone(),
+                        self.response_timeout,
+                        self.check_interface_version,
+                        _watch,
+                    );
+
+                    tracing::trace!(target: TARGET, "Executing on_connect callback");
+
+                    tokio::select! {
+                        _ = &mut connection => {
+                            tracing::warn!(target: TARGET, "Disconnected"); // Wtf, How unlucky is this?
+
+                            let _ = events.send(ReconnectingEvent::Disconnected);
+
+                            continue 'outer;
+                        },
+                        result = on_connect(client) => {
+                            if let Err(err) = result {
+                                tracing::error!(target: TARGET, ?err, "Failed to execute on_connect callback");
+
+                                let _ = events.send(ReconnectingEvent::OnConnectError(err));
+
+                                continue 'outer;
+                            }
+                        }
+                    }
+
                     if matches!(connect_type, ConnectType::Reconnect) {
                         let _ = events.send(ReconnectingEvent::Reconnected);
                     }
 
                     retries = 0;
-
-                    tokio::pin!(connection);
 
                     'inner: loop {
                         tokio::select! {

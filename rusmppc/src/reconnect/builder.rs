@@ -10,18 +10,23 @@ use crate::{
 };
 
 #[derive(Debug)]
-pub struct ReconnectingConnectionBuilder<F> {
+pub struct ReconnectingConnectionBuilder<F, OnF> {
     builder: ConnectionBuilder,
     connect: F,
+    on_connect: OnF,
     delay: Duration,
     max_retries: Option<usize>,
 }
 
-impl<S, F, Fut> ReconnectingConnectionBuilder<F>
+impl<S, F, Fut, OnF, OnFut> ReconnectingConnectionBuilder<F, OnF>
 where
     S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
     F: Fn() -> Fut + Send + Clone + 'static,
     Fut: Future<Output = Result<S, std::io::Error>> + Send,
+    OnF: Fn(Client) -> OnFut + Send + 'static,
+    OnFut: Future<Output = Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>
+        + Send
+        + 'static,
 {
     pub async fn connect(
         self,
@@ -57,8 +62,11 @@ where
                     ))
                 }
             },
+            self.on_connect,
             self.delay,
             self.max_retries,
+            self.builder.response_timeout,
+            self.builder.check_interface_version,
         );
 
         let client = Client::new(
@@ -74,11 +82,12 @@ where
     }
 }
 
-impl<F> ReconnectingConnectionBuilder<F> {
-    pub(crate) const fn new(builder: ConnectionBuilder, connect: F) -> Self {
+impl<F, OnF> ReconnectingConnectionBuilder<F, OnF> {
+    pub(crate) const fn new(builder: ConnectionBuilder, connect: F, on_connect: OnF) -> Self {
         Self {
             builder,
             connect,
+            on_connect,
             delay: Duration::from_secs(5),
             max_retries: None,
         }
@@ -92,5 +101,22 @@ impl<F> ReconnectingConnectionBuilder<F> {
     pub const fn max_retries(mut self, max_retries: usize) -> Self {
         self.max_retries = Some(max_retries);
         self
+    }
+
+    pub fn on_connect<OnF2, OnFut2>(
+        self,
+        on_connect: OnF2,
+    ) -> ReconnectingConnectionBuilder<F, OnF2>
+    where
+        OnF2: Fn(Client) -> OnFut2,
+        OnFut2: Future<Output = Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>,
+    {
+        ReconnectingConnectionBuilder {
+            builder: self.builder,
+            connect: self.connect,
+            on_connect,
+            delay: self.delay,
+            max_retries: self.max_retries,
+        }
     }
 }

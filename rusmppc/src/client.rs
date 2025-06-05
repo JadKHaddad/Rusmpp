@@ -21,6 +21,8 @@ use crate::{
     RequestFutureGuard, UnregisteredRequest, error::Error,
 };
 
+const TARGET: &str = "rusmppc::client";
+
 /// `SMPP` Client.
 ///
 /// The client is a handle to communicate with the `SMPP` server through a managed connection in the background.
@@ -305,6 +307,12 @@ impl<'a> UnregisteredRequestBuilder<'a> {
             .sequence_number(sequence_number)
             .pdu(pdu.into());
 
+        let sequence_number = command.sequence_number();
+        let status = command.status();
+        let id = command.id();
+
+        tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Sending request");
+
         let (request, ack) = UnregisteredRequest::new(command);
 
         self.client
@@ -312,6 +320,8 @@ impl<'a> UnregisteredRequestBuilder<'a> {
             .actions
             .send(Action::unregistered_request(request))
             .map_err(|_| Error::ConnectionClosed)?;
+
+        tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Waiting for ack");
 
         // No need to timeout here, since we are not waiting for a response from the server.
         ack.await.map_err(|_| Error::ConnectionClosed)?
@@ -424,6 +434,12 @@ impl<'a> RegisteredRequestBuilder<'a> {
                 .sequence_number(sequence_number)
                 .pdu(pdu.into());
 
+            let sequence_number = command.sequence_number();
+            let status = command.status();
+            let id = command.id();
+
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Sending request");
+
             let (request, ack, response) = RegisteredRequest::new(command);
 
             self.client
@@ -432,7 +448,11 @@ impl<'a> RegisteredRequestBuilder<'a> {
                 .send(Action::registered_request(request))
                 .map_err(|_| Error::ConnectionClosed)?;
 
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Waiting for ack");
+
             ack.await.map_err(|_| Error::ConnectionClosed)??;
+
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, response_timeout = ?self.client.inner.response_timeout, "Starting response timer");
 
             match self.client.inner.response_timeout {
                 None => response.await.map_err(|_| Error::ConnectionClosed),

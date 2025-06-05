@@ -47,6 +47,8 @@ impl Connection {
         tracing::debug!(session_id, "Awaiting bind operation");
 
         let mut filtered = (&mut reader).try_filter(|command| {
+            tracing::debug!(session_id, sequence_number=command.sequence_number(), id=?command.id(), "Received command");
+
             future::ready(matches!(
                 command.id(),
                 CommandId::BindTransmitter | CommandId::BindReceiver | CommandId::BindTransceiver

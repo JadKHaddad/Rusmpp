@@ -270,7 +270,12 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 let _ = pending_responses.ack.send(pending);
                             }
                             Action::Request(request) => {
-                                tracing::trace!(target: CONN, "Received request");
+                                tracing::trace!(target: CONN,
+                                    sequence_number=request.command().sequence_number(),
+                                    status=?request.command().status(),
+                                    id=?request.command().id(),
+                                    "Received request"
+                                );
 
                                 self.as_mut().requests_push_back(request);
                             }
@@ -326,6 +331,8 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                     let sequence_number = request.command().sequence_number();
                                     let status = request.command().status();
                                     let id = request.command().id();
+
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sending command");
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())

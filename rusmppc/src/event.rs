@@ -11,7 +11,7 @@ pub enum Event {
     Incoming(Command),
     /// An error occurred.
     Error(Error),
-    Connected,
+    Reconnected,
     Disconnected,
 }
 

@@ -33,6 +33,11 @@ pub type ConnectFunction<S> = Box<
         > + Send,
 >;
 
+enum ConnectType {
+    Connect,
+    Reconnect,
+}
+
 #[allow(clippy::type_complexity)]
 struct Connector<S> {
     connected: Option<(
@@ -64,16 +69,19 @@ impl<S> Connector<S> {
         &mut self,
     ) -> Result<
         (
-            Connection<S>,
-            watch::Sender<()>,
-            UnboundedSender<Action>,
-            UnboundedReceiverStream<Event>,
+            ConnectType,
+            (
+                Connection<S>,
+                watch::Sender<()>,
+                UnboundedSender<Action>,
+                UnboundedReceiverStream<Event>,
+            ),
         ),
         Error,
     > {
         match self.connected.take() {
-            Some(connected) => Ok(connected),
-            None => (self.connect)().await,
+            Some(connected) => Ok((ConnectType::Connect, connected)),
+            None => Ok((ConnectType::Reconnect, (self.connect)().await?)),
         }
     }
 }
@@ -128,6 +136,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
         let mut actions = self.actions;
         let mut connector = self.connector;
         let mut max_retries = self.max_retries;
+        let mut close = false;
 
         'outer: loop {
             match connector.connect().await {
@@ -136,7 +145,11 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
 
                     let _ = events.send(Event::error(err));
                 }
-                Ok((connection, _, connection_actions, mut connection_events)) => {
+                Ok((connect_type, (connection, _, connection_actions, mut connection_events))) => {
+                    if matches!(connect_type, ConnectType::Reconnect) {
+                        let _ = events.send(Event::Reconnected);
+                    }
+
                     max_retries = self.max_retries;
 
                     tokio::pin!(connection);
@@ -166,6 +179,8 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
                                         break 'outer;
                                     }
                                     Some(action) => {
+                                        close = matches!(action, Action::Close(_));
+
                                         // If this fails, the connection might be terminating.
                                         let _ = connection_actions.send(action);
                                     }
@@ -174,6 +189,10 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
                         }
                     }
                 }
+            }
+
+            if close {
+                break 'outer;
             }
 
             if max_retries == 0 {
@@ -186,9 +205,11 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
 
             max_retries -= 1;
 
+            tracing::debug!(target: TARGET, delay=?self.delay, "Reconnecting after delay");
+
             tokio::time::sleep(self.delay).await;
 
-            tracing::debug!(target: TARGET, current_retry=%max_retries, max_retries=%self.max_retries, "Reconnecting");
+            tracing::debug!(target: TARGET, current_retry=%(self.max_retries - max_retries), max_retries=%self.max_retries, "Reconnecting");
         }
     }
 }

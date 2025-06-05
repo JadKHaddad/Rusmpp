@@ -16,7 +16,7 @@ use rusmpp::{
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 };
-use rusmppc::{ClientBuilder, Event};
+use rusmppc::{ConnectionBuilder, Event};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
@@ -26,7 +26,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("submit_sm=info,rusmpp=off,rusmppc=debug")
         .init();
 
-    let (client, mut events) = ClientBuilder::new()
+    let (client, mut events) = ConnectionBuilder::new()
         // Every 5 seconds send an enquire link command to the server.
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.

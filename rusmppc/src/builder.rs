@@ -9,9 +9,9 @@ use tokio::{
 
 use crate::{Client, Connection, Event, ReconnectingConnection, error::Error};
 
-/// Builder for creating a new `SMPP` client.
+/// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
-pub struct ClientBuilder {
+pub struct ConnectionBuilder {
     max_command_length: usize,
     enquire_link_interval: Duration,
     /// Timeout for waiting for a an enquire link response from the server.
@@ -21,13 +21,13 @@ pub struct ClientBuilder {
     check_interface_version: bool,
 }
 
-impl Default for ClientBuilder {
+impl Default for ConnectionBuilder {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl ClientBuilder {
+impl ConnectionBuilder {
     /// Creates a new [`ConnectionBuilder`].
     pub fn new() -> Self {
         Self {
@@ -151,7 +151,7 @@ impl ClientBuilder {
     }
 }
 
-impl ClientBuilder {
+impl ConnectionBuilder {
     /// Sets the maximum command length for incoming commands.
     pub const fn max_command_length(mut self, max_command_length: usize) -> Self {
         self.max_command_length = max_command_length;

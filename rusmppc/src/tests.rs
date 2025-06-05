@@ -12,7 +12,7 @@ use rusmpp::{
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::Framed;
 
-use crate::{ClientBuilder, Event, error::Error};
+use crate::{ConnectionBuilder, Event, error::Error};
 
 #[derive(Debug)]
 pub struct Server {
@@ -187,7 +187,7 @@ async fn cancel_request_future_should_remove_pending_response() {
         Server::new().run(server).await;
     });
 
-    let (client, mut events) = ClientBuilder::new()
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
         .connected(client);
 
@@ -240,7 +240,7 @@ async fn request_timeout_should_remove_pending_response() {
             .await;
     });
 
-    let (client, mut events) = ClientBuilder::new()
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(500))
         .connected(client);
 
@@ -287,7 +287,7 @@ async fn no_wait_request_should_pipe_response_through_events() {
         Server::new().run(server).await;
     });
 
-    let (client, mut events) = ClientBuilder::new()
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
         .connected(client);
 
@@ -323,7 +323,7 @@ async fn drop_client_should_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client);
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     drop(client);
 
@@ -340,7 +340,7 @@ async fn drop_events_should_not_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, _) = ClientBuilder::new().connected(client);
+    let (client, _) = ConnectionBuilder::new().connected(client);
 
     client
         .submit_sm(SubmitSm::default())
@@ -362,7 +362,7 @@ async fn request_after_closing_connection_should_fail() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client);
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     client.close().await.expect("Failed to close connection");
 
@@ -385,7 +385,7 @@ async fn close_connection_twice_should_fail() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client);
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     client.close().await.expect("Failed to close connection");
 
@@ -409,7 +409,7 @@ async fn enquire_link_timeout_idle_should_close_connection() {
             .await;
     });
 
-    let (_client, events) = ClientBuilder::new()
+    let (_client, events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
         .connected(client);
@@ -440,7 +440,7 @@ async fn enquire_link_timeout_busy_sequential_should_close_connection() {
             .await;
     });
 
-    let (client, events) = ClientBuilder::new()
+    let (client, events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
         .connected(client);
@@ -478,7 +478,7 @@ async fn enquire_link_timeout_busy_concurrent_should_close_connection() {
             .await;
     });
 
-    let (client, events) = ClientBuilder::new()
+    let (client, events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
         .enquire_link_response_timeout(Duration::from_secs(1))
         .connected(client);
@@ -520,7 +520,7 @@ async fn server_crashes_on_request_should_close_connection() {
         Server::new().run(server).await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client);
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     // Our test server crashes on GenericNack command
     client
@@ -545,7 +545,7 @@ async fn connection_lost_should_close_connection() {
             .await;
     });
 
-    let (client, events) = ClientBuilder::new().connected(client);
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     tokio::time::sleep(Duration::from_secs(2)).await;
 
@@ -566,7 +566,7 @@ async fn server_unbinds_and_closes_connection_should_close_connection() {
         UnbindServer::new(Duration::from_secs(1)).run(server).await;
     });
 
-    let (client, mut events) = ClientBuilder::new().connected(client);
+    let (client, mut events) = ConnectionBuilder::new().connected(client);
 
     while let Some(event) = events.next().await {
         if let Event::Incoming(command) = event {
@@ -624,7 +624,7 @@ async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_re
         tokio::time::sleep(Duration::from_secs(1)).await;
     });
 
-    let (client, mut events) = ClientBuilder::new()
+    let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(500))
         .connected(client);
 
@@ -676,7 +676,7 @@ async fn server_ddos_client_should_still_send_requests_and_connection_should_sti
         }
     });
 
-    let (client, events) = ClientBuilder::new()
+    let (client, events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(1))
         .enquire_link_response_timeout(Duration::from_millis(500))
         .response_timeout(Duration::from_millis(500))

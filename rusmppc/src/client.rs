@@ -17,7 +17,7 @@ use rusmpp::{
 use tokio::sync::{mpsc::UnboundedSender, watch};
 
 use crate::{
-    Action, ClientBuilder, CloseRequest, CommandExt, PendingResponses, RegisteredRequest,
+    Action, CloseRequest, CommandExt, ConnectionBuilder, PendingResponses, RegisteredRequest,
     RequestFutureGuard, UnregisteredRequest, error::Error,
 };
 
@@ -55,8 +55,8 @@ impl Client {
     }
 
     /// Creates a new `SMPP` connection builder.
-    pub fn builder() -> ClientBuilder {
-        ClientBuilder::new()
+    pub fn builder() -> ConnectionBuilder {
+        ConnectionBuilder::new()
     }
 
     /// Sends a [`BindTransmitter`] command to the server and waits for a successful [`BindTransmitterResp`].

@@ -44,8 +44,8 @@ path = "examples/reconnect.rs"
 required-features = []
 
 [[example]]
-name = "reconnect_dev"
-path = "examples/reconnect_dev.rs"
+name = "manual_reconnect"
+path = "examples/manual_reconnect.rs"
 required-features = []
 
 [[example]]

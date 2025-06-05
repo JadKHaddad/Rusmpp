@@ -104,6 +104,7 @@ impl ConnectionBuilder {
         (client, events)
     }
 
+    // TODO: add the ReconnectConnectionBuilder
     pub async fn reconnect<S>(
         self,
         connect: fn() -> Pin<Box<dyn Future<Output = Result<S, std::io::Error>> + Send>>,
@@ -133,7 +134,7 @@ impl ConnectionBuilder {
                         self.enquire_link_response_timeout,
                     ))
                 })
-            }),
+            }), // TODO:
             Duration::from_secs(5),
             5,
         );

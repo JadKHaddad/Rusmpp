@@ -14,7 +14,7 @@ pub struct ReconnectingConnectionBuilder<F> {
     builder: ConnectionBuilder,
     connect: F,
     delay: Duration,
-    max_retries: usize,
+    max_retries: Option<usize>,
 }
 
 impl<S, F, Fut> ReconnectingConnectionBuilder<F>
@@ -80,7 +80,7 @@ impl<F> ReconnectingConnectionBuilder<F> {
             builder,
             connect,
             delay: Duration::from_secs(5),
-            max_retries: 5,
+            max_retries: None,
         }
     }
 
@@ -90,7 +90,7 @@ impl<F> ReconnectingConnectionBuilder<F> {
     }
 
     pub const fn max_retries(mut self, max_retries: usize) -> Self {
-        self.max_retries = max_retries;
+        self.max_retries = Some(max_retries);
         self
     }
 }

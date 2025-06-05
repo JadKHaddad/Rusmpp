@@ -28,7 +28,7 @@ pub(crate) struct ReconnectingConnection<S, F> {
     actions: UnboundedReceiverStream<Action>,
     _watch: watch::Receiver<()>,
     delay: Duration,
-    max_retries: usize,
+    max_retries: Option<usize>,
 }
 
 impl<S, F, Fut> ReconnectingConnection<S, F>
@@ -56,7 +56,7 @@ where
         ),
         connect: F,
         delay: Duration,
-        max_retries: usize,
+        max_retries: Option<usize>,
     ) -> (
         Self,
         watch::Sender<()>,
@@ -86,7 +86,7 @@ where
         let events = self.events;
         let mut actions = self.actions;
         let mut connector = self.connector;
-        let mut max_retries = self.max_retries;
+        let mut retries = 0;
         let mut close = false;
 
         'outer: loop {
@@ -101,7 +101,7 @@ where
                         let _ = events.send(ReconnectingEvent::Reconnected);
                     }
 
-                    max_retries = self.max_retries;
+                    retries = 0;
 
                     tokio::pin!(connection);
 
@@ -146,23 +146,25 @@ where
                 break 'outer;
             }
 
-            if max_retries == 0 {
-                tracing::error!(target: TARGET, max_retries=%self.max_retries, "Max retries exceeded");
+            if let Some(max_retries) = self.max_retries {
+                if retries >= max_retries {
+                    tracing::error!(target: TARGET, tries=%retries, max_retries=%max_retries, "Max retries exceeded");
 
-                let _ = events.send(ReconnectingEvent::error(
-                    ReconnectingError::max_retries_exceeded(self.max_retries),
-                ));
+                    let _ = events.send(ReconnectingEvent::error(
+                        ReconnectingError::max_retries_exceeded(max_retries),
+                    ));
 
-                break 'outer;
+                    break 'outer;
+                }
             }
 
-            max_retries -= 1;
+            retries += 1;
 
             tracing::debug!(target: TARGET, delay=?self.delay, "Reconnecting after delay");
 
             tokio::time::sleep(self.delay).await;
 
-            tracing::debug!(target: TARGET, current_retry=%(self.max_retries - max_retries), max_retries=%self.max_retries, "Reconnecting");
+            tracing::debug!(target: TARGET, current_retry=retries, max_retries=?self.max_retries, "Reconnecting");
         }
     }
 }

@@ -5,8 +5,6 @@
 //! ```
 //!
 
-// If disconnected and tried to reconnect, how do we bind?
-
 use std::{str::FromStr, time::Duration};
 
 use futures::StreamExt;

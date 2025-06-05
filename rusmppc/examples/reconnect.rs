@@ -14,7 +14,7 @@ use rusmpp::{
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 };
-use rusmppc::{ConnectionBuilder, Event};
+use rusmppc::{ConnectionBuilder, Event, ReconnectingEvent};
 use tokio::net::TcpStream;
 
 #[tokio::main]
@@ -52,7 +52,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             tracing::info!(?event, "Event");
 
             match event {
-                Event::Incoming(command) => {
+                ReconnectingEvent::Connection(Event::Incoming(command)) => {
                     if command.id() == CommandId::DeliverSm {
                         tracing::info!("Received DeliverSm");
 
@@ -61,7 +61,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                             .await;
                     }
                 }
-                Event::Reconnected => {
+                ReconnectingEvent::Reconnected => {
                     tracing::info!("Reconnected");
 
                     let _ = client_clone.bind_transceiver(bind.clone()).await;

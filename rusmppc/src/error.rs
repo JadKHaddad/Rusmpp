@@ -64,12 +64,6 @@ pub enum Error {
         /// The version that is supported by the library.
         supported_version: InterfaceVersion,
     },
-    /// The maximum number of retries for reconnecting to the server has been exceeded.
-    #[error("The maximum number of reconnect retries exceeded: {max_retries}")]
-    MaxRetriesExceeded {
-        /// The maximum number of retries.
-        max_retries: usize,
-    },
 }
 
 impl Error {
@@ -91,10 +85,6 @@ impl Error {
             sequence_number,
             timeout,
         }
-    }
-
-    pub(crate) const fn max_retries_exceeded(max_retries: usize) -> Self {
-        Self::MaxRetriesExceeded { max_retries }
     }
 }
 

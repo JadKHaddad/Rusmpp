@@ -120,4 +120,6 @@ pub(crate) use response::PendingResponses;
 mod tests;
 
 mod reconnect;
-pub(crate) use reconnect::ReconnectingConnection;
+pub(crate) use reconnect::connection::ReconnectingConnection;
+pub use reconnect::connection::ReconnectingError;
+pub use reconnect::connection::ReconnectingEvent;

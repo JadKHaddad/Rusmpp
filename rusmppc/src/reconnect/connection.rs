@@ -1,3 +1,5 @@
+//! Automatically reconnecting connection.
+
 use std::{pin::Pin, time::Duration};
 
 use futures::StreamExt;
@@ -32,6 +34,50 @@ pub type ConnectFunction<S> = Box<
             >,
         > + Send,
 >;
+
+#[derive(Debug)]
+pub enum ReconnectingEvent {
+    Connection(Event),
+    Error(ReconnectingError),
+    Reconnected,
+    Disconnected,
+}
+
+impl ReconnectingEvent {
+    const fn error(error: ReconnectingError) -> Self {
+        Self::Error(error)
+    }
+}
+
+impl From<Event> for ReconnectingEvent {
+    fn from(event: Event) -> Self {
+        Self::Connection(event)
+    }
+}
+
+#[derive(Debug, thiserror::Error)]
+pub enum ReconnectingError {
+    #[error(transparent)]
+    Connection(Error),
+    /// The maximum number of retries for reconnecting to the server has been exceeded.
+    #[error("The maximum number of reconnect retries exceeded: {max_retries}")]
+    MaxRetriesExceeded {
+        /// The maximum number of retries.
+        max_retries: usize,
+    },
+}
+
+impl ReconnectingError {
+    pub const fn max_retries_exceeded(max_retries: usize) -> Self {
+        Self::MaxRetriesExceeded { max_retries }
+    }
+}
+
+impl From<Error> for ReconnectingError {
+    fn from(value: Error) -> Self {
+        Self::Connection(value)
+    }
+}
 
 enum ConnectType {
     Connect,
@@ -88,7 +134,7 @@ impl<S> Connector<S> {
 
 pub struct ReconnectingConnection<S> {
     connector: Connector<S>,
-    events: UnboundedSender<Event>,
+    events: UnboundedSender<ReconnectingEvent>,
     actions: UnboundedReceiverStream<Action>,
     _watch: watch::Receiver<()>,
     delay: Duration,
@@ -110,9 +156,9 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
         Self,
         watch::Sender<()>,
         UnboundedSender<Action>,
-        UnboundedReceiverStream<Event>,
+        UnboundedReceiverStream<ReconnectingEvent>,
     ) {
-        let (events_tx, events_rx) = mpsc::unbounded_channel::<Event>();
+        let (events_tx, events_rx) = mpsc::unbounded_channel::<ReconnectingEvent>();
         let (actions_tx, actions_rx) = mpsc::unbounded_channel::<Action>();
         let (watch_tx, watch_rx) = watch::channel(());
 
@@ -143,11 +189,11 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
                 Err(err) => {
                     tracing::error!(target: TARGET, ?err, "Failed to connect");
 
-                    let _ = events.send(Event::error(err));
+                    let _ = events.send(ReconnectingEvent::Connection(Event::error(err)));
                 }
                 Ok((connect_type, (connection, _, connection_actions, mut connection_events))) => {
                     if matches!(connect_type, ConnectType::Reconnect) {
-                        let _ = events.send(Event::Reconnected);
+                        let _ = events.send(ReconnectingEvent::Reconnected);
                     }
 
                     max_retries = self.max_retries;
@@ -159,7 +205,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
                             _ = &mut connection => {
                                 tracing::warn!(target: TARGET, "Disconnected");
 
-                                let _ = events.send(Event::Disconnected);
+                                let _ = events.send(ReconnectingEvent::Disconnected);
 
                                 break 'inner;
                             }
@@ -168,7 +214,7 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
                                 // But we check for this already in the `connection` select branch.
 
                                 if let Some(event) = event {
-                                    let _ = events.send(event);
+                                    let _ = events.send(ReconnectingEvent::from(event));
                                 }
                             }
                             action = actions.next() => {
@@ -198,7 +244,9 @@ impl<S: AsyncRead + AsyncWrite + Send + Sync + 'static> ReconnectingConnection<S
             if max_retries == 0 {
                 tracing::error!(target: TARGET, max_retries=%self.max_retries, "Max retries exceeded");
 
-                let _ = events.send(Event::error(Error::max_retries_exceeded(self.max_retries)));
+                let _ = events.send(ReconnectingEvent::error(
+                    ReconnectingError::max_retries_exceeded(self.max_retries),
+                ));
 
                 break 'outer;
             }

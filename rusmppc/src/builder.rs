@@ -7,7 +7,7 @@ use tokio::{
     net::{TcpStream, ToSocketAddrs},
 };
 
-use crate::{Client, Connection, Event, ReconnectingConnection, error::Error};
+use crate::{Client, Connection, Event, ReconnectingConnection, ReconnectingEvent, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -108,7 +108,13 @@ impl ConnectionBuilder {
     pub async fn reconnect<S>(
         self,
         connect: fn() -> Pin<Box<dyn Future<Output = Result<S, std::io::Error>> + Send>>,
-    ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error>
+    ) -> Result<
+        (
+            Client,
+            impl Stream<Item = ReconnectingEvent> + Unpin + 'static,
+        ),
+        Error,
+    >
     where
         S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
     {

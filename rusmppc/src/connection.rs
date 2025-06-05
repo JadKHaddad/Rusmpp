@@ -43,6 +43,8 @@ pin_project! {
         state: State,
         sequence_number: u32,
         requests: VecDeque<Request>,
+        // This is a request that has been written to the sink using start_send, but not yet flushed.
+        pending_request: Option<Request>,
         responses: BTreeMap<u32, oneshot::Sender<Command>>,
         enquire_link_interval: Duration,
         last_enquire_link_sequence_number: Option<u32>,
@@ -82,6 +84,7 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
                 state: State::Active,
                 sequence_number: 2,
                 requests: VecDeque::new(),
+                pending_request: None,
                 responses: BTreeMap::new(),
                 enquire_link_interval,
                 last_enquire_link_sequence_number: None,
@@ -127,6 +130,14 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
 
     fn requests_pop_front(self: Pin<&mut Self>) -> Option<Request> {
         self.project().requests.pop_front()
+    }
+
+    fn set_pending_request(self: Pin<&mut Self>, request: Request) {
+        *self.project().pending_request = Some(request);
+    }
+
+    fn take_pending_request(self: Pin<&mut Self>) -> Option<Request> {
+        self.project().pending_request.take()
     }
 
     fn set_state(self: Pin<&mut Self>, state: State) {
@@ -324,6 +335,67 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                         break 'sink;
                     }
 
+                    match self.as_mut().take_pending_request() {
+                        Some(request) => {
+                            let sequence_number = request.command().sequence_number();
+                            let status = request.command().status();
+                            let id = request.command().id();
+
+                            tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Sending command");
+
+                            match Sink::<Command>::poll_flush(self.as_mut().project().framed, cx) {
+                                Poll::Ready(Ok(_)) => {
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
+
+                                    match request {
+                                        Request::Registered(request) => {
+                                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Registered");
+
+                                            let _ = request.ack.send(Ok(()));
+
+                                            self.as_mut()
+                                                .insert_response(sequence_number, request.response);
+                                        }
+                                        Request::Unregistered(request) => {
+                                            let _ = request.ack.send(Ok(()));
+                                        }
+                                    }
+
+                                    continue 'sink;
+                                }
+                                Poll::Ready(Err(err)) => {
+                                    tracing::error!(target: CONN, ?err);
+
+                                    self.as_mut().set_state(State::Errored);
+
+                                    match request.send_ack(Err(Error::from(err))) {
+                                        Ok(()) => {
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Err(err)) => {
+                                            // Client not waiting
+
+                                            let _ = self.as_mut().events.send(Event::error(err));
+
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Ok(_)) => {
+                                            unreachable!()
+                                        }
+                                    }
+                                }
+                                Poll::Pending => {
+                                    self.as_mut().set_pending_request(request);
+
+                                    break 'sink;
+                                }
+                            }
+                        }
+                        None => {
+                            tracing::trace!(target: CONN, "No pending request");
+                        }
+                    }
+
                     match self.as_mut().requests_pop_front() {
                         Some(request) => {
                             match Sink::<Command>::poll_ready(self.as_mut().project().framed, cx) {
@@ -332,7 +404,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                     let status = request.command().status();
                                     let id = request.command().id();
 
-                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sending command");
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Writing command");
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())
@@ -357,61 +429,11 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                         }
                                     }
 
-                                    match Sink::<Command>::poll_flush(
-                                        self.as_mut().project().framed,
-                                        cx,
-                                    ) {
-                                        Poll::Ready(Ok(_)) => {
-                                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
+                                    // Start send was ok, we encoded the command now we set the request as a pending request.
 
-                                            match request {
-                                                Request::Registered(request) => {
-                                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Registered");
+                                    self.as_mut().set_pending_request(request);
 
-                                                    let _ = request.ack.send(Ok(()));
-
-                                                    self.as_mut().insert_response(
-                                                        sequence_number,
-                                                        request.response,
-                                                    );
-                                                }
-                                                Request::Unregistered(request) => {
-                                                    let _ = request.ack.send(Ok(()));
-                                                }
-                                            }
-
-                                            continue 'sink;
-                                        }
-                                        Poll::Ready(Err(err)) => {
-                                            tracing::error!(target: CONN, ?err);
-
-                                            self.as_mut().set_state(State::Errored);
-
-                                            match request.send_ack(Err(Error::from(err))) {
-                                                Ok(()) => {
-                                                    return Poll::Ready(());
-                                                }
-                                                Err(Err(err)) => {
-                                                    // Client not waiting
-
-                                                    let _ = self
-                                                        .as_mut()
-                                                        .events
-                                                        .send(Event::error(err));
-
-                                                    return Poll::Ready(());
-                                                }
-                                                Err(Ok(_)) => {
-                                                    unreachable!()
-                                                }
-                                            }
-                                        }
-                                        Poll::Pending => {
-                                            self.as_mut().requests_push_front(request);
-
-                                            break 'sink;
-                                        }
-                                    }
+                                    continue 'sink;
                                 }
                                 Poll::Ready(Err(err)) => {
                                     tracing::error!(target: CONN, ?err);

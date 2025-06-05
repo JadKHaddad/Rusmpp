@@ -149,6 +149,8 @@ impl ConnectionBuilder {
     /// Sets the response timeout.
     ///
     /// This timeout is used to determine how long the client should wait for a response from the server.
+    ///
+    /// The timer is started after the command has been sent to the server.
     pub fn response_timeout(mut self, response_timeout: Duration) -> Self {
         self.response_timeout = Some(response_timeout);
         self

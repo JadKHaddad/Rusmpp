@@ -404,7 +404,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                     let status = request.command().status();
                                     let id = request.command().id();
 
-                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Writing command");
+                                    tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Writing command");
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())

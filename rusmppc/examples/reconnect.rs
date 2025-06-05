@@ -20,7 +20,7 @@ use tokio::net::TcpStream;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter("reconnect=info,rusmpp=off,rusmppc=trace")
+        .with_env_filter("reconnect=info,rusmpp=off,rusmppc=debug")
         .init();
 
     let (client, mut events) = ConnectionBuilder::new()
@@ -76,12 +76,14 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         tracing::info!("Connection closed");
     });
 
-    for _ in 0..10 {
+    for _ in 0..1000 {
         // If the connection is in a reconnecting state,
         // client requests will wait for the connection to be established again
         // and the on_connect callback to be executed successfully.
         // This means that waiting clients will continue executing commands in a bound state
         // as defined in the on_connect callback.
+        // Note: there is no timeout for waiting for the connection to be established again.
+        // TODO: consider adding a request timeout.
         if let Err(err) = client
             .submit_sm(
                 SubmitSm::builder()
@@ -100,7 +102,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             tracing::error!(?err, "Failed to send SubmitSm");
         }
 
-        tokio::time::sleep(Duration::from_secs(1)).await;
+        tokio::time::sleep(Duration::from_secs(10)).await;
     }
 
     client.unbind().await?;

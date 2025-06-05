@@ -119,7 +119,5 @@ pub(crate) use response::PendingResponses;
 #[cfg(test)]
 mod tests;
 
-mod reconnect;
-pub(crate) use reconnect::connection::ReconnectingConnection;
-pub use reconnect::connection::ReconnectingError;
-pub use reconnect::connection::ReconnectingEvent;
+pub mod factory;
+pub mod reconnect;

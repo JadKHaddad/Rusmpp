@@ -7,7 +7,11 @@ use tokio::{
     net::{TcpStream, ToSocketAddrs},
 };
 
-use crate::{Client, Connection, Event, ReconnectingConnection, ReconnectingEvent, error::Error};
+use crate::{
+    Client, Connection, Event,
+    error::Error,
+    reconnect::{ReconnectingEvent, connection::ReconnectingConnection},
+};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]

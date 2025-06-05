@@ -12,122 +12,17 @@ use tokio::{
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
 
-use crate::{Action, Connection, Event, error::Error};
+use crate::{
+    Action, Connection, Event,
+    error::Error,
+    reconnect::{ReconnectingEvent, connector::ConnectType, error::ReconnectingError},
+};
+
+use super::connector::Connector;
 
 const TARGET: &str = "rusmppc::connection::reconnect";
 
-#[derive(Debug)]
-pub enum ReconnectingEvent {
-    Connection(Event),
-    Error(ReconnectingError),
-    Reconnected,
-    Disconnected,
-}
-
-impl ReconnectingEvent {
-    const fn error(error: ReconnectingError) -> Self {
-        Self::Error(error)
-    }
-}
-
-impl From<Event> for ReconnectingEvent {
-    fn from(event: Event) -> Self {
-        Self::Connection(event)
-    }
-}
-
-#[derive(Debug, thiserror::Error)]
-pub enum ReconnectingError {
-    #[error(transparent)]
-    Connection(Error),
-    /// The maximum number of retries for reconnecting to the server has been exceeded.
-    #[error("The maximum number of reconnect retries exceeded: {max_retries}")]
-    MaxRetriesExceeded {
-        /// The maximum number of retries.
-        max_retries: usize,
-    },
-}
-
-impl ReconnectingError {
-    pub const fn max_retries_exceeded(max_retries: usize) -> Self {
-        Self::MaxRetriesExceeded { max_retries }
-    }
-}
-
-impl From<Error> for ReconnectingError {
-    fn from(value: Error) -> Self {
-        Self::Connection(value)
-    }
-}
-
-enum ConnectType {
-    Connect,
-    Reconnect,
-}
-
-#[allow(clippy::type_complexity)]
-struct Connector<S, F> {
-    connected: Option<(
-        Connection<S>,
-        watch::Sender<()>,
-        UnboundedSender<Action>,
-        UnboundedReceiverStream<Event>,
-    )>,
-    connect: F,
-}
-
-impl<S, F, Fut> Connector<S, F>
-where
-    F: Fn() -> Fut,
-    Fut: Future<
-        Output = Result<
-            (
-                Connection<S>,
-                watch::Sender<()>,
-                UnboundedSender<Action>,
-                UnboundedReceiverStream<Event>,
-            ),
-            Error,
-        >,
-    >,
-{
-    fn new(
-        connected: (
-            Connection<S>,
-            watch::Sender<()>,
-            UnboundedSender<Action>,
-            UnboundedReceiverStream<Event>,
-        ),
-        connect: F,
-    ) -> Self {
-        Self {
-            connected: Some(connected),
-            connect,
-        }
-    }
-
-    async fn connect(
-        &mut self,
-    ) -> Result<
-        (
-            ConnectType,
-            (
-                Connection<S>,
-                watch::Sender<()>,
-                UnboundedSender<Action>,
-                UnboundedReceiverStream<Event>,
-            ),
-        ),
-        Error,
-    > {
-        match self.connected.take() {
-            Some(connected) => Ok((ConnectType::Connect, connected)),
-            None => Ok((ConnectType::Reconnect, (self.connect)().await?)),
-        }
-    }
-}
-
-pub struct ReconnectingConnection<S, F> {
+pub(crate) struct ReconnectingConnection<S, F> {
     connector: Connector<S, F>,
     events: UnboundedSender<ReconnectingEvent>,
     actions: UnboundedReceiverStream<Action>,

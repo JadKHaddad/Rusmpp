@@ -14,7 +14,7 @@ use rusmpp::{
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 };
-use rusmppc::{ConnectionBuilder, Event, ReconnectingEvent};
+use rusmppc::{ConnectionBuilder, Event, reconnect::ReconnectingEvent};
 use tokio::net::TcpStream;
 
 #[tokio::main]

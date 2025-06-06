@@ -41,8 +41,8 @@ pub enum Error {
     /// The server did not respond to the request within the specified timeout.
     // This happen when the response timer expires.
     // e.g. We send a bind request and the server doesn't respond.
-    #[error("Request timed out: sequence number: {sequence_number}, timeout: {timeout:?}")]
-    Timeout {
+    #[error("Response timed out: sequence number: {sequence_number}, timeout: {timeout:?}")]
+    ResponseTimeout {
         /// The sequence number of the request that timed out.
         sequence_number: u32,
         /// The timeout duration.
@@ -80,8 +80,8 @@ impl Error {
         }
     }
 
-    pub(crate) const fn timeout(sequence_number: u32, timeout: Duration) -> Self {
-        Self::Timeout {
+    pub(crate) const fn response_timeout(sequence_number: u32, timeout: Duration) -> Self {
+        Self::ResponseTimeout {
             sequence_number,
             timeout,
         }

@@ -193,12 +193,12 @@ impl Client {
 
     /// Sets the response timeout for the next request.
     pub fn timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
-        self.registered_request().timeout(timeout)
+        self.registered_request().response_timeout(timeout)
     }
 
     /// Disables the response timeout for the next request.
     pub fn no_timeout(&self) -> RegisteredRequestBuilder {
-        self.registered_request().no_timeout()
+        self.registered_request().no_response_timeout()
     }
 
     /// Sends a request without waiting for a response.
@@ -285,12 +285,12 @@ impl<'a> UnregisteredRequestBuilder<'a> {
         self
     }
 
-    pub fn timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
-        self.registered_request().timeout(timeout)
+    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+        self.registered_request().response_timeout(timeout)
     }
 
-    pub fn no_timeout(&self) -> RegisteredRequestBuilder {
-        self.registered_request().no_timeout()
+    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
+        self.registered_request().no_response_timeout()
     }
 
     pub const fn no_wait(&self) -> NoWaitRequestBuilder {
@@ -388,7 +388,7 @@ impl<'a> UnregisteredRequestBuilder<'a> {
 pub struct RegisteredRequestBuilder<'a> {
     client: &'a Client,
     status: CommandStatus,
-    timeout: Option<Duration>,
+    response_timeout: Option<Duration>,
 }
 
 impl<'a> RegisteredRequestBuilder<'a> {
@@ -396,7 +396,7 @@ impl<'a> RegisteredRequestBuilder<'a> {
         Self {
             client,
             status,
-            timeout: client.inner.response_timeout,
+            response_timeout: client.inner.response_timeout,
         }
     }
 
@@ -405,13 +405,13 @@ impl<'a> RegisteredRequestBuilder<'a> {
         self
     }
 
-    pub fn timeout(mut self, timeout: Duration) -> Self {
-        self.timeout = Some(timeout);
+    pub fn response_timeout(mut self, timeout: Duration) -> Self {
+        self.response_timeout = Some(timeout);
         self
     }
 
-    pub fn no_timeout(mut self) -> Self {
-        self.timeout = None;
+    pub fn no_response_timeout(mut self) -> Self {
+        self.response_timeout = None;
         self
     }
 
@@ -465,7 +465,7 @@ impl<'a> RegisteredRequestBuilder<'a> {
                             .send(Action::Remove(sequence_number))
                             .ok();
                     })
-                    .map_err(|_| Error::timeout(sequence_number, timeout))?
+                    .map_err(|_| Error::response_timeout(sequence_number, timeout))?
                     .map_err(|_| Error::ConnectionClosed),
             }
         };

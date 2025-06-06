@@ -244,7 +244,7 @@ async fn request_timeout_should_remove_pending_response() {
         .response_timeout(Duration::from_millis(500))
         .connected(client);
 
-    let Error::Timeout {
+    let Error::ResponseTimeout {
         sequence_number, ..
     } = client.submit_sm(SubmitSm::default()).await.unwrap_err()
     else {

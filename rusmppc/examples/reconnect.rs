@@ -37,12 +37,11 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                         .addr_ton(Ton::Unknown)
                         .addr_npi(Npi::Unknown)
                         .address_range(COctetString::empty())
-                        .build()
-                        .clone(),
+                        .build(),
                 )
                 .await?;
 
-            Ok::<(), Box<dyn std::error::Error + Send + Sync + 'static>>(())
+            Ok(())
         })
         .delay(Duration::from_secs(5))
         .max_retries(5)

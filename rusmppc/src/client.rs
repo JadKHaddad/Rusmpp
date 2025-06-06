@@ -155,6 +155,25 @@ impl Client {
         Ok(())
     }
 
+    /// Checks if the connection is active.
+    ///
+    /// The connection is considered active if:
+    ///  - [`Client::close()`] was never called.
+    ///  - The connection did not encounter an error.
+    ///  - The connection can receive requests form the client.
+    ///
+    /// # Note
+    ///
+    /// If the connection is not active, this does not mean that it is closed.
+    /// The connection may be in the process of closing.
+    ///
+    /// To check if the connection is closed, use [`Client::is_closed()`].
+    pub fn is_active(&self) -> bool {
+        // If the connection is not active, closing or errored,
+        // it will close the actions channel and stop receiving actions, this call would fail.
+        self.inner.actions.send(Action::Ping).is_ok()
+    }
+
     /// Returns a vector of pending responses.
     pub async fn pending_responses(&self) -> Result<Vec<u32>, Error> {
         let (pending_responses, ack) = PendingResponses::new();

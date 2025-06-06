@@ -90,7 +90,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing::info!("Sending SubmitSm wit a custom timeout");
 
     let response = client
-        .timeout(Duration::from_secs(30))
+        .response_timeout(Duration::from_secs(30))
         .submit_sm(submit.clone())
         .await?;
 
@@ -100,7 +100,10 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     tracing::info!("Sending SubmitSm without a timeout");
 
-    let response = client.no_timeout().submit_sm(submit.clone()).await?;
+    let response = client
+        .no_response_timeout()
+        .submit_sm(submit.clone())
+        .await?;
 
     tracing::info!(?response, "Got SubmitSmResp");
 

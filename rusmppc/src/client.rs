@@ -192,12 +192,12 @@ impl Client {
     }
 
     /// Sets the response timeout for the next request.
-    pub fn timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
         self.registered_request().response_timeout(timeout)
     }
 
     /// Disables the response timeout for the next request.
-    pub fn no_timeout(&self) -> RegisteredRequestBuilder {
+    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
         self.registered_request().no_response_timeout()
     }
 

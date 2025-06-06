@@ -8,10 +8,6 @@ pub enum Action {
     Remove(u32),
     /// The connection will stop reading from the server, stop time keeping, close the requests channel, flush pending requests and terminate.
     Close(CloseRequest),
-    /// Sent from the client to the connection to check if the connection is closed or not.
-    ///
-    /// The client would fail to send this action through the channel if the connection is closed.
-    Ping,
     /// Retrieves pending responses from the connection.
     PendingResponses(PendingResponses),
 }

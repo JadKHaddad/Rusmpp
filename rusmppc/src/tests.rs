@@ -486,7 +486,7 @@ async fn enquire_link_timeout_busy_concurrent_should_close_connection() {
     let now = Instant::now();
 
     loop {
-        if !client.is_active() {
+        if client.is_closed() {
             break;
         }
 

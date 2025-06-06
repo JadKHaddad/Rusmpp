@@ -17,16 +17,21 @@ use rusmpp::{
 use rusmppc::{ConnectionBuilder, Event, reconnect::ReconnectingEvent};
 use tokio::net::TcpStream;
 
+// TODO: on connect is being called to late and not after the connect in the builder
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter("reconnect=info,rusmpp=off,rusmppc=debug")
+        .with_env_filter("reconnect=info,rusmpp=off,rusmppc=trace")
         .init();
 
     let (client, mut events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(5))
         .response_timeout(Duration::from_secs(2))
-        .reconnect_with(|| TcpStream::connect("127.0.0.1:2775"))
+        .reconnect_with(|| async move {
+            // tokio::time::sleep(Duration::from_secs(2)).await;
+            TcpStream::connect("127.0.0.1:2775").await
+        })
         .on_connect(|client| async move {
             client
                 .bind_transceiver(
@@ -47,6 +52,8 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .max_retries(5)
         .connect()
         .await?;
+
+    tracing::info!("Connected");
 
     let client_clone = client.clone();
 
@@ -76,8 +83,6 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     });
 
     for _ in 0..1000 {
-        // TODO: what happens if clients send requests while the connection is connecting or running the on_connect callback
-        // Test with sleep in the on_connect callback. Maybe we have to drain the actions.
         if let Err(err) = client
             .submit_sm(
                 SubmitSm::builder()
@@ -96,7 +101,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             tracing::error!(?err, "Failed to send SubmitSm");
         }
 
-        tokio::time::sleep(Duration::from_secs(2)).await;
+        tokio::time::sleep(Duration::from_secs(1)).await;
     }
 
     client.unbind().await?;

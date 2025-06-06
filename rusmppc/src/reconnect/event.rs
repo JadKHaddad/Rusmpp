@@ -6,7 +6,6 @@ use super::error::ReconnectingError;
 pub enum ReconnectingEvent {
     Connection(Event),
     Error(ReconnectingError),
-    OnConnectError(Box<dyn std::error::Error + Send + Sync + 'static>),
     Reconnected,
     Disconnected,
 }

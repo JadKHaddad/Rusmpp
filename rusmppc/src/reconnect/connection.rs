@@ -1,6 +1,6 @@
 //! Automatically reconnecting connection.
 
-use std::time::Duration;
+use std::{ops::ControlFlow, time::Duration};
 
 use futures::StreamExt;
 use tokio::{
@@ -104,12 +104,30 @@ where
         let mut close = false;
 
         'outer: loop {
-            match connector.connect().await {
+            let connect = connector.connect();
+
+            tokio::pin!(connect);
+
+            let result = 'connecting: loop {
+                tokio::select! {
+                    result = &mut connect => {
+                        break 'connecting result;
+                    }
+                    action = actions.next() => {
+                        if let ControlFlow::Break(()) = action_while_reconnecting(action) {
+                            break 'outer
+                        }
+                    }
+                }
+            };
+
+            match result {
                 Err(err) => {
                     tracing::error!(target: TARGET, ?err, "Failed to connect");
 
                     let _ = events.send(ReconnectingEvent::Connection(Event::error(err)));
                 }
+
                 Ok((
                     connect_type,
                     (connection, _watch, connection_actions, mut connection_events),
@@ -140,9 +158,14 @@ where
                             if let Err(err) = result {
                                 tracing::error!(target: TARGET, ?err, "Failed to execute on_connect callback");
 
-                                let _ = events.send(ReconnectingEvent::OnConnectError(err));
+                                let _ = events.send(ReconnectingEvent::Error(ReconnectingError::OnConnectError(err)));
 
                                 continue 'outer;
+                            }
+                        }
+                        action = actions.next() => {
+                            if let ControlFlow::Break(()) = action_while_reconnecting(action) {
+                                break 'outer
                             }
                         }
                     }
@@ -153,14 +176,14 @@ where
 
                     retries = 0;
 
-                    'inner: loop {
+                    'connected: loop {
                         tokio::select! {
                             _ = &mut connection => {
                                 tracing::warn!(target: TARGET, "Disconnected");
 
                                 let _ = events.send(ReconnectingEvent::Disconnected);
 
-                                break 'inner;
+                                break 'connected;
                             }
                             event = connection_events.next() => {
                                 // If event is None, the connection is closed.
@@ -219,28 +242,8 @@ where
                         break 'delay;
                     }
                     action = actions.next() => {
-                        match action {
-                            None => {
-                                tracing::debug!(target: TARGET, "Client dropped");
-
-                                break 'outer;
-                            }
-                            Some(action) => match action {
-                                Action::Request(request) => {
-                                    let _ = request.send_ack(Err(Error::ConnectionClosed));
-                                },
-                                Action::Remove(_) => {
-                                    // Don't care, it was not there any ways
-                                },
-                                Action::Close(request) => {
-                                    let _ = request.ack.send(());
-
-                                    break 'outer;
-                                },
-                                Action::PendingResponses(request) => {
-                                    let _ = request.ack.send(Err(Error::ConnectionClosed));
-                                },
-                            }
+                        if let ControlFlow::Break(()) = action_while_reconnecting(action) {
+                            break 'outer
                         }
                     }
                 }
@@ -248,5 +251,37 @@ where
 
             tracing::debug!(target: TARGET, current_retry=retries, max_retries=?self.max_retries, "Reconnecting");
         }
+    }
+}
+
+fn action_while_reconnecting(action: Option<Action>) -> ControlFlow<()> {
+    match action {
+        None => {
+            tracing::debug!(target: TARGET, "Client dropped");
+
+            ControlFlow::Break(())
+        }
+        Some(action) => match action {
+            Action::Request(request) => {
+                let _ = request.send_ack(Err(Error::ConnectionClosed));
+
+                ControlFlow::Continue(())
+            }
+            Action::Remove(_) => {
+                // Don't care, it was not there any ways
+
+                ControlFlow::Continue(())
+            }
+            Action::Close(request) => {
+                let _ = request.ack.send(());
+
+                ControlFlow::Break(())
+            }
+            Action::PendingResponses(request) => {
+                let _ = request.ack.send(Err(Error::ConnectionClosed));
+
+                ControlFlow::Continue(())
+            }
+        },
     }
 }

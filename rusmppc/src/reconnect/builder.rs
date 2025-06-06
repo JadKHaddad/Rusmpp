@@ -6,7 +6,7 @@ use tokio::io::{AsyncRead, AsyncWrite};
 use crate::{
     Client, Connection, ConnectionBuilder,
     error::Error,
-    reconnect::{ReconnectingEvent, connection::ReconnectingConnection},
+    reconnect::{ReconnectingEvent, connection::ReconnectingConnection, error::ReconnectingError},
 };
 
 #[derive(Debug)]
@@ -35,7 +35,7 @@ where
             Client,
             impl Stream<Item = ReconnectingEvent> + Unpin + 'static,
         ),
-        Error,
+        ReconnectingError,
     > {
         let stream = (self.connect)().await.map_err(Error::Connect)?;
 

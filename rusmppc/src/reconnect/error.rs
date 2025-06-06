@@ -10,6 +10,8 @@ pub enum ReconnectingError {
         /// The maximum number of retries.
         max_retries: usize,
     },
+    #[error("Error while executing on_connect callback")]
+    OnConnectError(Box<dyn std::error::Error + Send + Sync + 'static>),
 }
 
 impl ReconnectingError {

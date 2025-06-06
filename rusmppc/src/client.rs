@@ -164,7 +164,7 @@ impl Client {
             .send(Action::PendingResponses(pending_responses))
             .map_err(|_| Error::ConnectionClosed)?;
 
-        ack.await.map_err(|_| Error::ConnectionClosed)
+        ack.await.map_err(|_| Error::ConnectionClosed)?
     }
 
     /// Sets the command status for the next request.

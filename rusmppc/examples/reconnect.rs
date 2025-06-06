@@ -76,13 +76,8 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     });
 
     for _ in 0..1000 {
-        // If the connection is in a reconnecting state,
-        // client requests will wait for the connection to be established again
-        // and the on_connect callback to be executed successfully.
-        // This means that waiting clients will continue executing commands in a bound state
-        // as defined in the on_connect callback.
-        // Note: there is no timeout for waiting for the connection to be established again.
-        // TODO: consider adding a request timeout.
+        // TODO: what happens if clients send requests while the connection is connecting or running the on_connect callback
+        // Test with sleep in the on_connect callback. Maybe we have to drain the actions.
         if let Err(err) = client
             .submit_sm(
                 SubmitSm::builder()
@@ -101,7 +96,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
             tracing::error!(?err, "Failed to send SubmitSm");
         }
 
-        tokio::time::sleep(Duration::from_secs(10)).await;
+        tokio::time::sleep(Duration::from_secs(2)).await;
     }
 
     client.unbind().await?;

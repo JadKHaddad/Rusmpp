@@ -210,7 +210,41 @@ where
 
             tracing::debug!(target: TARGET, delay=?self.delay, "Reconnecting after delay");
 
-            tokio::time::sleep(self.delay).await;
+            let sleep = tokio::time::sleep(self.delay);
+            tokio::pin!(sleep);
+
+            'delay: loop {
+                tokio::select! {
+                    _ = &mut sleep => {
+                        break 'delay;
+                    }
+                    action = actions.next() => {
+                        match action {
+                            None => {
+                                tracing::debug!(target: TARGET, "Client dropped");
+
+                                break 'outer;
+                            }
+                            Some(action) => match action {
+                                Action::Request(request) => {
+                                    let _ = request.send_ack(Err(Error::ConnectionClosed));
+                                },
+                                Action::Remove(_) => {
+                                    // Don't care, it was not there any ways
+                                },
+                                Action::Close(request) => {
+                                    let _ = request.ack.send(());
+
+                                    break 'outer;
+                                },
+                                Action::PendingResponses(request) => {
+                                    let _ = request.ack.send(Err(Error::ConnectionClosed));
+                                },
+                            }
+                        }
+                    }
+                }
+            }
 
             tracing::debug!(target: TARGET, current_retry=retries, max_retries=?self.max_retries, "Reconnecting");
         }

@@ -272,7 +272,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                     .map(|(sequence_number, _)| *sequence_number)
                                     .collect();
 
-                                let _ = pending_responses.ack.send(pending);
+                                let _ = pending_responses.ack.send(Ok(pending));
                             }
                             Action::Request(request) => {
                                 tracing::trace!(target: CONN,

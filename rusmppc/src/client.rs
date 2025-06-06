@@ -140,7 +140,7 @@ impl Client {
     /// # Note
     ///
     /// If the connection is not closed, this does not mean that it is active.
-    /// The connection may be the process of closing.
+    /// The connection may be in the process of closing.
     ///
     /// To check if the connection is active, use [`Client::is_active()`].
     pub async fn closed(&self) {
@@ -165,11 +165,11 @@ impl Client {
     /// # Note
     ///
     /// If the connection is not active, this does not mean that it is closed.
-    /// The connection may be the process of closing.
+    /// The connection may be in the process of closing.
     ///
     /// To check if the connection is closed, use [`Client::is_closed()`].
     pub fn is_active(&self) -> bool {
-        // If the connection no active, closing or errored,
+        // If the connection is not active, closing or errored,
         // it will close the actions channel and stop receiving actions, this call would fail.
         self.inner.actions.send(Action::Ping).is_ok()
     }

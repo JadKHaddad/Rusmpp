@@ -1,12 +1,6 @@
-//! Run with
-//!
-//! ```not_rust
-//! cargo run -p rusmppc --example reconnect
-//! ```
-//!
-
 use std::{str::FromStr, time::Duration};
 
+use crate::{ConnectionBuilder, Event, reconnect::event::ReconnectingEvent};
 use futures::StreamExt;
 use rusmpp::{
     CommandId,
@@ -14,12 +8,11 @@ use rusmpp::{
     types::{COctetString, OctetString},
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
 };
-use rusmppc::{ConnectionBuilder, Event, reconnect::ReconnectingEvent};
 use tokio::net::TcpStream;
 
 // TODO: on connect is being called to late and not after the connect in the builder
+// The whole reconnect thing feels like hacking
 
-#[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter("reconnect=info,rusmpp=off,rusmppc=trace")
@@ -113,4 +106,9 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     events.await?;
 
     Ok(())
+}
+
+#[tokio::test]
+async fn test() {
+    main().await.unwrap();
 }

@@ -1,13 +1,13 @@
 use std::time::Duration;
 
-use futures::{Stream, future::Ready};
+use futures::Stream;
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
     net::{TcpStream, ToSocketAddrs},
 };
 
-use crate::{Client, Connection, Event, error::Error, reconnect::ReconnectingConnectionBuilder};
+use crate::{Client, Connection, Event, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -102,21 +102,6 @@ impl ConnectionBuilder {
         tokio::spawn(connection);
 
         (client, events)
-    }
-
-    pub fn reconnect_with<S, F, Fut>(
-        self,
-        connect: F,
-    ) -> ReconnectingConnectionBuilder<
-        F,
-        fn(Client) -> Ready<Result<(), Box<dyn std::error::Error + Send + Sync + 'static>>>,
-    >
-    where
-        S: AsyncRead + AsyncWrite + Send + Sync + Unpin + 'static,
-        F: Fn() -> Fut + Send + Clone + 'static,
-        Fut: Future<Output = Result<S, std::io::Error>> + Send,
-    {
-        ReconnectingConnectionBuilder::new(self, connect, |_| futures::future::ready(Ok(())))
     }
 }
 

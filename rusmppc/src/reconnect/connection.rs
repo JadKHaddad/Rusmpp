@@ -15,7 +15,7 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 use crate::{
     Action, Client, Connection, Event,
     error::Error,
-    reconnect::{ReconnectingEvent, connector::ConnectType, error::ReconnectingError},
+    reconnect::{connector::ConnectType, error::ReconnectingError, event::ReconnectingEvent},
 };
 
 use super::connector::Connector;

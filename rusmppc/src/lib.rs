@@ -119,5 +119,4 @@ pub(crate) use response::PendingResponses;
 #[cfg(test)]
 mod tests;
 
-pub mod factory;
-pub mod reconnect;
+mod factory;

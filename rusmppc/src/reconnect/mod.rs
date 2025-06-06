@@ -1,11 +1,12 @@
-pub(crate) mod connection;
+mod connection;
 
 mod connector;
 
-pub mod error;
+mod error;
 
 mod event;
-pub use event::ReconnectingEvent;
 
 mod builder;
-pub use builder::ReconnectingConnectionBuilder;
+
+#[cfg(test)]
+mod tests;

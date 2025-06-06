@@ -1,30 +1,31 @@
 use std::{
-    pin::Pin,
-    sync::Arc,
-    task::{Context, Poll},
+    sync::{
+        Arc,
+        atomic::{AtomicU32, Ordering},
+    },
     time::Duration,
 };
 
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp, SubmitSm, SubmitSmResp},
-    session::SessionState,
+    pdus::{
+        BindReceiver, BindReceiverResp, BindTransceiver, BindTransceiverResp, BindTransmitter,
+        BindTransmitterResp, DeliverSmResp, SubmitSm, SubmitSmResp,
+    },
+    values::InterfaceVersion,
 };
-use tokio::sync::mpsc::UnboundedSender;
-use tokio_util::sync::CancellationToken;
+use tokio::sync::{mpsc::UnboundedSender, watch};
 
 use crate::{
-    CommandExt, ConnectionBuilder,
-    action::{Action, SendCommand, SendCommandNoResponse},
-    error::Error,
-    session_state::SessionStateHolder,
+    Action, CloseRequest, CommandExt, ConnectionBuilder, PendingResponses, RegisteredRequest,
+    RequestFutureGuard, UnregisteredRequest, error::Error,
 };
+
+const TARGET: &str = "rusmppc::client";
 
 /// `SMPP` Client.
 ///
 /// The client is a handle to communicate with the `SMPP` server through a managed connection in the background.
-///
-/// When all clients are dropped, an [`Unbind`](Pdu::Unbind) command is sent to the server, and the connection is closed.
 #[derive(Debug)]
 pub struct Client {
     inner: Arc<ClientInner>,
@@ -39,19 +40,18 @@ impl Clone for Client {
 }
 
 impl Client {
-    /// Creates a new `SMPP` client.
     pub(crate) fn new(
-        actions_sink: UnboundedSender<Action>,
-        response_timeout: Duration,
-        session_state_holder: SessionStateHolder,
-        termination_token: CancellationToken,
+        actions: UnboundedSender<Action>,
+        response_timeout: Option<Duration>,
+        check_interface_version: bool,
+        watch: watch::Sender<()>,
     ) -> Self {
         Self {
             inner: Arc::new(ClientInner::new(
-                actions_sink,
+                actions,
                 response_timeout,
-                session_state_holder,
-                termination_token,
+                check_interface_version,
+                watch,
             )),
         }
     }
@@ -61,40 +61,33 @@ impl Client {
         ConnectionBuilder::new()
     }
 
-    /// Returns the current session state of the client.
-    pub fn session_state(&self) -> SessionState {
-        self.inner.session_state()
-    }
-
-    /// Returns the current sequence number of the client.
-    pub fn sequence_number(&self) -> u32 {
-        self.inner.sequence_number()
-    }
-
-    pub(crate) async fn bind_transmitter(
+    /// Sends a [`BindTransmitter`] command to the server and waits for a successful [`BindTransmitterResp`].
+    pub async fn bind_transmitter(
         &self,
         bind: impl Into<BindTransmitter>,
-    ) -> Result<Command, Error> {
-        self.inner.bind_transmitter(bind).await
+    ) -> Result<BindTransmitterResp, Error> {
+        self.registered_request().bind_transmitter(bind).await
     }
 
-    pub(crate) async fn bind_receiver(
+    /// Sends a [`BindReceiver`] command to the server and waits for a successful [`BindReceiverResp`].
+    pub async fn bind_receiver(
         &self,
         bind: impl Into<BindReceiver>,
-    ) -> Result<Command, Error> {
-        self.inner.bind_receiver(bind).await
+    ) -> Result<BindReceiverResp, Error> {
+        self.registered_request().bind_receiver(bind).await
     }
 
-    pub(crate) async fn bind_transceiver(
+    /// Sends a [`BindTransceiver`] command to the server and waits for a successful [`BindTransceiverResp`].
+    pub async fn bind_transceiver(
         &self,
         bind: impl Into<BindTransceiver>,
-    ) -> Result<Command, Error> {
-        self.inner.bind_transceiver(bind).await
+    ) -> Result<BindTransceiverResp, Error> {
+        self.registered_request().bind_transceiver(bind).await
     }
 
-    /// Sends an [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
+    /// Sends a [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
     pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
-        self.inner.submit_sm(submit_sm).await
+        self.registered_request().submit_sm(submit_sm).await
     }
 
     /// Sends a [`DeliverSmResp`] command to the server.
@@ -103,286 +96,510 @@ impl Client {
         sequence_number: u32,
         deliver_sm_resp: impl Into<DeliverSmResp>,
     ) -> Result<(), Error> {
-        self.inner
+        self.unregistered_request()
             .deliver_sm_resp(sequence_number, deliver_sm_resp)
             .await
     }
 
-    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for an [`UnbindResp`](Pdu::UnbindResp) and terminates the connection.
-    ///
-    /// - The [`UnbindResp`](Pdu::UnbindResp) status is not checked, the connection is closed regardless of the response status.
-    /// - If the [`UnbindResp`](Pdu::UnbindResp) times out, the connection is closed anyway.
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for a successful [`UnbindResp`](Pdu::UnbindResp).
     pub async fn unbind(&self) -> Result<(), Error> {
-        self.inner.unbind().await
+        self.registered_request().unbind().await
+    }
+
+    /// Sends an [`UnbindResp`](Pdu::UnbindResp) command to the server.
+    pub async fn unbind_resp(&self, sequence_number: u32) -> Result<(), Error> {
+        self.unregistered_request()
+            .unbind_resp(sequence_number)
+            .await
     }
 
     /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
     pub async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
-        self.inner.generic_nack(sequence_number).await
+        self.unregistered_request()
+            .generic_nack(sequence_number)
+            .await
     }
 
-    /// Wait for the connection to be terminated.
-    pub async fn terminated(&self) {
-        self.inner.terminated().await;
+    /// Closes the connection.
+    ///
+    /// This method completes, when the connection has registered the close request.
+    /// The connection will stop reading from the server, stop time keeping, close the requests channel, flush pending requests and terminate.
+    ///
+    /// After calling this method, clients can no longer send requests to the server.
+    pub async fn close(&self) -> Result<(), Error> {
+        self.inner.close().await
+    }
+
+    /// Checks if the connection is closed.
+    pub fn is_closed(&self) -> bool {
+        self.inner.watch.is_closed()
+    }
+
+    /// Completes when the connection is closed.
+    ///
+    /// # Note
+    ///
+    /// If the connection is not closed, this does not mean that it is active.
+    /// The connection may be in the process of closing.
+    ///
+    /// To check if the connection is active, use [`Client::is_active()`].
+    pub async fn closed(&self) {
+        self.inner.watch.closed().await
+    }
+
+    /// Closes the connection and waits for it to terminate.
+    pub async fn close_and_wait(&self) -> Result<(), Error> {
+        self.close().await?;
+        self.closed().await;
+
+        Ok(())
+    }
+
+    /// Checks if the connection is active.
+    ///
+    /// The connection is considered active if:
+    ///  - [`Client::close()`] was never called.
+    ///  - The connection did not encounter an error.
+    ///  - The connection can receive requests form the client.
+    ///
+    /// # Note
+    ///
+    /// If the connection is not active, this does not mean that it is closed.
+    /// The connection may be in the process of closing.
+    ///
+    /// To check if the connection is closed, use [`Client::is_closed()`].
+    pub fn is_active(&self) -> bool {
+        // If the connection is not active, closing or errored,
+        // it will close the actions channel and stop receiving actions, this call would fail.
+        self.inner.actions.send(Action::Ping).is_ok()
+    }
+
+    /// Returns a vector of pending responses.
+    pub async fn pending_responses(&self) -> Result<Vec<u32>, Error> {
+        let (pending_responses, ack) = PendingResponses::new();
+
+        self.inner
+            .actions
+            .send(Action::PendingResponses(pending_responses))
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        ack.await.map_err(|_| Error::ConnectionClosed)?
+    }
+
+    /// Sets the command status for the next request.
+    pub const fn status(&self, status: CommandStatus) -> UnregisteredRequestBuilder {
+        self.unregistered_request().status(status)
+    }
+
+    /// Sets the response timeout for the next request.
+    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+        self.registered_request().response_timeout(timeout)
+    }
+
+    /// Disables the response timeout for the next request.
+    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
+        self.registered_request().no_response_timeout()
+    }
+
+    /// Sends a request without waiting for a response.
+    pub const fn no_wait(&self) -> NoWaitRequestBuilder {
+        self.no_wait_request()
+    }
+
+    const fn unregistered_request(&self) -> UnregisteredRequestBuilder {
+        UnregisteredRequestBuilder::new(self, CommandStatus::EsmeRok)
+    }
+
+    fn registered_request(&self) -> RegisteredRequestBuilder {
+        RegisteredRequestBuilder::new(self, CommandStatus::EsmeRok)
+    }
+
+    const fn no_wait_request(&self) -> NoWaitRequestBuilder {
+        NoWaitRequestBuilder::new(self, CommandStatus::EsmeRok)
     }
 }
 
 #[derive(Debug)]
 struct ClientInner {
-    actions_sink: UnboundedSender<Action>,
-    response_timeout: Duration,
-    session_state_holder: SessionStateHolder,
-    /// Await the termination token to ensure that the connection tasks were terminated
-    termination_token: CancellationToken,
+    actions: UnboundedSender<Action>,
+    response_timeout: Option<Duration>,
+    sequence_number: AtomicU32,
+    check_interface_version: bool,
+    watch: watch::Sender<()>,
 }
 
 impl ClientInner {
     const fn new(
-        actions_sink: UnboundedSender<Action>,
-        response_timeout: Duration,
-        session_state_holder: SessionStateHolder,
-        termination_token: CancellationToken,
+        actions: UnboundedSender<Action>,
+        response_timeout: Option<Duration>,
+        check_interface_version: bool,
+        watch: watch::Sender<()>,
     ) -> Self {
         Self {
-            actions_sink,
+            actions,
             response_timeout,
-            session_state_holder,
-            termination_token,
+            sequence_number: AtomicU32::new(1),
+            check_interface_version,
+            watch,
         }
     }
 }
 
 impl ClientInner {
-    fn sequence_number(&self) -> u32 {
-        self.session_state_holder.sequence_number()
-    }
-
     fn next_sequence_number(&self) -> u32 {
-        self.session_state_holder.next_sequence_number()
+        self.sequence_number.fetch_add(2, Ordering::Relaxed)
     }
 
-    fn session_state(&self) -> SessionState {
-        self.session_state_holder.session_state()
+    async fn close(&self) -> Result<(), Error> {
+        let (request, ack) = CloseRequest::new();
+
+        self.actions
+            .send(Action::Close(request))
+            .map_err(|_| Error::ConnectionClosed)?;
+
+        ack.await.map_err(|_| Error::ConnectionClosed)
+    }
+}
+
+#[derive(Debug)]
+pub struct UnregisteredRequestBuilder<'a> {
+    client: &'a Client,
+    status: CommandStatus,
+}
+
+impl<'a> UnregisteredRequestBuilder<'a> {
+    const fn new(client: &'a Client, status: CommandStatus) -> Self {
+        Self { client, status }
     }
 
-    fn set_session_state(&self, session_state: SessionState) {
-        self.session_state_holder.set_session_state(session_state)
+    fn registered_request(&self) -> RegisteredRequestBuilder {
+        RegisteredRequestBuilder::new(self.client, self.status)
     }
 
-    fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
-        let sequence_number = self.next_sequence_number();
-
-        let future = async move {
-            let command = Command::builder()
-                .status(CommandStatus::EsmeRok)
-                .sequence_number(sequence_number)
-                .pdu(pdu.into());
-
-            let (action, response) = SendCommand::new(command);
-
-            self.actions_sink
-                .send(Action::SendCommand(action))
-                .map_err(|_| Error::ConnectionClosed)?;
-
-            tokio::time::timeout(self.response_timeout, response)
-                .await
-                .map_err(|_| Error::Timeout)
-                .inspect_err(|_| {
-                    let _ = self
-                        .actions_sink
-                        .send(Action::RemovePendingResponse(sequence_number));
-                })?
-                .map_err(|_| Error::ConnectionClosed)?
-        };
-
-        RequestFuture::new(&self.actions_sink, sequence_number, future)
+    const fn no_wait_request(&self) -> NoWaitRequestBuilder {
+        NoWaitRequestBuilder::new(self.client, self.status)
     }
 
-    async fn request_without_response(
-        &self,
+    pub const fn status(mut self, status: CommandStatus) -> Self {
+        self.status = status;
+        self
+    }
+
+    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+        self.registered_request().response_timeout(timeout)
+    }
+
+    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
+        self.registered_request().no_response_timeout()
+    }
+
+    pub const fn no_wait(&self) -> NoWaitRequestBuilder {
+        self.no_wait_request()
+    }
+
+    async fn unregistered_request(
+        self,
         pdu: impl Into<Pdu>,
-        sequence_number: Option<u32>,
+        sequence_number: u32,
     ) -> Result<(), Error> {
-        let sequence_number = sequence_number.unwrap_or(self.next_sequence_number());
-
         let command = Command::builder()
-            .status(CommandStatus::EsmeRok)
+            .status(self.status)
             .sequence_number(sequence_number)
             .pdu(pdu.into());
 
-        let (action, response) = SendCommandNoResponse::new(command);
+        let sequence_number = command.sequence_number();
+        let status = command.status();
+        let id = command.id();
 
-        self.actions_sink
-            .send(Action::SendCommandNoResponse(action))
+        tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Sending request");
+
+        let (request, ack) = UnregisteredRequest::new(command);
+
+        self.client
+            .inner
+            .actions
+            .send(Action::unregistered_request(request))
             .map_err(|_| Error::ConnectionClosed)?;
 
+        tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Waiting for ack");
+
         // No need to timeout here, since we are not waiting for a response from the server.
-        response.await.map_err(|_| Error::ConnectionClosed)?
+        ack.await.map_err(|_| Error::ConnectionClosed)?
     }
 
-    async fn bind_transmitter(&self, bind: impl Into<BindTransmitter>) -> Result<Command, Error> {
-        let response = self.request(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransmitterResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTx);
-
-        Ok(response)
+    /// Sends a [`DeliverSmResp`] command to the server.
+    pub async fn deliver_sm_resp(
+        self,
+        sequence_number: u32,
+        deliver_sm_resp: impl Into<DeliverSmResp>,
+    ) -> Result<(), Error> {
+        self.unregistered_request(deliver_sm_resp.into(), sequence_number)
+            .await
     }
 
-    async fn bind_receiver(&self, bind: impl Into<BindReceiver>) -> Result<Command, Error> {
-        let response = self.request(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindReceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundRx);
-
-        Ok(response)
+    /// Sends an [`UnbindResp`](Pdu::UnbindResp) command to the server.
+    pub async fn unbind_resp(self, sequence_number: u32) -> Result<(), Error> {
+        self.unregistered_request(Pdu::UnbindResp, sequence_number)
+            .await
     }
 
-    async fn bind_transceiver(&self, bind: impl Into<BindTransceiver>) -> Result<Command, Error> {
-        let response = self.request(bind.into()).await?;
-
-        let response = response
-            .ok_and_matches(CommandId::BindTransceiverResp)
-            .map_err(Error::unexpected_response)?;
-
-        self.set_session_state(SessionState::BoundTrx);
-
-        Ok(response)
+    /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
+    pub async fn generic_nack(self, sequence_number: u32) -> Result<(), Error> {
+        self.unregistered_request(Pdu::GenericNack, sequence_number)
+            .await
     }
 
-    async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
-        let session_state = self.session_state();
+    /// Sends a [`BindTransmitter`] command to the server and waits for a successful [`BindTransmitterResp`].
+    pub async fn bind_transmitter(
+        &self,
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<BindTransmitterResp, Error> {
+        self.registered_request().bind_transmitter(bind).await
+    }
 
-        let response = match session_state {
-            SessionState::BoundTx | SessionState::BoundTrx => {
-                self.request(submit_sm.into()).await?
+    /// Sends a [`BindReceiver`] command to the server and waits for a successful [`BindReceiverResp`].
+    pub async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<BindReceiverResp, Error> {
+        self.registered_request().bind_receiver(bind).await
+    }
+
+    /// Sends a [`BindTransceiver`] command to the server and waits for a successful [`BindTransceiverResp`].
+    pub async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<BindTransceiverResp, Error> {
+        self.registered_request().bind_transceiver(bind).await
+    }
+
+    /// Sends a [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+        self.registered_request().submit_sm(submit_sm).await
+    }
+
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for a successful [`UnbindResp`](Pdu::UnbindResp).
+    pub async fn unbind(&self) -> Result<(), Error> {
+        self.registered_request().unbind().await
+    }
+}
+
+#[derive(Debug)]
+pub struct RegisteredRequestBuilder<'a> {
+    client: &'a Client,
+    status: CommandStatus,
+    response_timeout: Option<Duration>,
+}
+
+impl<'a> RegisteredRequestBuilder<'a> {
+    fn new(client: &'a Client, status: CommandStatus) -> Self {
+        Self {
+            client,
+            status,
+            response_timeout: client.inner.response_timeout,
+        }
+    }
+
+    pub const fn status(mut self, status: CommandStatus) -> Self {
+        self.status = status;
+        self
+    }
+
+    pub fn response_timeout(mut self, timeout: Duration) -> Self {
+        self.response_timeout = Some(timeout);
+        self
+    }
+
+    pub fn no_response_timeout(mut self) -> Self {
+        self.response_timeout = None;
+        self
+    }
+
+    fn check_interface_version(&self, interface_version: InterfaceVersion) -> Result<(), Error> {
+        if self.client.inner.check_interface_version
+            && !matches!(interface_version, InterfaceVersion::Smpp5_0)
+        {
+            return Err(Error::unsupported_interface_version(interface_version));
+        }
+
+        Ok(())
+    }
+
+    fn request(&self, pdu: impl Into<Pdu>) -> impl Future<Output = Result<Command, Error>> {
+        let sequence_number = self.client.inner.next_sequence_number();
+
+        let future = async move {
+            let command = Command::builder()
+                .status(self.status)
+                .sequence_number(sequence_number)
+                .pdu(pdu.into());
+
+            let sequence_number = command.sequence_number();
+            let status = command.status();
+            let id = command.id();
+
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Sending request");
+
+            let (request, ack, response) = RegisteredRequest::new(command);
+
+            self.client
+                .inner
+                .actions
+                .send(Action::registered_request(request))
+                .map_err(|_| Error::ConnectionClosed)?;
+
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, "Waiting for ack");
+
+            ack.await.map_err(|_| Error::ConnectionClosed)??;
+
+            tracing::trace!(target: TARGET, sequence_number, ?status, ?id, response_timeout = ?self.client.inner.response_timeout, "Starting response timer");
+
+            match self.client.inner.response_timeout {
+                None => response.await.map_err(|_| Error::ConnectionClosed),
+                Some(timeout) => tokio::time::timeout(timeout, response)
+                    .await
+                    .inspect_err(|_| {
+                        self.client
+                            .inner
+                            .actions
+                            .send(Action::Remove(sequence_number))
+                            .ok();
+                    })
+                    .map_err(|_| Error::response_timeout(sequence_number, timeout))?
+                    .map_err(|_| Error::ConnectionClosed),
             }
-            SessionState::Closed => {
-                return Err(Error::ConnectionClosed);
-            }
-            session_state => return Err(Error::InvalidSessionState { session_state }),
         };
 
-        response
+        RequestFutureGuard::new(&self.client.inner.actions, sequence_number, future)
+    }
+
+    async fn request_extract<R>(
+        &self,
+        pdu: impl Into<Pdu>,
+        extract: fn(Pdu) -> Result<R, Pdu>,
+    ) -> Result<R, Error> {
+        self.request(pdu.into())
+            .await?
             .ok()
             .map_err(Error::unexpected_response)
             .map(Command::into_parts)
-            .map(|(id, status, sequence_number, pdu)| match pdu {
-                Some(Pdu::SubmitSmResp(response)) => Ok(response),
-                _ => Err(Command::from_parts(id, status, sequence_number, pdu)),
+            .map(|(id, status, sequence_number, pdu)| {
+                pdu.ok_or(Command::from_parts(id, status, sequence_number, None))
+                    .and_then(|pdu| {
+                        extract(pdu).map_err(|pdu| {
+                            Command::from_parts(id, status, sequence_number, Some(pdu))
+                        })
+                    })
             })?
             .map_err(Error::unexpected_response)
     }
 
-    async fn deliver_sm_resp(
+    /// Sends a [`BindTransmitter`] command to the server and waits for a successful [`BindTransmitterResp`].
+    pub async fn bind_transmitter(
         &self,
-        sequence_number: u32,
-        deliver_sm_resp: impl Into<DeliverSmResp>,
-    ) -> Result<(), Error> {
-        let session_state = self.session_state();
+        bind: impl Into<BindTransmitter>,
+    ) -> Result<BindTransmitterResp, Error> {
+        let bind: BindTransmitter = bind.into();
 
-        match session_state {
-            SessionState::BoundRx | SessionState::BoundTrx => {
-                // If BoundTx, we should have not received a DeliverSm
-                self.request_without_response(deliver_sm_resp.into(), Some(sequence_number))
-                    .await
-            }
-            SessionState::Closed => Err(Error::ConnectionClosed),
-            session_state => Err(Error::InvalidSessionState { session_state }),
-        }
+        self.check_interface_version(bind.interface_version)?;
+
+        self.request_extract(bind, |pdu| match pdu {
+            Pdu::BindTransmitterResp(response) => Ok(response),
+            _ => Err(pdu),
+        })
+        .await
     }
 
-    async fn unbind(&self) -> Result<(), Error> {
-        let session_state = self.session_state();
+    /// Sends a [`BindReceiver`] command to the server and waits for a successful [`BindReceiverResp`].
+    pub async fn bind_receiver(
+        &self,
+        bind: impl Into<BindReceiver>,
+    ) -> Result<BindReceiverResp, Error> {
+        let bind: BindReceiver = bind.into();
 
-        let response = match session_state {
-            SessionState::BoundTx | SessionState::BoundRx | SessionState::BoundTrx => {
-                self.request(Pdu::Unbind).await?
-            }
-            SessionState::Closed => {
-                return Err(Error::ConnectionClosed);
-            }
-            session_state => return Err(Error::InvalidSessionState { session_state }),
-        };
+        self.check_interface_version(bind.interface_version)?;
 
-        response
+        self.request_extract(bind, |pdu| match pdu {
+            Pdu::BindReceiverResp(response) => Ok(response),
+            _ => Err(pdu),
+        })
+        .await
+    }
+
+    /// Sends a [`BindTransceiver`] command to the server and waits for a successful [`BindTransceiverResp`].
+    pub async fn bind_transceiver(
+        &self,
+        bind: impl Into<BindTransceiver>,
+    ) -> Result<BindTransceiverResp, Error> {
+        let bind: BindTransceiver = bind.into();
+
+        self.check_interface_version(bind.interface_version)?;
+
+        self.request_extract(bind, |pdu| match pdu {
+            Pdu::BindTransceiverResp(response) => Ok(response),
+            _ => Err(pdu),
+        })
+        .await
+    }
+
+    /// Sends a [`SubmitSm`] command to the server and waits for a successful [`SubmitSmResp`].
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<SubmitSmResp, Error> {
+        self.request_extract(submit_sm.into(), |pdu| match pdu {
+            Pdu::SubmitSmResp(response) => Ok(response),
+            _ => Err(pdu),
+        })
+        .await
+    }
+
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for a successful [`UnbindResp`](Pdu::UnbindResp).
+    pub async fn unbind(&self) -> Result<(), Error> {
+        self.request(Pdu::Unbind)
+            .await?
             .ok_and_matches(CommandId::UnbindResp)
             .map(|_| ())
             .map_err(Error::unexpected_response)
     }
-
-    async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
-        let session_state = self.session_state();
-
-        match session_state {
-            SessionState::Closed => Err(Error::ConnectionClosed),
-            _ => {
-                self.request_without_response(Pdu::GenericNack, Some(sequence_number))
-                    .await
-            }
-        }
-    }
-
-    async fn terminated(&self) {
-        self.termination_token.cancelled().await;
-    }
 }
 
-pin_project_lite::pin_project! {
-    /// The [`RequestFuture`] is used to wrap a pending request future and remove it's corresponding sequence number
-    /// from the pending responses if the future got dropped.
-    struct RequestFuture<'a, F> {
-        done: bool,
-        sequence_number: u32,
-        actions_sink: &'a UnboundedSender<Action>,
-        #[pin]
-        fut: F,
-    }
-
-    impl<F> PinnedDrop for RequestFuture<'_, F> {
-        fn drop(this: Pin<&mut Self>) {
-            let this = this.project();
-
-            if !*this.done {
-                let _ = this.actions_sink
-                    .send(Action::RemovePendingResponse(*this.sequence_number));
-
-            }
-        }
-    }
+#[derive(Debug)]
+pub struct NoWaitRequestBuilder<'a> {
+    client: &'a Client,
+    status: CommandStatus,
 }
 
-impl<'a, F> RequestFuture<'a, F> {
-    pub fn new(actions_sink: &'a UnboundedSender<Action>, sequence_number: u32, fut: F) -> Self {
-        Self {
-            done: false,
-            sequence_number,
-            actions_sink,
-            fut,
-        }
+impl<'a> NoWaitRequestBuilder<'a> {
+    const fn new(client: &'a Client, status: CommandStatus) -> Self {
+        Self { client, status }
     }
-}
 
-impl<'a, F: Future> Future for RequestFuture<'a, F> {
-    type Output = F::Output;
+    const fn unregistered_request(&self) -> UnregisteredRequestBuilder {
+        UnregisteredRequestBuilder::new(self.client, self.status)
+    }
 
-    fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-        let this = self.project();
+    pub const fn status(mut self, status: CommandStatus) -> Self {
+        self.status = status;
+        self
+    }
 
-        match this.fut.poll(cx) {
-            Poll::Ready(result) => {
-                // Mark as done to prevent removing the sequence number on drop
-                *this.done = true;
+    /// Sends a [`SubmitSm`] command to the server without waiting for the response.
+    pub async fn submit_sm(&self, submit_sm: impl Into<SubmitSm>) -> Result<u32, Error> {
+        let sequence_number = self.client.inner.next_sequence_number();
 
-                Poll::Ready(result)
-            }
-            Poll::Pending => Poll::Pending,
-        }
+        self.unregistered_request()
+            .unregistered_request(submit_sm.into(), sequence_number)
+            .await?;
+
+        Ok(sequence_number)
+    }
+
+    /// Sends an [`Unbind`](Pdu::Unbind) command to the server without waiting for the response.
+    pub async fn unbind(&self) -> Result<u32, Error> {
+        let sequence_number = self.client.inner.next_sequence_number();
+
+        self.unregistered_request()
+            .unregistered_request(Pdu::Unbind, sequence_number)
+            .await?;
+
+        Ok(sequence_number)
     }
 }

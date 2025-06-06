@@ -1,129 +1,184 @@
-use std::{str::FromStr, time::Duration};
+use std::time::{Duration, Instant};
 
+use futures::{SinkExt, StreamExt};
 use rusmpp::{
-    CommandId,
-    pdus::{DeliverSmResp, SubmitSm},
-    session::SessionState,
+    Command, CommandId, CommandStatus, Pdu,
+    codec::CommandCodec,
+    pdus::{
+        AlertNotification, BindReceiverResp, BindTransceiverResp, BindTransmitterResp, SubmitSm,
+        SubmitSmResp,
+    },
 };
-use server::{Server, UnbindServer};
-use tokio_stream::StreamExt;
+use tokio::io::{AsyncRead, AsyncWrite};
+use tokio_util::codec::Framed;
 
 use crate::{ConnectionBuilder, Event, error::Error};
 
-mod server;
+#[derive(Debug)]
+pub struct Server {
+    bind_delay: Duration,
+    enquire_link_delay: Duration,
+    response_delay: Duration,
+    close_connection_delay: Duration,
+}
 
-pub fn init_tracing() {
+impl Server {
+    pub fn new() -> Self {
+        Self {
+            bind_delay: Duration::from_millis(500),
+            enquire_link_delay: Duration::from_millis(500),
+            response_delay: Duration::from_millis(500),
+            close_connection_delay: Duration::from_secs(10),
+        }
+    }
+
+    pub fn bind_delay(mut self, delay: Duration) -> Self {
+        self.bind_delay = delay;
+        self
+    }
+
+    pub fn enquire_link_delay(mut self, delay: Duration) -> Self {
+        self.enquire_link_delay = delay;
+        self
+    }
+
+    pub fn response_delay(mut self, delay: Duration) -> Self {
+        self.response_delay = delay;
+        self
+    }
+
+    pub fn close_connection_delay(mut self, delay: Duration) -> Self {
+        self.close_connection_delay = delay;
+        self
+    }
+
+    pub async fn run<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(self, stream: S) {
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let future = async move {
+            while let Some(Ok(command)) = framed.next().await {
+                let pdu: Pdu = match command.id() {
+                    CommandId::EnquireLink => {
+                        tokio::time::sleep(self.enquire_link_delay).await;
+
+                        Pdu::EnquireLinkResp
+                    }
+                    CommandId::BindTransmitter => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindTransmitterResp::default().into()
+                    }
+                    CommandId::BindReceiver => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindReceiverResp::default().into()
+                    }
+                    CommandId::BindTransceiver => {
+                        tokio::time::sleep(self.bind_delay).await;
+
+                        BindTransceiverResp::default().into()
+                    }
+                    CommandId::SubmitSm => {
+                        tokio::time::sleep(self.response_delay).await;
+
+                        SubmitSmResp::default().into()
+                    }
+                    CommandId::Unbind => {
+                        tokio::time::sleep(self.response_delay).await;
+
+                        Pdu::UnbindResp
+                    }
+                    CommandId::GenericNack => {
+                        tracing::warn!("Received GenericNack. Crashing");
+
+                        break;
+                    }
+                    _ => {
+                        continue;
+                    }
+                };
+
+                let response = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(pdu);
+
+                framed
+                    .send(response)
+                    .await
+                    .expect("Failed to send response");
+            }
+        };
+
+        let _ = tokio::time::timeout(self.close_connection_delay, future).await;
+    }
+}
+
+/// A server that only issues an unbind after a delay.
+#[derive(Debug)]
+pub struct UnbindServer {
+    delay: Duration,
+}
+
+impl UnbindServer {
+    pub fn new(delay: Duration) -> Self {
+        Self { delay }
+    }
+
+    pub async fn run<S: AsyncRead + AsyncWrite + Send + Unpin + 'static>(self, stream: S) {
+        let mut framed = Framed::new(stream, CommandCodec::new());
+
+        let future = async {
+            while let Some(Ok(command)) = framed.next().await {
+                let pdu: Pdu = match command.id() {
+                    CommandId::EnquireLink => Pdu::EnquireLinkResp,
+                    CommandId::BindTransmitter => BindTransmitterResp::default().into(),
+                    CommandId::BindReceiver => BindReceiverResp::default().into(),
+                    CommandId::BindTransceiver => BindTransceiverResp::default().into(),
+                    _ => {
+                        continue;
+                    }
+                };
+
+                let response = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(pdu);
+
+                framed
+                    .send(response)
+                    .await
+                    .expect("Failed to send response");
+            }
+        };
+
+        tokio::select! {
+            _ = future => {
+
+            },
+            _ = tokio::time::sleep(self.delay) => {
+                let unbind = Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(1)
+                    .pdu(Pdu::Unbind);
+
+                framed
+                    .send(unbind)
+                    .await
+                    .expect("Failed to send unbind response");
+            }
+        }
+    }
+}
+
+fn init_tracing() {
     _ = tracing_subscriber::fmt()
         .with_env_filter("rusmppc=trace")
         .try_init();
 }
 
-// cargo test --package rusmppc --lib -- tests::bind --exact --show-output --ignored
 #[tokio::test]
-#[ignore = "Integration test"]
-async fn bind() {
-    use rusmpp::{
-        pdus::SubmitSm,
-        types::{COctetString, OctetString},
-        values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
-    };
-
-    init_tracing();
-
-    let (client, mut events) = ConnectionBuilder::new()
-        .system_id(COctetString::from_str("NfDfddEKVI0NCxO").unwrap()) // cspell:disable-line
-        .password(COctetString::from_str("rEZYMq5j").unwrap())
-        .system_type(COctetString::empty())
-        .addr_ton(Ton::Unknown)
-        .addr_npi(Npi::Unknown)
-        .address_range(COctetString::empty())
-        .transceiver()
-        .enquire_link_interval(Duration::from_secs(3))
-        .response_timeout(Duration::from_secs(2))
-        .max_command_length(1024)
-        .connect("127.0.0.1:2775")
-        .await
-        .expect("Failed to connect");
-
-    let client_clone = client.clone();
-    let events = tokio::spawn(async move {
-        while let Some(event) = events.next().await {
-            tracing::debug!(?event, "Event",);
-
-            if let Event::Command(command) = event {
-                if command.id() == CommandId::DeliverSm {
-                    tracing::debug!("Received DeliverSm");
-
-                    let _ = client_clone
-                        .deliver_sm_resp(command.sequence_number(), DeliverSmResp::default())
-                        .await;
-                }
-            }
-        }
-
-        tracing::debug!("Event stream closed");
-    });
-
-    client
-        .submit_sm(
-            SubmitSm::builder()
-                .service_type(ServiceType::default())
-                .source_addr_ton(Ton::Unknown)
-                .source_addr_npi(Npi::Unknown)
-                .source_addr(COctetString::from_str("12345").unwrap())
-                .destination_addr(COctetString::from_str("491701234567").unwrap())
-                .esm_class(EsmClass::default())
-                .registered_delivery(RegisteredDelivery::request_all())
-                .short_message(OctetString::from_str("Hi, I am a short message.").unwrap())
-                .build(),
-        )
-        .await
-        .expect("Failed to submit_sm");
-
-    // tokio::time::sleep(Duration::from_secs(2)).await;
-    // drop(client);
-
-    // or
-
-    tokio::time::sleep(Duration::from_secs(20)).await;
-    client.unbind().await.expect("Failed to unbind");
-    let _ = client.terminated().await;
-
-    // if the events task is done, this means that all tasks have terminated
-    // if got end of stream in the reader task,
-    // or all clients were dropped, so we closed the connection.
-    //
-    // To ensure graceful shutdown, drop all clients and await the events stream to finish.
-    // Or client::unbind() then client::terminated().
-
-    let _ = events.await;
-}
-
-#[tokio::test]
-async fn bind_timeout() {
-    init_tracing();
-
-    let (_server, client) = tokio::io::duplex(1024);
-
-    let error = ConnectionBuilder::new()
-        .response_timeout(Duration::from_millis(500))
-        .connected(client)
-        .await
-        .unwrap_err();
-
-    assert!(matches!(error, Error::Timeout));
-
-    // TODO: I have no idea how to check if all tasks are terminated.
-    // See the logs to check if the tasks terminated.
-    tokio::time::sleep(Duration::from_millis(500)).await;
-}
-
-/// Cancelling the request future should not cancel the request itself.
-///
-/// The response, if any, should be sent to the events stream.
-/// The sequence number should also be removed from the pending responses
-#[tokio::test]
-async fn cancel_request_future() {
+async fn cancel_request_future_should_remove_pending_response() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -134,11 +189,9 @@ async fn cancel_request_future() {
 
     let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+        .connected(client);
 
-    let future = client.submit_sm(SubmitSm::builder().build());
+    let future = client.submit_sm(SubmitSm::default());
 
     tokio::select! {
         _ = tokio::time::sleep(Duration::from_millis(100)) => {
@@ -147,30 +200,34 @@ async fn cancel_request_future() {
         _ = future => {}
     }
 
-    // Checking the pending responses number is not accurate.
+    let pending_response = client
+        .pending_responses()
+        .await
+        .expect("Failed to get pending responses");
+
+    assert!(
+        !pending_response.contains(&1),
+        "Pending response was not removed"
+    );
 
     // The submit sm response should be sent to the events stream
 
-    let Some(event) = events.next().await else {
-        panic!("No event received");
-    };
-
-    let Event::Command(command) = event else {
-        panic!("Expected command event, got {:?}", event);
+    let Some(Event::Incoming(command)) = events.next().await else {
+        panic!("Expected command event");
     };
 
     assert!(matches!(command.id(), CommandId::SubmitSmResp));
-    assert_eq!(command.sequence_number(), 2);
+    assert_eq!(command.sequence_number(), 1);
 
-    client.unbind().await.expect("Failed to unbind");
+    client.close().await.expect("Failed to close connection");
 
-    let _ = client.terminated().await;
+    client.closed().await;
+
+    let _ = events.count().await;
 }
 
-/// The response, if any, should be sent to the events stream.
-/// The sequence number should also be removed from the pending responses
 #[tokio::test]
-async fn request_timeout() {
+async fn request_timeout_should_remove_pending_response() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -185,84 +242,43 @@ async fn request_timeout() {
 
     let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(500))
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+        .connected(client);
 
-    let error = client
-        .submit_sm(SubmitSm::builder().build())
-        .await
-        .unwrap_err();
+    let Error::ResponseTimeout {
+        sequence_number, ..
+    } = client.submit_sm(SubmitSm::default()).await.unwrap_err()
+    else {
+        panic!("Expected timeout error");
+    };
 
-    assert!(matches!(error, Error::Timeout));
+    let pending_response = client
+        .pending_responses()
+        .await
+        .expect("Failed to get pending responses");
+
+    assert!(
+        !pending_response.contains(&sequence_number),
+        "Pending response was not removed"
+    );
 
     // The submit sm response should be sent to the events stream
 
-    let Some(event) = events.next().await else {
-        panic!("No event received");
-    };
-
-    let Event::Command(command) = event else {
-        panic!("Expected command event, got {:?}", event);
+    let Some(Event::Incoming(command)) = events.next().await else {
+        panic!("Expected command event");
     };
 
     assert!(matches!(command.id(), CommandId::SubmitSmResp));
-    assert_eq!(command.sequence_number(), 2);
+    assert_eq!(command.sequence_number(), sequence_number);
 
-    let error = client.unbind().await.unwrap_err();
+    client.close().await.expect("Failed to close connection");
 
-    assert!(matches!(error, Error::Timeout));
+    client.closed().await;
 
-    let _ = client.terminated().await;
+    let _ = events.count().await;
 }
 
 #[tokio::test]
-async fn unbind() {
-    init_tracing();
-
-    let (server, client) = tokio::io::duplex(1024);
-
-    tokio::spawn(async move {
-        Server::new().run(server).await;
-    });
-
-    let (client, _events) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
-
-    client.unbind().await.expect("Failed to unbind");
-
-    // Can't assert the state of the client to be unbound here.
-
-    let _ = client.terminated().await;
-
-    let session_state = client.session_state();
-    assert!(matches!(session_state, SessionState::Closed));
-}
-
-#[tokio::test]
-async fn drop_client() {
-    init_tracing();
-
-    let (server, client) = tokio::io::duplex(1024);
-
-    tokio::spawn(async move {
-        Server::new().run(server).await;
-    });
-
-    let (client, events) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
-
-    drop(client);
-
-    let _ = events.collect::<Vec<_>>().await;
-}
-
-#[tokio::test]
-async fn cancel_unbind_future() {
+async fn no_wait_request_should_pipe_response_through_events() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -273,37 +289,32 @@ async fn cancel_unbind_future() {
 
     let (client, mut events) = ConnectionBuilder::new()
         .response_timeout(Duration::from_millis(1000))
-        .connected(client)
+        .connected(client);
+
+    let sequence_number = client
+        .no_wait()
+        .submit_sm(SubmitSm::default())
         .await
-        .expect("Failed to connect");
+        .expect("Failed to submit SM");
 
-    let future = client.unbind();
+    // The submit sm response should be sent to the events stream
 
-    tokio::select! {
-        _ = tokio::time::sleep(Duration::from_millis(100)) => {
-            tracing::debug!("Canceling request future");
-        }
-        _ = future => {}
-    }
-
-    // The response should be sent to the events stream
-
-    let Some(event) = events.next().await else {
-        panic!("No event received");
+    let Some(Event::Incoming(command)) = events.next().await else {
+        panic!("Expected command event");
     };
 
-    let Event::Command(command) = event else {
-        panic!("Expected command event, got {:?}", event);
-    };
+    assert!(matches!(command.id(), CommandId::SubmitSmResp));
+    assert_eq!(command.sequence_number(), sequence_number);
 
-    assert!(matches!(command.id(), CommandId::UnbindResp));
-    assert_eq!(command.sequence_number(), 2);
+    client.close().await.expect("Failed to close connection");
 
-    let _ = client.terminated().await;
+    client.closed().await;
+
+    let _ = events.count().await;
 }
 
 #[tokio::test]
-async fn request_after_closing() {
+async fn drop_client_should_close_connection() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -312,26 +323,81 @@ async fn request_after_closing() {
         Server::new().run(server).await;
     });
 
-    let (client, _) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
-    client.unbind().await.expect("Failed to unbind");
+    drop(client);
 
-    let error = client
-        .submit_sm(SubmitSm::builder().build())
+    let _ = events.count().await;
+}
+
+#[tokio::test]
+async fn drop_events_should_not_close_connection() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, _) = ConnectionBuilder::new().connected(client);
+
+    client
+        .submit_sm(SubmitSm::default())
         .await
-        .unwrap_err();
+        .expect("Failed to submit SM");
+
+    client.close().await.expect("Failed to close connection");
+
+    client.closed().await;
+}
+
+#[tokio::test]
+async fn request_after_closing_connection_should_fail() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, events) = ConnectionBuilder::new().connected(client);
+
+    client.close().await.expect("Failed to close connection");
+
+    let error = client.submit_sm(SubmitSm::default()).await.unwrap_err();
 
     assert!(matches!(error, Error::ConnectionClosed));
 
-    let _ = client.terminated().await;
+    client.closed().await;
+
+    let _ = events.count().await;
 }
 
-/// Enquire link timeout should close the connection.
 #[tokio::test]
-async fn enquire_link_timeout() {
+async fn close_connection_twice_should_fail() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, events) = ConnectionBuilder::new().connected(client);
+
+    client.close().await.expect("Failed to close connection");
+
+    let error = client.close().await.unwrap_err();
+
+    assert!(matches!(error, Error::ConnectionClosed));
+
+    let _ = events.count().await;
+}
+
+#[tokio::test]
+async fn enquire_link_timeout_idle_should_close_connection() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -343,20 +409,109 @@ async fn enquire_link_timeout() {
             .await;
     });
 
-    let (client, _) = ConnectionBuilder::new()
-        // Send enquire link every 2 seconds
+    let (_client, events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(2))
-        // Wait for 1 second for the response
-        .response_timeout(Duration::from_secs(1))
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+        .enquire_link_response_timeout(Duration::from_secs(1))
+        .connected(client);
 
-    let _ = client.terminated().await;
+    let now = Instant::now();
+
+    let _ = events.count().await;
+
+    let elapsed = now.elapsed();
+
+    assert!(
+        elapsed.as_secs() == 3,
+        "Enquire link timeout did not occur as expected"
+    );
 }
 
 #[tokio::test]
-async fn server_crash_on_request() {
+async fn enquire_link_timeout_busy_sequential_should_close_connection() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new()
+            .enquire_link_delay(Duration::from_secs(5))
+            .response_delay(Duration::from_millis(100))
+            .run(server)
+            .await;
+    });
+
+    let (client, events) = ConnectionBuilder::new()
+        .enquire_link_interval(Duration::from_secs(2))
+        .enquire_link_response_timeout(Duration::from_secs(1))
+        .connected(client);
+
+    let now = Instant::now();
+
+    loop {
+        if let Err(Error::ConnectionClosed) = client.submit_sm(SubmitSm::default()).await {
+            // Connection closed as expected
+            break;
+        }
+    }
+
+    let _ = events.count().await;
+
+    let elapsed = now.elapsed();
+
+    assert!(
+        elapsed.as_secs() == 3,
+        "Enquire link timeout did not occur as expected"
+    );
+}
+
+#[tokio::test]
+async fn enquire_link_timeout_busy_concurrent_should_close_connection() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new()
+            .enquire_link_delay(Duration::from_secs(5))
+            .response_delay(Duration::from_millis(100))
+            .run(server)
+            .await;
+    });
+
+    let (client, events) = ConnectionBuilder::new()
+        .enquire_link_interval(Duration::from_secs(2))
+        .enquire_link_response_timeout(Duration::from_secs(1))
+        .connected(client);
+
+    let now = Instant::now();
+
+    loop {
+        if !client.is_active() {
+            break;
+        }
+
+        let client_clone = client.clone();
+
+        tokio::spawn(async move {
+            let _ = client_clone.submit_sm(SubmitSm::default()).await;
+        });
+
+        // No sleep => Test hangs
+        tokio::time::sleep(Duration::from_nanos(1)).await;
+    }
+
+    let _ = events.count().await;
+
+    let elapsed = now.elapsed();
+
+    assert!(
+        elapsed.as_secs() == 3,
+        "Enquire link timeout did not occur as expected"
+    );
+}
+
+#[tokio::test]
+async fn server_crashes_on_request_should_close_connection() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -365,21 +520,20 @@ async fn server_crash_on_request() {
         Server::new().run(server).await;
     });
 
-    let (client, _) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
+    // Our test server crashes on GenericNack command
     client
+        .status(CommandStatus::EsmeRxPAppn)
         .generic_nack(1)
         .await
         .expect("Failed to send generic_nack");
 
-    let _ = client.terminated().await;
+    let _ = events.count().await;
 }
 
 #[tokio::test]
-async fn connection_lost() {
+async fn connection_lost_should_close_connection() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -391,25 +545,19 @@ async fn connection_lost() {
             .await;
     });
 
-    let (client, _) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+    let (client, events) = ConnectionBuilder::new().connected(client);
 
     tokio::time::sleep(Duration::from_secs(2)).await;
 
-    let error = client
-        .submit_sm(SubmitSm::builder().build())
-        .await
-        .unwrap_err();
+    let error = client.submit_sm(SubmitSm::default()).await.unwrap_err();
 
     assert!(matches!(error, Error::ConnectionClosed));
 
-    let _ = client.terminated().await;
+    let _ = events.count().await;
 }
 
 #[tokio::test]
-async fn server_wants_unbind() {
+async fn server_unbinds_and_closes_connection_should_close_connection() {
     init_tracing();
 
     let (server, client) = tokio::io::duplex(1024);
@@ -418,52 +566,128 @@ async fn server_wants_unbind() {
         UnbindServer::new(Duration::from_secs(1)).run(server).await;
     });
 
-    let (client, _) = ConnectionBuilder::new()
-        .connected(client)
-        .await
-        .expect("Failed to connect");
+    let (client, mut events) = ConnectionBuilder::new().connected(client);
 
-    let _ = client.terminated().await;
+    while let Some(event) = events.next().await {
+        if let Event::Incoming(command) = event {
+            if command.id() == CommandId::Unbind {
+                let error = client
+                    .status(CommandStatus::EsmeRok)
+                    .unbind_resp(command.sequence_number())
+                    .await
+                    .unwrap_err();
+
+                assert!(matches!(error, Error::ConnectionClosed));
+            }
+        }
+    }
+
+    let _ = events.count().await;
 }
 
 #[tokio::test]
-#[ignore = "Just to see the connection ids"]
-async fn multiple() {
+async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_response_should_go_through_events()
+ {
     init_tracing();
 
-    let mut tasks = vec![];
+    let (server, client) = tokio::io::duplex(1024);
 
-    for _ in 0..10 {
-        let task = tokio::spawn(async move {
-            let (server, client) = tokio::io::duplex(1024);
+    tokio::spawn(async move {
+        let mut framed = Framed::new(server, CommandCodec::new());
 
-            tokio::spawn(async move {
-                Server::new()
-                    .bind_delay(Duration::from_millis(200))
-                    .response_delay(Duration::from_secs(1))
-                    .run(server)
-                    .await;
-            });
+        let Some(Ok(command)) = framed.next().await else {
+            panic!("Expected command");
+        };
 
-            let (client, _) = ConnectionBuilder::new()
-                .connected(client)
+        // Out of the blue the server decides to send an AlertNotification
+        // with the same sequence number as the pending SubmitSm response
+        framed
+            .send(
+                Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(AlertNotification::default()),
+            )
+            .await
+            .expect("Failed to send AlertNotification");
+
+        framed
+            .send(
+                Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(command.sequence_number())
+                    .pdu(SubmitSmResp::default()),
+            )
+            .await
+            .expect("Failed to send SubmitSmResp");
+
+        tokio::time::sleep(Duration::from_secs(1)).await;
+    });
+
+    let (client, mut events) = ConnectionBuilder::new()
+        .response_timeout(Duration::from_millis(500))
+        .connected(client);
+
+    let events = tokio::spawn(async move {
+        // The server sent an AlertNotification with the same sequence number as the pending response
+        let Some(Event::Incoming(command)) = events.next().await else {
+            panic!("Expected command event");
+        };
+
+        assert!(matches!(command.id(), CommandId::AlertNotification));
+        assert_eq!(command.sequence_number(), 1);
+
+        // Server closed the connection
+
+        let _ = events.count().await;
+    });
+
+    client
+        .submit_sm(SubmitSm::default())
+        .await
+        .expect("Failed to submit SM");
+
+    let _ = events.await;
+}
+
+#[tokio::test]
+async fn server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts()
+{
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        let mut framed = Framed::new(server, CommandCodec::new());
+
+        loop {
+            if framed
+                .send(
+                    Command::builder()
+                        .status(CommandStatus::EsmeRok)
+                        .sequence_number(1)
+                        .pdu(AlertNotification::default()),
+                )
                 .await
-                .expect("Failed to connect");
+                .is_err()
+            {
+                break;
+            }
+        }
+    });
 
-            client
-                .submit_sm(SubmitSm::builder().build())
-                .await
-                .expect("Failed to submit_sm");
+    let (client, events) = ConnectionBuilder::new()
+        .enquire_link_interval(Duration::from_secs(1))
+        .enquire_link_response_timeout(Duration::from_millis(500))
+        .response_timeout(Duration::from_millis(500))
+        .connected(client);
 
-            client.unbind().await.expect("Failed to unbind");
+    client
+        .no_wait() // Server will not respond anyway, so we don't care about the response
+        .submit_sm(SubmitSm::default())
+        .await
+        .expect("Failed to submit SM");
 
-            let _ = client.terminated().await;
-        });
-
-        tasks.push(task);
-    }
-
-    for task in tasks {
-        let _ = task.await;
-    }
+    // After the enquire link timeout, the connection should close
+    let _ = events.count().await;
 }

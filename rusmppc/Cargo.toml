@@ -28,7 +28,6 @@ tokio-util = { version = "0.7.15", features = ["codec"] }
 tracing = "0.1.41"
 futures = "0.3.31"
 thiserror = "2.0.12"
-parking_lot = "0.12.3"
 pin-project-lite = "0.2.16"
 
 [dev-dependencies]
@@ -38,6 +37,11 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 [package.metadata.docs.rs]
 all-features = true
 rustdoc-args = ["--cfg", "docsrs"]
+
+[[example]]
+name = "manual_reconnect"
+path = "examples/manual_reconnect.rs"
+required-features = []
 
 [[example]]
 name = "rusmppc_submit_sm"

@@ -7,8 +7,18 @@ use crate::error::Error;
 /// Events are sent from the open connection through the events stream.
 #[derive(Debug)]
 pub enum Event {
+    /// A command was received from the server.
+    Incoming(Command),
     /// An error occurred.
     Error(Error),
-    /// A command was received from the server.
-    Command(Command),
+}
+
+impl Event {
+    pub(crate) const fn incoming(command: Command) -> Self {
+        Event::Incoming(command)
+    }
+
+    pub(crate) const fn error(error: Error) -> Self {
+        Event::Error(error)
+    }
 }

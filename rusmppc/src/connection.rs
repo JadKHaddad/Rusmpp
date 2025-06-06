@@ -1,462 +1,595 @@
 use std::{
-    collections::HashMap,
-    sync::atomic::{AtomicUsize, Ordering},
+    collections::{BTreeMap, VecDeque},
+    pin::Pin,
+    task::{Context, Poll},
+    time::Duration,
 };
 
-use futures::{Sink, SinkExt, Stream, StreamExt};
-use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec, session::SessionState};
+use crate::{Action, Event, Request, Timer, UnregisteredRequest, error::Error};
+
+use futures::Sink;
+use futures::Stream;
+use pin_project_lite::pin_project;
+use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    sync::oneshot,
+    sync::{
+        mpsc::{self, UnboundedSender},
+        oneshot, watch,
+    },
 };
-use tokio_util::{codec::Framed, sync::CancellationToken};
-use tracing::Instrument;
+use tokio_stream::wrappers::UnboundedReceiverStream;
+use tokio_util::codec::Framed;
 
-use crate::{
-    Event,
-    action::{Action, SendCommand, SendCommandNoResponse},
-    builder::ConnectionTimeouts,
-    error::Error,
-    session_state::SessionStateHolder,
-    timer::Timer,
-};
-
-static ID: AtomicUsize = AtomicUsize::new(1);
-
-fn next_id() -> usize {
-    ID.fetch_add(1, Ordering::Relaxed)
-}
-
-#[derive(Debug, Default)]
-pub struct ManagedConnectionConfig {
-    max_command_length: usize,
-    timeouts: ConnectionTimeouts,
-}
-
-impl ManagedConnectionConfig {
-    pub const fn new(max_command_length: usize, timeouts: ConnectionTimeouts) -> Self {
-        Self {
-            max_command_length,
-            timeouts,
-        }
-    }
-}
+const CONN: &str = "rusmppc::connection";
+const TIMER: &str = "rusmppc::connection::timer";
 
 #[derive(Debug)]
-pub struct Connection<Socket, Sink, Stream> {
-    socket: Socket,
-    /// Send smpp events to the user.
-    events_sink: Sink,
-    /// Receive smpp actions from the client.
-    actions_stream: Stream,
-    /// When cancelled, the client knows that the connection is closed
-    termination_token: CancellationToken,
-    session_state_holder: SessionStateHolder,
-    config: ManagedConnectionConfig,
+enum State {
+    Active,
+    /// The user sent a close request.
+    Closing,
+    Errored,
 }
 
-impl<So, Si, St> Connection<So, Si, St> {
-    pub const fn new(
-        socket: So,
-        events_sink: Si,
-        actions_stream: St,
-        termination_token: CancellationToken,
-        session_state_holder: SessionStateHolder,
-        config: ManagedConnectionConfig,
-    ) -> Self {
-        Self {
-            socket,
-            events_sink,
-            termination_token,
-            actions_stream,
-            session_state_holder,
-            config,
+// Make sure to drop the Connection after completion to prevent clients from queueing more actions.
+// This way if the Connection was closed and the Connection is not in an active state but not dropped,
+// clients will still be able to send actions and will not get an immediate error that the channel is closed.
+// Actions will not be queued and the client would wait forever until the Connection is dropped.
+// We rely on this mechanism to work, to report correct and predictable errors.
+pin_project! {
+    #[derive(Debug)]
+    pub struct Connection<S> {
+        state: State,
+        sequence_number: u32,
+        requests: VecDeque<Request>,
+        // This is a request that has been written to the sink using start_send, but not yet flushed.
+        pending_request: Option<Request>,
+        responses: BTreeMap<u32, oneshot::Sender<Command>>,
+        enquire_link_interval: Duration,
+        last_enquire_link_sequence_number: Option<u32>,
+        enquire_link_response_timeout: Duration,
+        events: UnboundedSender<Event>,
+        // Used to let the client wait for the connection to be closed
+        _watch: watch::Receiver<()>,
+        #[pin]
+        enquire_link_timer: Timer,
+        #[pin]
+        enquire_link_response_timer: Timer,
+        #[pin]
+        framed: Framed<S, CommandCodec>,
+        #[pin]
+        actions: UnboundedReceiverStream<Action>,
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite> Connection<S> {
+    pub fn new(
+        stream: S,
+        max_command_length: usize,
+        enquire_link_interval: Duration,
+        enquire_link_response_timeout: Duration,
+    ) -> (
+        Self,
+        watch::Sender<()>,
+        UnboundedSender<Action>,
+        UnboundedReceiverStream<Event>,
+    ) {
+        let (events_tx, events_rx) = mpsc::unbounded_channel::<Event>();
+        let (actions_tx, actions_rx) = mpsc::unbounded_channel::<Action>();
+        let (watch_tx, watch_rx) = watch::channel(());
+
+        (
+            Self {
+                state: State::Active,
+                sequence_number: 2,
+                requests: VecDeque::new(),
+                pending_request: None,
+                responses: BTreeMap::new(),
+                enquire_link_interval,
+                last_enquire_link_sequence_number: None,
+                enquire_link_response_timeout,
+                enquire_link_timer: Timer::active(enquire_link_interval),
+                enquire_link_response_timer: Timer::inactive(),
+                _watch: watch_rx,
+                events: events_tx,
+                framed: Framed::new(
+                    stream,
+                    CommandCodec::new().with_max_length(max_command_length),
+                ),
+                actions: UnboundedReceiverStream::new(actions_rx),
+            },
+            watch_tx,
+            actions_tx,
+            UnboundedReceiverStream::new(events_rx),
+        )
+    }
+
+    fn insert_response(
+        self: Pin<&mut Self>,
+        sequence_number: u32,
+        response: oneshot::Sender<Command>,
+    ) {
+        self.project().responses.insert(sequence_number, response);
+    }
+
+    fn remove_response(
+        self: Pin<&mut Self>,
+        sequence_number: u32,
+    ) -> Option<oneshot::Sender<Command>> {
+        self.project().responses.remove(&sequence_number)
+    }
+
+    fn requests_push_back(self: Pin<&mut Self>, request: Request) {
+        self.project().requests.push_back(request);
+    }
+
+    fn requests_push_front(self: Pin<&mut Self>, request: Request) {
+        self.project().requests.push_front(request);
+    }
+
+    fn requests_pop_front(self: Pin<&mut Self>) -> Option<Request> {
+        self.project().requests.pop_front()
+    }
+
+    fn set_pending_request(self: Pin<&mut Self>, request: Request) {
+        *self.project().pending_request = Some(request);
+    }
+
+    fn take_pending_request(self: Pin<&mut Self>) -> Option<Request> {
+        self.project().pending_request.take()
+    }
+
+    fn set_state(self: Pin<&mut Self>, state: State) {
+        *self.project().state = state;
+    }
+
+    fn deactivate_enquire_link_timer(self: Pin<&mut Self>) {
+        self.project().enquire_link_timer.deactivate();
+
+        tracing::trace!(target: TIMER, "Deactivated enquire_link_timer");
+    }
+
+    fn activate_enquire_link_timer(self: Pin<&mut Self>) {
+        let delay = self.as_ref().enquire_link_interval;
+
+        self.project().enquire_link_timer.activate(delay);
+
+        tracing::trace!(target: TIMER, ?delay, "Activated enquire_link_timer");
+    }
+
+    fn set_last_enquire_link_sequence_number(self: Pin<&mut Self>, sequence_number: u32) {
+        *self.project().last_enquire_link_sequence_number = Some(sequence_number);
+    }
+
+    fn unset_last_enquire_link_sequence_number(self: Pin<&mut Self>) {
+        *self.project().last_enquire_link_sequence_number = None;
+    }
+
+    fn deactivate_enquire_link_response_timer(self: Pin<&mut Self>) {
+        self.project().enquire_link_response_timer.deactivate();
+
+        tracing::trace!(target: TIMER, "Deactivated enquire_link_response_timer");
+    }
+
+    fn activate_enquire_link_response_timer(self: Pin<&mut Self>) {
+        let delay = self.as_ref().enquire_link_response_timeout;
+
+        self.project().enquire_link_response_timer.activate(delay);
+
+        tracing::trace!(target: TIMER, ?delay, "Activated enquire_link_response_timer");
+    }
+
+    /// [`Self::sequence_number`] is incremented by 2 after each call.
+    ///
+    /// The clients also hold an atomic sequence number, which is incremented by 2 for each request, starting from 1.
+    ///
+    /// This is done to ensure that commands sent by the connection [`EnquireLink`](Pdu::EnquireLink) and [`Unbind`](Pdu::Unbind) are differentiated from the commands sent by the client,
+    /// without the use of atomic operations in the connection.
+    fn sequence_number_fetch_and_increment(self: Pin<&mut Self>) -> u32 {
+        let sequence_number = self.sequence_number;
+
+        *(self.project().sequence_number) += 2;
+
+        sequence_number
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
+    type Output = ();
+
+    fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
+        if !matches!(self.state, State::Active | State::Closing) {
+            return Poll::Ready(());
         }
-    }
-}
 
-impl<So, Si, St> Connection<So, Si, St>
-where
-    So: AsyncRead + AsyncWrite + Send + Unpin + 'static,
-    Si: Sink<Event> + Send + Clone + Unpin + 'static,
-    St: Stream<Item = Action> + Send + Unpin + 'static,
-{
-    pub fn spawn(self) {
-        let id = next_id();
+        'main: loop {
+            if matches!(self.state, State::Active) {
+                match self.as_mut().project().enquire_link_response_timer.poll(cx) {
+                    Poll::Ready(()) => {
+                        tracing::error!(target: TIMER, "EnquireLinkResp timeout");
 
-        tokio::spawn(self.run().instrument(tracing::info_span!("connection", id)));
-    }
-}
+                        self.as_mut().set_state(State::Errored);
 
-impl<So, Si, St> Connection<So, Si, St>
-where
-    So: AsyncRead + AsyncWrite + Send + Unpin + 'static,
-    Si: Sink<Event> + Send + Clone + Unpin + 'static,
-    St: Stream<Item = Action> + Send + Unpin + 'static,
-{
-    pub async fn run(mut self) {
-        let mut framed = Framed::new(
-            self.socket,
-            CommandCodec::new().with_max_length(self.config.max_command_length),
-        );
+                        let timeout = self.enquire_link_response_timeout;
 
-        let mut pending_responses: HashMap<u32, oneshot::Sender<Result<Command, Error>>> =
-            HashMap::new();
+                        let _ = self
+                            .as_mut()
+                            .events
+                            .send(Event::error(Error::EnquireLinkTimeout { timeout }));
 
-        let mut last_enquire_link_sequence_number: Option<u32> = None;
-
-        let enquire_link_resp_timer = Timer::new();
-
-        tokio::pin!(enquire_link_resp_timer);
-
-        let enquire_link_timer = Timer::new().activated(self.config.timeouts.enquire_link);
-
-        tokio::pin!(enquire_link_timer);
-
-        loop {
-            tokio::select! {
-                _ = &mut enquire_link_resp_timer => {
-                    const TARGET: &str = "rusmppc::connection::enquire_link::timer";
-
-                    tracing::error!(target: TARGET, "EnquireLink timeout");
-
-                    break
+                        return Poll::Ready(());
+                    }
+                    Poll::Pending => {}
                 }
-                _ = &mut enquire_link_timer => {
-                    const TARGET: &str = "rusmppc::connection::enquire_link";
 
-                    let sequence_number = self.session_state_holder.next_sequence_number();
+                match self.as_mut().project().enquire_link_timer.poll(cx) {
+                    Poll::Ready(()) => {
+                        let sequence_number = self.as_mut().sequence_number_fetch_and_increment();
 
-                    tracing::trace!(target: TARGET, sequence_number, "Sending EnquireLink");
+                        tracing::trace!(target: TIMER, sequence_number, "EnquireLink");
 
-                    let command = Command::builder()
-                        .status(CommandStatus::EsmeRok)
-                        .sequence_number(sequence_number)
-                        .pdu(Pdu::EnquireLink);
+                        let command = Command::builder()
+                            .status(CommandStatus::EsmeRok)
+                            .sequence_number(sequence_number)
+                            .pdu(Pdu::EnquireLink);
 
-                    if let Err(err) = framed.send(command).await {
-                        tracing::error!(target: TARGET, ?err, "Failed to send EnquireLink command");
+                        let (request, _) = UnregisteredRequest::new(command);
 
-                        break
+                        self.as_mut()
+                            .requests_push_front(Request::Unregistered(request));
+
+                        self.as_mut()
+                            .set_last_enquire_link_sequence_number(sequence_number);
+                        self.as_mut().deactivate_enquire_link_timer();
+                        self.as_mut().activate_enquire_link_response_timer();
+
+                        // Poll the enquire_link_response_timer again to register the waker
+                        let _ = self.as_mut().project().enquire_link_response_timer.poll(cx);
+                    }
+                    Poll::Pending => {}
+                }
+            }
+
+            if matches!(self.state, State::Active | State::Closing) {
+                let mut i: u8 = 0;
+
+                'actions: loop {
+                    i += 1;
+
+                    if i > 5 {
+                        break 'actions;
                     }
 
-                    last_enquire_link_sequence_number = Some(sequence_number);
+                    match self.as_mut().project().actions.poll_next(cx) {
+                        Poll::Ready(Some(action)) => match action {
+                            Action::Ping => {
+                                // If we get here,
+                                // this means that the connection is still active (did not close the actions channel) and can receive actions from the client.
+                                // The client relies on the Action::Ping to be sent successfully to the connection, to determine if the connection is still active,
+                                // using the `Client::is_active` method.
+                            }
+                            Action::PendingResponses(pending_responses) => {
+                                let pending = self
+                                    .as_mut()
+                                    .project()
+                                    .responses
+                                    .iter()
+                                    .map(|(sequence_number, _)| *sequence_number)
+                                    .collect();
 
-                    enquire_link_resp_timer.as_mut().activate(self.config.timeouts.response);
-                    enquire_link_timer.as_mut().activate(self.config.timeouts.enquire_link);
+                                let _ = pending_responses.ack.send(Ok(pending));
+                            }
+                            Action::Request(request) => {
+                                tracing::trace!(target: CONN,
+                                    sequence_number=request.command().sequence_number(),
+                                    status=?request.command().status(),
+                                    id=?request.command().id(),
+                                    "Received request"
+                                );
 
-                    tracing::trace!(target: TARGET, "EnquireLink timer activated");
+                                self.as_mut().requests_push_back(request);
+                            }
+                            Action::Remove(sequence_number) => {
+                                tracing::trace!(target: CONN, sequence_number, "Received remove response");
+
+                                self.as_mut().remove_response(sequence_number);
+                            }
+                            Action::Close(request) => {
+                                tracing::trace!(target: CONN, "Received close");
+
+                                self.as_mut().set_state(State::Closing);
+
+                                self.as_mut().project().actions.close();
+
+                                let _ = request.ack.send(());
+
+                                continue 'main;
+                            }
+                        },
+                        Poll::Ready(None) => {
+                            if matches!(self.state, State::Closing) {
+                                // We closed the channel to prevent more actions
+
+                                break 'actions;
+                            }
+
+                            tracing::trace!(target: CONN, "Client dropped");
+
+                            self.as_mut().set_state(State::Errored);
+
+                            return Poll::Ready(());
+                        }
+                        Poll::Pending => {
+                            break 'actions;
+                        }
+                    }
                 }
-                command = framed.next() => {
-                    const TARGET: &str = "rusmppc::connection::read";
 
-                    let Some(command) = command else {
-                        tracing::debug!(target: TARGET, "End of stream");
+                let mut i: u8 = 0;
 
-                        tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
+                'sink: loop {
+                    i += 1;
 
-                        self.session_state_holder.set_session_state(SessionState::Closed);
+                    if i > 5 {
+                        break 'sink;
+                    }
 
-                        break
-                    };
+                    match self.as_mut().take_pending_request() {
+                        Some(request) => {
+                            let sequence_number = request.command().sequence_number();
+                            let status = request.command().status();
+                            let id = request.command().id();
 
-                    match command {
-                        Ok(command) => {
+                            tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Sending command");
+
+                            match Sink::<Command>::poll_flush(self.as_mut().project().framed, cx) {
+                                Poll::Ready(Ok(_)) => {
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
+
+                                    match request {
+                                        Request::Registered(request) => {
+                                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Registered");
+
+                                            let _ = request.ack.send(Ok(()));
+
+                                            self.as_mut()
+                                                .insert_response(sequence_number, request.response);
+                                        }
+                                        Request::Unregistered(request) => {
+                                            let _ = request.ack.send(Ok(()));
+                                        }
+                                    }
+
+                                    continue 'sink;
+                                }
+                                Poll::Ready(Err(err)) => {
+                                    tracing::error!(target: CONN, ?err);
+
+                                    self.as_mut().set_state(State::Errored);
+
+                                    match request.send_ack(Err(Error::from(err))) {
+                                        Ok(()) => {
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Err(err)) => {
+                                            // Client not waiting
+
+                                            let _ = self.as_mut().events.send(Event::error(err));
+
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Ok(_)) => {
+                                            unreachable!()
+                                        }
+                                    }
+                                }
+                                Poll::Pending => {
+                                    self.as_mut().set_pending_request(request);
+
+                                    break 'sink;
+                                }
+                            }
+                        }
+                        None => {
+                            tracing::trace!(target: CONN, "No pending request");
+                        }
+                    }
+
+                    match self.as_mut().requests_pop_front() {
+                        Some(request) => {
+                            match Sink::<Command>::poll_ready(self.as_mut().project().framed, cx) {
+                                Poll::Ready(Ok(())) => {
+                                    let sequence_number = request.command().sequence_number();
+                                    let status = request.command().status();
+                                    let id = request.command().id();
+
+                                    tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Writing command");
+
+                                    if let Err(err) =
+                                        self.as_mut().project().framed.start_send(request.command())
+                                    {
+                                        tracing::error!(target: CONN, sequence_number, ?status, ?id, ?err);
+
+                                        self.as_mut().set_state(State::Errored);
+
+                                        match request.send_ack(Err(Error::from(err))) {
+                                            Ok(()) => {
+                                                return Poll::Ready(());
+                                            }
+                                            Err(Err(err)) => {
+                                                let _ =
+                                                    self.as_mut().events.send(Event::error(err));
+
+                                                return Poll::Ready(());
+                                            }
+                                            Err(Ok(_)) => {
+                                                unreachable!()
+                                            }
+                                        }
+                                    }
+
+                                    // Start send was ok, we encoded the command now we set the request as a pending request.
+
+                                    self.as_mut().set_pending_request(request);
+
+                                    continue 'sink;
+                                }
+                                Poll::Ready(Err(err)) => {
+                                    tracing::error!(target: CONN, ?err);
+
+                                    self.as_mut().set_state(State::Errored);
+
+                                    match request.send_ack(Err(Error::from(err))) {
+                                        Ok(()) => {
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Err(err)) => {
+                                            // Client not waiting
+
+                                            let _ = self.as_mut().events.send(Event::error(err));
+
+                                            return Poll::Ready(());
+                                        }
+                                        Err(Ok(_)) => {
+                                            unreachable!()
+                                        }
+                                    }
+                                }
+                                Poll::Pending => {
+                                    self.as_mut().requests_push_front(request);
+
+                                    break 'sink;
+                                }
+                            }
+                        }
+                        None => {
+                            tracing::trace!(target: CONN, "No requests in queue");
+
+                            if matches!(self.state, State::Closing) {
+                                tracing::debug!(target: CONN, "Closed");
+
+                                self.as_mut().set_state(State::Errored);
+
+                                return Poll::Ready(());
+                            }
+
+                            break 'sink;
+                        }
+                    }
+                }
+            }
+
+            if matches!(self.state, State::Active) {
+                let mut i: u8 = 0;
+
+                'stream: loop {
+                    i += 1;
+
+                    if i > 5 {
+                        break 'stream;
+                    }
+
+                    match self.as_mut().project().framed.poll_next(cx) {
+                        Poll::Ready(Some(Ok(command))) => {
                             let sequence_number = command.sequence_number();
+                            let status = command.status();
+                            let id = command.id();
 
-                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Received command");
-                            tracing::trace!(target: TARGET, sequence_number, ?command, "Received command");
+                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Received command");
 
                             if let CommandId::EnquireLink = command.id() {
-                                tracing::trace!(target: TARGET, sequence_number, "EnquireLink received");
-
-                                let command = Command::builder()
+                                let response = Command::builder()
                                     .status(CommandStatus::EsmeRok)
                                     .sequence_number(command.sequence_number())
                                     .pdu(Pdu::EnquireLinkResp);
 
-                                if let Err(err) = framed.send(command).await {
-                                    let err = Error::from(err);
+                                let (request, _) = UnregisteredRequest::new(response);
 
-                                    tracing::error!(target: TARGET, ?err, "Failed to send EnquireLink response");
+                                self.as_mut()
+                                    .requests_push_front(Request::Unregistered(request));
 
-                                    let _ = self.events_sink.send(Event::Error(err)).await;
-
-                                    break
-                                }
-
-                                continue
-                            }
-
-                            if let CommandId::Unbind = command.id() {
-                                tracing::trace!(target: TARGET, sequence_number, "Unbind received");
-
-                                tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
-
-                                self.session_state_holder.set_session_state(SessionState::Unbound);
-
-                                let command = Command::builder()
-                                    .status(CommandStatus::EsmeRok)
-                                    .sequence_number(command.sequence_number())
-                                    .pdu(Pdu::UnbindResp);
-
-                                if let Err(err) = framed.send(command).await {
-                                    let err = Error::from(err);
-
-                                    tracing::error!(target: TARGET, ?err, "Failed to send Unbind response");
-
-                                    let _ = self.events_sink.send(Event::Error(err)).await;
-
-                                    break
-                                }
-
-                                break
+                                continue 'main;
                             }
 
                             if let CommandId::EnquireLinkResp = command.id() {
-                                tracing::trace!(target: TARGET, sequence_number,  "Received EnquireLinkResp");
+                                if let Some(last_sequence_number) =
+                                    self.last_enquire_link_sequence_number
+                                {
+                                    if let CommandStatus::EsmeRok = command.status() {
+                                        if last_sequence_number == sequence_number {
+                                            self.as_mut().unset_last_enquire_link_sequence_number();
+                                            self.as_mut().deactivate_enquire_link_response_timer();
+                                            self.as_mut().activate_enquire_link_timer();
 
-                                match last_enquire_link_sequence_number {
-                                    Some(seq) => {
-                                        if sequence_number != seq {
-                                            tracing::warn!(target: TARGET, sequence_number, expected=seq, got=sequence_number, "Received EnquireLinkResp with unexpected sequence number");
+                                            // Poll the enquire_link_timer again to register the waker
+                                            let _ =
+                                                self.as_mut().project().enquire_link_timer.poll(cx);
+
+                                            continue 'stream;
                                         }
-
-                                        last_enquire_link_sequence_number = None;
-
-                                        enquire_link_resp_timer.as_mut().disable();
-
-                                        tracing::trace!(target: TARGET, sequence_number,  "EnquireLink timer disabled");
-                                    }
-                                    None => {
-                                        tracing::warn!(target: TARGET, sequence_number,  "Received EnquireLinkResp without a previous EnquireLink");
                                     }
                                 }
-
-                                continue
                             }
 
-                            let command_id = command.id();
-
-                            // The server may send us a request like DeliverSm, No clients are waiting for it so we pipe it to the events stream
-                            if command_id.is_operation() {
-                                let _ = self.events_sink.send(Event::Command(command)).await;
-
-                                continue;
-                            }
-
-                            if command_id.is_response() {
-                                let response = pending_responses.remove(&sequence_number);
-
-                                match response {
-                                    None => {
-                                        tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
-
-                                        let _ = self.events_sink.send(Event::Command(command)).await;
-                                    },
+                            if id.is_response() {
+                                match self.as_mut().remove_response(sequence_number) {
                                     Some(response) => {
-                                        tracing::trace!(target: TARGET, sequence_number, "Found client waiting for response");
+                                        tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Found response");
 
-                                        if let Err(command) = response.send(Ok(command)){
-                                            tracing::warn!(target: TARGET, sequence_number, "Failed to send response to client");
-                                            tracing::trace!(target: TARGET, sequence_number, "Piping command through events stream");
+                                        match response.send(command) {
+                                            Ok(()) => {
+                                                // Sent, do nothing
+                                            }
+                                            Err(command) => {
+                                                // Client not waiting, return the command as an incoming event instead
 
-                                            let _ = self.events_sink.send(Event::Command(command.expect("Must be ok"))).await;
+                                                tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Client not waiting");
+
+                                                let _ = self
+                                                    .as_mut()
+                                                    .events
+                                                    .send(Event::incoming(command));
+                                            }
                                         }
                                     }
-                                }
-                            }
+                                    None => {
+                                        tracing::trace!(target: CONN, sequence_number, ?status, ?id, "No response found");
 
-                            // we sent an Unbind request and now waiting for the response
-                            if let CommandId::UnbindResp = command_id {
-                                tracing::trace!(target: TARGET, sequence_number, "Unbind response received");
-
-                                let session_state = self.session_state_holder.session_state();
-
-                                if !matches!(session_state, SessionState::Unbound) {
-                                    tracing::warn!(target: TARGET, session_state=?session_state, "Received UnbindResp in unexpected session state");
-
-                                    continue
+                                        // The client might have cancelled the request or it timed out.
+                                        // In this case we just send the command as an incoming event.
+                                        let _ = self.as_mut().events.send(Event::incoming(command));
+                                    }
                                 }
 
-                                break
+                                continue 'stream;
                             }
+
+                            // Command is an operation from the server.
+                            let _ = self.as_mut().events.send(Event::incoming(command));
                         }
-                        Err(err) => {
-                            let err = Error::from(err);
+                        Poll::Ready(Some(Err(err))) => {
+                            tracing::error!(target: CONN, ?err);
 
-                            tracing::error!(target: TARGET, ?err, "Error reading command");
+                            self.as_mut().set_state(State::Errored);
 
-                            let _ = self.events_sink.send(Event::Error(err)).await;
+                            let _ = self.as_mut().events.send(Event::error(Error::from(err)));
 
-                            break
-                        },
-                    }
-                }
-                action = self.actions_stream.next() => {
-                    const TARGET: &str = "rusmppc::connection::actions";
+                            return Poll::Ready(());
+                        }
+                        Poll::Ready(None) => {
+                            tracing::debug!(target: CONN, "Connection closed by the server");
 
-                    let Some(action) = action else {
-                        tracing::debug!(target: TARGET, "No more client actions");
+                            self.as_mut().set_state(State::Errored);
 
-                        break
-                    };
-
-                    match action {
-                        Action::RemovePendingResponse(sequence_number) => {
-                            tracing::trace!(target: TARGET, sequence_number, "Removing pending response");
-
-                            if pending_responses.remove(&sequence_number).is_none() {
-                                tracing::warn!(target: TARGET, sequence_number, "No client waiting for response");
-                            }
-                        },
-                        Action::SendCommand(SendCommand { command, response }) => {
-                            let sequence_number = command.sequence_number();
-
-                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Sending command");
-                            tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
-
-
-                            if let Err(err) = framed.send(&command).await {
-                                let err = Error::from(err);
-
-                                tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
-
-                                let _ = response.send(Err(err));
-
-                                break
-                            }
-
-                            if let CommandId::Unbind = command.id() {
-                                tracing::debug!(target: TARGET, "Client requested unbind");
-
-                                tracing::trace!(target: TARGET, sequence_number, session_state=?SessionState::Unbound, "Setting session state");
-
-                                self.session_state_holder.set_session_state(SessionState::Unbound);
-                            }
-
-                            pending_responses.insert(sequence_number, response);
-
-                            tracing::trace!(target: TARGET, sequence_number, "Client registered for response");
-                        },
-                        Action::SendCommandNoResponse(SendCommandNoResponse { command, response }) => {
-                            let sequence_number = command.sequence_number();
-
-                            tracing::debug!(target: TARGET, sequence_number, id=?command.id(), "Sending command");
-                            tracing::trace!(target: TARGET, sequence_number, ?command, "Sending command");
-
-                            if let Err(err) = framed.send(&command).await {
-                                let err = Error::from(err);
-
-                                tracing::error!(target: TARGET, sequence_number, ?err, "Error sending command");
-
-                                let _ = response.send(Err(err));
-
-                                break
-                            }
-
-                            let _ = response.send(Ok(()));
-                        },
+                            return Poll::Ready(());
+                        }
+                        Poll::Pending => {
+                            return Poll::Pending;
+                        }
                     }
                 }
             }
         }
-
-        const TARGET: &str = "rusmppc::connection";
-
-        let session_state = self.session_state_holder.session_state();
-
-        match session_state {
-            SessionState::Closed => {
-                // End of stream was reached
-                // Session state was set to closed
-            }
-            SessionState::Unbound | SessionState::Open => {
-                // Already received unbind request from server
-                // Or
-                // Client requested unbind
-                // Or
-                // We were not bound to begin with
-
-                // Terminating normally
-
-                tracing::trace!(target: TARGET, session_state=?SessionState::Closed, "Setting session state");
-
-                self.session_state_holder
-                    .set_session_state(SessionState::Closed);
-            }
-            _ => {
-                // We unbind here
-
-                tracing::trace!(target: TARGET, session_state=?SessionState::Unbound, "Setting session state");
-
-                self.session_state_holder
-                    .set_session_state(SessionState::Unbound);
-
-                let sequence_number = self.session_state_holder.next_sequence_number();
-
-                let unbind = Command::builder()
-                    .status(CommandStatus::EsmeRok)
-                    .sequence_number(sequence_number)
-                    .pdu(Pdu::Unbind);
-
-                tracing::trace!(target: TARGET, "Sending unbind");
-
-                if let Err(err) = framed.send(unbind).await {
-                    let err = Error::from(err);
-
-                    tracing::error!(target: TARGET, ?err, "Error sending command");
-
-                    let _ = self.events_sink.send(Event::Error(err)).await;
-                }
-
-                // Wait for an unbind response to terminate gracefully
-                tracing::trace!(target: TARGET, "Waiting for unbind response");
-
-                tokio::select! {
-                    _ = tokio::time::sleep(self.config.timeouts.response) => {
-                        tracing::warn!(target: TARGET, "Unbind response timed out");
-                    },
-                    _ = async {
-                        while let Some(command) = framed.next().await {
-                            match command {
-                                Err(err) => {
-                                    let err = Error::from(err);
-
-                                    tracing::error!(target: TARGET, ?err, "Error reading unbind response");
-
-                                    let _ = self.events_sink.send(Event::Error(err)).await;
-
-                                    break
-                                },
-                                Ok(command) => {
-                                    let sequence_number=command.sequence_number();
-
-                                    match command.id() {
-                                        CommandId::UnbindResp => {
-                                            tracing::trace!(target: TARGET, sequence_number, "Received unbind response");
-
-                                            tracing::debug!(target: TARGET, "Unbound successfully");
-
-                                            break;
-                                        },
-                                        _ => {
-                                            let _ = self.events_sink.send(Event::Command(command)).await;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    } => {}
-                }
-
-                self.session_state_holder
-                    .set_session_state(SessionState::Closed);
-            }
-        }
-
-        tracing::debug!(target: TARGET, "Terminated");
-
-        self.termination_token.cancel();
     }
 }

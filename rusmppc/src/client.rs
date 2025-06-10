@@ -131,11 +131,6 @@ impl Client {
     }
 
     /// Checks if the connection is closed.
-    pub fn is_closed(&self) -> bool {
-        self.inner.watch.is_closed()
-    }
-
-    /// Completes when the connection is closed.
     ///
     /// # Note
     ///
@@ -143,6 +138,11 @@ impl Client {
     /// The connection may be in the process of closing.
     ///
     /// To check if the connection is active, use [`Client::is_active()`].
+    pub fn is_closed(&self) -> bool {
+        self.inner.watch.is_closed()
+    }
+
+    /// Completes when the connection is closed.
     pub async fn closed(&self) {
         self.inner.watch.closed().await
     }

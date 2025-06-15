@@ -87,7 +87,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     // Send a command with a custom timeout.
 
-    tracing::info!("Sending SubmitSm wit a custom timeout");
+    tracing::info!("Sending SubmitSm with a custom timeout");
 
     let response = client
         .response_timeout(Duration::from_secs(30))

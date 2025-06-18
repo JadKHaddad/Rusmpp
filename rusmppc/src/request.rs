@@ -9,9 +9,9 @@ pub enum Request {
     ///
     /// These requests are stored in the connection's pending requests map.
     Registered(RegisteredRequest),
-    /// Requests for which we are not waiting for a response from the server.
+    /// Requests for which we are `not` waiting for a response from the server.
     ///
-    /// These requests are not stored in the connection's pending requests map.
+    /// These requests are `not` stored in the connection's pending requests map.
     Unregistered(UnregisteredRequest),
 }
 
@@ -34,11 +34,11 @@ impl Request {
 #[derive(Debug)]
 pub struct RegisteredRequest {
     pub command: Command,
-    /// ack result means that command was sent, or could not be sent.
+    /// ack result means that the command was sent, or could not be sent.
     pub ack: oneshot::Sender<Result<(), Error>>,
     /// response is a command sent from the server with a sequence number matching this command's sequence number.
     ///
-    /// The background connection can only passes commands from the server with a matching sequence number without any validation.
+    /// The background connection can only pass commands from the server with a matching sequence number without any validation.
     /// It's the client's responsibility to handle error commands.
     pub response: oneshot::Sender<Command>,
 }
@@ -69,7 +69,7 @@ impl RegisteredRequest {
 #[derive(Debug)]
 pub struct UnregisteredRequest {
     pub command: Command,
-    /// ack result means that command was sent, or could not be sent.
+    /// ack result means that the command was sent, or could not be sent.
     pub ack: oneshot::Sender<Result<(), Error>>,
 }
 

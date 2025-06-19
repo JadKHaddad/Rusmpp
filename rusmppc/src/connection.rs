@@ -184,7 +184,7 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
     ///
     /// The clients also hold an atomic sequence number, which is incremented by 2 for each request, starting from 1.
     ///
-    /// This is done to ensure that commands sent by the connection [`EnquireLink`](Pdu::EnquireLink) and [`Unbind`](Pdu::Unbind) are differentiated from the commands sent by the client,
+    /// This is done to ensure that commands sent by the connection [`EnquireLink`](Pdu::EnquireLink) are differentiated from the commands sent by the client,
     /// without the use of atomic operations in the connection.
     fn sequence_number_fetch_and_increment(self: Pin<&mut Self>) -> u32 {
         let sequence_number = self.sequence_number;

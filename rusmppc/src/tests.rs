@@ -653,27 +653,35 @@ async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_re
 #[tokio::test]
 async fn server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts()
 {
-    init_tracing();
-
+    // Eventually, the stream poll_next will return pending, after the duplex stream reaches max_buf_size.
+    // The loop guards inside the connection do not really have any effect on the connection's ability to handle timeouts in this particular case.
+    // They guard against the connection being stuck in the stream poll loop (poll_next never returns pending).
+    // I will keep them since they provide a way to predict the connection's behavior.
     let (server, client) = tokio::io::duplex(1024);
 
-    tokio::spawn(async move {
-        let mut framed = Framed::new(server, CommandCodec::new());
+    let mut framed = Framed::new(server, CommandCodec::new());
 
-        loop {
-            if framed
-                .send(
-                    Command::builder()
-                        .status(CommandStatus::EsmeRok)
-                        .sequence_number(1)
-                        .pdu(AlertNotification::default()),
-                )
-                .await
-                .is_err()
-            {
-                break;
-            }
-        }
+    std::thread::spawn(move || {
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("Failed to build runtime")
+            .block_on(async move {
+                loop {
+                    if framed
+                        .send(
+                            Command::builder()
+                                .status(CommandStatus::EsmeRok)
+                                .sequence_number(1)
+                                .pdu(AlertNotification::default()),
+                        )
+                        .await
+                        .is_err()
+                    {
+                        break;
+                    }
+                }
+            });
     });
 
     let (client, events) = ConnectionBuilder::new()

@@ -39,7 +39,7 @@ impl ConnectionBuilder {
         }
     }
 
-    /// Connects to the `SMPP` server and performs the bind operation.
+    /// Connects to the `SMPP` server.
     ///
     /// Opens and manages a connection in the background and returns a client and an event stream.
     ///
@@ -73,7 +73,7 @@ impl ConnectionBuilder {
         Ok(self.connected(stream))
     }
 
-    /// Performs the bind operation on an already connected stream.
+    /// Creates a client from an existing connection.
     ///
     /// Manages a connection in the background and returns a client and an event stream.
     ///

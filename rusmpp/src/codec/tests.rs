@@ -124,7 +124,7 @@ mod tokio {
         framed.send(command).await.expect("Failed to send PDU");
 
         while let Some(command) = framed.next().await {
-            println!("Received: {:#?}", command);
+            println!("Received: {command:#?}");
         }
     }
 
@@ -256,7 +256,7 @@ mod tokio {
 
         tokio::spawn(async move {
             while let Some(command) = framed_read.next().await {
-                println!("{:#?}", command);
+                println!("{command:#?}");
                 println!();
             }
         });

@@ -270,13 +270,8 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 // using the `Client::is_active` method.
                             }
                             Action::PendingResponses(pending_responses) => {
-                                let pending = self
-                                    .as_mut()
-                                    .project()
-                                    .responses
-                                    .iter()
-                                    .map(|(sequence_number, _)| *sequence_number)
-                                    .collect();
+                                let pending =
+                                    self.as_mut().project().responses.keys().copied().collect();
 
                                 let _ = pending_responses.ack.send(Ok(pending));
                             }

@@ -90,7 +90,7 @@ See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/examples) dire
 
 ## Features
 
-- `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits for the [`CommandCodec`](https://docs.rs/Rusmpp/latest/Rusmpp/codec/struct.CommandCodec.html).
+- `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits for the [`CommandCodec`](https://docs.rs/rusmpp/latest/rusmpp/codec/struct.CommandCodec.html).
 - `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
 - `arbitrary`: Implements [`Arbitrary`](https://docs.rs/arbitrary/latest/arbitrary/trait.Arbitrary.html) trait for all types.
 - `verbose`: Enables verbose error reports.

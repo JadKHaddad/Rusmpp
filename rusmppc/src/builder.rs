@@ -149,9 +149,9 @@ impl ConnectionBuilder {
 
     /// Disables the interface version check.
     ///
-    /// This library uses an `SMPP` v5 implementation to encode and decode commands.
+    /// This library uses `SMPP v5` implementation to encode and decode commands.
     ///
-    /// Binding to a server with another `SMPP` may case issues encoding and decoding commands.
+    /// Binding to a server with another `SMPP` version may cause issues encoding and decoding commands.
     /// Disable interface version check to allow binding to servers with any `SMPP` version.
     pub fn disable_interface_version_check(mut self) -> Self {
         self.check_interface_version = false;

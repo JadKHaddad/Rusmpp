@@ -81,7 +81,7 @@ impl ConnectionBuilder {
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
     pub fn connected<S>(self, stream: S) -> (Client, impl Stream<Item = Event> + Unpin + 'static)
     where
-        S: AsyncRead + AsyncWrite + Send + Unpin + 'static,
+        S: AsyncRead + AsyncWrite + Send + 'static,
     {
         let (connection, watch, actions, events) = Connection::new(
             stream,

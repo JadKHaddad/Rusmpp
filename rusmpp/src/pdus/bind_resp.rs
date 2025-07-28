@@ -8,19 +8,20 @@ use crate::{
 macro_rules! declare_bind_resp {
     ($name:ident, $builder_name:ident) => {
         crate::create! {
-            @[skip_test]
-            #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-            #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-            pub struct $name {
-                /// MC identifier.
-                ///
-                /// Identifies the MC to the ESME.
-                pub system_id: COctetString<1, 16>,
-                /// `SMPP` version supported by MC. [`ScInterfaceVersion`].
-                @[length = checked]
-                sc_interface_version: Option<Tlv>,
+                @[skip_test]
+                #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+                #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+        #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+                pub struct $name {
+                    /// MC identifier.
+                    ///
+                    /// Identifies the MC to the ESME.
+                    pub system_id: COctetString<1, 16>,
+                    /// `SMPP` version supported by MC. [`ScInterfaceVersion`].
+                    @[length = checked]
+                    sc_interface_version: Option<Tlv>,
+                }
             }
-        }
 
         impl $name {
             pub fn new(

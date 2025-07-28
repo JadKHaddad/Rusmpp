@@ -7,19 +7,20 @@ use crate::{
 macro_rules! declare_sm_resp {
     ($name:ident, $builder_name:ident) => {
         crate::create! {
-            @[skip_test]
-            #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-            #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-            pub struct $name {
-                /// This field contains the MC message ID of the submitted message.
-                /// It may be used at a later stage to query the status of a message,
-                /// cancel or replace the message.
-                message_id: COctetString<1, 65>,
-                /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
-                @[length = unchecked]
-                tlvs: alloc::vec::Vec<Tlv>,
+                @[skip_test]
+                #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+                #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+        #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+                pub struct $name {
+                    /// This field contains the MC message ID of the submitted message.
+                    /// It may be used at a later stage to query the status of a message,
+                    /// cancel or replace the message.
+                    message_id: COctetString<1, 65>,
+                    /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
+                    @[length = unchecked]
+                    tlvs: alloc::vec::Vec<Tlv>,
+                }
             }
-        }
 
         impl $name {
             pub fn new(

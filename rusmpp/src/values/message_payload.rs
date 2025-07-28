@@ -3,6 +3,7 @@ use crate::types::AnyOctetString;
 crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
     pub struct MessagePayload {
         @[length = unchecked]
         pub value: AnyOctetString,

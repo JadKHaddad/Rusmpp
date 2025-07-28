@@ -3,6 +3,7 @@ crate::create! {
     /// See [`PriorityFlagType`].
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
     pub struct PriorityFlag {
         pub value: u8,
     }

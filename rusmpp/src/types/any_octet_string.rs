@@ -8,6 +8,7 @@ use crate::{
 /// No fixed size [`OctetString`](struct@crate::types::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))] // TODO: impl Deserialize based on Self::new() and make it transparent
 pub struct AnyOctetString {
     bytes: Vec<u8>,
 }

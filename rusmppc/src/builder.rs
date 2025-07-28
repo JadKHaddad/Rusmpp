@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use futures::Stream;
+use futures::{FutureExt, Stream};
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -39,6 +39,13 @@ impl ConnectionBuilder {
         }
     }
 
+    /// Does not spawn the connection in the background.
+    ///
+    /// It is your responsibility to run the connection to completion.
+    pub fn no_spawn(self) -> NoSpawnConnectionBuilder {
+        NoSpawnConnectionBuilder { builder: self }
+    }
+
     /// Connects to the `SMPP` server.
     ///
     /// Opens and manages a connection in the background and returns a client and an event stream.
@@ -49,28 +56,11 @@ impl ConnectionBuilder {
         self,
         host: impl ToSocketAddrs,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
-        tracing::debug!(target: "rusmppc::connection", "DNS resolution");
+        let (client, events, connection) = self.no_spawn().connect(host).await?;
 
-        let socket_addr = tokio::net::lookup_host(host)
-            .await
-            .map_err(Error::Dns)?
-            .next()
-            .ok_or_else(|| {
-                Error::Dns(std::io::Error::new(
-                    std::io::ErrorKind::NotFound,
-                    "No addresses found for the given host",
-                ))
-            })?;
+        tokio::spawn(connection);
 
-        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connecting");
-
-        let stream = TcpStream::connect(socket_addr)
-            .await
-            .map_err(Error::Connect)?;
-
-        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
-
-        Ok(self.connected(stream))
+        Ok((client, events))
     }
 
     /// Creates a client from an existing connection.
@@ -83,22 +73,8 @@ impl ConnectionBuilder {
     where
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
-        let (connection, watch, actions, events) = Connection::new(
-            stream,
-            self.max_command_length,
-            self.enquire_link_interval,
-            self.enquire_link_response_timeout,
-        );
+        let (client, events, connection) = self.no_spawn().connected(stream);
 
-        let client = Client::new(
-            actions,
-            self.response_timeout,
-            self.check_interface_version,
-            watch,
-        );
-
-        // If you don't want to spawn the connection and give it to the user to spawn it.
-        // Check the comments on `Connection` first. You might want to fuse it first.
         tokio::spawn(connection);
 
         (client, events)
@@ -156,5 +132,78 @@ impl ConnectionBuilder {
     pub fn disable_interface_version_check(mut self) -> Self {
         self.check_interface_version = false;
         self
+    }
+}
+
+/// Builder for creating a new `SMPP` connection without spawning it in the background.
+#[derive(Debug)]
+pub struct NoSpawnConnectionBuilder {
+    builder: ConnectionBuilder,
+}
+
+impl NoSpawnConnectionBuilder {
+    /// Connects to the `SMPP` server without spawning the connection in the background.
+    pub async fn connect(
+        self,
+        host: impl ToSocketAddrs,
+    ) -> Result<
+        (
+            Client,
+            impl Stream<Item = Event> + Unpin + 'static,
+            impl Future<Output = ()> + 'static,
+        ),
+        Error,
+    > {
+        tracing::debug!(target: "rusmppc::connection", "DNS resolution");
+
+        let socket_addr = tokio::net::lookup_host(host)
+            .await
+            .map_err(Error::Dns)?
+            .next()
+            .ok_or_else(|| {
+                Error::Dns(std::io::Error::new(
+                    std::io::ErrorKind::NotFound,
+                    "No addresses found for the given host",
+                ))
+            })?;
+
+        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connecting");
+
+        let stream = TcpStream::connect(socket_addr)
+            .await
+            .map_err(Error::Connect)?;
+
+        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
+
+        Ok(self.connected(stream))
+    }
+
+    /// Creates a client from an existing connection without spawning the connection in the background.
+    pub fn connected<S>(
+        self,
+        stream: S,
+    ) -> (
+        Client,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()>,
+    )
+    where
+        S: AsyncRead + AsyncWrite + Send + 'static,
+    {
+        let (connection, watch, actions, events) = Connection::new(
+            stream,
+            self.builder.max_command_length,
+            self.builder.enquire_link_interval,
+            self.builder.enquire_link_response_timeout,
+        );
+
+        let client = Client::new(
+            actions,
+            self.builder.response_timeout,
+            self.builder.check_interface_version,
+            watch,
+        );
+
+        (client, events, connection.fuse())
     }
 }

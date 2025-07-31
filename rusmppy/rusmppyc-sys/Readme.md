@@ -22,5 +22,5 @@ Raw `Python` bindings for `Rusmppc`
 - The bindings are now available in the virtual environment. You can test them by running:
 
   ```bash
-  python -c "import rusmppyc_sys; print(rusmppyc_sys.__version__)"
+  python3 -c "import rusmppyc_sys; print(rusmppyc_sys.__version__)"
   ```

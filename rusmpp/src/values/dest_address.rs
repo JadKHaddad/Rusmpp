@@ -10,6 +10,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum DestFlag {
         #[default]
         SmeAddress = 0x01,
@@ -46,6 +47,7 @@ impl From<DestFlag> for u32 {
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 pub enum DestAddress {
     /// SME Format Destination Address.
     SmeAddress(SmeAddress),
@@ -94,6 +96,7 @@ crate::create! {
     /// SME Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct SmeAddress {
         @[skip]
         /// 0x01 (SME Address).
@@ -135,6 +138,7 @@ crate::create! {
     /// Distribution List Format Destination Address.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct DistributionListName {
         @[skip]
         /// 0x02 (Distribution List).

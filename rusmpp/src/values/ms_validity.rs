@@ -1,6 +1,7 @@
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct MsValidity {
         pub validity_behavior: MsValidityBehavior,
         @[length = checked]
@@ -23,6 +24,7 @@ impl MsValidity {
 crate::create! {
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct MsValidityInformation {
         pub units_of_time: UnitsOfTime,
         pub number_of_time_units: u16,
@@ -42,6 +44,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum MsValidityBehavior {
         #[default]
         StoreIndefinitely = 0,
@@ -83,6 +86,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum UnitsOfTime {
         #[default]
         Seconds = 0b00000000,

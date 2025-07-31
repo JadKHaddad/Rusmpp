@@ -11,6 +11,7 @@ macro_rules! declare_bind_resp {
             @[skip_test]
             #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
             #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+            #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
             pub struct $name {
                 /// MC identifier.
                 ///

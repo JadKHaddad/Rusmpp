@@ -27,6 +27,10 @@ tracing = { version = "0.1.40", default-features = false, optional = true }
 arbitrary = { version = "1.4.1", default-features = false, features = [
     "derive_arbitrary",
 ], optional = true }
+serde = { version = "1.0.219", default-features = false, features = [
+    "derive",
+    "alloc",
+], optional = true }
 
 [features]
 default = ["tokio-codec"]
@@ -40,6 +44,8 @@ tracing = ["dep:tracing"]
 arbitrary = ["dep:arbitrary"]
 # Enables verbose DecodeError with DecodeErrorSource.
 verbose = []
+# Derive serde Serialize for all types.
+serde = ["dep:serde"]
 
 [[example]]
 name = "client_server"

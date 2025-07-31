@@ -2,6 +2,7 @@ crate::create! {
     @[repr = u8]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct RegisteredDelivery {
         mc_delivery_receipt: MCDeliveryReceipt,
         sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
@@ -84,6 +85,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum MCDeliveryReceipt {
         #[default]
         NoMcDeliveryReceiptRequested = 0b00000000,
@@ -122,6 +124,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum SmeOriginatedAcknowledgement {
         #[default]
         NoReceiptSmeAcknowledgementRequested = 0b00000000,
@@ -160,6 +163,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum IntermediateNotification {
         #[default]
         NoIntermediaryNotificationRequested = 0b00000000,

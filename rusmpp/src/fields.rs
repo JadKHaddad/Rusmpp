@@ -48,6 +48,7 @@
 /// # }
 #[allow(non_camel_case_types)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 pub enum SmppField {
     addr,
     addr_npi,

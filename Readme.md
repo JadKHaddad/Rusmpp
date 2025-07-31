@@ -95,6 +95,7 @@ See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/examples) dire
 - `arbitrary`: Implements [`Arbitrary`](https://docs.rs/arbitrary/latest/arbitrary/trait.Arbitrary.html) trait for all types.
 - `verbose`: Enables verbose error reports.
 - `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
+- `serde`: Implements [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) trait for all types.
 
 ## License
 

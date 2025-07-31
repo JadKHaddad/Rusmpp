@@ -3,6 +3,7 @@ crate::create! {
     /// Numeric Plan Indicator.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum Npi {
         #[default]
         Unknown = 0b00000000,

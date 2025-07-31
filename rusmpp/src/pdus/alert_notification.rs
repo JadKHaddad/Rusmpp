@@ -18,6 +18,7 @@ crate::create! {
     /// Note: There is no associated alert_notification_resp PDU.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct AlertNotification {
         /// Type of Number for alert SME.
         pub source_addr_ton: Ton,

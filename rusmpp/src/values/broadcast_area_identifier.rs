@@ -4,6 +4,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum BroadcastAreaFormat {
         #[default]
         AliasName = 0x00,
@@ -39,6 +40,7 @@ crate::create! {
     /// The broadcast_area_identifier defines the Broadcast Area in terms of a geographical descriptor.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct BroadcastAreaIdentifier {
         pub format: BroadcastAreaFormat,
         @[length = unchecked]

@@ -110,6 +110,7 @@
         "rustc",
         "rustdoc",
         "Seqnum",
+        "serde",
         "SMPP",
         "SMSC",
         "Subaddress",

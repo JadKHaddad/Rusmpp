@@ -1161,6 +1161,7 @@ dependencies = [
  "arbitrary",
  "futures",
  "macrotest",
+ "serde",
  "testcontainers",
  "tokio",
  "tokio-util",

@@ -20,6 +20,7 @@ crate::create! {
     /// NULL, then the source address in the cancel_sm command should also be NULL.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct CancelSm {
         /// Set to indicate SMS Application service,
         /// if cancellation of a group of application

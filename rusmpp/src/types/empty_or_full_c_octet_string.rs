@@ -53,8 +53,12 @@ impl core::error::Error for Error {}
 /// let string = EmptyOrFullCOctetString::<0>::new(b"Hello\0");
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize), serde(transparent))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+#[cfg_attr(
+    any(feature = "serde", feature = "serde-deserialize-unchecked"),
+    serde(transparent)
+)]
 pub struct EmptyOrFullCOctetString<const N: usize> {
     bytes: Vec<u8>,
 }

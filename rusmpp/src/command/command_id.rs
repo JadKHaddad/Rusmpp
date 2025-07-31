@@ -18,6 +18,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub enum CommandId {
         BindReceiver = 0x00000001,
         BindTransmitter = 0x00000002,

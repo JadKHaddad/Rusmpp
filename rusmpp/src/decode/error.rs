@@ -3,6 +3,7 @@ use crate::fields::SmppField;
 /// An error that can occur when decoding `SMPP` values.
 #[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct DecodeError {
     kind: DecodeErrorKind,
     #[cfg(feature = "verbose")]
@@ -84,6 +85,7 @@ impl DecodeError {
 #[derive(Debug)]
 #[cfg(feature = "verbose")]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct DecodeErrorSource {
     field: SmppField,
     error: DecodeError,
@@ -103,6 +105,7 @@ impl DecodeErrorSource {
 /// Kind of [`DecodeError`].
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 #[non_exhaustive]
 pub enum DecodeErrorKind {
     UnexpectedEof,
@@ -114,6 +117,7 @@ pub enum DecodeErrorKind {
 /// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString).
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 #[non_exhaustive]
 pub enum COctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
@@ -124,6 +128,7 @@ pub enum COctetStringDecodeError {
 /// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString).
 #[derive(Debug, Copy, Clone)]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 #[non_exhaustive]
 pub enum OctetStringDecodeError {
     TooManyBytes { actual: usize, max: usize },

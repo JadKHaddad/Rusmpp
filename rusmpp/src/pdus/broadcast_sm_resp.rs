@@ -9,6 +9,7 @@ crate::create! {
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub struct BroadcastSmResp {
         /// This field contains the MC message ID of the submitted
         /// message. It may be used at a later stage to perform

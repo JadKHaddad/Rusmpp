@@ -3,6 +3,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub struct CallbackNumPresInd {
         pub presentation: Presentation,
         pub screening: Screening,
@@ -38,6 +39,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub enum Presentation {
         #[default]
         PresentationAllowed = 0b00000000,
@@ -74,6 +76,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub enum Screening {
         #[default]
         NotScreened = 0b00000000,

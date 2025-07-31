@@ -29,6 +29,7 @@ arbitrary = { version = "1.4.1", default-features = false, features = [
 ], optional = true }
 serde = { version = "1.0.219", default-features = false, features = [
     "derive",
+    "alloc",
 ], optional = true }
 
 [features]

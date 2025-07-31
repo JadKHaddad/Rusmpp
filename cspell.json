@@ -128,9 +128,11 @@
         "Ussd",
         "Ussn",
         "Wcmp",
-        "wireshark"
+        "wireshark",
+        "venv",
     ],
     "ignorePaths": [
-        "target"
+        "target",
+        "venv",
     ]
 }

@@ -38,7 +38,7 @@ crate::create! {
     /// | 00                            | addr_range (NULL) |
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct Command {
         /// See [`CommandId`]
         id: CommandId,

@@ -13,7 +13,7 @@ crate::create! {
     /// NULL, then the source address in the query_sm command should also be set to NULL.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct QuerySm {
         /// Message ID of the message whose state
         /// is to be queried. This must be the MC

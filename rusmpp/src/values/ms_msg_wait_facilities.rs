@@ -2,7 +2,7 @@ crate::create! {
     @[repr = u8]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct MsMsgWaitFacilities {
         pub indicator: Indicator,
         pub type_of_message: TypeOfMessage,
@@ -37,7 +37,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum Indicator {
         #[default]
         Inactive = 0b00000000,
@@ -70,7 +70,7 @@ crate::create! {
     #[repr(u8)]
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum TypeOfMessage {
         #[default]
         VoicemailMessageWaiting = 0b00000000,

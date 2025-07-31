@@ -13,7 +13,7 @@ crate::create! {
     /// packet-based applications.
     #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct DataSm {
         /// The service_type parameter can be used to indicate the
         /// SMS Application service associated with the message.

@@ -8,7 +8,7 @@ crate::create! {
     /// conjunction with a message_id.
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct UserMessageReference {
         pub value: u16,
     }

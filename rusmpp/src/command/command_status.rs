@@ -14,7 +14,7 @@ crate::create! {
     /// `SMPP` message header and in the error_status_code field of a submit_multi_resp message.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum CommandStatus {
         /// No Error.
         ///

@@ -2,7 +2,7 @@ crate::create! {
     /// This field indicates the number of repeated broadcasts requested by the Submitter.
     #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct BroadcastRepNum {
         pub value: u8,
     }

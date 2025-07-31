@@ -54,7 +54,7 @@ impl core::error::Error for Error {}
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))] // TODO: impl Deserialize based on Self::new() and make it transparent
+#[cfg_attr(feature = "serde", derive(::serde::Serialize), serde(transparent))]
 pub struct EmptyOrFullCOctetString<const N: usize> {
     bytes: Vec<u8>,
 }

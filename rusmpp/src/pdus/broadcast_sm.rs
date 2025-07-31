@@ -11,7 +11,7 @@ crate::create! {
     /// broadcast to a specified geographical area or set of geographical areas.
     #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub struct BroadcastSm {
         /// The service_type parameter can be used to
         /// indicate the SMS Application service

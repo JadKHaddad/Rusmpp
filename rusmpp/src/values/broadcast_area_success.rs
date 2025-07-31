@@ -6,7 +6,7 @@ crate::create! {
     /// a particular broadcast_area_identifier.
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
     pub enum BroadcastAreaSuccess {
         #[default]
         InformationNotAvailable,

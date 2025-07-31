@@ -10,7 +10,7 @@ macro_rules! declare_bind {
                 @[skip_test]
                 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
                 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-        #[cfg_attr(feature = "serde", derive(::serde::Serialize, ::serde::Deserialize))]
+        #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
                 pub struct $name {
                     /// Identifies the ESME system
                     /// requesting to bind with the MC.

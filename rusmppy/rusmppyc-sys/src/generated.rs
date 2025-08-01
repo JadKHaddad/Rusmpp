@@ -7,7 +7,10 @@ use std::collections::BTreeMap as Map;
 type Bytes = Vec<u8>;
 
 pub mod rusmpp_types {
-    pub use ::rusmpp::{pdus::*, tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu};
+    pub use ::rusmpp::{
+        pdus::parts::*, pdus::*, tlvs::*, values::parts::*, values::*, Command, CommandId,
+        CommandStatus, Pdu,
+    };
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -22,6 +25,19 @@ pub enum AddrSubunit {
     Other(u8),
 }
 
+impl From<rusmpp_types::AddrSubunit> for AddrSubunit {
+    fn from(value: rusmpp_types::AddrSubunit) -> Self {
+        match value {
+            rusmpp_types::AddrSubunit::Unknown => AddrSubunit::Unknown(),
+            rusmpp_types::AddrSubunit::MSDisplay => AddrSubunit::MSDisplay(),
+            rusmpp_types::AddrSubunit::MobileEquipment => AddrSubunit::MobileEquipment(),
+            rusmpp_types::AddrSubunit::SmartCard => AddrSubunit::SmartCard(),
+            rusmpp_types::AddrSubunit::ExternalUnit => AddrSubunit::ExternalUnit(),
+            rusmpp_types::AddrSubunit::Other(inner) => AddrSubunit::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -31,6 +47,28 @@ pub enum AlertOnMessageDelivery {
     UseMediumPriorityAlert(),
     UseHighPriorityAlert(),
     Other(u8),
+}
+
+impl From<rusmpp_types::AlertOnMessageDelivery> for AlertOnMessageDelivery {
+    fn from(value: rusmpp_types::AlertOnMessageDelivery) -> Self {
+        match value {
+            rusmpp_types::AlertOnMessageDelivery::UseMobileDefaultAlert => {
+                AlertOnMessageDelivery::UseMobileDefaultAlert()
+            }
+            rusmpp_types::AlertOnMessageDelivery::UseLowPriorityAlert => {
+                AlertOnMessageDelivery::UseLowPriorityAlert()
+            }
+            rusmpp_types::AlertOnMessageDelivery::UseMediumPriorityAlert => {
+                AlertOnMessageDelivery::UseMediumPriorityAlert()
+            }
+            rusmpp_types::AlertOnMessageDelivery::UseHighPriorityAlert => {
+                AlertOnMessageDelivery::UseHighPriorityAlert()
+            }
+            rusmpp_types::AlertOnMessageDelivery::Other(inner) => {
+                AlertOnMessageDelivery::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -49,6 +87,23 @@ pub enum BearerType {
     Other(u8),
 }
 
+impl From<rusmpp_types::BearerType> for BearerType {
+    fn from(value: rusmpp_types::BearerType) -> Self {
+        match value {
+            rusmpp_types::BearerType::Unknown => BearerType::Unknown(),
+            rusmpp_types::BearerType::Sms => BearerType::Sms(),
+            rusmpp_types::BearerType::Csd => BearerType::Csd(),
+            rusmpp_types::BearerType::PacketData => BearerType::PacketData(),
+            rusmpp_types::BearerType::Ussd => BearerType::Ussd(),
+            rusmpp_types::BearerType::Cdpd => BearerType::Cdpd(),
+            rusmpp_types::BearerType::DataTac => BearerType::DataTac(),
+            rusmpp_types::BearerType::FlexReFlex => BearerType::FlexReFlex(),
+            rusmpp_types::BearerType::CellBroadcast => BearerType::CellBroadcast(),
+            rusmpp_types::BearerType::Other(inner) => BearerType::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -57,6 +112,19 @@ pub enum BroadcastAreaFormat {
     EllipsoidArc(),
     Polygon(),
     Other(u8),
+}
+
+impl From<rusmpp_types::BroadcastAreaFormat> for BroadcastAreaFormat {
+    fn from(value: rusmpp_types::BroadcastAreaFormat) -> Self {
+        match value {
+            rusmpp_types::BroadcastAreaFormat::AliasName => BroadcastAreaFormat::AliasName(),
+            rusmpp_types::BroadcastAreaFormat::EllipsoidArc => BroadcastAreaFormat::EllipsoidArc(),
+            rusmpp_types::BroadcastAreaFormat::Polygon => BroadcastAreaFormat::Polygon(),
+            rusmpp_types::BroadcastAreaFormat::Other(inner) => {
+                BroadcastAreaFormat::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -76,6 +144,22 @@ pub enum BroadcastAreaSuccess {
     Other(u8),
 }
 
+impl From<rusmpp_types::BroadcastAreaSuccess> for BroadcastAreaSuccess {
+    fn from(value: rusmpp_types::BroadcastAreaSuccess) -> Self {
+        match value {
+            rusmpp_types::BroadcastAreaSuccess::InformationNotAvailable => {
+                BroadcastAreaSuccess::InformationNotAvailable()
+            }
+            rusmpp_types::BroadcastAreaSuccess::ZeroToHundred(inner) => {
+                BroadcastAreaSuccess::ZeroToHundred(inner.into())
+            }
+            rusmpp_types::BroadcastAreaSuccess::Other(inner) => {
+                BroadcastAreaSuccess::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -83,6 +167,20 @@ pub enum BroadcastChannelIndicator {
     Basic(),
     Extended(),
     Other(u8),
+}
+
+impl From<rusmpp_types::BroadcastChannelIndicator> for BroadcastChannelIndicator {
+    fn from(value: rusmpp_types::BroadcastChannelIndicator) -> Self {
+        match value {
+            rusmpp_types::BroadcastChannelIndicator::Basic => BroadcastChannelIndicator::Basic(),
+            rusmpp_types::BroadcastChannelIndicator::Extended => {
+                BroadcastChannelIndicator::Extended()
+            }
+            rusmpp_types::BroadcastChannelIndicator::Other(inner) => {
+                BroadcastChannelIndicator::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -136,6 +234,128 @@ pub enum EncodingContentType {
     Other(u16),
 }
 
+impl From<rusmpp_types::EncodingContentType> for EncodingContentType {
+    fn from(value: rusmpp_types::EncodingContentType) -> Self {
+        match value {
+            rusmpp_types::EncodingContentType::Index => EncodingContentType::Index(),
+            rusmpp_types::EncodingContentType::EmergencyBroadcasts => {
+                EncodingContentType::EmergencyBroadcasts()
+            }
+            rusmpp_types::EncodingContentType::IrdbDownload => EncodingContentType::IrdbDownload(),
+            rusmpp_types::EncodingContentType::NewsFlashes => EncodingContentType::NewsFlashes(),
+            rusmpp_types::EncodingContentType::GeneralNewsLocal => {
+                EncodingContentType::GeneralNewsLocal()
+            }
+            rusmpp_types::EncodingContentType::GeneralNewsRegional => {
+                EncodingContentType::GeneralNewsRegional()
+            }
+            rusmpp_types::EncodingContentType::GeneralNewsNational => {
+                EncodingContentType::GeneralNewsNational()
+            }
+            rusmpp_types::EncodingContentType::GeneralNewsInternational => {
+                EncodingContentType::GeneralNewsInternational()
+            }
+            rusmpp_types::EncodingContentType::BusinessFinancialNewsLocal => {
+                EncodingContentType::BusinessFinancialNewsLocal()
+            }
+            rusmpp_types::EncodingContentType::BusinessFinancialNewsRegional => {
+                EncodingContentType::BusinessFinancialNewsRegional()
+            }
+            rusmpp_types::EncodingContentType::BusinessFinancialNewsNational => {
+                EncodingContentType::BusinessFinancialNewsNational()
+            }
+            rusmpp_types::EncodingContentType::BusinessFinancialNewsInternational => {
+                EncodingContentType::BusinessFinancialNewsInternational()
+            }
+            rusmpp_types::EncodingContentType::SportsNewsLocal => {
+                EncodingContentType::SportsNewsLocal()
+            }
+            rusmpp_types::EncodingContentType::SportsNewsRegional => {
+                EncodingContentType::SportsNewsRegional()
+            }
+            rusmpp_types::EncodingContentType::SportsNewsNational => {
+                EncodingContentType::SportsNewsNational()
+            }
+            rusmpp_types::EncodingContentType::SportsNewsInternational => {
+                EncodingContentType::SportsNewsInternational()
+            }
+            rusmpp_types::EncodingContentType::EntertainmentNewsLocal => {
+                EncodingContentType::EntertainmentNewsLocal()
+            }
+            rusmpp_types::EncodingContentType::EntertainmentNewsRegional => {
+                EncodingContentType::EntertainmentNewsRegional()
+            }
+            rusmpp_types::EncodingContentType::EntertainmentNewsNational => {
+                EncodingContentType::EntertainmentNewsNational()
+            }
+            rusmpp_types::EncodingContentType::EntertainmentNewsInternational => {
+                EncodingContentType::EntertainmentNewsInternational()
+            }
+            rusmpp_types::EncodingContentType::MedicalHealthHospitals => {
+                EncodingContentType::MedicalHealthHospitals()
+            }
+            rusmpp_types::EncodingContentType::Doctors => EncodingContentType::Doctors(),
+            rusmpp_types::EncodingContentType::Pharmacy => EncodingContentType::Pharmacy(),
+            rusmpp_types::EncodingContentType::LocalTrafficRoadReports => {
+                EncodingContentType::LocalTrafficRoadReports()
+            }
+            rusmpp_types::EncodingContentType::LongDistanceTrafficRoadReports => {
+                EncodingContentType::LongDistanceTrafficRoadReports()
+            }
+            rusmpp_types::EncodingContentType::Taxis => EncodingContentType::Taxis(),
+            rusmpp_types::EncodingContentType::Weather => EncodingContentType::Weather(),
+            rusmpp_types::EncodingContentType::LocalAirportFlightSchedules => {
+                EncodingContentType::LocalAirportFlightSchedules()
+            }
+            rusmpp_types::EncodingContentType::Restaurants => EncodingContentType::Restaurants(),
+            rusmpp_types::EncodingContentType::Lodgings => EncodingContentType::Lodgings(),
+            rusmpp_types::EncodingContentType::RetailDirectory => {
+                EncodingContentType::RetailDirectory()
+            }
+            rusmpp_types::EncodingContentType::Advertisements => {
+                EncodingContentType::Advertisements()
+            }
+            rusmpp_types::EncodingContentType::StockQuotes => EncodingContentType::StockQuotes(),
+            rusmpp_types::EncodingContentType::EmploymentOpportunities => {
+                EncodingContentType::EmploymentOpportunities()
+            }
+            rusmpp_types::EncodingContentType::TechnologyNews => {
+                EncodingContentType::TechnologyNews()
+            }
+            rusmpp_types::EncodingContentType::DistrictBaseStationInfo => {
+                EncodingContentType::DistrictBaseStationInfo()
+            }
+            rusmpp_types::EncodingContentType::NetworkInformation => {
+                EncodingContentType::NetworkInformation()
+            }
+            rusmpp_types::EncodingContentType::OperatorServices => {
+                EncodingContentType::OperatorServices()
+            }
+            rusmpp_types::EncodingContentType::DirectoryEnquiriesNational => {
+                EncodingContentType::DirectoryEnquiriesNational()
+            }
+            rusmpp_types::EncodingContentType::DirectoryEnquiriesInternational => {
+                EncodingContentType::DirectoryEnquiriesInternational()
+            }
+            rusmpp_types::EncodingContentType::CustomerCareNational => {
+                EncodingContentType::CustomerCareNational()
+            }
+            rusmpp_types::EncodingContentType::CustomerCareInternational => {
+                EncodingContentType::CustomerCareInternational()
+            }
+            rusmpp_types::EncodingContentType::LocalDateTimeTimeZone => {
+                EncodingContentType::LocalDateTimeTimeZone()
+            }
+            rusmpp_types::EncodingContentType::MultiCategoryServices => {
+                EncodingContentType::MultiCategoryServices()
+            }
+            rusmpp_types::EncodingContentType::Other(inner) => {
+                EncodingContentType::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -145,6 +365,18 @@ pub enum TypeOfNetwork {
     Tdma(),
     Cdma(),
     Other(u8),
+}
+
+impl From<rusmpp_types::TypeOfNetwork> for TypeOfNetwork {
+    fn from(value: rusmpp_types::TypeOfNetwork) -> Self {
+        match value {
+            rusmpp_types::TypeOfNetwork::Generic => TypeOfNetwork::Generic(),
+            rusmpp_types::TypeOfNetwork::Gsm => TypeOfNetwork::Gsm(),
+            rusmpp_types::TypeOfNetwork::Tdma => TypeOfNetwork::Tdma(),
+            rusmpp_types::TypeOfNetwork::Cdma => TypeOfNetwork::Cdma(),
+            rusmpp_types::TypeOfNetwork::Other(inner) => TypeOfNetwork::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -170,6 +402,24 @@ pub enum UnitOfTime {
     Other(u8),
 }
 
+impl From<rusmpp_types::UnitOfTime> for UnitOfTime {
+    fn from(value: rusmpp_types::UnitOfTime) -> Self {
+        match value {
+            rusmpp_types::UnitOfTime::AsFrequentlyAsPossible => {
+                UnitOfTime::AsFrequentlyAsPossible()
+            }
+            rusmpp_types::UnitOfTime::Seconds => UnitOfTime::Seconds(),
+            rusmpp_types::UnitOfTime::Minutes => UnitOfTime::Minutes(),
+            rusmpp_types::UnitOfTime::Hours => UnitOfTime::Hours(),
+            rusmpp_types::UnitOfTime::Days => UnitOfTime::Days(),
+            rusmpp_types::UnitOfTime::Weeks => UnitOfTime::Weeks(),
+            rusmpp_types::UnitOfTime::Months => UnitOfTime::Months(),
+            rusmpp_types::UnitOfTime::Years => UnitOfTime::Years(),
+            rusmpp_types::UnitOfTime::Other(inner) => UnitOfTime::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -189,6 +439,22 @@ pub enum BroadcastMessageClass {
     Other(u8),
 }
 
+impl From<rusmpp_types::BroadcastMessageClass> for BroadcastMessageClass {
+    fn from(value: rusmpp_types::BroadcastMessageClass) -> Self {
+        match value {
+            rusmpp_types::BroadcastMessageClass::NoClassSpecified => {
+                BroadcastMessageClass::NoClassSpecified()
+            }
+            rusmpp_types::BroadcastMessageClass::Class1 => BroadcastMessageClass::Class1(),
+            rusmpp_types::BroadcastMessageClass::Class2 => BroadcastMessageClass::Class2(),
+            rusmpp_types::BroadcastMessageClass::Class3 => BroadcastMessageClass::Class3(),
+            rusmpp_types::BroadcastMessageClass::Other(inner) => {
+                BroadcastMessageClass::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -206,6 +472,19 @@ pub enum Presentation {
     Other(u8),
 }
 
+impl From<rusmpp_types::Presentation> for Presentation {
+    fn from(value: rusmpp_types::Presentation) -> Self {
+        match value {
+            rusmpp_types::Presentation::PresentationAllowed => Presentation::PresentationAllowed(),
+            rusmpp_types::Presentation::PresentationRestricted => {
+                Presentation::PresentationRestricted()
+            }
+            rusmpp_types::Presentation::NumberNotAvailable => Presentation::NumberNotAvailable(),
+            rusmpp_types::Presentation::Other(inner) => Presentation::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -215,6 +494,18 @@ pub enum Screening {
     VerifiedAndFailed(),
     NetworkProvided(),
     Other(u8),
+}
+
+impl From<rusmpp_types::Screening> for Screening {
+    fn from(value: rusmpp_types::Screening) -> Self {
+        match value {
+            rusmpp_types::Screening::NotScreened => Screening::NotScreened(),
+            rusmpp_types::Screening::VerifiedAndPassed => Screening::VerifiedAndPassed(),
+            rusmpp_types::Screening::VerifiedAndFailed => Screening::VerifiedAndFailed(),
+            rusmpp_types::Screening::NetworkProvided => Screening::NetworkProvided(),
+            rusmpp_types::Screening::Other(inner) => Screening::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -299,6 +590,107 @@ pub enum CommandStatus {
     Other(u32),
 }
 
+impl From<rusmpp_types::CommandStatus> for CommandStatus {
+    fn from(value: rusmpp_types::CommandStatus) -> Self {
+        match value {
+            rusmpp_types::CommandStatus::EsmeRok => CommandStatus::EsmeRok(),
+            rusmpp_types::CommandStatus::EsmeRinvmsglen => CommandStatus::EsmeRinvmsglen(),
+            rusmpp_types::CommandStatus::EsmeRinvcmdlen => CommandStatus::EsmeRinvcmdlen(),
+            rusmpp_types::CommandStatus::EsmeRinvcmdid => CommandStatus::EsmeRinvcmdid(),
+            rusmpp_types::CommandStatus::EsmeRinvbndsts => CommandStatus::EsmeRinvbndsts(),
+            rusmpp_types::CommandStatus::EsmeRalybnd => CommandStatus::EsmeRalybnd(),
+            rusmpp_types::CommandStatus::EsmeRinvprtflg => CommandStatus::EsmeRinvprtflg(),
+            rusmpp_types::CommandStatus::EsmeRinvregdlvflg => CommandStatus::EsmeRinvregdlvflg(),
+            rusmpp_types::CommandStatus::EsmeRsyserr => CommandStatus::EsmeRsyserr(),
+            rusmpp_types::CommandStatus::EsmeRinvsrcadr => CommandStatus::EsmeRinvsrcadr(),
+            rusmpp_types::CommandStatus::EsmeRinvdstadr => CommandStatus::EsmeRinvdstadr(),
+            rusmpp_types::CommandStatus::EsmeRinvmsgid => CommandStatus::EsmeRinvmsgid(),
+            rusmpp_types::CommandStatus::EsmeRbindfail => CommandStatus::EsmeRbindfail(),
+            rusmpp_types::CommandStatus::EsmeRinvpaswd => CommandStatus::EsmeRinvpaswd(),
+            rusmpp_types::CommandStatus::EsmeRinvsysid => CommandStatus::EsmeRinvsysid(),
+            rusmpp_types::CommandStatus::EsmeRcancelfail => CommandStatus::EsmeRcancelfail(),
+            rusmpp_types::CommandStatus::EsmeRreplacefail => CommandStatus::EsmeRreplacefail(),
+            rusmpp_types::CommandStatus::EsmeRmsgqful => CommandStatus::EsmeRmsgqful(),
+            rusmpp_types::CommandStatus::EsmeRinvsertyp => CommandStatus::EsmeRinvsertyp(),
+            rusmpp_types::CommandStatus::EsmeRinvnumdests => CommandStatus::EsmeRinvnumdests(),
+            rusmpp_types::CommandStatus::EsmeRinvdlname => CommandStatus::EsmeRinvdlname(),
+            rusmpp_types::CommandStatus::EsmeRinvdestflag => CommandStatus::EsmeRinvdestflag(),
+            rusmpp_types::CommandStatus::EsmeRinvsubrep => CommandStatus::EsmeRinvsubrep(),
+            rusmpp_types::CommandStatus::EsmeRinvesmclass => CommandStatus::EsmeRinvesmclass(),
+            rusmpp_types::CommandStatus::EsmeRcntsubdl => CommandStatus::EsmeRcntsubdl(),
+            rusmpp_types::CommandStatus::EsmeRsubmitfail => CommandStatus::EsmeRsubmitfail(),
+            rusmpp_types::CommandStatus::EsmeRinvsrcton => CommandStatus::EsmeRinvsrcton(),
+            rusmpp_types::CommandStatus::EsmeRinvsrcnpi => CommandStatus::EsmeRinvsrcnpi(),
+            rusmpp_types::CommandStatus::EsmeRinvdstton => CommandStatus::EsmeRinvdstton(),
+            rusmpp_types::CommandStatus::EsmeRinvdstnpi => CommandStatus::EsmeRinvdstnpi(),
+            rusmpp_types::CommandStatus::EsmeRinvsystyp => CommandStatus::EsmeRinvsystyp(),
+            rusmpp_types::CommandStatus::EsmeRinvrepflag => CommandStatus::EsmeRinvrepflag(),
+            rusmpp_types::CommandStatus::EsmeRinvnummsgs => CommandStatus::EsmeRinvnummsgs(),
+            rusmpp_types::CommandStatus::EsmeRthrottled => CommandStatus::EsmeRthrottled(),
+            rusmpp_types::CommandStatus::EsmeRinvsched => CommandStatus::EsmeRinvsched(),
+            rusmpp_types::CommandStatus::EsmeRinvexpiry => CommandStatus::EsmeRinvexpiry(),
+            rusmpp_types::CommandStatus::EsmeRinvdftmsgid => CommandStatus::EsmeRinvdftmsgid(),
+            rusmpp_types::CommandStatus::EsmeRxTAppn => CommandStatus::EsmeRxTAppn(),
+            rusmpp_types::CommandStatus::EsmeRxPAppn => CommandStatus::EsmeRxPAppn(),
+            rusmpp_types::CommandStatus::EsmeRxRAppn => CommandStatus::EsmeRxRAppn(),
+            rusmpp_types::CommandStatus::EsmeRqueryfail => CommandStatus::EsmeRqueryfail(),
+            rusmpp_types::CommandStatus::EsmeRinvtlvstream => CommandStatus::EsmeRinvtlvstream(),
+            rusmpp_types::CommandStatus::EsmeRtlvnotallwd => CommandStatus::EsmeRtlvnotallwd(),
+            rusmpp_types::CommandStatus::EsmeRinvtlvlen => CommandStatus::EsmeRinvtlvlen(),
+            rusmpp_types::CommandStatus::EsmeRmissingtlv => CommandStatus::EsmeRmissingtlv(),
+            rusmpp_types::CommandStatus::EsmeRinvtlvval => CommandStatus::EsmeRinvtlvval(),
+            rusmpp_types::CommandStatus::EsmeRdeliveryfailure => {
+                CommandStatus::EsmeRdeliveryfailure()
+            }
+            rusmpp_types::CommandStatus::EsmeRunknownerr => CommandStatus::EsmeRunknownerr(),
+            rusmpp_types::CommandStatus::EsmeRsertypunauth => CommandStatus::EsmeRsertypunauth(),
+            rusmpp_types::CommandStatus::EsmeRprohibited => CommandStatus::EsmeRprohibited(),
+            rusmpp_types::CommandStatus::EsmeRsertypunavail => CommandStatus::EsmeRsertypunavail(),
+            rusmpp_types::CommandStatus::EsmeRsertypdenied => CommandStatus::EsmeRsertypdenied(),
+            rusmpp_types::CommandStatus::EsmeRinvdcs => CommandStatus::EsmeRinvdcs(),
+            rusmpp_types::CommandStatus::EsmeRinvsrcaddrsubunit => {
+                CommandStatus::EsmeRinvsrcaddrsubunit()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvdstaddrsubunit => {
+                CommandStatus::EsmeRinvdstaddrsubunit()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastfreqint => {
+                CommandStatus::EsmeRinvbcastfreqint()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastaliasName => {
+                CommandStatus::EsmeRinvbcastaliasName()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastareafmt => {
+                CommandStatus::EsmeRinvbcastareafmt()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvnumbcastAreas => {
+                CommandStatus::EsmeRinvnumbcastAreas()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastcnttype => {
+                CommandStatus::EsmeRinvbcastcnttype()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastmsgclass => {
+                CommandStatus::EsmeRinvbcastmsgclass()
+            }
+            rusmpp_types::CommandStatus::EsmeRbcastfail => CommandStatus::EsmeRbcastfail(),
+            rusmpp_types::CommandStatus::EsmeRbcastqueryfail => {
+                CommandStatus::EsmeRbcastqueryfail()
+            }
+            rusmpp_types::CommandStatus::EsmeRbcastcancelfail => {
+                CommandStatus::EsmeRbcastcancelfail()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastRep => CommandStatus::EsmeRinvbcastRep(),
+            rusmpp_types::CommandStatus::EsmeRinvbcastsrvgrp => {
+                CommandStatus::EsmeRinvbcastsrvgrp()
+            }
+            rusmpp_types::CommandStatus::EsmeRinvbcastchanind => {
+                CommandStatus::EsmeRinvbcastchanind()
+            }
+            rusmpp_types::CommandStatus::Other(inner) => CommandStatus::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -313,6 +705,29 @@ pub enum CongestionState {
     Other(u8),
 }
 
+impl From<rusmpp_types::CongestionState> for CongestionState {
+    fn from(value: rusmpp_types::CongestionState) -> Self {
+        match value {
+            rusmpp_types::CongestionState::Idle => CongestionState::Idle(),
+            rusmpp_types::CongestionState::LowLoad(inner) => CongestionState::LowLoad(inner.into()),
+            rusmpp_types::CongestionState::MediumLoad(inner) => {
+                CongestionState::MediumLoad(inner.into())
+            }
+            rusmpp_types::CongestionState::HighLoad(inner) => {
+                CongestionState::HighLoad(inner.into())
+            }
+            rusmpp_types::CongestionState::OptimumLoad(inner) => {
+                CongestionState::OptimumLoad(inner.into())
+            }
+            rusmpp_types::CongestionState::NearingCongestion(inner) => {
+                CongestionState::NearingCongestion(inner.into())
+            }
+            rusmpp_types::CongestionState::Congested => CongestionState::Congested(),
+            rusmpp_types::CongestionState::Other(inner) => CongestionState::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -322,6 +737,28 @@ pub enum DeliveryFailureReason {
     PermanentNetworkError(),
     TemporaryNetworkError(),
     Other(u8),
+}
+
+impl From<rusmpp_types::DeliveryFailureReason> for DeliveryFailureReason {
+    fn from(value: rusmpp_types::DeliveryFailureReason) -> Self {
+        match value {
+            rusmpp_types::DeliveryFailureReason::DestinationUnavailable => {
+                DeliveryFailureReason::DestinationUnavailable()
+            }
+            rusmpp_types::DeliveryFailureReason::DestinationAddressInvalid => {
+                DeliveryFailureReason::DestinationAddressInvalid()
+            }
+            rusmpp_types::DeliveryFailureReason::PermanentNetworkError => {
+                DeliveryFailureReason::PermanentNetworkError()
+            }
+            rusmpp_types::DeliveryFailureReason::TemporaryNetworkError => {
+                DeliveryFailureReason::TemporaryNetworkError()
+            }
+            rusmpp_types::DeliveryFailureReason::Other(inner) => {
+                DeliveryFailureReason::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -334,6 +771,25 @@ pub enum DestAddrNpResolution {
     Other(u8),
 }
 
+impl From<rusmpp_types::DestAddrNpResolution> for DestAddrNpResolution {
+    fn from(value: rusmpp_types::DestAddrNpResolution) -> Self {
+        match value {
+            rusmpp_types::DestAddrNpResolution::QueryNotPerformed => {
+                DestAddrNpResolution::QueryNotPerformed()
+            }
+            rusmpp_types::DestAddrNpResolution::QueryPerformedNumberNotPorted => {
+                DestAddrNpResolution::QueryPerformedNumberNotPorted()
+            }
+            rusmpp_types::DestAddrNpResolution::QueryPerformedNumberPorted => {
+                DestAddrNpResolution::QueryPerformedNumberPorted()
+            }
+            rusmpp_types::DestAddrNpResolution::Other(inner) => {
+                DestAddrNpResolution::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -342,6 +798,17 @@ pub enum DisplayTime {
     Default(),
     Invoke(),
     Other(u8),
+}
+
+impl From<rusmpp_types::DisplayTime> for DisplayTime {
+    fn from(value: rusmpp_types::DisplayTime) -> Self {
+        match value {
+            rusmpp_types::DisplayTime::Temporary => DisplayTime::Temporary(),
+            rusmpp_types::DisplayTime::Default => DisplayTime::Default(),
+            rusmpp_types::DisplayTime::Invoke => DisplayTime::Invoke(),
+            rusmpp_types::DisplayTime::Other(inner) => DisplayTime::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -353,6 +820,16 @@ pub enum DpfResult {
     Other(u8),
 }
 
+impl From<rusmpp_types::DpfResult> for DpfResult {
+    fn from(value: rusmpp_types::DpfResult) -> Self {
+        match value {
+            rusmpp_types::DpfResult::NotSet => DpfResult::NotSet(),
+            rusmpp_types::DpfResult::Set => DpfResult::Set(),
+            rusmpp_types::DpfResult::Other(inner) => DpfResult::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -361,6 +838,19 @@ pub enum InterfaceVersion {
     Smpp3_4(),
     Smpp5_0(),
     Other(u8),
+}
+
+impl From<rusmpp_types::InterfaceVersion> for InterfaceVersion {
+    fn from(value: rusmpp_types::InterfaceVersion) -> Self {
+        match value {
+            rusmpp_types::InterfaceVersion::Smpp3_3OrEarlier(inner) => {
+                InterfaceVersion::Smpp3_3OrEarlier(inner.into())
+            }
+            rusmpp_types::InterfaceVersion::Smpp3_4 => InterfaceVersion::Smpp3_4(),
+            rusmpp_types::InterfaceVersion::Smpp5_0 => InterfaceVersion::Smpp5_0(),
+            rusmpp_types::InterfaceVersion::Other(inner) => InterfaceVersion::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -377,6 +867,23 @@ pub enum ItsReplyType {
     Time(),
     Continue(),
     Other(u8),
+}
+
+impl From<rusmpp_types::ItsReplyType> for ItsReplyType {
+    fn from(value: rusmpp_types::ItsReplyType) -> Self {
+        match value {
+            rusmpp_types::ItsReplyType::Digit => ItsReplyType::Digit(),
+            rusmpp_types::ItsReplyType::Number => ItsReplyType::Number(),
+            rusmpp_types::ItsReplyType::TelephoneNo => ItsReplyType::TelephoneNo(),
+            rusmpp_types::ItsReplyType::Password => ItsReplyType::Password(),
+            rusmpp_types::ItsReplyType::CharacterLine => ItsReplyType::CharacterLine(),
+            rusmpp_types::ItsReplyType::Menu => ItsReplyType::Menu(),
+            rusmpp_types::ItsReplyType::Date => ItsReplyType::Date(),
+            rusmpp_types::ItsReplyType::Time => ItsReplyType::Time(),
+            rusmpp_types::ItsReplyType::Continue => ItsReplyType::Continue(),
+            rusmpp_types::ItsReplyType::Other(inner) => ItsReplyType::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -398,6 +905,20 @@ pub enum LanguageIndicator {
     German(),
     Portuguese(),
     Other(u8),
+}
+
+impl From<rusmpp_types::LanguageIndicator> for LanguageIndicator {
+    fn from(value: rusmpp_types::LanguageIndicator) -> Self {
+        match value {
+            rusmpp_types::LanguageIndicator::Unspecified => LanguageIndicator::Unspecified(),
+            rusmpp_types::LanguageIndicator::English => LanguageIndicator::English(),
+            rusmpp_types::LanguageIndicator::French => LanguageIndicator::French(),
+            rusmpp_types::LanguageIndicator::Spanish => LanguageIndicator::Spanish(),
+            rusmpp_types::LanguageIndicator::German => LanguageIndicator::German(),
+            rusmpp_types::LanguageIndicator::Portuguese => LanguageIndicator::Portuguese(),
+            rusmpp_types::LanguageIndicator::Other(inner) => LanguageIndicator::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -424,6 +945,24 @@ pub enum MessageState {
     Other(u8),
 }
 
+impl From<rusmpp_types::MessageState> for MessageState {
+    fn from(value: rusmpp_types::MessageState) -> Self {
+        match value {
+            rusmpp_types::MessageState::Scheduled => MessageState::Scheduled(),
+            rusmpp_types::MessageState::Enroute => MessageState::Enroute(),
+            rusmpp_types::MessageState::Delivered => MessageState::Delivered(),
+            rusmpp_types::MessageState::Expired => MessageState::Expired(),
+            rusmpp_types::MessageState::Deleted => MessageState::Deleted(),
+            rusmpp_types::MessageState::Undeliverable => MessageState::Undeliverable(),
+            rusmpp_types::MessageState::Accepted => MessageState::Accepted(),
+            rusmpp_types::MessageState::Unknown => MessageState::Unknown(),
+            rusmpp_types::MessageState::Rejected => MessageState::Rejected(),
+            rusmpp_types::MessageState::Skipped => MessageState::Skipped(),
+            rusmpp_types::MessageState::Other(inner) => MessageState::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -431,6 +970,22 @@ pub enum MoreMessagesToSend {
     NoMoreMessagesToFollow(),
     MoreMessagesToFollow(),
     Other(u8),
+}
+
+impl From<rusmpp_types::MoreMessagesToSend> for MoreMessagesToSend {
+    fn from(value: rusmpp_types::MoreMessagesToSend) -> Self {
+        match value {
+            rusmpp_types::MoreMessagesToSend::NoMoreMessagesToFollow => {
+                MoreMessagesToSend::NoMoreMessagesToFollow()
+            }
+            rusmpp_types::MoreMessagesToSend::MoreMessagesToFollow => {
+                MoreMessagesToSend::MoreMessagesToFollow()
+            }
+            rusmpp_types::MoreMessagesToSend::Other(inner) => {
+                MoreMessagesToSend::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -443,6 +998,19 @@ pub enum MsAvailabilityStatus {
     Other(u8),
 }
 
+impl From<rusmpp_types::MsAvailabilityStatus> for MsAvailabilityStatus {
+    fn from(value: rusmpp_types::MsAvailabilityStatus) -> Self {
+        match value {
+            rusmpp_types::MsAvailabilityStatus::Available => MsAvailabilityStatus::Available(),
+            rusmpp_types::MsAvailabilityStatus::Denied => MsAvailabilityStatus::Denied(),
+            rusmpp_types::MsAvailabilityStatus::Unavailable => MsAvailabilityStatus::Unavailable(),
+            rusmpp_types::MsAvailabilityStatus::Other(inner) => {
+                MsAvailabilityStatus::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -450,6 +1018,16 @@ pub enum Indicator {
     Inactive(),
     Active(),
     Other(u8),
+}
+
+impl From<rusmpp_types::Indicator> for Indicator {
+    fn from(value: rusmpp_types::Indicator) -> Self {
+        match value {
+            rusmpp_types::Indicator::Inactive => Indicator::Inactive(),
+            rusmpp_types::Indicator::Active => Indicator::Active(),
+            rusmpp_types::Indicator::Other(inner) => Indicator::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -461,6 +1039,24 @@ pub enum TypeOfMessage {
     ElectronicMailMessageWaiting(),
     OtherMessageWaiting(),
     Other(u8),
+}
+
+impl From<rusmpp_types::TypeOfMessage> for TypeOfMessage {
+    fn from(value: rusmpp_types::TypeOfMessage) -> Self {
+        match value {
+            rusmpp_types::TypeOfMessage::VoicemailMessageWaiting => {
+                TypeOfMessage::VoicemailMessageWaiting()
+            }
+            rusmpp_types::TypeOfMessage::FaxMessageWaiting => TypeOfMessage::FaxMessageWaiting(),
+            rusmpp_types::TypeOfMessage::ElectronicMailMessageWaiting => {
+                TypeOfMessage::ElectronicMailMessageWaiting()
+            }
+            rusmpp_types::TypeOfMessage::OtherMessageWaiting => {
+                TypeOfMessage::OtherMessageWaiting()
+            }
+            rusmpp_types::TypeOfMessage::Other(inner) => TypeOfMessage::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -483,6 +1079,27 @@ pub enum MsValidityBehavior {
     Other(u8),
 }
 
+impl From<rusmpp_types::MsValidityBehavior> for MsValidityBehavior {
+    fn from(value: rusmpp_types::MsValidityBehavior) -> Self {
+        match value {
+            rusmpp_types::MsValidityBehavior::StoreIndefinitely => {
+                MsValidityBehavior::StoreIndefinitely()
+            }
+            rusmpp_types::MsValidityBehavior::PowerDown => MsValidityBehavior::PowerDown(),
+            rusmpp_types::MsValidityBehavior::ValidUntilRegistrationAreaChanges => {
+                MsValidityBehavior::ValidUntilRegistrationAreaChanges()
+            }
+            rusmpp_types::MsValidityBehavior::DisplayOnly => MsValidityBehavior::DisplayOnly(),
+            rusmpp_types::MsValidityBehavior::RelativeTimePeriod => {
+                MsValidityBehavior::RelativeTimePeriod()
+            }
+            rusmpp_types::MsValidityBehavior::Other(inner) => {
+                MsValidityBehavior::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -495,6 +1112,21 @@ pub enum UnitsOfTime {
     Months(),
     Years(),
     Other(u8),
+}
+
+impl From<rusmpp_types::UnitsOfTime> for UnitsOfTime {
+    fn from(value: rusmpp_types::UnitsOfTime) -> Self {
+        match value {
+            rusmpp_types::UnitsOfTime::Seconds => UnitsOfTime::Seconds(),
+            rusmpp_types::UnitsOfTime::Minutes => UnitsOfTime::Minutes(),
+            rusmpp_types::UnitsOfTime::Hours => UnitsOfTime::Hours(),
+            rusmpp_types::UnitsOfTime::Days => UnitsOfTime::Days(),
+            rusmpp_types::UnitsOfTime::Weeks => UnitsOfTime::Weeks(),
+            rusmpp_types::UnitsOfTime::Months => UnitsOfTime::Months(),
+            rusmpp_types::UnitsOfTime::Years => UnitsOfTime::Years(),
+            rusmpp_types::UnitsOfTime::Other(inner) => UnitsOfTime::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -528,6 +1160,34 @@ pub enum ErrorCodeNetworkType {
     Other(u8),
 }
 
+impl From<rusmpp_types::ErrorCodeNetworkType> for ErrorCodeNetworkType {
+    fn from(value: rusmpp_types::ErrorCodeNetworkType) -> Self {
+        match value {
+            rusmpp_types::ErrorCodeNetworkType::Ansi136AccessDeniedReason => {
+                ErrorCodeNetworkType::Ansi136AccessDeniedReason()
+            }
+            rusmpp_types::ErrorCodeNetworkType::Is95AccessDeniedReason => {
+                ErrorCodeNetworkType::Is95AccessDeniedReason()
+            }
+            rusmpp_types::ErrorCodeNetworkType::Gsm => ErrorCodeNetworkType::Gsm(),
+            rusmpp_types::ErrorCodeNetworkType::Ansi136CauseCode => {
+                ErrorCodeNetworkType::Ansi136CauseCode()
+            }
+            rusmpp_types::ErrorCodeNetworkType::Is95CauseCode => {
+                ErrorCodeNetworkType::Is95CauseCode()
+            }
+            rusmpp_types::ErrorCodeNetworkType::Ansi41Error => ErrorCodeNetworkType::Ansi41Error(),
+            rusmpp_types::ErrorCodeNetworkType::SmppError => ErrorCodeNetworkType::SmppError(),
+            rusmpp_types::ErrorCodeNetworkType::MessageCenterSpecific => {
+                ErrorCodeNetworkType::MessageCenterSpecific()
+            }
+            rusmpp_types::ErrorCodeNetworkType::Other(inner) => {
+                ErrorCodeNetworkType::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -552,12 +1212,40 @@ pub enum NetworkType {
     Other(u8),
 }
 
+impl From<rusmpp_types::NetworkType> for NetworkType {
+    fn from(value: rusmpp_types::NetworkType) -> Self {
+        match value {
+            rusmpp_types::NetworkType::Unknown => NetworkType::Unknown(),
+            rusmpp_types::NetworkType::Gsm => NetworkType::Gsm(),
+            rusmpp_types::NetworkType::Ansi136 => NetworkType::Ansi136(),
+            rusmpp_types::NetworkType::Is95 => NetworkType::Is95(),
+            rusmpp_types::NetworkType::Pdc => NetworkType::Pdc(),
+            rusmpp_types::NetworkType::Phs => NetworkType::Phs(),
+            rusmpp_types::NetworkType::IDen => NetworkType::IDen(),
+            rusmpp_types::NetworkType::Amps => NetworkType::Amps(),
+            rusmpp_types::NetworkType::PagingNetwork => NetworkType::PagingNetwork(),
+            rusmpp_types::NetworkType::Other(inner) => NetworkType::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub enum NumberOfMessages {
     Allowed(u8),
     Other(u8),
+}
+
+impl From<rusmpp_types::NumberOfMessages> for NumberOfMessages {
+    fn from(value: rusmpp_types::NumberOfMessages) -> Self {
+        match value {
+            rusmpp_types::NumberOfMessages::Allowed(inner) => {
+                NumberOfMessages::Allowed(inner.into())
+            }
+            rusmpp_types::NumberOfMessages::Other(inner) => NumberOfMessages::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -567,6 +1255,16 @@ pub enum PayloadType {
     Default(),
     WcmpMessage(),
     Other(u8),
+}
+
+impl From<rusmpp_types::PayloadType> for PayloadType {
+    fn from(value: rusmpp_types::PayloadType) -> Self {
+        match value {
+            rusmpp_types::PayloadType::Default => PayloadType::Default(),
+            rusmpp_types::PayloadType::WcmpMessage => PayloadType::WcmpMessage(),
+            rusmpp_types::PayloadType::Other(inner) => PayloadType::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -580,6 +1278,18 @@ pub enum PrivacyIndicator {
     Other(u8),
 }
 
+impl From<rusmpp_types::PrivacyIndicator> for PrivacyIndicator {
+    fn from(value: rusmpp_types::PrivacyIndicator) -> Self {
+        match value {
+            rusmpp_types::PrivacyIndicator::NotRestricted => PrivacyIndicator::NotRestricted(),
+            rusmpp_types::PrivacyIndicator::Restricted => PrivacyIndicator::Restricted(),
+            rusmpp_types::PrivacyIndicator::Confidential => PrivacyIndicator::Confidential(),
+            rusmpp_types::PrivacyIndicator::Secret => PrivacyIndicator::Secret(),
+            rusmpp_types::PrivacyIndicator::Other(inner) => PrivacyIndicator::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -587,6 +1297,16 @@ pub enum SetDpf {
     NotRequested(),
     Requested(),
     Other(u8),
+}
+
+impl From<rusmpp_types::SetDpf> for SetDpf {
+    fn from(value: rusmpp_types::SetDpf) -> Self {
+        match value {
+            rusmpp_types::SetDpf::NotRequested => SetDpf::NotRequested(),
+            rusmpp_types::SetDpf::Requested => SetDpf::Requested(),
+            rusmpp_types::SetDpf::Other(inner) => SetDpf::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -597,6 +1317,17 @@ pub enum SubaddressTag {
     NsapOdd(),
     UserSpecified(),
     Other(u8),
+}
+
+impl From<rusmpp_types::SubaddressTag> for SubaddressTag {
+    fn from(value: rusmpp_types::SubaddressTag) -> Self {
+        match value {
+            rusmpp_types::SubaddressTag::NsapEven => SubaddressTag::NsapEven(),
+            rusmpp_types::SubaddressTag::NsapOdd => SubaddressTag::NsapOdd(),
+            rusmpp_types::SubaddressTag::UserSpecified => SubaddressTag::UserSpecified(),
+            rusmpp_types::SubaddressTag::Other(inner) => SubaddressTag::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -678,6 +1409,81 @@ pub enum TlvTag {
     Other(u16),
 }
 
+impl From<rusmpp_types::TlvTag> for TlvTag {
+    fn from(value: rusmpp_types::TlvTag) -> Self {
+        match value {
+            rusmpp_types::TlvTag::DestAddrSubunit => TlvTag::DestAddrSubunit(),
+            rusmpp_types::TlvTag::DestNetworkType => TlvTag::DestNetworkType(),
+            rusmpp_types::TlvTag::DestBearerType => TlvTag::DestBearerType(),
+            rusmpp_types::TlvTag::DestTelematicsId => TlvTag::DestTelematicsId(),
+            rusmpp_types::TlvTag::SourceAddrSubunit => TlvTag::SourceAddrSubunit(),
+            rusmpp_types::TlvTag::SourceNetworkType => TlvTag::SourceNetworkType(),
+            rusmpp_types::TlvTag::SourceBearerType => TlvTag::SourceBearerType(),
+            rusmpp_types::TlvTag::SourceTelematicsId => TlvTag::SourceTelematicsId(),
+            rusmpp_types::TlvTag::QosTimeToLive => TlvTag::QosTimeToLive(),
+            rusmpp_types::TlvTag::PayloadType => TlvTag::PayloadType(),
+            rusmpp_types::TlvTag::AdditionalStatusInfoText => TlvTag::AdditionalStatusInfoText(),
+            rusmpp_types::TlvTag::ReceiptedMessageId => TlvTag::ReceiptedMessageId(),
+            rusmpp_types::TlvTag::MsMsgWaitFacilities => TlvTag::MsMsgWaitFacilities(),
+            rusmpp_types::TlvTag::PrivacyIndicator => TlvTag::PrivacyIndicator(),
+            rusmpp_types::TlvTag::SourceSubaddress => TlvTag::SourceSubaddress(),
+            rusmpp_types::TlvTag::DestSubaddress => TlvTag::DestSubaddress(),
+            rusmpp_types::TlvTag::UserMessageReference => TlvTag::UserMessageReference(),
+            rusmpp_types::TlvTag::UserResponseCode => TlvTag::UserResponseCode(),
+            rusmpp_types::TlvTag::SourcePort => TlvTag::SourcePort(),
+            rusmpp_types::TlvTag::DestPort => TlvTag::DestPort(),
+            rusmpp_types::TlvTag::SarMsgRefNum => TlvTag::SarMsgRefNum(),
+            rusmpp_types::TlvTag::LanguageIndicator => TlvTag::LanguageIndicator(),
+            rusmpp_types::TlvTag::SarTotalSegments => TlvTag::SarTotalSegments(),
+            rusmpp_types::TlvTag::SarSegmentSeqnum => TlvTag::SarSegmentSeqnum(),
+            rusmpp_types::TlvTag::ScInterfaceVersion => TlvTag::ScInterfaceVersion(),
+            rusmpp_types::TlvTag::CallbackNumPresInd => TlvTag::CallbackNumPresInd(),
+            rusmpp_types::TlvTag::CallbackNumAtag => TlvTag::CallbackNumAtag(),
+            rusmpp_types::TlvTag::NumberOfMessages => TlvTag::NumberOfMessages(),
+            rusmpp_types::TlvTag::CallbackNum => TlvTag::CallbackNum(),
+            rusmpp_types::TlvTag::DpfResult => TlvTag::DpfResult(),
+            rusmpp_types::TlvTag::SetDpf => TlvTag::SetDpf(),
+            rusmpp_types::TlvTag::MsAvailabilityStatus => TlvTag::MsAvailabilityStatus(),
+            rusmpp_types::TlvTag::NetworkErrorCode => TlvTag::NetworkErrorCode(),
+            rusmpp_types::TlvTag::MessagePayload => TlvTag::MessagePayload(),
+            rusmpp_types::TlvTag::DeliveryFailureReason => TlvTag::DeliveryFailureReason(),
+            rusmpp_types::TlvTag::MoreMessagesToSend => TlvTag::MoreMessagesToSend(),
+            rusmpp_types::TlvTag::MessageState => TlvTag::MessageState(),
+            rusmpp_types::TlvTag::CongestionState => TlvTag::CongestionState(),
+            rusmpp_types::TlvTag::UssdServiceOp => TlvTag::UssdServiceOp(),
+            rusmpp_types::TlvTag::BroadcastChannelIndicator => TlvTag::BroadcastChannelIndicator(),
+            rusmpp_types::TlvTag::BroadcastContentType => TlvTag::BroadcastContentType(),
+            rusmpp_types::TlvTag::BroadcastContentTypeInfo => TlvTag::BroadcastContentTypeInfo(),
+            rusmpp_types::TlvTag::BroadcastMessageClass => TlvTag::BroadcastMessageClass(),
+            rusmpp_types::TlvTag::BroadcastRepNum => TlvTag::BroadcastRepNum(),
+            rusmpp_types::TlvTag::BroadcastFrequencyInterval => {
+                TlvTag::BroadcastFrequencyInterval()
+            }
+            rusmpp_types::TlvTag::BroadcastAreaIdentifier => TlvTag::BroadcastAreaIdentifier(),
+            rusmpp_types::TlvTag::BroadcastErrorStatus => TlvTag::BroadcastErrorStatus(),
+            rusmpp_types::TlvTag::BroadcastAreaSuccess => TlvTag::BroadcastAreaSuccess(),
+            rusmpp_types::TlvTag::BroadcastEndTime => TlvTag::BroadcastEndTime(),
+            rusmpp_types::TlvTag::BroadcastServiceGroup => TlvTag::BroadcastServiceGroup(),
+            rusmpp_types::TlvTag::BillingIdentification => TlvTag::BillingIdentification(),
+            rusmpp_types::TlvTag::SourceNetworkId => TlvTag::SourceNetworkId(),
+            rusmpp_types::TlvTag::DestNetworkId => TlvTag::DestNetworkId(),
+            rusmpp_types::TlvTag::SourceNodeId => TlvTag::SourceNodeId(),
+            rusmpp_types::TlvTag::DestNodeId => TlvTag::DestNodeId(),
+            rusmpp_types::TlvTag::DestAddrNpResolution => TlvTag::DestAddrNpResolution(),
+            rusmpp_types::TlvTag::DestAddrNpInformation => TlvTag::DestAddrNpInformation(),
+            rusmpp_types::TlvTag::DestAddrNpCountry => TlvTag::DestAddrNpCountry(),
+            rusmpp_types::TlvTag::DisplayTime => TlvTag::DisplayTime(),
+            rusmpp_types::TlvTag::SmsSignal => TlvTag::SmsSignal(),
+            rusmpp_types::TlvTag::MsValidity => TlvTag::MsValidity(),
+            rusmpp_types::TlvTag::AlertOnMessageDelivery => TlvTag::AlertOnMessageDelivery(),
+            rusmpp_types::TlvTag::ItsReplyType => TlvTag::ItsReplyType(),
+            rusmpp_types::TlvTag::ItsSessionInfo => TlvTag::ItsSessionInfo(),
+            rusmpp_types::TlvTag::Other(inner) => TlvTag::Other(inner.into()),
+            _ => panic!("Unexpected variant in Rusmpp type TlvTag"),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -698,6 +1504,22 @@ pub enum UssdServiceOp {
     UssrConfirm(),
     UssnConfirm(),
     Other(u8),
+}
+
+impl From<rusmpp_types::UssdServiceOp> for UssdServiceOp {
+    fn from(value: rusmpp_types::UssdServiceOp) -> Self {
+        match value {
+            rusmpp_types::UssdServiceOp::PssdIndication => UssdServiceOp::PssdIndication(),
+            rusmpp_types::UssdServiceOp::PssrIndication => UssdServiceOp::PssrIndication(),
+            rusmpp_types::UssdServiceOp::UssrRequest => UssdServiceOp::UssrRequest(),
+            rusmpp_types::UssdServiceOp::UssnRequest => UssdServiceOp::UssnRequest(),
+            rusmpp_types::UssdServiceOp::PssdResponse => UssdServiceOp::PssdResponse(),
+            rusmpp_types::UssdServiceOp::PssrResponse => UssdServiceOp::PssrResponse(),
+            rusmpp_types::UssdServiceOp::UssrConfirm => UssdServiceOp::UssrConfirm(),
+            rusmpp_types::UssdServiceOp::UssnConfirm => UssdServiceOp::UssnConfirm(),
+            rusmpp_types::UssdServiceOp::Other(inner) => UssdServiceOp::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -771,6 +1593,171 @@ pub enum TlvValue {
     Other { tag: TlvTag, value: Vec<u8> },
 }
 
+impl From<rusmpp_types::TlvValue> for TlvValue {
+    fn from(value: rusmpp_types::TlvValue) -> Self {
+        match value {
+            rusmpp_types::TlvValue::AdditionalStatusInfoText(inner) => {
+                TlvValue::AdditionalStatusInfoText(inner.into())
+            }
+            rusmpp_types::TlvValue::AlertOnMessageDelivery(inner) => {
+                TlvValue::AlertOnMessageDelivery(inner.into())
+            }
+            rusmpp_types::TlvValue::BillingIdentification(inner) => {
+                TlvValue::BillingIdentification(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastAreaIdentifier(inner) => {
+                TlvValue::BroadcastAreaIdentifier(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastAreaSuccess(inner) => {
+                TlvValue::BroadcastAreaSuccess(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastContentTypeInfo(inner) => {
+                TlvValue::BroadcastContentTypeInfo(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastChannelIndicator(inner) => {
+                TlvValue::BroadcastChannelIndicator(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastContentType(inner) => {
+                TlvValue::BroadcastContentType(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastEndTime(inner) => {
+                TlvValue::BroadcastEndTime(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastErrorStatus(inner) => {
+                TlvValue::BroadcastErrorStatus(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastFrequencyInterval(inner) => {
+                TlvValue::BroadcastFrequencyInterval(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastMessageClass(inner) => {
+                TlvValue::BroadcastMessageClass(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastRepNum(inner) => {
+                TlvValue::BroadcastRepNum(inner.into())
+            }
+            rusmpp_types::TlvValue::BroadcastServiceGroup(inner) => {
+                TlvValue::BroadcastServiceGroup(inner.into())
+            }
+            rusmpp_types::TlvValue::CallbackNum(inner) => TlvValue::CallbackNum(inner.into()),
+            rusmpp_types::TlvValue::CallbackNumAtag(inner) => {
+                TlvValue::CallbackNumAtag(inner.into())
+            }
+            rusmpp_types::TlvValue::CallbackNumPresInd(inner) => {
+                TlvValue::CallbackNumPresInd(inner.into())
+            }
+            rusmpp_types::TlvValue::CongestionState(inner) => {
+                TlvValue::CongestionState(inner.into())
+            }
+            rusmpp_types::TlvValue::DeliveryFailureReason(inner) => {
+                TlvValue::DeliveryFailureReason(inner.into())
+            }
+            rusmpp_types::TlvValue::DestAddrNpCountry(inner) => {
+                TlvValue::DestAddrNpCountry(inner.into())
+            }
+            rusmpp_types::TlvValue::DestAddrNpInformation(inner) => {
+                TlvValue::DestAddrNpInformation(inner.into())
+            }
+            rusmpp_types::TlvValue::DestAddrNpResolution(inner) => {
+                TlvValue::DestAddrNpResolution(inner.into())
+            }
+            rusmpp_types::TlvValue::DestAddrSubunit(inner) => {
+                TlvValue::DestAddrSubunit(inner.into())
+            }
+            rusmpp_types::TlvValue::DestBearerType(inner) => TlvValue::DestBearerType(inner.into()),
+            rusmpp_types::TlvValue::DestNetworkId(inner) => TlvValue::DestNetworkId(inner.into()),
+            rusmpp_types::TlvValue::DestNetworkType(inner) => {
+                TlvValue::DestNetworkType(inner.into())
+            }
+            rusmpp_types::TlvValue::DestNodeId(inner) => TlvValue::DestNodeId(inner.into()),
+            rusmpp_types::TlvValue::DestSubaddress(inner) => TlvValue::DestSubaddress(inner.into()),
+            rusmpp_types::TlvValue::DestTelematicsId(inner) => {
+                TlvValue::DestTelematicsId(inner.into())
+            }
+            rusmpp_types::TlvValue::DestPort(inner) => TlvValue::DestPort(inner.into()),
+            rusmpp_types::TlvValue::DisplayTime(inner) => TlvValue::DisplayTime(inner.into()),
+            rusmpp_types::TlvValue::DpfResult(inner) => TlvValue::DpfResult(inner.into()),
+            rusmpp_types::TlvValue::ItsReplyType(inner) => TlvValue::ItsReplyType(inner.into()),
+            rusmpp_types::TlvValue::ItsSessionInfo(inner) => TlvValue::ItsSessionInfo(inner.into()),
+            rusmpp_types::TlvValue::LanguageIndicator(inner) => {
+                TlvValue::LanguageIndicator(inner.into())
+            }
+            rusmpp_types::TlvValue::MessagePayload(inner) => TlvValue::MessagePayload(inner.into()),
+            rusmpp_types::TlvValue::MessageState(inner) => TlvValue::MessageState(inner.into()),
+            rusmpp_types::TlvValue::MoreMessagesToSend(inner) => {
+                TlvValue::MoreMessagesToSend(inner.into())
+            }
+            rusmpp_types::TlvValue::MsAvailabilityStatus(inner) => {
+                TlvValue::MsAvailabilityStatus(inner.into())
+            }
+            rusmpp_types::TlvValue::MsMsgWaitFacilities(inner) => {
+                TlvValue::MsMsgWaitFacilities(inner.into())
+            }
+            rusmpp_types::TlvValue::MsValidity(inner) => TlvValue::MsValidity(inner.into()),
+            rusmpp_types::TlvValue::NetworkErrorCode(inner) => {
+                TlvValue::NetworkErrorCode(inner.into())
+            }
+            rusmpp_types::TlvValue::NumberOfMessages(inner) => {
+                TlvValue::NumberOfMessages(inner.into())
+            }
+            rusmpp_types::TlvValue::PayloadType(inner) => TlvValue::PayloadType(inner.into()),
+            rusmpp_types::TlvValue::PrivacyIndicator(inner) => {
+                TlvValue::PrivacyIndicator(inner.into())
+            }
+            rusmpp_types::TlvValue::QosTimeToLive(inner) => TlvValue::QosTimeToLive(inner.into()),
+            rusmpp_types::TlvValue::ReceiptedMessageId(inner) => {
+                TlvValue::ReceiptedMessageId(inner.into())
+            }
+            rusmpp_types::TlvValue::SarMsgRefNum(inner) => TlvValue::SarMsgRefNum(inner.into()),
+            rusmpp_types::TlvValue::SarSegmentSeqnum(inner) => {
+                TlvValue::SarSegmentSeqnum(inner.into())
+            }
+            rusmpp_types::TlvValue::SarTotalSegments(inner) => {
+                TlvValue::SarTotalSegments(inner.into())
+            }
+            rusmpp_types::TlvValue::ScInterfaceVersion(inner) => {
+                TlvValue::ScInterfaceVersion(inner.into())
+            }
+            rusmpp_types::TlvValue::SetDpf(inner) => TlvValue::SetDpf(inner.into()),
+            rusmpp_types::TlvValue::SmsSignal(inner) => TlvValue::SmsSignal(inner.into()),
+            rusmpp_types::TlvValue::SourceAddrSubunit(inner) => {
+                TlvValue::SourceAddrSubunit(inner.into())
+            }
+            rusmpp_types::TlvValue::SourceBearerType(inner) => {
+                TlvValue::SourceBearerType(inner.into())
+            }
+            rusmpp_types::TlvValue::SourceNetworkId(inner) => {
+                TlvValue::SourceNetworkId(inner.into())
+            }
+            rusmpp_types::TlvValue::SourceNetworkType(inner) => {
+                TlvValue::SourceNetworkType(inner.into())
+            }
+            rusmpp_types::TlvValue::SourceNodeId(inner) => TlvValue::SourceNodeId(inner.into()),
+            rusmpp_types::TlvValue::SourcePort(inner) => TlvValue::SourcePort(inner.into()),
+            rusmpp_types::TlvValue::SourceSubaddress(inner) => {
+                TlvValue::SourceSubaddress(inner.into())
+            }
+            rusmpp_types::TlvValue::SourceTelematicsId(inner) => {
+                TlvValue::SourceTelematicsId(inner.into())
+            }
+            rusmpp_types::TlvValue::UserMessageReference(inner) => {
+                TlvValue::UserMessageReference(inner.into())
+            }
+            rusmpp_types::TlvValue::UserResponseCode(inner) => {
+                TlvValue::UserResponseCode(inner.into())
+            }
+            rusmpp_types::TlvValue::UssdServiceOp(inner) => TlvValue::UssdServiceOp(inner.into()),
+            rusmpp_types::TlvValue::Other {
+                tag: tag,
+                value: value,
+            } => TlvValue::Other {
+                tag: tag.into(),
+                value: value.into(),
+            },
+            _ => panic!("Unexpected variant in Rusmpp type TlvValue"),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -786,6 +1773,24 @@ pub enum Npi {
     Internet(),
     WapClientId(),
     Other(u8),
+}
+
+impl From<rusmpp_types::Npi> for Npi {
+    fn from(value: rusmpp_types::Npi) -> Self {
+        match value {
+            rusmpp_types::Npi::Unknown => Npi::Unknown(),
+            rusmpp_types::Npi::Isdn => Npi::Isdn(),
+            rusmpp_types::Npi::Data => Npi::Data(),
+            rusmpp_types::Npi::Telex => Npi::Telex(),
+            rusmpp_types::Npi::LandMobile => Npi::LandMobile(),
+            rusmpp_types::Npi::National => Npi::National(),
+            rusmpp_types::Npi::Private => Npi::Private(),
+            rusmpp_types::Npi::Ermes => Npi::Ermes(),
+            rusmpp_types::Npi::Internet => Npi::Internet(),
+            rusmpp_types::Npi::WapClientId => Npi::WapClientId(),
+            rusmpp_types::Npi::Other(inner) => Npi::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -809,6 +1814,21 @@ pub enum Ton {
     Alphanumeric(),
     Abbreviated(),
     Other(u8),
+}
+
+impl From<rusmpp_types::Ton> for Ton {
+    fn from(value: rusmpp_types::Ton) -> Self {
+        match value {
+            rusmpp_types::Ton::Unknown => Ton::Unknown(),
+            rusmpp_types::Ton::International => Ton::International(),
+            rusmpp_types::Ton::National => Ton::National(),
+            rusmpp_types::Ton::NetworkSpecific => Ton::NetworkSpecific(),
+            rusmpp_types::Ton::SubscriberNumber => Ton::SubscriberNumber(),
+            rusmpp_types::Ton::Alphanumeric => Ton::Alphanumeric(),
+            rusmpp_types::Ton::Abbreviated => Ton::Abbreviated(),
+            rusmpp_types::Ton::Other(inner) => Ton::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -910,6 +1930,32 @@ pub enum DataCoding {
     Other(u8),
 }
 
+impl From<rusmpp_types::DataCoding> for DataCoding {
+    fn from(value: rusmpp_types::DataCoding) -> Self {
+        match value {
+            rusmpp_types::DataCoding::McSpecific => DataCoding::McSpecific(),
+            rusmpp_types::DataCoding::Ia5 => DataCoding::Ia5(),
+            rusmpp_types::DataCoding::OctetUnspecified => DataCoding::OctetUnspecified(),
+            rusmpp_types::DataCoding::Latin1 => DataCoding::Latin1(),
+            rusmpp_types::DataCoding::OctetUnspecified2 => DataCoding::OctetUnspecified2(),
+            rusmpp_types::DataCoding::Jis => DataCoding::Jis(),
+            rusmpp_types::DataCoding::Cyrillic => DataCoding::Cyrillic(),
+            rusmpp_types::DataCoding::LatinHebrew => DataCoding::LatinHebrew(),
+            rusmpp_types::DataCoding::Ucs2 => DataCoding::Ucs2(),
+            rusmpp_types::DataCoding::PictogramEncoding => DataCoding::PictogramEncoding(),
+            rusmpp_types::DataCoding::Iso2022JpMusicCodes => DataCoding::Iso2022JpMusicCodes(),
+            rusmpp_types::DataCoding::ExtendedKanjiJis => DataCoding::ExtendedKanjiJis(),
+            rusmpp_types::DataCoding::Ksc5601 => DataCoding::Ksc5601(),
+            rusmpp_types::DataCoding::GsmMwiControl => DataCoding::GsmMwiControl(),
+            rusmpp_types::DataCoding::GsmMwiControl2 => DataCoding::GsmMwiControl2(),
+            rusmpp_types::DataCoding::GsmMessageClassControl => {
+                DataCoding::GsmMessageClassControl()
+            }
+            rusmpp_types::DataCoding::Other(inner) => DataCoding::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -924,6 +1970,20 @@ pub enum ReplaceIfPresentFlag {
     DoNotReplace(),
     Replace(),
     Other(u8),
+}
+
+impl From<rusmpp_types::ReplaceIfPresentFlag> for ReplaceIfPresentFlag {
+    fn from(value: rusmpp_types::ReplaceIfPresentFlag) -> Self {
+        match value {
+            rusmpp_types::ReplaceIfPresentFlag::DoNotReplace => {
+                ReplaceIfPresentFlag::DoNotReplace()
+            }
+            rusmpp_types::ReplaceIfPresentFlag::Replace => ReplaceIfPresentFlag::Replace(),
+            rusmpp_types::ReplaceIfPresentFlag::Other(inner) => {
+                ReplaceIfPresentFlag::Other(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1025,6 +2085,47 @@ pub enum CommandId {
     Other(u32),
 }
 
+impl From<rusmpp_types::CommandId> for CommandId {
+    fn from(value: rusmpp_types::CommandId) -> Self {
+        match value {
+            rusmpp_types::CommandId::BindReceiver => CommandId::BindReceiver(),
+            rusmpp_types::CommandId::BindTransmitter => CommandId::BindTransmitter(),
+            rusmpp_types::CommandId::QuerySm => CommandId::QuerySm(),
+            rusmpp_types::CommandId::SubmitSm => CommandId::SubmitSm(),
+            rusmpp_types::CommandId::DeliverSm => CommandId::DeliverSm(),
+            rusmpp_types::CommandId::Unbind => CommandId::Unbind(),
+            rusmpp_types::CommandId::ReplaceSm => CommandId::ReplaceSm(),
+            rusmpp_types::CommandId::CancelSm => CommandId::CancelSm(),
+            rusmpp_types::CommandId::BindTransceiver => CommandId::BindTransceiver(),
+            rusmpp_types::CommandId::Outbind => CommandId::Outbind(),
+            rusmpp_types::CommandId::EnquireLink => CommandId::EnquireLink(),
+            rusmpp_types::CommandId::SubmitMulti => CommandId::SubmitMulti(),
+            rusmpp_types::CommandId::AlertNotification => CommandId::AlertNotification(),
+            rusmpp_types::CommandId::DataSm => CommandId::DataSm(),
+            rusmpp_types::CommandId::BroadcastSm => CommandId::BroadcastSm(),
+            rusmpp_types::CommandId::QueryBroadcastSm => CommandId::QueryBroadcastSm(),
+            rusmpp_types::CommandId::CancelBroadcastSm => CommandId::CancelBroadcastSm(),
+            rusmpp_types::CommandId::GenericNack => CommandId::GenericNack(),
+            rusmpp_types::CommandId::BindReceiverResp => CommandId::BindReceiverResp(),
+            rusmpp_types::CommandId::BindTransmitterResp => CommandId::BindTransmitterResp(),
+            rusmpp_types::CommandId::QuerySmResp => CommandId::QuerySmResp(),
+            rusmpp_types::CommandId::SubmitSmResp => CommandId::SubmitSmResp(),
+            rusmpp_types::CommandId::DeliverSmResp => CommandId::DeliverSmResp(),
+            rusmpp_types::CommandId::UnbindResp => CommandId::UnbindResp(),
+            rusmpp_types::CommandId::ReplaceSmResp => CommandId::ReplaceSmResp(),
+            rusmpp_types::CommandId::CancelSmResp => CommandId::CancelSmResp(),
+            rusmpp_types::CommandId::BindTransceiverResp => CommandId::BindTransceiverResp(),
+            rusmpp_types::CommandId::EnquireLinkResp => CommandId::EnquireLinkResp(),
+            rusmpp_types::CommandId::SubmitMultiResp => CommandId::SubmitMultiResp(),
+            rusmpp_types::CommandId::DataSmResp => CommandId::DataSmResp(),
+            rusmpp_types::CommandId::BroadcastSmResp => CommandId::BroadcastSmResp(),
+            rusmpp_types::CommandId::QueryBroadcastSmResp => CommandId::QueryBroadcastSmResp(),
+            rusmpp_types::CommandId::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp(),
+            rusmpp_types::CommandId::Other(inner) => CommandId::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1033,6 +2134,23 @@ pub enum Ansi41Specific {
     ShortMessageContainsUserAcknowledgment(),
     ShortMessageContainsConversationAbort(),
     Other(u8),
+}
+
+impl From<rusmpp_types::Ansi41Specific> for Ansi41Specific {
+    fn from(value: rusmpp_types::Ansi41Specific) -> Self {
+        match value {
+            rusmpp_types::Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement => {
+                Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement()
+            }
+            rusmpp_types::Ansi41Specific::ShortMessageContainsUserAcknowledgment => {
+                Ansi41Specific::ShortMessageContainsUserAcknowledgment()
+            }
+            rusmpp_types::Ansi41Specific::ShortMessageContainsConversationAbort => {
+                Ansi41Specific::ShortMessageContainsConversationAbort()
+            }
+            rusmpp_types::Ansi41Specific::Other(inner) => Ansi41Specific::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1046,6 +2164,18 @@ pub enum GsmFeatures {
     Other(u8),
 }
 
+impl From<rusmpp_types::GsmFeatures> for GsmFeatures {
+    fn from(value: rusmpp_types::GsmFeatures) -> Self {
+        match value {
+            rusmpp_types::GsmFeatures::NotSelected => GsmFeatures::NotSelected(),
+            rusmpp_types::GsmFeatures::UdhiIndicator => GsmFeatures::UdhiIndicator(),
+            rusmpp_types::GsmFeatures::SetReplyPath => GsmFeatures::SetReplyPath(),
+            rusmpp_types::GsmFeatures::SetUdhiAndReplyPath => GsmFeatures::SetUdhiAndReplyPath(),
+            rusmpp_types::GsmFeatures::Other(inner) => GsmFeatures::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1054,6 +2184,21 @@ pub enum MessageType {
     ShortMessageContainsMCDeliveryReceipt(),
     ShortMessageContainsIntermediateDeliveryNotification(),
     Other(u8),
+}
+
+impl From<rusmpp_types::MessageType> for MessageType {
+    fn from(value: rusmpp_types::MessageType) -> Self {
+        match value {
+            rusmpp_types::MessageType::Default => MessageType::Default(),
+            rusmpp_types::MessageType::ShortMessageContainsMCDeliveryReceipt => {
+                MessageType::ShortMessageContainsMCDeliveryReceipt()
+            }
+            rusmpp_types::MessageType::ShortMessageContainsIntermediateDeliveryNotification => {
+                MessageType::ShortMessageContainsIntermediateDeliveryNotification()
+            }
+            rusmpp_types::MessageType::Other(inner) => MessageType::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1065,6 +2210,18 @@ pub enum MessagingMode {
     Forward(),
     StoreAndForward(),
     Other(u8),
+}
+
+impl From<rusmpp_types::MessagingMode> for MessagingMode {
+    fn from(value: rusmpp_types::MessagingMode) -> Self {
+        match value {
+            rusmpp_types::MessagingMode::Default => MessagingMode::Default(),
+            rusmpp_types::MessagingMode::Datagram => MessagingMode::Datagram(),
+            rusmpp_types::MessagingMode::Forward => MessagingMode::Forward(),
+            rusmpp_types::MessagingMode::StoreAndForward => MessagingMode::StoreAndForward(),
+            rusmpp_types::MessagingMode::Other(inner) => MessagingMode::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1086,6 +2243,22 @@ pub enum IntermediateNotification {
     Other(u8),
 }
 
+impl From<rusmpp_types::IntermediateNotification> for IntermediateNotification {
+    fn from(value: rusmpp_types::IntermediateNotification) -> Self {
+        match value {
+            rusmpp_types::IntermediateNotification::NoIntermediaryNotificationRequested => {
+                IntermediateNotification::NoIntermediaryNotificationRequested()
+            }
+            rusmpp_types::IntermediateNotification::IntermediateNotificationRequested => {
+                IntermediateNotification::IntermediateNotificationRequested()
+            }
+            rusmpp_types::IntermediateNotification::Other(inner) => {
+                IntermediateNotification::Other(inner.into())
+            }
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1097,6 +2270,18 @@ pub enum MCDeliveryReceipt {
     Other(u8),
 }
 
+impl From<rusmpp_types::MCDeliveryReceipt> for MCDeliveryReceipt {
+    fn from(value: rusmpp_types::MCDeliveryReceipt) -> Self {
+        match value {
+            rusmpp_types::MCDeliveryReceipt::NoMcDeliveryReceiptRequested => MCDeliveryReceipt::NoMcDeliveryReceiptRequested(),
+            rusmpp_types::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure(),
+            rusmpp_types::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure(),
+            rusmpp_types::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess(),
+            rusmpp_types::MCDeliveryReceipt::Other(inner) => MCDeliveryReceipt::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1106,6 +2291,18 @@ pub enum SmeOriginatedAcknowledgement {
     SmeUserAcknowledgementRequested(),
     BothDeliveryAndUserAcknowledgmentRequested(),
     Other(u8),
+}
+
+impl From<rusmpp_types::SmeOriginatedAcknowledgement> for SmeOriginatedAcknowledgement {
+    fn from(value: rusmpp_types::SmeOriginatedAcknowledgement) -> Self {
+        match value {
+            rusmpp_types::SmeOriginatedAcknowledgement::NoReceiptSmeAcknowledgementRequested => SmeOriginatedAcknowledgement::NoReceiptSmeAcknowledgementRequested(),
+            rusmpp_types::SmeOriginatedAcknowledgement::SmeDeliveryAcknowledgementRequested => SmeOriginatedAcknowledgement::SmeDeliveryAcknowledgementRequested(),
+            rusmpp_types::SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested => SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested(),
+            rusmpp_types::SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested => SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested(),
+            rusmpp_types::SmeOriginatedAcknowledgement::Other(inner) => SmeOriginatedAcknowledgement::Other(inner.into()),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1249,6 +2446,16 @@ pub enum DestFlag {
     Other(u8),
 }
 
+impl From<rusmpp_types::DestFlag> for DestFlag {
+    fn from(value: rusmpp_types::DestFlag) -> Self {
+        match value {
+            rusmpp_types::DestFlag::SmeAddress => DestFlag::SmeAddress(),
+            rusmpp_types::DestFlag::DistributionListName => DestFlag::DistributionListName(),
+            rusmpp_types::DestFlag::Other(inner) => DestFlag::Other(inner.into()),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1273,6 +2480,17 @@ pub struct SmeAddress {
 pub enum DestAddress {
     SmeAddress(SmeAddress),
     DistributionListName(DistributionListName),
+}
+
+impl From<rusmpp_types::DestAddress> for DestAddress {
+    fn from(value: rusmpp_types::DestAddress) -> Self {
+        match value {
+            rusmpp_types::DestAddress::SmeAddress(inner) => DestAddress::SmeAddress(inner.into()),
+            rusmpp_types::DestAddress::DistributionListName(inner) => {
+                DestAddress::DistributionListName(inner.into())
+            }
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1393,6 +2611,55 @@ pub enum Pdu {
         command_id: CommandId,
         body: Vec<u8>,
     },
+}
+
+impl From<rusmpp_types::Pdu> for Pdu {
+    fn from(value: rusmpp_types::Pdu) -> Self {
+        match value {
+            rusmpp_types::Pdu::BindTransmitter(inner) => Pdu::BindTransmitter(inner.into()),
+            rusmpp_types::Pdu::BindTransmitterResp(inner) => Pdu::BindTransmitterResp(inner.into()),
+            rusmpp_types::Pdu::BindReceiver(inner) => Pdu::BindReceiver(inner.into()),
+            rusmpp_types::Pdu::BindReceiverResp(inner) => Pdu::BindReceiverResp(inner.into()),
+            rusmpp_types::Pdu::BindTransceiver(inner) => Pdu::BindTransceiver(inner.into()),
+            rusmpp_types::Pdu::BindTransceiverResp(inner) => Pdu::BindTransceiverResp(inner.into()),
+            rusmpp_types::Pdu::Outbind(inner) => Pdu::Outbind(inner.into()),
+            rusmpp_types::Pdu::AlertNotification(inner) => Pdu::AlertNotification(inner.into()),
+            rusmpp_types::Pdu::SubmitSm(inner) => Pdu::SubmitSm(inner.into()),
+            rusmpp_types::Pdu::SubmitSmResp(inner) => Pdu::SubmitSmResp(inner.into()),
+            rusmpp_types::Pdu::QuerySm(inner) => Pdu::QuerySm(inner.into()),
+            rusmpp_types::Pdu::QuerySmResp(inner) => Pdu::QuerySmResp(inner.into()),
+            rusmpp_types::Pdu::DeliverSm(inner) => Pdu::DeliverSm(inner.into()),
+            rusmpp_types::Pdu::DeliverSmResp(inner) => Pdu::DeliverSmResp(inner.into()),
+            rusmpp_types::Pdu::DataSm(inner) => Pdu::DataSm(inner.into()),
+            rusmpp_types::Pdu::DataSmResp(inner) => Pdu::DataSmResp(inner.into()),
+            rusmpp_types::Pdu::CancelSm(inner) => Pdu::CancelSm(inner.into()),
+            rusmpp_types::Pdu::ReplaceSm(inner) => Pdu::ReplaceSm(inner.into()),
+            rusmpp_types::Pdu::SubmitMulti(inner) => Pdu::SubmitMulti(inner.into()),
+            rusmpp_types::Pdu::SubmitMultiResp(inner) => Pdu::SubmitMultiResp(inner.into()),
+            rusmpp_types::Pdu::BroadcastSm(inner) => Pdu::BroadcastSm(inner.into()),
+            rusmpp_types::Pdu::BroadcastSmResp(inner) => Pdu::BroadcastSmResp(inner.into()),
+            rusmpp_types::Pdu::QueryBroadcastSm(inner) => Pdu::QueryBroadcastSm(inner.into()),
+            rusmpp_types::Pdu::QueryBroadcastSmResp(inner) => {
+                Pdu::QueryBroadcastSmResp(inner.into())
+            }
+            rusmpp_types::Pdu::CancelBroadcastSm(inner) => Pdu::CancelBroadcastSm(inner.into()),
+            rusmpp_types::Pdu::Unbind => Pdu::Unbind(),
+            rusmpp_types::Pdu::UnbindResp => Pdu::UnbindResp(),
+            rusmpp_types::Pdu::EnquireLink => Pdu::EnquireLink(),
+            rusmpp_types::Pdu::EnquireLinkResp => Pdu::EnquireLinkResp(),
+            rusmpp_types::Pdu::GenericNack => Pdu::GenericNack(),
+            rusmpp_types::Pdu::CancelSmResp => Pdu::CancelSmResp(),
+            rusmpp_types::Pdu::ReplaceSmResp => Pdu::ReplaceSmResp(),
+            rusmpp_types::Pdu::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp(),
+            rusmpp_types::Pdu::Other {
+                command_id: command_id,
+                body: body,
+            } => Pdu::Other {
+                command_id: command_id.into(),
+                body: body.into(),
+            },
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]

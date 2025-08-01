@@ -5,8 +5,6 @@
 ///
 /// The session state transitions are triggered by bind, unbind, and outbind operations.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub enum SessionState {
     /// CLOSED state.
     ///

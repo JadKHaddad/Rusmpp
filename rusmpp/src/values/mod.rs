@@ -5,11 +5,16 @@ pub mod parts {
     pub use super::broadcast_content_type::BroadcastContentTypeParts;
     pub use super::broadcast_frequency_interval::BroadcastFrequencyIntervalParts;
     pub use super::broadcast_rep_num::BroadcastRepNumParts;
+    pub use super::callback_num_pres_ind::CallbackNumPresIndParts;
     pub use super::dest_address::{DistributionListNameParts, SmeAddressParts};
+    pub use super::esm_class::EsmClassParts;
     pub use super::its_session_info::ItsSessionInfoParts;
     pub use super::message_payload::MessagePayloadParts;
+    pub use super::ms_msg_wait_facilities::MsMsgWaitFacilitiesParts;
     pub use super::ms_validity::{MsValidityInformationParts, MsValidityParts};
     pub use super::network_error_code::NetworkErrorCodeParts;
+    pub use super::priority_flag::PriorityFlagParts;
+    pub use super::registered_delivery::RegisteredDeliveryParts;
     pub use super::service_type::ServiceTypeParts;
     pub use super::sub_address::SubaddressParts;
     pub use super::unsuccess_sme::UnsuccessSmeParts;

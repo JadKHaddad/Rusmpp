@@ -28,6 +28,49 @@ impl ::core::fmt::Debug for Tlv {
         )
     }
 }
+pub struct TlvParts {
+    pub tag: TlvTag,
+    pub value_length: u16,
+    pub value: Option<TlvValue>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for TlvParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "TlvParts",
+            "tag",
+            &self.tag,
+            "value_length",
+            &self.value_length,
+            "value",
+            &&self.value,
+        )
+    }
+}
+impl TlvParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(tag: TlvTag, value_length: u16, value: Option<TlvValue>) -> Self {
+        Self { tag, value_length, value }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (TlvTag, u16, Option<TlvValue>) {
+        (self.tag, self.value_length, self.value)
+    }
+}
+impl Tlv {
+    #[inline]
+    pub fn into_parts(self) -> TlvParts {
+        TlvParts {
+            tag: self.tag,
+            value_length: self.value_length,
+            value: self.value,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for Tlv {
     fn length(&self) -> usize {
         let mut length = 0;

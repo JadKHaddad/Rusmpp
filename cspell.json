@@ -42,6 +42,7 @@
         "PLMN",
         "Pssd",
         "Pssr",
+        "pyclass",
         "pymodule",
         "Ralybnd",
         "Rbcastcancelfail",
@@ -120,6 +121,7 @@
         "serde",
         "SMPP",
         "SMSC",
+        "splitn",
         "Subaddress",
         "subcomponent",
         "superceded",
@@ -130,6 +132,7 @@
         "Telematics",
         "teleservice",
         "testcontainers",
+        "textwrap",
         "thiserror",
         "tlvs",
         "Udhi",
@@ -137,11 +140,11 @@
         "Ussn",
         "venv",
         "Wcmp",
-        "wireshark",
-        "venv",
+        "wireshark"
     ],
     "ignorePaths": [
         "target",
         "venv",
+        ".gitignore"
     ]
 }

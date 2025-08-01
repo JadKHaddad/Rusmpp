@@ -4,6 +4,8 @@ use pyo3::{
     Bound, PyResult,
 };
 
+mod generated;
+
 /// Raw Python bindings for Rusmppc.
 #[pymodule]
 fn rusmppyc_sys(m: &Bound<'_, PyModule>) -> PyResult<()> {

@@ -1,4 +1,14 @@
+//! Run with
+//!
+//! ```bash
+//! cargo run -p rusmppyo3-reflection --bin generate
+//! ```
+
+use std::io::Write;
+
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, pdus::*, tlvs::*, values::*};
+use rusmppyo3_reflection::generate::CodeGenerator;
+use serde_generate::CodeGeneratorConfig;
 use serde_reflection::{Tracer, TracerConfig};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -85,7 +95,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracer.trace_simple_type::<QueryBroadcastSmResp>()?;
     tracer.trace_simple_type::<CancelBroadcastSm>()?;
 
-    _ = tracer.registry()?;
+    let registry = tracer.registry()?;
+
+    let config = CodeGeneratorConfig::new(String::from("types")).with_serialization(false);
+
+    let generator = CodeGenerator::new(&config)
+        .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass]")));
+
+    let mut output = Vec::new();
+
+    generator.output(&mut output, &registry)?;
+
+    let mut file = std::fs::File::create("rusmppy/rusmppyc-sys/src/generated.rs")?;
+
+    file.write_all(&output)?;
 
     Ok(())
 }

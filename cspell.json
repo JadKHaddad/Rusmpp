@@ -142,7 +142,8 @@
         "venv",
         "Wcmp",
         "wireshark",
-        "pastey"
+        "pastey",
+        "vname"
     ],
     "ignorePaths": [
         "target",

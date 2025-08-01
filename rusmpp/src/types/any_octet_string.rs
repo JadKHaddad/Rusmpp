@@ -69,6 +69,18 @@ impl AnyOctetString {
     }
 }
 
+impl From<Vec<u8>> for AnyOctetString {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self { bytes }
+    }
+}
+
+impl From<AnyOctetString> for Vec<u8> {
+    fn from(value: AnyOctetString) -> Self {
+        value.bytes
+    }
+}
+
 impl core::fmt::Debug for AnyOctetString {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("AnyOctetString")

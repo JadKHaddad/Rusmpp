@@ -1,5 +1,7 @@
 //! `SMPP` values.
 
+// TODO: do the exporting of values and the exporting of parts. see pdus module for example.
+
 mod addr_subunit;
 pub use addr_subunit::*;
 

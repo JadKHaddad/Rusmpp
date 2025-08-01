@@ -47,7 +47,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -96,7 +96,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -146,7 +146,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -191,7 +191,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -251,7 +251,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -297,7 +297,7 @@ macro_rules! create {
         });
     };
 
-    (@create_struct_with_length_and_encode_and_test {
+    (@create_struct_with_parts_and_length_and_encode_and_test {
         $(#[$struct_meta:meta])*
         $struct_vis:vis $struct_ident:ident
         $(
@@ -311,6 +311,44 @@ macro_rules! create {
                 $(#[$field_attr])*
                 $field_vis $field_ident: $field_ty,
             )*
+        }
+
+        ::pastey::paste! {
+            #[derive(Debug)]
+            pub struct [<$struct_ident Parts>] {
+                $(
+                    pub $field_ident: $field_ty,
+                )*
+            }
+
+            impl [<$struct_ident Parts>] {
+                #[inline]
+                #[allow(clippy::too_many_arguments)]
+                pub const fn new($($field_ident: $field_ty),*) -> Self {
+                    Self {
+                        $(
+                            $field_ident,
+                        )*
+                    }
+                }
+
+                #[inline]
+                #[allow(unused_parens)]
+                pub fn raw(self) -> ($($field_ty),*) {
+                    ($(self.$field_ident),*)
+                }
+            }
+
+            impl $struct_ident {
+                #[inline]
+                pub fn into_parts(self) -> [<$struct_ident Parts>] {
+                    [<$struct_ident Parts>] {
+                        $(
+                            $field_ident: self.$field_ident,
+                        )*
+                    }
+                }
+            }
         }
 
         impl $crate::encode::Length for $struct_ident {

@@ -38,6 +38,7 @@
         "Nsap",
         "oneshot",
         "Outbind",
+        "pastey",
         "pdus",
         "PLMN",
         "Pssd",
@@ -140,7 +141,8 @@
         "Ussn",
         "venv",
         "Wcmp",
-        "wireshark"
+        "wireshark",
+        "pastey"
     ],
     "ignorePaths": [
         "target",

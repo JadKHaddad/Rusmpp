@@ -77,7 +77,7 @@ impl Connection {
                         tracing::debug!(session_id, id=?command.id(), "Received bind command");
                         tracing::trace!(session_id, ?command, "Received bind command");
 
-                        let (_, status, sequence_number, pdu) = command.into_parts();
+                        let (_, status, sequence_number, pdu) = command.into_parts().raw();
 
                         if !(matches!(status, CommandStatus::EsmeRok)) {
                             // Really?
@@ -242,7 +242,7 @@ impl Connection {
                     tracing::debug!(session_id, sequence_number, id=?command.id(), "Received command");
                     tracing::trace!(session_id, sequence_number, ?command, "Received command");
 
-                    let (id, _, sequence_number, pdu) = command.into_parts();
+                    let (id, _, sequence_number, pdu) = command.into_parts().raw();
 
                     let pdu: Pdu = match pdu {
                         Some(Pdu::Unbind) => {

@@ -63,7 +63,12 @@ impl core::error::Error for Error {}
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize), serde(transparent))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+#[cfg_attr(
+    any(feature = "serde", feature = "serde-deserialize-unchecked"),
+    serde(transparent)
+)]
 pub struct OctetString<const MIN: usize, const MAX: usize> {
     bytes: Vec<u8>,
 }

@@ -19,6 +19,8 @@ use std::{
     path::PathBuf,
 };
 
+const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &["TlvTag", "TlvValue"];
+
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {
     /// Language-independent configuration.
@@ -227,7 +229,7 @@ where
         self.out.indent();
         writeln!(
             self.out,
-            "pub use ::rusmpp::{{pdus::*, tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu}};"
+            "pub use ::rusmpp::{{pdus::*, pdus::parts::*, tlvs::*, values::*, values::parts::*, Command, CommandId, CommandStatus, Pdu}};"
         )?;
         self.out.unindent();
         writeln!(self.out, "}}")?;
@@ -413,6 +415,77 @@ where
                 self.output_variants(name, variants)?;
                 self.out.unindent();
                 self.current_namespace.pop();
+                writeln!(self.out, "}}\n")?;
+
+                // Implement `From` for Rusmpp types
+                writeln!(self.out, "impl From<rusmpp_types::{name}> for {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn from(value: rusmpp_types::{name}) -> Self {{")?;
+                self.out.indent();
+                writeln!(self.out, "match value {{")?;
+                self.out.indent();
+
+                for variant in variants.values() {
+                    let vname = &variant.name;
+                    use VariantFormat::*;
+                    match &variant.value {
+                        Unit => {
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname} => {name}::{vname}(),"
+                            )?;
+                        }
+                        NewType(_) => {
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname}(inner) => {name}::{vname}(inner.into()),"
+                            )?;
+                        }
+                        Tuple(fields) => {
+                            let vars: Vec<String> =
+                                (0..fields.len()).map(|i| format!("f{i}")).collect();
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname}({}) => {name}::{vname}({}),",
+                                vars.join(", "),
+                                vars.iter()
+                                    .map(|v| format!("{v}.into()"))
+                                    .collect::<Vec<_>>()
+                                    .join(", "),
+                            )?;
+                        }
+                        Struct(fields) => {
+                            writeln!(self.out, "rusmpp_types::{name}::{vname} {{")?;
+                            self.out.indent();
+                            for field in fields {
+                                writeln!(self.out, "{}: {},", field.name, field.name)?;
+                            }
+                            self.out.unindent();
+                            writeln!(self.out, "}} => {name}::{vname} {{")?;
+                            self.out.indent();
+                            for field in fields {
+                                writeln!(self.out, "{}: {}.into(),", field.name, field.name)?;
+                            }
+                            self.out.unindent();
+                            writeln!(self.out, "}},")?;
+                        }
+                        Variable(_) => panic!("unexpected Variable variant"),
+                    }
+                }
+
+                // handle the _ case for NON_EXHAUSTIVE_RUSMPP_ENUMS
+                if NON_EXHAUSTIVE_RUSMPP_ENUMS.contains(&name) {
+                    writeln!(
+                        self.out,
+                        "_ => panic!(\"Unexpected variant in Rusmpp type {name}\"),"
+                    )?;
+                }
+
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
                 writeln!(self.out, "}}\n")?;
             }
         }

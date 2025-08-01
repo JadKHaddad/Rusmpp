@@ -22,6 +22,45 @@ impl ::core::fmt::Debug for DistributionListName {
         )
     }
 }
+pub struct DistributionListNameParts {
+    pub dest_flag: DestFlag,
+    pub dl_name: COctetString<1, 21>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for DistributionListNameParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "DistributionListNameParts",
+            "dest_flag",
+            &self.dest_flag,
+            "dl_name",
+            &&self.dl_name,
+        )
+    }
+}
+impl DistributionListNameParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(dest_flag: DestFlag, dl_name: COctetString<1, 21>) -> Self {
+        Self { dest_flag, dl_name }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (DestFlag, COctetString<1, 21>) {
+        (self.dest_flag, self.dl_name)
+    }
+}
+impl DistributionListName {
+    #[inline]
+    pub fn into_parts(self) -> DistributionListNameParts {
+        DistributionListNameParts {
+            dest_flag: self.dest_flag,
+            dl_name: self.dl_name,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for DistributionListName {
     fn length(&self) -> usize {
         let mut length = 0;

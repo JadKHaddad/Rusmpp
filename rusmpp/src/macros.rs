@@ -266,6 +266,7 @@ macro_rules! create {
         });
     };
 
+    // Creates `<StructName>Parts` and implements `new`, `raw`, and `into_parts`.
     // Impl `Length`, `Encode` and `Decode` for a struct, based on its Into/From u8
     // The struct must be `Copy`, `Into<u8>` and `From<u8>`
     (
@@ -287,6 +288,13 @@ macro_rules! create {
             )*
         }
 
+        $crate::create!(@create_struct_parts {
+            $struct_ident
+            $(
+                $field_ident $field_ty,
+            )*
+        });
+
         $crate::create!(@repr{
             $struct_ident, u8
         });
@@ -297,22 +305,13 @@ macro_rules! create {
         });
     };
 
-    (@create_struct_with_parts_and_length_and_encode_and_test {
-        $(#[$struct_meta:meta])*
-        $struct_vis:vis $struct_ident:ident
+    // Creates `<StructName>Parts` and implements `new`, `raw`, and `into_parts`.
+    (@create_struct_parts {
+        $struct_ident:ident
         $(
-            $(#[$field_attr:meta])*
-            $field_vis:vis $field_ident:ident $field_ty:ty,
+            $field_ident:ident $field_ty:ty,
         )*
     }) => {
-        $(#[$struct_meta])*
-        $struct_vis struct $struct_ident {
-            $(
-                $(#[$field_attr])*
-                $field_vis $field_ident: $field_ty,
-            )*
-        }
-
         ::pastey::paste! {
             #[derive(Debug)]
             pub struct [<$struct_ident Parts>] {
@@ -350,6 +349,30 @@ macro_rules! create {
                 }
             }
         }
+    };
+
+    (@create_struct_with_parts_and_length_and_encode_and_test {
+        $(#[$struct_meta:meta])*
+        $struct_vis:vis $struct_ident:ident
+        $(
+            $(#[$field_attr:meta])*
+            $field_vis:vis $field_ident:ident $field_ty:ty,
+        )*
+    }) => {
+        $(#[$struct_meta])*
+        $struct_vis struct $struct_ident {
+            $(
+                $(#[$field_attr])*
+                $field_vis $field_ident: $field_ty,
+            )*
+        }
+
+        $crate::create!(@create_struct_parts {
+            $struct_ident
+            $(
+                $field_ident $field_ty,
+            )*
+        });
 
         impl $crate::encode::Length for $struct_ident {
             fn length(&self) -> usize {

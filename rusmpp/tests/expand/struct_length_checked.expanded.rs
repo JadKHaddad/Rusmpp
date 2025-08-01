@@ -25,6 +25,51 @@ impl ::core::fmt::Debug for MsValidity {
         )
     }
 }
+pub struct MsValidityParts {
+    pub validity_behavior: MsValidityBehavior,
+    pub validity_information: Option<MsValidityInformation>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for MsValidityParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "MsValidityParts",
+            "validity_behavior",
+            &self.validity_behavior,
+            "validity_information",
+            &&self.validity_information,
+        )
+    }
+}
+impl MsValidityParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        validity_behavior: MsValidityBehavior,
+        validity_information: Option<MsValidityInformation>,
+    ) -> Self {
+        Self {
+            validity_behavior,
+            validity_information,
+        }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (MsValidityBehavior, Option<MsValidityInformation>) {
+        (self.validity_behavior, self.validity_information)
+    }
+}
+impl MsValidity {
+    #[inline]
+    pub fn into_parts(self) -> MsValidityParts {
+        MsValidityParts {
+            validity_behavior: self.validity_behavior,
+            validity_information: self.validity_information,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for MsValidity {
     fn length(&self) -> usize {
         let mut length = 0;

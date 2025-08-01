@@ -3,7 +3,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub struct MsMsgWaitFacilities {
         pub indicator: Indicator,
         pub type_of_message: TypeOfMessage,

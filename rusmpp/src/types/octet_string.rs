@@ -147,6 +147,14 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 }
 
+#[allow(clippy::from_over_into)]
+// We do not implement From<Vec<u8>> because bytes must be validated
+impl<const MIN: usize, const MAX: usize> Into<Vec<u8>> for OctetString<MIN, MAX> {
+    fn into(self) -> Vec<u8> {
+        self.bytes
+    }
+}
+
 impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<MIN, MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("OctetString")

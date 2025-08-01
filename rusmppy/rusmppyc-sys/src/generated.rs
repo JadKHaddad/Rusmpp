@@ -135,6 +135,16 @@ pub struct BroadcastAreaIdentifier {
     pub area: Vec<u8>,
 }
 
+impl From<rusmpp_types::BroadcastAreaIdentifier> for BroadcastAreaIdentifier {
+    fn from(value: rusmpp_types::BroadcastAreaIdentifier) -> Self {
+        let value = value.into_parts();
+        Self {
+            format: value.format.into(),
+            area: value.area.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -387,6 +397,16 @@ pub struct BroadcastContentType {
     pub encoding_content_type: EncodingContentType,
 }
 
+impl From<rusmpp_types::BroadcastContentType> for BroadcastContentType {
+    fn from(value: rusmpp_types::BroadcastContentType) -> Self {
+        let value = value.into_parts();
+        Self {
+            type_of_network: value.type_of_network.into(),
+            encoding_content_type: value.encoding_content_type.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -428,6 +448,16 @@ pub struct BroadcastFrequencyInterval {
     pub value: u16,
 }
 
+impl From<rusmpp_types::BroadcastFrequencyInterval> for BroadcastFrequencyInterval {
+    fn from(value: rusmpp_types::BroadcastFrequencyInterval) -> Self {
+        let value = value.into_parts();
+        Self {
+            unit: value.unit.into(),
+            value: value.value.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -460,6 +490,15 @@ impl From<rusmpp_types::BroadcastMessageClass> for BroadcastMessageClass {
 #[::pyo3::pyclass]
 pub struct BroadcastRepNum {
     pub value: u8,
+}
+
+impl From<rusmpp_types::BroadcastRepNum> for BroadcastRepNum {
+    fn from(value: rusmpp_types::BroadcastRepNum) -> Self {
+        let value = value.into_parts();
+        Self {
+            value: value.value.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -514,6 +553,16 @@ impl From<rusmpp_types::Screening> for Screening {
 pub struct CallbackNumPresInd {
     pub presentation: Presentation,
     pub screening: Screening,
+}
+
+impl From<rusmpp_types::CallbackNumPresInd> for CallbackNumPresInd {
+    fn from(value: rusmpp_types::CallbackNumPresInd) -> Self {
+        let value = value.into_parts();
+        Self {
+            presentation: value.presentation.into(),
+            screening: value.screening.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -894,6 +943,16 @@ pub struct ItsSessionInfo {
     pub sequence_number: u8,
 }
 
+impl From<rusmpp_types::ItsSessionInfo> for ItsSessionInfo {
+    fn from(value: rusmpp_types::ItsSessionInfo) -> Self {
+        let value = value.into_parts();
+        Self {
+            session_number: value.session_number.into(),
+            sequence_number: value.sequence_number.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -926,6 +985,15 @@ impl From<rusmpp_types::LanguageIndicator> for LanguageIndicator {
 #[::pyo3::pyclass]
 pub struct MessagePayload {
     pub value: Vec<u8>,
+}
+
+impl From<rusmpp_types::MessagePayload> for MessagePayload {
+    fn from(value: rusmpp_types::MessagePayload) -> Self {
+        let value = value.into_parts();
+        Self {
+            value: value.value.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1067,6 +1135,16 @@ pub struct MsMsgWaitFacilities {
     pub type_of_message: TypeOfMessage,
 }
 
+impl From<rusmpp_types::MsMsgWaitFacilities> for MsMsgWaitFacilities {
+    fn from(value: rusmpp_types::MsMsgWaitFacilities) -> Self {
+        let value = value.into_parts();
+        Self {
+            indicator: value.indicator.into(),
+            type_of_message: value.type_of_message.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1137,12 +1215,32 @@ pub struct MsValidityInformation {
     pub number_of_time_units: u16,
 }
 
+impl From<rusmpp_types::MsValidityInformation> for MsValidityInformation {
+    fn from(value: rusmpp_types::MsValidityInformation) -> Self {
+        let value = value.into_parts();
+        Self {
+            units_of_time: value.units_of_time.into(),
+            number_of_time_units: value.number_of_time_units.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct MsValidity {
     pub validity_behavior: MsValidityBehavior,
     pub validity_information: Option<MsValidityInformation>,
+}
+
+impl From<rusmpp_types::MsValidity> for MsValidity {
+    fn from(value: rusmpp_types::MsValidity) -> Self {
+        let value = value.into_parts();
+        Self {
+            validity_behavior: value.validity_behavior.into(),
+            validity_information: value.validity_information.map(Into::into),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1194,6 +1292,16 @@ impl From<rusmpp_types::ErrorCodeNetworkType> for ErrorCodeNetworkType {
 pub struct NetworkErrorCode {
     pub network_type: ErrorCodeNetworkType,
     pub error_code: u16,
+}
+
+impl From<rusmpp_types::NetworkErrorCode> for NetworkErrorCode {
+    fn from(value: rusmpp_types::NetworkErrorCode) -> Self {
+        let value = value.into_parts();
+        Self {
+            network_type: value.network_type.into(),
+            error_code: value.error_code.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1336,6 +1444,16 @@ impl From<rusmpp_types::SubaddressTag> for SubaddressTag {
 pub struct Subaddress {
     pub tag: SubaddressTag,
     pub addr: Vec<u8>,
+}
+
+impl From<rusmpp_types::Subaddress> for Subaddress {
+    fn from(value: rusmpp_types::Subaddress) -> Self {
+        let value = value.into_parts();
+        Self {
+            tag: value.tag.into(),
+            addr: value.addr.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1489,6 +1607,15 @@ impl From<rusmpp_types::TlvTag> for TlvTag {
 #[::pyo3::pyclass]
 pub struct UserMessageReference {
     pub value: u16,
+}
+
+impl From<rusmpp_types::UserMessageReference> for UserMessageReference {
+    fn from(value: rusmpp_types::UserMessageReference) -> Self {
+        let value = value.into_parts();
+        Self {
+            value: value.value.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1802,6 +1929,17 @@ pub struct Tlv {
     pub value: Option<TlvValue>,
 }
 
+impl From<rusmpp_types::Tlv> for Tlv {
+    fn from(value: rusmpp_types::Tlv) -> Self {
+        let value = value.into_parts();
+        Self {
+            tag: value.tag.into(),
+            value_length: value.value_length.into(),
+            value: value.value.map(Into::into),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1844,6 +1982,21 @@ pub struct AlertNotification {
     pub ms_availability_status: Option<Tlv>,
 }
 
+impl From<rusmpp_types::AlertNotification> for AlertNotification {
+    fn from(value: rusmpp_types::AlertNotification) -> Self {
+        let value = value.into_parts();
+        Self {
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            esme_addr_ton: value.esme_addr_ton.into(),
+            esme_addr_npi: value.esme_addr_npi.into(),
+            esme_addr: value.esme_addr.into(),
+            ms_availability_status: value.ms_availability_status.map(Into::into),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1857,12 +2010,37 @@ pub struct BindReceiver {
     pub address_range: Vec<u8>,
 }
 
+impl From<rusmpp_types::BindReceiver> for BindReceiver {
+    fn from(value: rusmpp_types::BindReceiver) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            password: value.password.into(),
+            system_type: value.system_type.into(),
+            interface_version: value.interface_version.into(),
+            addr_ton: value.addr_ton.into(),
+            addr_npi: value.addr_npi.into(),
+            address_range: value.address_range.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct BindReceiverResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
+}
+
+impl From<rusmpp_types::BindReceiverResp> for BindReceiverResp {
+    fn from(value: rusmpp_types::BindReceiverResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            sc_interface_version: value.sc_interface_version.map(Into::into),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1878,12 +2056,37 @@ pub struct BindTransceiver {
     pub address_range: Vec<u8>,
 }
 
+impl From<rusmpp_types::BindTransceiver> for BindTransceiver {
+    fn from(value: rusmpp_types::BindTransceiver) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            password: value.password.into(),
+            system_type: value.system_type.into(),
+            interface_version: value.interface_version.into(),
+            addr_ton: value.addr_ton.into(),
+            addr_npi: value.addr_npi.into(),
+            address_range: value.address_range.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct BindTransceiverResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
+}
+
+impl From<rusmpp_types::BindTransceiverResp> for BindTransceiverResp {
+    fn from(value: rusmpp_types::BindTransceiverResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            sc_interface_version: value.sc_interface_version.map(Into::into),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -1899,12 +2102,37 @@ pub struct BindTransmitter {
     pub address_range: Vec<u8>,
 }
 
+impl From<rusmpp_types::BindTransmitter> for BindTransmitter {
+    fn from(value: rusmpp_types::BindTransmitter) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            password: value.password.into(),
+            system_type: value.system_type.into(),
+            interface_version: value.interface_version.into(),
+            addr_ton: value.addr_ton.into(),
+            addr_npi: value.addr_npi.into(),
+            address_range: value.address_range.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct BindTransmitterResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
+}
+
+impl From<rusmpp_types::BindTransmitterResp> for BindTransmitterResp {
+    fn from(value: rusmpp_types::BindTransmitterResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            sc_interface_version: value.sc_interface_version.map(Into::into),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -1963,6 +2191,15 @@ pub struct PriorityFlag {
     pub value: u8,
 }
 
+impl From<rusmpp_types::PriorityFlag> for PriorityFlag {
+    fn from(value: rusmpp_types::PriorityFlag) -> Self {
+        let value = value.into_parts();
+        Self {
+            value: value.value.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -1993,6 +2230,15 @@ pub struct ServiceType {
     pub value: Vec<u8>,
 }
 
+impl From<rusmpp_types::ServiceType> for ServiceType {
+    fn from(value: rusmpp_types::ServiceType) -> Self {
+        let value = value.into_parts();
+        Self {
+            value: value.value.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2011,12 +2257,42 @@ pub struct BroadcastSm {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::BroadcastSm> for BroadcastSm {
+    fn from(value: rusmpp_types::BroadcastSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            message_id: value.message_id.into(),
+            priority_flag: value.priority_flag.into(),
+            schedule_delivery_time: value.schedule_delivery_time.into(),
+            validity_period: value.validity_period.into(),
+            replace_if_present_flag: value.replace_if_present_flag.into(),
+            data_coding: value.data_coding.into(),
+            sm_default_msg_id: value.sm_default_msg_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct BroadcastSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
+}
+
+impl From<rusmpp_types::BroadcastSmResp> for BroadcastSmResp {
+    fn from(value: rusmpp_types::BroadcastSmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2031,6 +2307,20 @@ pub struct CancelBroadcastSm {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::CancelBroadcastSm> for CancelBroadcastSm {
+    fn from(value: rusmpp_types::CancelBroadcastSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            message_id: value.message_id.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2043,6 +2333,22 @@ pub struct CancelSm {
     pub dest_addr_ton: Ton,
     pub dest_addr_npi: Npi,
     pub destination_addr: Vec<u8>,
+}
+
+impl From<rusmpp_types::CancelSm> for CancelSm {
+    fn from(value: rusmpp_types::CancelSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            message_id: value.message_id.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -2234,6 +2540,18 @@ pub struct EsmClass {
     pub gsm_features: GsmFeatures,
 }
 
+impl From<rusmpp_types::EsmClass> for EsmClass {
+    fn from(value: rusmpp_types::EsmClass) -> Self {
+        let value = value.into_parts();
+        Self {
+            messaging_mode: value.messaging_mode.into(),
+            message_type: value.message_type.into(),
+            ansi41_specific: value.ansi41_specific.into(),
+            gsm_features: value.gsm_features.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2315,6 +2633,18 @@ pub struct RegisteredDelivery {
     pub other: u8,
 }
 
+impl From<rusmpp_types::RegisteredDelivery> for RegisteredDelivery {
+    fn from(value: rusmpp_types::RegisteredDelivery) -> Self {
+        let value = value.into_parts();
+        Self {
+            mc_delivery_receipt: value.mc_delivery_receipt.into(),
+            sme_originated_acknowledgement: value.sme_originated_acknowledgement.into(),
+            intermediate_notification: value.intermediate_notification.into(),
+            other: value.other.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2332,12 +2662,41 @@ pub struct DataSm {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::DataSm> for DataSm {
+    fn from(value: rusmpp_types::DataSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+            esm_class: value.esm_class.into(),
+            registered_delivery: value.registered_delivery.into(),
+            data_coding: value.data_coding.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct DataSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
+}
+
+impl From<rusmpp_types::DataSmResp> for DataSmResp {
+    fn from(value: rusmpp_types::DataSmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2365,6 +2724,33 @@ pub struct DeliverSm {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::DeliverSm> for DeliverSm {
+    fn from(value: rusmpp_types::DeliverSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+            esm_class: value.esm_class.into(),
+            protocol_id: value.protocol_id.into(),
+            priority_flag: value.priority_flag.into(),
+            schedule_delivery_time: value.schedule_delivery_time.into(),
+            validity_period: value.validity_period.into(),
+            registered_delivery: value.registered_delivery.into(),
+            replace_if_present_flag: value.replace_if_present_flag.into(),
+            data_coding: value.data_coding.into(),
+            sm_default_msg_id: value.sm_default_msg_id.into(),
+            sm_length: value.sm_length.into(),
+            short_message: value.short_message.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2373,12 +2759,32 @@ pub struct DeliverSmResp {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::DeliverSmResp> for DeliverSmResp {
+    fn from(value: rusmpp_types::DeliverSmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct Outbind {
     pub system_id: Vec<u8>,
     pub password: Vec<u8>,
+}
+
+impl From<rusmpp_types::Outbind> for Outbind {
+    fn from(value: rusmpp_types::Outbind) -> Self {
+        let value = value.into_parts();
+        Self {
+            system_id: value.system_id.into(),
+            password: value.password.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2392,12 +2798,35 @@ pub struct QueryBroadcastSm {
     pub user_message_reference: Option<Tlv>,
 }
 
+impl From<rusmpp_types::QueryBroadcastSm> for QueryBroadcastSm {
+    fn from(value: rusmpp_types::QueryBroadcastSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            user_message_reference: value.user_message_reference.map(Into::into),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct QueryBroadcastSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
+}
+
+impl From<rusmpp_types::QueryBroadcastSmResp> for QueryBroadcastSmResp {
+    fn from(value: rusmpp_types::QueryBroadcastSmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2410,6 +2839,18 @@ pub struct QuerySm {
     pub source_addr: Vec<u8>,
 }
 
+impl From<rusmpp_types::QuerySm> for QuerySm {
+    fn from(value: rusmpp_types::QuerySm) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2418,6 +2859,18 @@ pub struct QuerySmResp {
     pub final_date: Vec<u8>,
     pub message_state: MessageState,
     pub error_code: u8,
+}
+
+impl From<rusmpp_types::QuerySmResp> for QuerySmResp {
+    fn from(value: rusmpp_types::QuerySmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            final_date: value.final_date.into(),
+            message_state: value.message_state.into(),
+            error_code: value.error_code.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2435,6 +2888,25 @@ pub struct ReplaceSm {
     pub sm_length: u8,
     pub short_message: Vec<u8>,
     pub message_payload: Option<Tlv>,
+}
+
+impl From<rusmpp_types::ReplaceSm> for ReplaceSm {
+    fn from(value: rusmpp_types::ReplaceSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            schedule_delivery_time: value.schedule_delivery_time.into(),
+            validity_period: value.validity_period.into(),
+            registered_delivery: value.registered_delivery.into(),
+            sm_default_msg_id: value.sm_default_msg_id.into(),
+            sm_length: value.sm_length.into(),
+            short_message: value.short_message.into(),
+            message_payload: value.message_payload.map(Into::into),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -2464,6 +2936,16 @@ pub struct DistributionListName {
     pub dl_name: Vec<u8>,
 }
 
+impl From<rusmpp_types::DistributionListName> for DistributionListName {
+    fn from(value: rusmpp_types::DistributionListName) -> Self {
+        let value = value.into_parts();
+        Self {
+            dest_flag: value.dest_flag.into(),
+            dl_name: value.dl_name.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2472,6 +2954,18 @@ pub struct SmeAddress {
     pub dest_addr_ton: Ton,
     pub dest_addr_npi: Npi,
     pub destination_addr: Vec<u8>,
+}
+
+impl From<rusmpp_types::SmeAddress> for SmeAddress {
+    fn from(value: rusmpp_types::SmeAddress) -> Self {
+        let value = value.into_parts();
+        Self {
+            dest_flag: value.dest_flag.into(),
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -2517,6 +3011,32 @@ pub struct SubmitMulti {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::SubmitMulti> for SubmitMulti {
+    fn from(value: rusmpp_types::SubmitMulti) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            number_of_dests: value.number_of_dests.into(),
+            dest_address: value.dest_address.into_iter().map(Into::into).collect(),
+            esm_class: value.esm_class.into(),
+            protocol_id: value.protocol_id.into(),
+            priority_flag: value.priority_flag.into(),
+            schedule_delivery_time: value.schedule_delivery_time.into(),
+            validity_period: value.validity_period.into(),
+            registered_delivery: value.registered_delivery.into(),
+            replace_if_present_flag: value.replace_if_present_flag.into(),
+            data_coding: value.data_coding.into(),
+            sm_default_msg_id: value.sm_default_msg_id.into(),
+            sm_length: value.sm_length.into(),
+            short_message: value.short_message.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2527,6 +3047,18 @@ pub struct UnsuccessSme {
     pub error_status_code: CommandStatus,
 }
 
+impl From<rusmpp_types::UnsuccessSme> for UnsuccessSme {
+    fn from(value: rusmpp_types::UnsuccessSme) -> Self {
+        let value = value.into_parts();
+        Self {
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+            error_status_code: value.error_status_code.into(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
@@ -2535,6 +3067,18 @@ pub struct SubmitMultiResp {
     pub no_unsuccess: u8,
     pub unsuccess_sme: Vec<UnsuccessSme>,
     pub tlvs: Vec<Tlv>,
+}
+
+impl From<rusmpp_types::SubmitMultiResp> for SubmitMultiResp {
+    fn from(value: rusmpp_types::SubmitMultiResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            no_unsuccess: value.no_unsuccess.into(),
+            unsuccess_sme: value.unsuccess_sme.into_iter().map(Into::into).collect(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
@@ -2562,12 +3106,49 @@ pub struct SubmitSm {
     pub tlvs: Vec<Tlv>,
 }
 
+impl From<rusmpp_types::SubmitSm> for SubmitSm {
+    fn from(value: rusmpp_types::SubmitSm) -> Self {
+        let value = value.into_parts();
+        Self {
+            service_type: value.service_type.into(),
+            source_addr_ton: value.source_addr_ton.into(),
+            source_addr_npi: value.source_addr_npi.into(),
+            source_addr: value.source_addr.into(),
+            dest_addr_ton: value.dest_addr_ton.into(),
+            dest_addr_npi: value.dest_addr_npi.into(),
+            destination_addr: value.destination_addr.into(),
+            esm_class: value.esm_class.into(),
+            protocol_id: value.protocol_id.into(),
+            priority_flag: value.priority_flag.into(),
+            schedule_delivery_time: value.schedule_delivery_time.into(),
+            validity_period: value.validity_period.into(),
+            registered_delivery: value.registered_delivery.into(),
+            replace_if_present_flag: value.replace_if_present_flag.into(),
+            data_coding: value.data_coding.into(),
+            sm_default_msg_id: value.sm_default_msg_id.into(),
+            sm_length: value.sm_length.into(),
+            short_message: value.short_message.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass]
 pub struct SubmitSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
+}
+
+impl From<rusmpp_types::SubmitSmResp> for SubmitSmResp {
+    fn from(value: rusmpp_types::SubmitSmResp) -> Self {
+        let value = value.into_parts();
+        Self {
+            message_id: value.message_id.into(),
+            tlvs: value.tlvs.into_iter().map(Into::into).collect(),
+        }
+    }
 }
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
@@ -2670,4 +3251,16 @@ pub struct Command {
     pub status: CommandStatus,
     pub sequence_number: u32,
     pub pdu: Option<Pdu>,
+}
+
+impl From<rusmpp_types::Command> for Command {
+    fn from(value: rusmpp_types::Command) -> Self {
+        let value = value.into_parts();
+        Self {
+            id: value.id.into(),
+            status: value.status.into(),
+            sequence_number: value.sequence_number.into(),
+            pdu: value.pdu.map(Into::into),
+        }
+    }
 }

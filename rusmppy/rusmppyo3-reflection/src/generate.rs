@@ -403,6 +403,44 @@ where
                 self.out.unindent();
                 self.current_namespace.pop();
                 writeln!(self.out, "}}\n")?;
+
+                // Implement `From` for Rusmpp types
+                writeln!(self.out, "impl From<rusmpp_types::{name}> for {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn from(value: rusmpp_types::{name}) -> Self {{")?;
+                self.out.indent();
+                writeln!(self.out, "let value = value.into_parts();")?;
+                writeln!(self.out, "Self {{")?;
+                self.out.indent();
+
+                for field in fields {
+                    let field_name = &field.name;
+                    let conversion = match &field.value {
+                        Format::Option(_) => {
+                            format!("value.{field_name}.map(Into::into)")
+                        }
+                        Format::Seq(inner_format) => {
+                            // If its a sequence of bytes we can use `Into` directly.
+                            if matches!(**inner_format, Format::U8) {
+                                format!("value.{field_name}.into()")
+                            } else {
+                                format!("value.{field_name}.into_iter().map(Into::into).collect()")
+                            }
+                        }
+                        _ => {
+                            format!("value.{field_name}.into()")
+                        }
+                    };
+
+                    writeln!(self.out, "{field_name}: {conversion},")?;
+                }
+
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
             }
             Enum(variants) => {
                 writeln!(

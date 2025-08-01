@@ -4,7 +4,7 @@ use pyo3::{
     Bound, PyResult,
 };
 
-mod generated;
+// mod generated;
 
 /// Raw Python bindings for Rusmppc.
 #[pymodule]

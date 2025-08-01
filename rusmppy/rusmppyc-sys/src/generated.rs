@@ -1,6 +1,7 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
 #![allow(clippy::enum_variant_names)]
+#![allow(clippy::useless_conversion)]
 
 use std::collections::BTreeMap as Map;
 
@@ -1873,10 +1874,7 @@ impl From<rusmpp_types::TlvValue> for TlvValue {
                 TlvValue::UserResponseCode(inner.into())
             }
             rusmpp_types::TlvValue::UssdServiceOp(inner) => TlvValue::UssdServiceOp(inner.into()),
-            rusmpp_types::TlvValue::Other {
-                tag: tag,
-                value: value,
-            } => TlvValue::Other {
+            rusmpp_types::TlvValue::Other { tag, value } => TlvValue::Other {
                 tag: tag.into(),
                 value: value.into(),
             },
@@ -3232,10 +3230,7 @@ impl From<rusmpp_types::Pdu> for Pdu {
             rusmpp_types::Pdu::CancelSmResp => Pdu::CancelSmResp(),
             rusmpp_types::Pdu::ReplaceSmResp => Pdu::ReplaceSmResp(),
             rusmpp_types::Pdu::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp(),
-            rusmpp_types::Pdu::Other {
-                command_id: command_id,
-                body: body,
-            } => Pdu::Other {
+            rusmpp_types::Pdu::Other { command_id, body } => Pdu::Other {
                 command_id: command_id.into(),
                 body: body.into(),
             },

@@ -196,6 +196,8 @@ where
         writeln!(self.out, "#![allow(unused_imports)]")?;
         writeln!(self.out, "#![allow(dead_code)]")?;
         writeln!(self.out, "#![allow(clippy::enum_variant_names)]")?;
+        writeln!(self.out, "#![allow(clippy::useless_conversion)]")?;
+
         writeln!(self.out)?;
 
         if !external_names.contains("Map") {
@@ -496,7 +498,7 @@ where
                             writeln!(self.out, "rusmpp_types::{name}::{vname} {{")?;
                             self.out.indent();
                             for field in fields {
-                                writeln!(self.out, "{}: {},", field.name, field.name)?;
+                                writeln!(self.out, "{},", field.name)?;
                             }
                             self.out.unindent();
                             writeln!(self.out, "}} => {name}::{vname} {{")?;

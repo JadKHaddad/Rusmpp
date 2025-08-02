@@ -106,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     generator.output(&mut output, &registry)?;
 
-    let mut file = std::fs::File::create("rusmppy/rusmppyc-sys/src/generated.rs")?;
+    let mut file = std::fs::File::create("rusmppy/rusmppyc/src/generated.rs")?;
 
     file.write_all(&output)?;
 

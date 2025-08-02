@@ -5,7 +5,7 @@ members = [
     "rusmppc",
     "rusmpps",
     "rusmppy/rusmppyo3-reflection",
-    "rusmppy/rusmppyc-sys",
+    "rusmppy/rusmppyc",
 ]
 default-members = ["rusmpp"]
 

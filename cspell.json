@@ -3,12 +3,15 @@
     "language": "en",
     "words": [
         "Addrs",
+        "aiter",
+        "anext",
         "Appn",
         "asref",
         "Atag",
         "CDMA",
         "Cdpd",
         "cdylib",
+        "classmethod",
         "clippy",
         "Datagram",
         "Deque",
@@ -44,6 +47,7 @@
         "Pssd",
         "Pssr",
         "pyclass",
+        "pymethods",
         "pymodule",
         "Ralybnd",
         "Rbcastcancelfail",
@@ -140,10 +144,9 @@
         "Ussd",
         "Ussn",
         "venv",
+        "vname",
         "Wcmp",
-        "wireshark",
-        "pastey",
-        "vname"
+        "wireshark"
     ],
     "ignorePaths": [
         "target",

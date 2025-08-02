@@ -1601,6 +1601,7 @@ dependencies = [
 name = "rusmppyc"
 version = "0.1.0"
 dependencies = [
+ "bytes",
  "futures",
  "pyo3",
  "pyo3-async-runtimes",

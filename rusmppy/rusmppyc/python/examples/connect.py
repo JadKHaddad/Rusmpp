@@ -8,7 +8,7 @@ async def handle_events(events: Events):
         print(f"Received event: {event}")
 
 async def main():
-    client, events = await Client.connect(host="127.0.0.1:2775", enquire_link_interval=5, response_timeout=10)
+    client, events = await Client.connect(host="127.0.0.1:2775", enquire_link_interval=5, response_timeout=2)
 
     asyncio.create_task(handle_events(events))
 

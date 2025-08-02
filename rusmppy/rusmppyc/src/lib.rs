@@ -10,6 +10,7 @@ use crate::generated::BindTransceiverResp;
 mod client;
 mod event;
 mod generated;
+mod io;
 
 #[pymodule]
 fn rusmppyc(m: &Bound<'_, PyModule>) -> PyResult<()> {

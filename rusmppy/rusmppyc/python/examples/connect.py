@@ -21,5 +21,9 @@ async def main():
     print(f"Bind response system_id: {response.system_id}")
     print(f"Bind response sc_interface_version: {response.sc_interface_version}")
 
+    await client.unbind()
+    await client.close()
+    await client.closed()
+
 if __name__ == "__main__":
     asyncio.run(main())

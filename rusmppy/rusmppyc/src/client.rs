@@ -84,6 +84,7 @@ impl Client {
         password: String,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
+
         future_into_py(py, async move {
             let response = client
                 .inner
@@ -98,9 +99,77 @@ impl Client {
                         .build(),
                 )
                 .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("Bind failed: {err}")))?;
+                .map_err(|err| {
+                    PyErr::new::<PyIOError, _>(format!("bind_transceiver failed: {err}"))
+                })?;
 
             Ok(crate::generated::BindTransceiverResp::from(response))
+        })
+    }
+
+    fn unbind<'p>(&self, py: Python<'p>) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .unbind()
+                .await
+                .map_err(|err| PyErr::new::<PyIOError, _>(format!("unbind failed: {err}")))?;
+
+            Ok(())
+        })
+    }
+
+    fn unbind_resp<'p>(&self, py: Python<'p>, sequence_number: u32) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .unbind_resp(sequence_number)
+                .await
+                .map_err(|err| PyErr::new::<PyIOError, _>(format!("unbind_resp failed: {err}")))?;
+
+            Ok(())
+        })
+    }
+
+    fn generic_nack<'p>(&self, py: Python<'p>, sequence_number: u32) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .generic_nack(sequence_number)
+                .await
+                .map_err(|err| PyErr::new::<PyIOError, _>(format!("generic_nack failed: {err}")))?;
+
+            Ok(())
+        })
+    }
+
+    fn close<'p>(&self, py: Python<'p>) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .close()
+                .await
+                .map_err(|err| PyErr::new::<PyIOError, _>(format!("close failed: {err}")))?;
+
+            Ok(())
+        })
+    }
+
+    fn closed<'p>(&self, py: Python<'p>) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client.inner.closed().await;
+
+            Ok(())
         })
     }
 }

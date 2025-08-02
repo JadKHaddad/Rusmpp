@@ -12,7 +12,13 @@ Raw `Python` bindings for `Rusmppc`
   python3 -m venv venv
   source venv/bin/activate
   ```
-  
+
+- Generate the `pyi` stubs:
+
+  ```bash
+  cargo run --bin stub-gen
+  ```
+
 - Generate the bindings:
 
   ```bash

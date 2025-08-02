@@ -8,7 +8,10 @@ use pyo3::{
     Bound, PyAny, PyErr, PyObject, PyResult, Python,
 };
 use pyo3_async_runtimes::tokio::future_into_py;
-use rusmpp::{pdus::BindTransceiver, types::COctetString};
+use rusmpp::{
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter},
+    types::COctetString,
+};
 use rusmppc::ConnectionBuilder;
 
 use crate::{
@@ -73,6 +76,68 @@ impl Client {
             let events = Box::pin(events.map(Event::from));
 
             Ok((Client { inner: client }, Events::new(events)))
+        })
+    }
+
+    #[pyo3(signature=(system_id, password))]
+    fn bind_transmitter<'p>(
+        &self,
+        py: Python<'p>,
+        system_id: String,
+        password: String,
+    ) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            let response = client
+                .inner
+                .bind_transmitter(
+                    BindTransmitter::builder()
+                        .system_id(COctetString::from_str(&system_id).map_err(|err| {
+                            PyErr::new::<PyValueError, _>(format!("Invalid system_id: {err}"))
+                        })?)
+                        .password(COctetString::from_str(&password).map_err(|err| {
+                            PyErr::new::<PyValueError, _>(format!("Invalid password: {err}"))
+                        })?)
+                        .build(),
+                )
+                .await
+                .map_err(|err| {
+                    PyErr::new::<PyIOError, _>(format!("bind_transmitter failed: {err}"))
+                })?;
+
+            Ok(crate::generated::BindTransmitterResp::from(response))
+        })
+    }
+
+    #[pyo3(signature=(system_id, password))]
+    fn bind_receiver<'p>(
+        &self,
+        py: Python<'p>,
+        system_id: String,
+        password: String,
+    ) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            let response = client
+                .inner
+                .bind_receiver(
+                    BindReceiver::builder()
+                        .system_id(COctetString::from_str(&system_id).map_err(|err| {
+                            PyErr::new::<PyValueError, _>(format!("Invalid system_id: {err}"))
+                        })?)
+                        .password(COctetString::from_str(&password).map_err(|err| {
+                            PyErr::new::<PyValueError, _>(format!("Invalid password: {err}"))
+                        })?)
+                        .build(),
+                )
+                .await
+                .map_err(|err| {
+                    PyErr::new::<PyIOError, _>(format!("bind_receiver failed: {err}"))
+                })?;
+
+            Ok(crate::generated::BindReceiverResp::from(response))
         })
     }
 

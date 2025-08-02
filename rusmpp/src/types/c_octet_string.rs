@@ -211,11 +211,9 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     }
 }
 
-#[allow(clippy::from_over_into)]
-// We do not implement From<Vec<u8>> because bytes must be validated
-impl<const MIN: usize, const MAX: usize> Into<Vec<u8>> for COctetString<MIN, MAX> {
-    fn into(self) -> Vec<u8> {
-        self.bytes
+impl<const MIN: usize, const MAX: usize> From<COctetString<MIN, MAX>> for Vec<u8> {
+    fn from(value: COctetString<MIN, MAX>) -> Self {
+        value.bytes
     }
 }
 

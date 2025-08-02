@@ -12,7 +12,7 @@ async def main():
     read, write = await asyncio.open_connection(
         '127.0.0.1', 2775)
 
-    client, events = await Client.connected(read, write, enquire_link_interval=5, response_timeout=2)
+    client, events = await Client.connected(read, write, enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2)
 
     asyncio.create_task(handle_events(events))
 

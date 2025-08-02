@@ -8,23 +8,26 @@ use pyo3::{
     Bound, PyAny, PyErr, PyResult, Python,
 };
 use pyo3_async_runtimes::tokio::future_into_py;
+use pyo3_stub_gen_derive::{gen_stub_pyclass, gen_stub_pymethods};
 use rusmpp::{pdus::BindTransceiver, types::COctetString};
 use rusmppc::ConnectionBuilder;
 
 use crate::event::{Event, Events};
 
 #[pyclass]
+#[gen_stub_pyclass]
 #[derive(Clone)]
 pub struct Client {
     inner: rusmppc::Client,
 }
 
 #[pymethods]
+#[gen_stub_pymethods]
 impl Client {
     #[classmethod]
     #[pyo3(signature=(host, enquire_link_interval=5, response_timeout=2))]
     fn connect<'p>(
-        _cls: &'p Bound<'p, PyType>,
+        cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
         host: String,
         enquire_link_interval: u64,

@@ -1,4 +1,4 @@
-from rusmppyc_sys import Client, Events # type: ignore
+from rusmppyc_sys import Client, Events
 import asyncio
 
 async def handle_events(events: Events):

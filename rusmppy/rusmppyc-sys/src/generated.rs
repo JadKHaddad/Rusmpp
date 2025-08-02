@@ -36,6 +36,14 @@ impl From<rusmpp_types::AddrSubunit> for AddrSubunit {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl AddrSubunit {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -56,6 +64,14 @@ impl From<rusmpp_types::AlertOnMessageDelivery> for AlertOnMessageDelivery {
             rusmpp_types::AlertOnMessageDelivery::UseHighPriorityAlert => AlertOnMessageDelivery::UseHighPriorityAlert(),
             rusmpp_types::AlertOnMessageDelivery::Other(inner) => AlertOnMessageDelivery::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl AlertOnMessageDelivery {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -92,6 +108,14 @@ impl From<rusmpp_types::BearerType> for BearerType {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BearerType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -113,6 +137,14 @@ impl From<rusmpp_types::BroadcastAreaFormat> for BroadcastAreaFormat {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastAreaFormat {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -128,6 +160,14 @@ impl From<rusmpp_types::BroadcastAreaIdentifier> for BroadcastAreaIdentifier {
             format: value.format.into(),
             area: value.area.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastAreaIdentifier {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -150,6 +190,14 @@ impl From<rusmpp_types::BroadcastAreaSuccess> for BroadcastAreaSuccess {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastAreaSuccess {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -166,6 +214,14 @@ impl From<rusmpp_types::BroadcastChannelIndicator> for BroadcastChannelIndicator
             rusmpp_types::BroadcastChannelIndicator::Extended => BroadcastChannelIndicator::Extended(),
             rusmpp_types::BroadcastChannelIndicator::Other(inner) => BroadcastChannelIndicator::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastChannelIndicator {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -272,6 +328,14 @@ impl From<rusmpp_types::EncodingContentType> for EncodingContentType {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl EncodingContentType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -295,6 +359,14 @@ impl From<rusmpp_types::TypeOfNetwork> for TypeOfNetwork {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl TypeOfNetwork {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -310,6 +382,14 @@ impl From<rusmpp_types::BroadcastContentType> for BroadcastContentType {
             type_of_network: value.type_of_network.into(),
             encoding_content_type: value.encoding_content_type.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastContentType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -344,6 +424,14 @@ impl From<rusmpp_types::UnitOfTime> for UnitOfTime {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl UnitOfTime {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -359,6 +447,14 @@ impl From<rusmpp_types::BroadcastFrequencyInterval> for BroadcastFrequencyInterv
             unit: value.unit.into(),
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastFrequencyInterval {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -385,6 +481,14 @@ impl From<rusmpp_types::BroadcastMessageClass> for BroadcastMessageClass {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastMessageClass {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -398,6 +502,14 @@ impl From<rusmpp_types::BroadcastRepNum> for BroadcastRepNum {
         Self {
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastRepNum {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -419,6 +531,14 @@ impl From<rusmpp_types::Presentation> for Presentation {
             rusmpp_types::Presentation::NumberNotAvailable => Presentation::NumberNotAvailable(),
             rusmpp_types::Presentation::Other(inner) => Presentation::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Presentation {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -445,6 +565,14 @@ impl From<rusmpp_types::Screening> for Screening {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Screening {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -460,6 +588,14 @@ impl From<rusmpp_types::CallbackNumPresInd> for CallbackNumPresInd {
             presentation: value.presentation.into(),
             screening: value.screening.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CallbackNumPresInd {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -612,6 +748,14 @@ impl From<rusmpp_types::CommandStatus> for CommandStatus {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CommandStatus {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -641,6 +785,14 @@ impl From<rusmpp_types::CongestionState> for CongestionState {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CongestionState {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -661,6 +813,14 @@ impl From<rusmpp_types::DeliveryFailureReason> for DeliveryFailureReason {
             rusmpp_types::DeliveryFailureReason::TemporaryNetworkError => DeliveryFailureReason::TemporaryNetworkError(),
             rusmpp_types::DeliveryFailureReason::Other(inner) => DeliveryFailureReason::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DeliveryFailureReason {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -685,6 +845,14 @@ impl From<rusmpp_types::DestAddrNpResolution> for DestAddrNpResolution {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DestAddrNpResolution {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -703,6 +871,14 @@ impl From<rusmpp_types::DisplayTime> for DisplayTime {
             rusmpp_types::DisplayTime::Invoke => DisplayTime::Invoke(),
             rusmpp_types::DisplayTime::Other(inner) => DisplayTime::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DisplayTime {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -725,6 +901,14 @@ impl From<rusmpp_types::DpfResult> for DpfResult {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DpfResult {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -743,6 +927,14 @@ impl From<rusmpp_types::InterfaceVersion> for InterfaceVersion {
             rusmpp_types::InterfaceVersion::Smpp5_0 => InterfaceVersion::Smpp5_0(),
             rusmpp_types::InterfaceVersion::Other(inner) => InterfaceVersion::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl InterfaceVersion {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -779,6 +971,14 @@ impl From<rusmpp_types::ItsReplyType> for ItsReplyType {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ItsReplyType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -794,6 +994,14 @@ impl From<rusmpp_types::ItsSessionInfo> for ItsSessionInfo {
             session_number: value.session_number.into(),
             sequence_number: value.sequence_number.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ItsSessionInfo {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -824,6 +1032,14 @@ impl From<rusmpp_types::LanguageIndicator> for LanguageIndicator {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl LanguageIndicator {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -837,6 +1053,14 @@ impl From<rusmpp_types::MessagePayload> for MessagePayload {
         Self {
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessagePayload {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -875,6 +1099,14 @@ impl From<rusmpp_types::MessageState> for MessageState {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageState {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -891,6 +1123,14 @@ impl From<rusmpp_types::MoreMessagesToSend> for MoreMessagesToSend {
             rusmpp_types::MoreMessagesToSend::MoreMessagesToFollow => MoreMessagesToSend::MoreMessagesToFollow(),
             rusmpp_types::MoreMessagesToSend::Other(inner) => MoreMessagesToSend::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MoreMessagesToSend {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -915,6 +1155,14 @@ impl From<rusmpp_types::MsAvailabilityStatus> for MsAvailabilityStatus {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MsAvailabilityStatus {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -931,6 +1179,14 @@ impl From<rusmpp_types::Indicator> for Indicator {
             rusmpp_types::Indicator::Active => Indicator::Active(),
             rusmpp_types::Indicator::Other(inner) => Indicator::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Indicator {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -957,6 +1213,14 @@ impl From<rusmpp_types::TypeOfMessage> for TypeOfMessage {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl TypeOfMessage {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -972,6 +1236,14 @@ impl From<rusmpp_types::MsMsgWaitFacilities> for MsMsgWaitFacilities {
             indicator: value.indicator.into(),
             type_of_message: value.type_of_message.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MsMsgWaitFacilities {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -997,6 +1269,14 @@ impl From<rusmpp_types::MsValidityBehavior> for MsValidityBehavior {
             rusmpp_types::MsValidityBehavior::RelativeTimePeriod => MsValidityBehavior::RelativeTimePeriod(),
             rusmpp_types::MsValidityBehavior::Other(inner) => MsValidityBehavior::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MsValidityBehavior {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1029,6 +1309,14 @@ impl From<rusmpp_types::UnitsOfTime> for UnitsOfTime {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl UnitsOfTime {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1047,6 +1335,14 @@ impl From<rusmpp_types::MsValidityInformation> for MsValidityInformation {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MsValidityInformation {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1062,6 +1358,14 @@ impl From<rusmpp_types::MsValidity> for MsValidity {
             validity_behavior: value.validity_behavior.into(),
             validity_information: value.validity_information.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MsValidity {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1096,6 +1400,14 @@ impl From<rusmpp_types::ErrorCodeNetworkType> for ErrorCodeNetworkType {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ErrorCodeNetworkType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1111,6 +1423,14 @@ impl From<rusmpp_types::NetworkErrorCode> for NetworkErrorCode {
             network_type: value.network_type.into(),
             error_code: value.error_code.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl NetworkErrorCode {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1147,6 +1467,14 @@ impl From<rusmpp_types::NetworkType> for NetworkType {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl NetworkType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1161,6 +1489,14 @@ impl From<rusmpp_types::NumberOfMessages> for NumberOfMessages {
             rusmpp_types::NumberOfMessages::Allowed(inner) => NumberOfMessages::Allowed(inner.into()),
             rusmpp_types::NumberOfMessages::Other(inner) => NumberOfMessages::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl NumberOfMessages {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1180,6 +1516,14 @@ impl From<rusmpp_types::PayloadType> for PayloadType {
             rusmpp_types::PayloadType::WcmpMessage => PayloadType::WcmpMessage(),
             rusmpp_types::PayloadType::Other(inner) => PayloadType::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl PayloadType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1206,6 +1550,14 @@ impl From<rusmpp_types::PrivacyIndicator> for PrivacyIndicator {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl PrivacyIndicator {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1222,6 +1574,14 @@ impl From<rusmpp_types::SetDpf> for SetDpf {
             rusmpp_types::SetDpf::Requested => SetDpf::Requested(),
             rusmpp_types::SetDpf::Other(inner) => SetDpf::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SetDpf {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1246,6 +1606,14 @@ impl From<rusmpp_types::SubaddressTag> for SubaddressTag {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SubaddressTag {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1261,6 +1629,14 @@ impl From<rusmpp_types::Subaddress> for Subaddress {
             tag: value.tag.into(),
             addr: value.addr.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Subaddress {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1408,6 +1784,14 @@ impl From<rusmpp_types::TlvTag> for TlvTag {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl TlvTag {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1421,6 +1805,14 @@ impl From<rusmpp_types::UserMessageReference> for UserMessageReference {
         Self {
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl UserMessageReference {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1452,6 +1844,14 @@ impl From<rusmpp_types::UssdServiceOp> for UssdServiceOp {
             rusmpp_types::UssdServiceOp::UssnConfirm => UssdServiceOp::UssnConfirm(),
             rusmpp_types::UssdServiceOp::Other(inner) => UssdServiceOp::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl UssdServiceOp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1608,6 +2008,14 @@ impl From<rusmpp_types::TlvValue> for TlvValue {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl TlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1643,6 +2051,14 @@ impl From<rusmpp_types::Npi> for Npi {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Npi {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1660,6 +2076,14 @@ impl From<rusmpp_types::Tlv> for Tlv {
             value_length: value.value_length.into(),
             value: value.value.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Tlv {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1692,6 +2116,14 @@ impl From<rusmpp_types::Ton> for Ton {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Ton {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1717,6 +2149,14 @@ impl From<rusmpp_types::AlertNotification> for AlertNotification {
             esme_addr: value.esme_addr.into(),
             ms_availability_status: value.ms_availability_status.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl AlertNotification {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1748,6 +2188,14 @@ impl From<rusmpp_types::BindReceiver> for BindReceiver {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindReceiver {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1763,6 +2211,14 @@ impl From<rusmpp_types::BindReceiverResp> for BindReceiverResp {
             system_id: value.system_id.into(),
             sc_interface_version: value.sc_interface_version.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindReceiverResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1794,6 +2250,14 @@ impl From<rusmpp_types::BindTransceiver> for BindTransceiver {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindTransceiver {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1809,6 +2273,14 @@ impl From<rusmpp_types::BindTransceiverResp> for BindTransceiverResp {
             system_id: value.system_id.into(),
             sc_interface_version: value.sc_interface_version.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindTransceiverResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1840,6 +2312,14 @@ impl From<rusmpp_types::BindTransmitter> for BindTransmitter {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindTransmitter {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1855,6 +2335,14 @@ impl From<rusmpp_types::BindTransmitterResp> for BindTransmitterResp {
             system_id: value.system_id.into(),
             sc_interface_version: value.sc_interface_version.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BindTransmitterResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1905,6 +2393,14 @@ impl From<rusmpp_types::DataCoding> for DataCoding {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DataCoding {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1918,6 +2414,14 @@ impl From<rusmpp_types::PriorityFlag> for PriorityFlag {
         Self {
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl PriorityFlag {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1940,6 +2444,14 @@ impl From<rusmpp_types::ReplaceIfPresentFlag> for ReplaceIfPresentFlag {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ReplaceIfPresentFlag {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -1953,6 +2465,14 @@ impl From<rusmpp_types::ServiceType> for ServiceType {
         Self {
             value: value.value.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ServiceType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -1994,6 +2514,14 @@ impl From<rusmpp_types::BroadcastSm> for BroadcastSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2009,6 +2537,14 @@ impl From<rusmpp_types::BroadcastSmResp> for BroadcastSmResp {
             message_id: value.message_id.into(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastSmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2035,6 +2571,14 @@ impl From<rusmpp_types::CancelBroadcastSm> for CancelBroadcastSm {
             source_addr: value.source_addr.into(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CancelBroadcastSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2065,6 +2609,14 @@ impl From<rusmpp_types::CancelSm> for CancelSm {
             dest_addr_npi: value.dest_addr_npi.into(),
             destination_addr: value.destination_addr.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CancelSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2149,6 +2701,14 @@ impl From<rusmpp_types::CommandId> for CommandId {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CommandId {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2167,6 +2727,14 @@ impl From<rusmpp_types::Ansi41Specific> for Ansi41Specific {
             rusmpp_types::Ansi41Specific::ShortMessageContainsConversationAbort => Ansi41Specific::ShortMessageContainsConversationAbort(),
             rusmpp_types::Ansi41Specific::Other(inner) => Ansi41Specific::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Ansi41Specific {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2193,6 +2761,14 @@ impl From<rusmpp_types::GsmFeatures> for GsmFeatures {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl GsmFeatures {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2211,6 +2787,14 @@ impl From<rusmpp_types::MessageType> for MessageType {
             rusmpp_types::MessageType::ShortMessageContainsIntermediateDeliveryNotification => MessageType::ShortMessageContainsIntermediateDeliveryNotification(),
             rusmpp_types::MessageType::Other(inner) => MessageType::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageType {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2237,6 +2821,14 @@ impl From<rusmpp_types::MessagingMode> for MessagingMode {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessagingMode {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2259,6 +2851,14 @@ impl From<rusmpp_types::EsmClass> for EsmClass {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl EsmClass {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2275,6 +2875,14 @@ impl From<rusmpp_types::IntermediateNotification> for IntermediateNotification {
             rusmpp_types::IntermediateNotification::IntermediateNotificationRequested => IntermediateNotification::IntermediateNotificationRequested(),
             rusmpp_types::IntermediateNotification::Other(inner) => IntermediateNotification::Other(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl IntermediateNotification {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2301,6 +2909,14 @@ impl From<rusmpp_types::MCDeliveryReceipt> for MCDeliveryReceipt {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MCDeliveryReceipt {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2324,6 +2940,14 @@ impl From<rusmpp_types::SmeOriginatedAcknowledgement> for SmeOriginatedAcknowled
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SmeOriginatedAcknowledgement {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2343,6 +2967,14 @@ impl From<rusmpp_types::RegisteredDelivery> for RegisteredDelivery {
             intermediate_notification: value.intermediate_notification.into(),
             other: value.other.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl RegisteredDelivery {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2382,6 +3014,14 @@ impl From<rusmpp_types::DataSm> for DataSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DataSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2397,6 +3037,14 @@ impl From<rusmpp_types::DataSmResp> for DataSmResp {
             message_id: value.message_id.into(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DataSmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2452,6 +3100,14 @@ impl From<rusmpp_types::DeliverSm> for DeliverSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DeliverSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2470,6 +3126,14 @@ impl From<rusmpp_types::DeliverSmResp> for DeliverSmResp {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DeliverSmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2485,6 +3149,14 @@ impl From<rusmpp_types::Outbind> for Outbind {
             system_id: value.system_id.into(),
             password: value.password.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Outbind {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2512,6 +3184,14 @@ impl From<rusmpp_types::QueryBroadcastSm> for QueryBroadcastSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl QueryBroadcastSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2527,6 +3207,14 @@ impl From<rusmpp_types::QueryBroadcastSmResp> for QueryBroadcastSmResp {
             message_id: value.message_id.into(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl QueryBroadcastSmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2552,6 +3240,14 @@ impl From<rusmpp_types::QuerySm> for QuerySm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl QuerySm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2571,6 +3267,14 @@ impl From<rusmpp_types::QuerySmResp> for QuerySmResp {
             message_state: value.message_state.into(),
             error_code: value.error_code.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl QuerySmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2610,6 +3314,14 @@ impl From<rusmpp_types::ReplaceSm> for ReplaceSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl ReplaceSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2629,6 +3341,14 @@ impl From<rusmpp_types::DestFlag> for DestFlag {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DestFlag {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2644,6 +3364,14 @@ impl From<rusmpp_types::DistributionListName> for DistributionListName {
             dest_flag: value.dest_flag.into(),
             dl_name: value.dl_name.into(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DistributionListName {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2669,6 +3397,14 @@ impl From<rusmpp_types::SmeAddress> for SmeAddress {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SmeAddress {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2683,6 +3419,14 @@ impl From<rusmpp_types::DestAddress> for DestAddress {
             rusmpp_types::DestAddress::SmeAddress(inner) => DestAddress::SmeAddress(inner.into()),
             rusmpp_types::DestAddress::DistributionListName(inner) => DestAddress::DistributionListName(inner.into()),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl DestAddress {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2736,6 +3480,14 @@ impl From<rusmpp_types::SubmitMulti> for SubmitMulti {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SubmitMulti {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2758,6 +3510,14 @@ impl From<rusmpp_types::UnsuccessSme> for UnsuccessSme {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl UnsuccessSme {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2777,6 +3537,14 @@ impl From<rusmpp_types::SubmitMultiResp> for SubmitMultiResp {
             unsuccess_sme: value.unsuccess_sme.into_iter().map(Into::into).collect(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SubmitMultiResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2832,6 +3600,14 @@ impl From<rusmpp_types::SubmitSm> for SubmitSm {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SubmitSm {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2847,6 +3623,14 @@ impl From<rusmpp_types::SubmitSmResp> for SubmitSmResp {
             message_id: value.message_id.into(),
             tlvs: value.tlvs.into_iter().map(Into::into).collect(),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl SubmitSmResp {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 
@@ -2940,6 +3724,14 @@ impl From<rusmpp_types::Pdu> for Pdu {
     }
 }
 
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Pdu {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -2959,6 +3751,14 @@ impl From<rusmpp_types::Command> for Command {
             sequence_number: value.sequence_number.into(),
             pdu: value.pdu.map(Into::into),
         }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl Command {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
     }
 }
 

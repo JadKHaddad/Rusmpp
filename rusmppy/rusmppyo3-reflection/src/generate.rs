@@ -443,6 +443,19 @@ where
                 writeln!(self.out, "}}")?;
                 self.out.unindent();
                 writeln!(self.out, "}}\n")?;
+
+                // Generate the methods
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
+                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "impl {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn __repr__(&self) -> String {{")?;
+                self.out.indent();
+                writeln!(self.out, "format!(\"{{self:?}}\")")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
             }
             Enum(variants) => {
                 writeln!(
@@ -523,6 +536,19 @@ where
 
                 self.out.unindent();
                 writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
+
+                // Generate the methods
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
+                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "impl {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn __repr__(&self) -> String {{")?;
+                self.out.indent();
+                writeln!(self.out, "format!(\"{{self:?}}\")")?;
                 self.out.unindent();
                 writeln!(self.out, "}}")?;
                 self.out.unindent();

@@ -5,13 +5,16 @@ use pyo3::{
     exceptions::{PyIOError, PyValueError},
     pyclass, pymethods,
     types::PyType,
-    Bound, PyAny, PyErr, PyResult, Python,
+    Bound, PyAny, PyErr, PyObject, PyResult, Python,
 };
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{pdus::BindTransceiver, types::COctetString};
 use rusmppc::ConnectionBuilder;
 
-use crate::event::{Event, Events};
+use crate::{
+    event::{Event, Events},
+    io::IO,
+};
 
 #[pyclass]
 #[derive(Clone)]
@@ -37,6 +40,35 @@ impl Client {
                 .connect(host)
                 .await
                 .map_err(|err| PyErr::new::<PyIOError, _>(format!("Connection failed: {err}")))?;
+
+            let events = Box::pin(events.map(Event::from));
+
+            Ok((Client { inner: client }, Events::new(events)))
+        })
+    }
+
+    #[classmethod]
+    #[pyo3(signature=(read, write, enquire_link_interval=5, response_timeout=2))]
+    fn connected<'p>(
+        _cls: &'p Bound<'p, PyType>,
+        py: Python<'p>,
+        read: PyObject,
+        write: PyObject,
+        enquire_link_interval: u64,
+        response_timeout: u64,
+    ) -> PyResult<Bound<'p, PyAny>> {
+        future_into_py(py, async move {
+            let read_write = (read, write).into_tokio_async_read_and_write();
+
+            let (client, events, connection) = ConnectionBuilder::new()
+                .enquire_link_interval(Duration::from_secs(enquire_link_interval))
+                .response_timeout(Duration::from_secs(response_timeout))
+                .no_spawn()
+                .connected(read_write);
+
+            // the read and write are python-futures, we spawn them with current locals
+            let task_locals = Python::with_gil(pyo3_async_runtimes::tokio::get_current_locals)?;
+            tokio::spawn(pyo3_async_runtimes::tokio::scope(task_locals, connection));
 
             let events = Box::pin(events.map(Event::from));
 

@@ -1,14 +1,22 @@
 
-from rusmppyc import Events, Client, BindTransceiverResp
+from rusmppyc import Events, Client, BindTransceiverResp, Event
 
 import asyncio
 
 async def handle_events(events: Events):
     async for event in events:
-        print(f"Received event: {event}")
+        match event:
+            case Event.Incoming(cmd):
+                print(f"Received Command: {cmd}")
+            case Event.Error(err):
+                print(f"Error occurred: {err}")
+            case _:
+                print(f"Unknown event: {event}")
+    
+    print("Event handling completed.")
 
 async def main():
-    client, events = await Client.connect(host="127.0.0.1:2775", enquire_link_interval=5, response_timeout=2)
+    client, events = await Client.connect(host="127.0.0.1:2775", enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2)
 
     asyncio.create_task(handle_events(events))
 

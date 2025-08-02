@@ -28,17 +28,19 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host, enquire_link_interval=5, response_timeout=2))]
+    #[pyo3(signature=(host, enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2))]
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
         host: String,
         enquire_link_interval: u64,
+        enquire_link_response_timeout: u64,
         response_timeout: u64,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let (client, events) = ConnectionBuilder::new()
                 .enquire_link_interval(Duration::from_secs(enquire_link_interval))
+                .enquire_link_response_timeout(Duration::from_secs(enquire_link_response_timeout))
                 .response_timeout(Duration::from_secs(response_timeout))
                 .connect(host)
                 .await
@@ -51,13 +53,14 @@ impl Client {
     }
 
     #[classmethod]
-    #[pyo3(signature=(read, write, enquire_link_interval=5, response_timeout=2))]
+    #[pyo3(signature=(read, write, enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2))]
     fn connected<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
         read: PyObject,
         write: PyObject,
         enquire_link_interval: u64,
+        enquire_link_response_timeout: u64,
         response_timeout: u64,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
@@ -65,6 +68,7 @@ impl Client {
 
             let (client, events, connection) = ConnectionBuilder::new()
                 .enquire_link_interval(Duration::from_secs(enquire_link_interval))
+                .enquire_link_response_timeout(Duration::from_secs(enquire_link_response_timeout))
                 .response_timeout(Duration::from_secs(response_timeout))
                 .no_spawn()
                 .connected(read_write);

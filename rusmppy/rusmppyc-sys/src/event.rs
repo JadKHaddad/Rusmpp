@@ -5,10 +5,12 @@ use pyo3::{
     exceptions::PyStopAsyncIteration, pyclass, pymethods, Bound, PyAny, PyRef, PyResult, Python,
 };
 use pyo3_async_runtimes::tokio::future_into_py;
+use pyo3_stub_gen_derive::{gen_stub_pyclass, gen_stub_pymethods};
 use tokio::sync::RwLock;
 
 /// A mapped class for [`Event`](rusmppc::Event).
 #[pyclass]
+#[gen_stub_pyclass]
 pub struct Event {}
 
 impl From<rusmppc::Event> for Event {
@@ -22,6 +24,7 @@ impl From<rusmppc::Event> for Event {
 ///
 /// This class represents a stream of events that can be iterated over asynchronously using `async for`.
 #[pyclass]
+#[gen_stub_pyclass]
 pub struct Events {
     inner: Arc<RwLock<Pin<Box<dyn Stream<Item = Event> + Send + Sync + Unpin + 'static>>>>,
 }
@@ -44,6 +47,7 @@ impl Clone for Events {
 }
 
 #[pymethods]
+#[gen_stub_pymethods]
 impl Events {
     fn __aiter__(slf: PyRef<'_, Self>) -> PyResult<PyRef<'_, Self>> {
         Ok(slf)

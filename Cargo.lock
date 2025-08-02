@@ -1598,7 +1598,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rusmppyc-sys"
+name = "rusmppyc"
 version = "0.1.0"
 dependencies = [
  "futures",

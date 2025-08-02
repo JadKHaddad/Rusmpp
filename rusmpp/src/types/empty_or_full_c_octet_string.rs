@@ -165,11 +165,9 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     }
 }
 
-#[allow(clippy::from_over_into)]
-// We do not implement From<Vec<u8>> because bytes must be validated
-impl<const N: usize> Into<Vec<u8>> for EmptyOrFullCOctetString<N> {
-    fn into(self) -> Vec<u8> {
-        self.bytes
+impl<const N: usize> From<EmptyOrFullCOctetString<N>> for Vec<u8> {
+    fn from(value: EmptyOrFullCOctetString<N>) -> Self {
+        value.bytes
     }
 }
 

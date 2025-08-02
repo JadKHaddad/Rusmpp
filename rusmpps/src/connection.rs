@@ -292,6 +292,8 @@ impl Connection {
                         .sequence_number(sequence_number)
                         .pdu(pdu);
 
+                    tokio::time::sleep(self.config.response_delay).await;
+
                     tracing::debug!(session_id, sequence_number, id=?command.id(), "Sending response");
                     tracing::trace!(session_id, sequence_number, ?command, "Sending response");
 

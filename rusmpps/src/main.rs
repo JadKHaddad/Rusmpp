@@ -14,7 +14,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         response_timeout: Duration::from_secs(3),
         session_timeout: Duration::from_secs(3),
         bind_delay: Duration::from_millis(100),
-        response_delay: Duration::from_secs(1),
+        response_delay: Duration::from_millis(100),
         socket_addr: "127.0.0.1:2775"
             .parse()
             .expect("Failed to parse socket address"),

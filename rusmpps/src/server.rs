@@ -15,6 +15,7 @@ pub struct ServerParameters {
     pub clients: Vec<Client>,
     pub enquire_link_interval: Duration,
     pub response_timeout: Duration,
+    pub enquire_link_response_delay: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
     pub response_delay: Duration,
@@ -38,6 +39,7 @@ impl Server {
             session_timeout: parameters.session_timeout,
             bind_delay: parameters.bind_delay,
             response_delay: parameters.response_delay,
+            enquire_link_response_delay: parameters.enquire_link_response_delay,
         });
 
         Self {

@@ -11,5 +11,5 @@ pub struct Config {
     pub session_timeout: Duration,
     pub bind_delay: Duration,
     pub response_delay: Duration,
-    // TODO add enquire_link_response_delay
+    pub enquire_link_response_delay: Duration,
 }

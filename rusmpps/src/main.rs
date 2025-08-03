@@ -27,7 +27,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let parameters = ServerParameters {
         clients: vec![],
         enquire_link_interval: config.enquire_link_interval,
-        response_timeout: config.response_timeout,
+        enquire_link_response_timeout: config.enquire_link_response_timeout,
         enquire_link_response_delay: config.enquire_link_response_delay,
         session_timeout: config.session_timeout,
         bind_delay: config.bind_delay,

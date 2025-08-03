@@ -12,7 +12,7 @@ pub struct Config {
     #[serde(with = "humantime_serde")]
     pub enquire_link_interval: Duration,
     #[serde(with = "humantime_serde")]
-    pub response_timeout: Duration,
+    pub enquire_link_response_timeout: Duration,
     #[serde(with = "humantime_serde")]
     pub session_timeout: Duration,
     #[serde(with = "humantime_serde")]
@@ -27,7 +27,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             enquire_link_interval: Duration::from_secs(10),
-            response_timeout: Duration::from_secs(3),
+            enquire_link_response_timeout: Duration::from_secs(3),
             enquire_link_response_delay: Duration::from_millis(100),
             session_timeout: Duration::from_secs(3),
             bind_delay: Duration::from_millis(100),

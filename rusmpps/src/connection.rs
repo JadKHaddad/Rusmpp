@@ -1,4 +1,4 @@
-use std::{str::FromStr, sync::Arc};
+use std::{str::FromStr, sync::Arc, time::Duration};
 
 use futures::{SinkExt, StreamExt, TryStreamExt, future};
 use rusmpp::{
@@ -17,19 +17,30 @@ use tokio_util::codec::{FramedRead, FramedWrite};
 
 use crate::{
     bind_mode::BindMode,
-    client::{Action, ClientSession, SequenceNumber},
-    config::Config,
+    client::{Action, Client, ClientSession, ConnectedClients, SequenceNumber},
     timer::Timer,
 };
 
 #[derive(Debug)]
+pub struct ConnectionConfig {
+    pub connected_clients: ConnectedClients,
+    pub clients: Vec<Client>,
+    pub enquire_link_interval: Duration,
+    pub response_timeout: Duration,
+    pub session_timeout: Duration,
+    pub bind_delay: Duration,
+    pub response_delay: Duration,
+    pub enquire_link_response_delay: Duration,
+}
+
+#[derive(Debug)]
 pub struct Connection {
     session_id: u64,
-    config: Arc<Config>,
+    config: Arc<ConnectionConfig>,
 }
 
 impl Connection {
-    pub fn new(session_id: u64, config: Arc<Config>) -> Self {
+    pub fn new(session_id: u64, config: Arc<ConnectionConfig>) -> Self {
         Self { session_id, config }
     }
 

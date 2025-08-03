@@ -6,8 +6,7 @@ use tokio::net::TcpListener;
 
 use crate::{
     client::{Client, ConnectedClients},
-    config::Config,
-    connection::Connection,
+    connection::{Connection, ConnectionConfig},
 };
 
 #[derive(Debug)]
@@ -24,14 +23,14 @@ pub struct ServerParameters {
 
 #[derive(Debug)]
 pub struct Server {
-    config: Arc<Config>,
+    config: Arc<ConnectionConfig>,
     socket_addr: SocketAddr,
     session_id: u64,
 }
 
 impl Server {
     pub fn new(parameters: ServerParameters) -> Self {
-        let config = Arc::new(Config {
+        let config = Arc::new(ConnectionConfig {
             connected_clients: ConnectedClients::new(),
             clients: parameters.clients,
             enquire_link_interval: parameters.enquire_link_interval,

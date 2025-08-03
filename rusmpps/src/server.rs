@@ -13,7 +13,7 @@ use crate::{
 pub struct ServerParameters {
     pub clients: Vec<Client>,
     pub enquire_link_interval: Duration,
-    pub response_timeout: Duration,
+    pub enquire_link_response_timeout: Duration,
     pub enquire_link_response_delay: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
@@ -34,7 +34,7 @@ impl Server {
             connected_clients: ConnectedClients::new(),
             clients: parameters.clients,
             enquire_link_interval: parameters.enquire_link_interval,
-            response_timeout: parameters.response_timeout,
+            enquire_link_response_timeout: parameters.enquire_link_response_timeout,
             session_timeout: parameters.session_timeout,
             bind_delay: parameters.bind_delay,
             response_delay: parameters.response_delay,

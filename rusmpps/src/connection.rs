@@ -26,7 +26,7 @@ pub struct ConnectionConfig {
     pub connected_clients: ConnectedClients,
     pub clients: Vec<Client>,
     pub enquire_link_interval: Duration,
-    pub response_timeout: Duration,
+    pub enquire_link_response_timeout: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
     pub response_delay: Duration,
@@ -211,7 +211,7 @@ impl Connection {
                         break
                     }
 
-                    enquire_link_resp_timer.as_mut().activate(self.config.response_timeout);
+                    enquire_link_resp_timer.as_mut().activate(self.config.enquire_link_response_timeout);
                     enquire_link_timer.as_mut().activate(self.config.enquire_link_interval);
 
                     tracing::debug!(session_id, sequence_number, "EnquireLink response timer activated");

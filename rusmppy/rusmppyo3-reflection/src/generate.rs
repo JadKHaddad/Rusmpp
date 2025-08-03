@@ -193,15 +193,13 @@ where
             .flatten()
             .cloned()
             .collect::<HashSet<_>>();
-        writeln!(self.out, "#![allow(unused_imports)]")?;
-        writeln!(self.out, "#![allow(dead_code)]")?;
         writeln!(self.out, "#![allow(clippy::enum_variant_names)]")?;
         writeln!(self.out, "#![allow(clippy::useless_conversion)]")?;
 
         writeln!(self.out)?;
 
         if !external_names.contains("Map") {
-            writeln!(self.out, "use std::collections::BTreeMap as Map;")?;
+            // writeln!(self.out, "use std::collections::BTreeMap as Map;")?;
         }
         if self.generator.config.serialization {
             writeln!(self.out, "use serde::{{Serialize, Deserialize}};")?;
@@ -223,7 +221,7 @@ where
         writeln!(self.out)?;
         if !self.generator.config.serialization && !external_names.contains("Bytes") {
             // If we are not going to use Serde derive macros, use plain vectors.
-            writeln!(self.out, "type Bytes = Vec<u8>;\n")?;
+            // writeln!(self.out, "type Bytes = Vec<u8>;\n")?;
         }
         // We add a module here called rusmpp_types. inside of this module we reexport all rusmpp types.
         // When we generate the 'impl From', we use `rusmpp_types::` prefix.
@@ -231,7 +229,7 @@ where
         self.out.indent();
         writeln!(
             self.out,
-            "pub use ::rusmpp::{{pdus::*, pdus::parts::*, tlvs::*, values::*, values::parts::*, Command, CommandId, CommandStatus, Pdu}};"
+            "pub use ::rusmpp::{{pdus::*,tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu}};"
         )?;
         self.out.unindent();
         writeln!(self.out, "}}")?;

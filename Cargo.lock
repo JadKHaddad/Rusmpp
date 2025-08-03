@@ -2028,6 +2028,7 @@ version = "0.1.0"
 dependencies = [
  "bytes",
  "futures",
+ "humantime",
  "pyo3",
  "pyo3-async-runtimes",
  "pyo3-stub-gen",

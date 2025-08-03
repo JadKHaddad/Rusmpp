@@ -1,12 +1,7 @@
 use std::{str::FromStr, time::Duration};
 
 use futures::StreamExt;
-use pyo3::{
-    exceptions::{PyIOError, PyValueError},
-    pyclass, pymethods,
-    types::PyType,
-    Bound, PyAny, PyErr, PyObject, PyResult, Python,
-};
+use pyo3::{pyclass, pymethods, types::PyType, Bound, PyAny, PyObject, PyResult, Python};
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter},
@@ -15,6 +10,7 @@ use rusmpp::{
 use rusmppc::ConnectionBuilder;
 
 use crate::{
+    error::{Error, PduErrorExt},
     event::{Event, Events},
     io::IO,
 };
@@ -44,7 +40,7 @@ impl Client {
                 .response_timeout(Duration::from_secs(response_timeout))
                 .connect(host)
                 .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("Connection failed: {err}")))?;
+                .map_err(Error::from)?;
 
             let events = Box::pin(events.map(Event::from));
 
@@ -97,18 +93,12 @@ impl Client {
                 .inner
                 .bind_transmitter(
                     BindTransmitter::builder()
-                        .system_id(COctetString::from_str(&system_id).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid system_id: {err}"))
-                        })?)
-                        .password(COctetString::from_str(&password).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid password: {err}"))
-                        })?)
+                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
                         .build(),
                 )
                 .await
-                .map_err(|err| {
-                    PyErr::new::<PyIOError, _>(format!("bind_transmitter failed: {err}"))
-                })?;
+                .map_err(Error::from)?;
 
             Ok(crate::generated::BindTransmitterResp::from(response))
         })
@@ -128,18 +118,12 @@ impl Client {
                 .inner
                 .bind_receiver(
                     BindReceiver::builder()
-                        .system_id(COctetString::from_str(&system_id).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid system_id: {err}"))
-                        })?)
-                        .password(COctetString::from_str(&password).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid password: {err}"))
-                        })?)
+                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
                         .build(),
                 )
                 .await
-                .map_err(|err| {
-                    PyErr::new::<PyIOError, _>(format!("bind_receiver failed: {err}"))
-                })?;
+                .map_err(Error::from)?;
 
             Ok(crate::generated::BindReceiverResp::from(response))
         })
@@ -159,18 +143,12 @@ impl Client {
                 .inner
                 .bind_transceiver(
                     BindTransceiver::builder()
-                        .system_id(COctetString::from_str(&system_id).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid system_id: {err}"))
-                        })?)
-                        .password(COctetString::from_str(&password).map_err(|err| {
-                            PyErr::new::<PyValueError, _>(format!("Invalid password: {err}"))
-                        })?)
+                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
                         .build(),
                 )
                 .await
-                .map_err(|err| {
-                    PyErr::new::<PyIOError, _>(format!("bind_transceiver failed: {err}"))
-                })?;
+                .map_err(Error::from)?;
 
             Ok(crate::generated::BindTransceiverResp::from(response))
         })
@@ -180,11 +158,7 @@ impl Client {
         let client = self.clone();
 
         future_into_py(py, async move {
-            client
-                .inner
-                .unbind()
-                .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("unbind failed: {err}")))?;
+            client.inner.unbind().await.map_err(Error::from)?;
 
             Ok(())
         })
@@ -198,7 +172,7 @@ impl Client {
                 .inner
                 .unbind_resp(sequence_number)
                 .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("unbind_resp failed: {err}")))?;
+                .map_err(Error::from)?;
 
             Ok(())
         })
@@ -212,7 +186,7 @@ impl Client {
                 .inner
                 .generic_nack(sequence_number)
                 .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("generic_nack failed: {err}")))?;
+                .map_err(Error::from)?;
 
             Ok(())
         })
@@ -222,11 +196,7 @@ impl Client {
         let client = self.clone();
 
         future_into_py(py, async move {
-            client
-                .inner
-                .close()
-                .await
-                .map_err(|err| PyErr::new::<PyIOError, _>(format!("close failed: {err}")))?;
+            client.inner.close().await.map_err(Error::from)?;
 
             Ok(())
         })

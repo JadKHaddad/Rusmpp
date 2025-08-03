@@ -287,12 +287,17 @@ impl Connection {
                         }
                     };
 
+                    let delay = match pdu {
+                        Pdu::EnquireLinkResp => self.config.enquire_link_response_delay,
+                        _ => self.config.response_delay,
+                    };
+
                     let command = Command::builder()
                         .status(CommandStatus::EsmeRok)
                         .sequence_number(sequence_number)
                         .pdu(pdu);
 
-                    tokio::time::sleep(self.config.response_delay).await;
+                    tokio::time::sleep(delay).await;
 
                     tracing::debug!(session_id, sequence_number, id=?command.id(), "Sending response");
                     tracing::trace!(session_id, sequence_number, ?command, "Sending response");

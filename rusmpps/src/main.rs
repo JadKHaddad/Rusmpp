@@ -12,6 +12,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         clients: vec![],
         enquire_link_interval: Duration::from_secs(10),
         response_timeout: Duration::from_secs(3),
+        enquire_link_response_delay: Duration::from_millis(100),
         session_timeout: Duration::from_secs(3),
         bind_delay: Duration::from_millis(100),
         response_delay: Duration::from_millis(100),

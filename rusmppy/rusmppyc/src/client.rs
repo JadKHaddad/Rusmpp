@@ -4,7 +4,7 @@ use futures::StreamExt;
 use pyo3::{pyclass, pymethods, types::PyType, Bound, PyAny, PyObject, PyResult, Python};
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter},
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp},
     types::COctetString,
 };
 use rusmppc::ConnectionBuilder;
@@ -151,6 +151,32 @@ impl Client {
                 .map_err(Error::from)?;
 
             Ok(crate::generated::BindTransceiverResp::from(response))
+        })
+    }
+
+    #[pyo3(signature=(sequence_number, message_id))]
+    fn deliver_sm_resp<'p>(
+        &self,
+        py: Python<'p>,
+        sequence_number: u32,
+        message_id: String,
+        // TODO: we add here the status, and custom timeouts
+    ) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .deliver_sm_resp(
+                    sequence_number,
+                    DeliverSmResp::builder()
+                        .message_id(COctetString::from_str(&message_id).map_pdu_err("message_id")?)
+                        .build(),
+                )
+                .await
+                .map_err(Error::from)?;
+
+            Ok(())
         })
     }
 

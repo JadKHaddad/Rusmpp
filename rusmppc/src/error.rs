@@ -11,6 +11,7 @@ use rusmpp::{
 /// Errors that can occur during `SMPP` operations.
 #[non_exhaustive]
 #[derive(Debug, thiserror::Error)]
+// TODO: add TCP Connection closed by server error
 pub enum Error {
     /// DNS resolution failed.
     #[error("DNS resolution failed: {0}")]
@@ -22,7 +23,7 @@ pub enum Error {
     #[error("Io error: {0}")]
     Io(#[source] std::io::Error),
     /// The connection to the `SMPP` server is closed.
-    #[error("Connection closed")]
+    #[error("Connection closed")] // TODO: Rename to smpp connection is closed!
     ConnectionClosed,
     /// Protocol encode error.
     #[error("Protocol encode error: {0}")]

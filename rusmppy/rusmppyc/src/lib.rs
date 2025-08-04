@@ -5,7 +5,9 @@ use pyo3::{
 };
 use pyo3_stub_gen::define_stub_info_gatherer;
 
-use crate::generated::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp, Command};
+use crate::generated::{
+    BindReceiverResp, BindTransceiverResp, BindTransmitterResp, Command, CommandId,
+};
 
 mod client;
 mod error;
@@ -24,6 +26,7 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     // TODO: must bind all generated structs and enums
     m.add_class::<Command>()?;
+    m.add_class::<CommandId>()?;
     m.add_class::<BindTransmitterResp>()?;
     m.add_class::<BindReceiverResp>()?;
     m.add_class::<BindTransceiverResp>()?;

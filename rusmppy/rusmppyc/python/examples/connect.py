@@ -1,8 +1,8 @@
-
 from rusmppyc import Events, Client, BindTransceiverResp, Event
 from rusmppyc.exceptions import RusmppycException
 
 import asyncio
+
 
 async def handle_events(events: Events):
     async for event in events:
@@ -13,12 +13,18 @@ async def handle_events(events: Events):
                 print(f"Error occurred: {err}")
             case _:
                 print(f"Unknown event: {event}")
-    
+
     print("Event handling completed.")
+
 
 async def main():
     try:
-        client, events = await Client.connect(host="127.0.0.1:2775", enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2)
+        client, events = await Client.connect(
+            host="127.0.0.1:2775",
+            enquire_link_interval=5,
+            enquire_link_response_timeout=2,
+            response_timeout=2,
+        )
 
         asyncio.create_task(handle_events(events))
 
@@ -36,9 +42,10 @@ async def main():
         await client.unbind()
         await client.close()
         await client.closed()
-    
+
     except RusmppycException as e:
         print(f"An error occurred: {e}")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

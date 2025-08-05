@@ -17,6 +17,8 @@ mod io;
 
 #[pymodule]
 fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
+    pyo3_log::init();
+
     m.add("__version__", env!("CARGO_PKG_VERSION"))?;
 
     m.add_class::<client::Client>()?;

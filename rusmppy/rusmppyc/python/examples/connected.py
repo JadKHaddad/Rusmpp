@@ -36,9 +36,9 @@ async def main():
         client, events = await Client.connected(
             read,
             write,
-            enquire_link_interval=5,
-            enquire_link_response_timeout=2,
-            response_timeout=2,
+            enquire_link_interval=5000,
+            enquire_link_response_timeout=2000,
+            response_timeout=2000,
         )
 
         asyncio.create_task(handle_events(events, client))
@@ -68,7 +68,7 @@ async def main():
     finally:
         # At this point the tcp connection is not closed
         # Rust does NOT close the StreamWriter
-        
+
         write.close()
 
         await write.wait_closed()

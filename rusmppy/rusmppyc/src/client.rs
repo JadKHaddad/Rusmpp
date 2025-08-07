@@ -90,18 +90,20 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password))]
+    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_transmitter<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
+                .status(status.into())
                 .bind_transmitter(
                     BindTransmitter::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
@@ -115,18 +117,20 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password))]
+    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_receiver<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
+                .status(status.into())
                 .bind_receiver(
                     BindReceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
@@ -140,18 +144,20 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password))]
+    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_transceiver<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
+                .status(status.into())
                 .bind_transceiver(
                     BindTransceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
@@ -165,19 +171,21 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(sequence_number, message_id))]
+    #[pyo3(signature=(sequence_number, message_id, status=crate::generated::CommandStatus::EsmeRok()))]
     fn deliver_sm_resp<'p>(
         &self,
         py: Python<'p>,
         sequence_number: u32,
         message_id: String,
         // TODO: we add here the status, and custom timeouts
+        status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             client
                 .inner
+                .status(status.into())
                 .deliver_sm_resp(
                     sequence_number,
                     DeliverSmResp::builder()
@@ -191,22 +199,39 @@ impl Client {
         })
     }
 
-    fn unbind<'p>(&self, py: Python<'p>) -> PyResult<Bound<'p, PyAny>> {
-        let client = self.clone();
-
-        future_into_py(py, async move {
-            client.inner.unbind().await.map_err(Exception::from)?;
-
-            Ok(())
-        })
-    }
-
-    fn unbind_resp<'p>(&self, py: Python<'p>, sequence_number: u32) -> PyResult<Bound<'p, PyAny>> {
+    #[pyo3(signature=(status=crate::generated::CommandStatus::EsmeRok()))]
+    fn unbind<'p>(
+        &self,
+        py: Python<'p>,
+        status: crate::generated::CommandStatus,
+    ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             client
                 .inner
+                .status(status.into())
+                .unbind()
+                .await
+                .map_err(Exception::from)?;
+
+            Ok(())
+        })
+    }
+
+    #[pyo3(signature=(sequence_number, status=crate::generated::CommandStatus::EsmeRok()))]
+    fn unbind_resp<'p>(
+        &self,
+        py: Python<'p>,
+        sequence_number: u32,
+        status: crate::generated::CommandStatus,
+    ) -> PyResult<Bound<'p, PyAny>> {
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            client
+                .inner
+                .status(status.into())
                 .unbind_resp(sequence_number)
                 .await
                 .map_err(Exception::from)?;
@@ -215,12 +240,19 @@ impl Client {
         })
     }
 
-    fn generic_nack<'p>(&self, py: Python<'p>, sequence_number: u32) -> PyResult<Bound<'p, PyAny>> {
+    #[pyo3(signature=(sequence_number, status=crate::generated::CommandStatus::EsmeRok()))]
+    fn generic_nack<'p>(
+        &self,
+        py: Python<'p>,
+        sequence_number: u32,
+        status: crate::generated::CommandStatus,
+    ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
 
         future_into_py(py, async move {
             client
                 .inner
+                .status(status.into())
                 .generic_nack(sequence_number)
                 .await
                 .map_err(Exception::from)?;

@@ -10,8 +10,8 @@ use rusmpp::{
 use rusmppc::ConnectionBuilder;
 
 use crate::{
-    error::{Error, PduErrorExt},
     event::{Event, Events},
+    exception::{Exception, PduExceptionExt},
     io::IO,
 };
 
@@ -40,7 +40,7 @@ impl Client {
                 .response_timeout(Duration::from_secs(response_timeout))
                 .connect(host)
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             let events = Box::pin(events.map(Event::from));
 
@@ -98,7 +98,7 @@ impl Client {
                         .build(),
                 )
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(crate::generated::BindTransmitterResp::from(response))
         })
@@ -123,7 +123,7 @@ impl Client {
                         .build(),
                 )
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(crate::generated::BindReceiverResp::from(response))
         })
@@ -148,7 +148,7 @@ impl Client {
                         .build(),
                 )
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(crate::generated::BindTransceiverResp::from(response))
         })
@@ -174,7 +174,7 @@ impl Client {
                         .build(),
                 )
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(())
         })
@@ -184,7 +184,7 @@ impl Client {
         let client = self.clone();
 
         future_into_py(py, async move {
-            client.inner.unbind().await.map_err(Error::from)?;
+            client.inner.unbind().await.map_err(Exception::from)?;
 
             Ok(())
         })
@@ -198,7 +198,7 @@ impl Client {
                 .inner
                 .unbind_resp(sequence_number)
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(())
         })
@@ -212,7 +212,7 @@ impl Client {
                 .inner
                 .generic_nack(sequence_number)
                 .await
-                .map_err(Error::from)?;
+                .map_err(Exception::from)?;
 
             Ok(())
         })
@@ -222,7 +222,7 @@ impl Client {
         let client = self.clone();
 
         future_into_py(py, async move {
-            client.inner.close().await.map_err(Error::from)?;
+            client.inner.close().await.map_err(Exception::from)?;
 
             Ok(())
         })

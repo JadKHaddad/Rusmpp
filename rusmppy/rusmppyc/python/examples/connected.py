@@ -17,21 +17,22 @@ async def handle_events(events: Events, client: Client):
                             await client.deliver_sm_resp(
                                 cmd.sequence_number, "the message id"
                             )
-                        except:
-                            pass
+                        except RusmppycException as e:
+                            logging.error(f"Failed to send DeliverSm response: {e}")
 
             case Event.Error(err):
                 logging.error(f"Error occurred: {err}")
             case _:
                 logging.warning(f"Unknown event: {event}")
 
-    logging.debug("Event handling completed.")
+    logging.debug("Event handling completed")
 
 
 async def main():
-    try:
-        read, write = await asyncio.open_connection("127.0.0.1", 2775)
+    read, write = await asyncio.open_connection("127.0.0.1", 2775)
 
+    try:
+        # Use Client.connected to create a client with an existing StreamReader and StreamWriter
         client, events = await Client.connected(
             read,
             write,
@@ -67,7 +68,9 @@ async def main():
     finally:
         # At this point the tcp connection is not closed
         # Rust does NOT close the StreamWriter
+        
         write.close()
+
         await write.wait_closed()
 
         logging.debug("TCP connection fully closed")

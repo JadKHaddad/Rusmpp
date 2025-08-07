@@ -10,13 +10,16 @@ use tokio::sync::RwLock;
 
 use crate::error::Error;
 
-/// A mapped class for [`Event`](rusmppc::Event).
+/// `SMPP` event.
+///
+/// Events are sent from the open connection through the events stream.
 #[pyclass]
 #[gen_stub_pyclass_complex_enum]
 #[allow(clippy::large_enum_variant)]
 pub enum Event {
-    // TODO: How do we box this?
+    /// A command was received from the server.
     Incoming(crate::generated::Command),
+    /// An error occurred.
     Error(Error),
 }
 

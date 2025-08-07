@@ -12,6 +12,7 @@ use crate::generated::{
 mod client;
 mod error;
 mod event;
+mod exception;
 mod generated;
 mod io;
 
@@ -33,31 +34,28 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<BindReceiverResp>()?;
     m.add_class::<BindTransceiverResp>()?;
 
-    use error::*;
+    use exception::*;
     m.add("RusmppycException", py.get_type::<RusmppycException>())?;
-    m.add("DnsResolverError", py.get_type::<DnsResolverError>())?;
-    m.add("ConnectionError", py.get_type::<ConnectionError>())?;
-    m.add("IOError", py.get_type::<IOError>())?;
-    m.add("EncodeError", py.get_type::<EncodeError>())?;
-    m.add("DecodeError", py.get_type::<DecodeError>())?;
+    m.add("DnsException", py.get_type::<DnsException>())?;
+    m.add("ConnectException", py.get_type::<ConnectException>())?;
     m.add(
-        "EnquireLinkTimeoutError",
-        py.get_type::<EnquireLinkTimeoutError>(),
+        "ConnectionClosedException",
+        py.get_type::<ConnectionClosedException>(),
+    )?;
+    m.add("IoException", py.get_type::<IoException>())?;
+    m.add(
+        "ResponseTimeoutException",
+        py.get_type::<ResponseTimeoutException>(),
     )?;
     m.add(
-        "ResponseTimeoutError",
-        py.get_type::<ResponseTimeoutError>(),
+        "UnexpectedResponseException",
+        py.get_type::<UnexpectedResponseException>(),
     )?;
     m.add(
-        "UnexpectedResponseError",
-        py.get_type::<UnexpectedResponseError>(),
+        "UnsupportedInterfaceVersionException",
+        py.get_type::<UnsupportedInterfaceVersionException>(),
     )?;
-    m.add(
-        "UnsupportedInterfaceVersionError",
-        py.get_type::<UnsupportedInterfaceVersionError>(),
-    )?;
-    m.add("PduError", py.get_type::<PduError>())?;
-    m.add("OtherError", py.get_type::<OtherError>())?;
+    m.add("PduException", py.get_type::<PduException>())?;
 
     Ok(())
 }

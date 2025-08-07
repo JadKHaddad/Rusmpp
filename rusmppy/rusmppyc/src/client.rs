@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_arguments)]
+
 use std::{str::FromStr, time::Duration};
 
 use futures::StreamExt;
@@ -24,7 +26,7 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000))]
+    #[pyo3(signature=(host, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000, max_command_length=4096))]
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -32,9 +34,11 @@ impl Client {
         enquire_link_interval: u64,
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
+        max_command_length: usize,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let mut builder = ConnectionBuilder::new()
+                .max_command_length(max_command_length)
                 .enquire_link_interval(Duration::from_millis(enquire_link_interval))
                 .enquire_link_response_timeout(Duration::from_millis(
                     enquire_link_response_timeout,
@@ -54,7 +58,7 @@ impl Client {
     }
 
     #[classmethod]
-    #[pyo3(signature=(read, write, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000))]
+    #[pyo3(signature=(read, write, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000, max_command_length=4096))]
     fn connected<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -63,11 +67,13 @@ impl Client {
         enquire_link_interval: u64,
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
+        max_command_length: usize,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let read_write = (read, write).into_tokio_async_read_and_write();
 
             let mut builder = ConnectionBuilder::new()
+                .max_command_length(max_command_length)
                 .enquire_link_interval(Duration::from_millis(enquire_link_interval))
                 .enquire_link_response_timeout(Duration::from_millis(
                     enquire_link_response_timeout,

@@ -24,7 +24,7 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host, enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2))]
+    #[pyo3(signature=(host, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000))]
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -35,9 +35,9 @@ impl Client {
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let (client, events) = ConnectionBuilder::new()
-                .enquire_link_interval(Duration::from_secs(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_secs(enquire_link_response_timeout))
-                .response_timeout(Duration::from_secs(response_timeout))
+                .enquire_link_interval(Duration::from_millis(enquire_link_interval))
+                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
+                .response_timeout(Duration::from_millis(response_timeout))
                 .connect(host)
                 .await
                 .map_err(Exception::from)?;
@@ -49,7 +49,7 @@ impl Client {
     }
 
     #[classmethod]
-    #[pyo3(signature=(read, write, enquire_link_interval=5, enquire_link_response_timeout=2, response_timeout=2))]
+    #[pyo3(signature=(read, write, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000))]
     fn connected<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -63,9 +63,9 @@ impl Client {
             let read_write = (read, write).into_tokio_async_read_and_write();
 
             let (client, events, connection) = ConnectionBuilder::new()
-                .enquire_link_interval(Duration::from_secs(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_secs(enquire_link_response_timeout))
-                .response_timeout(Duration::from_secs(response_timeout))
+                .enquire_link_interval(Duration::from_millis(enquire_link_interval))
+                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
+                .response_timeout(Duration::from_millis(response_timeout))
                 .no_spawn()
                 .connected(read_write);
 

@@ -9,18 +9,18 @@ class Client:
     async def connect(
         cls,
         host: builtins.str,
-        enquire_link_interval: builtins.int,
-        enquire_link_response_timeout: builtins.int,
-        response_timeout: builtins.int,
+        enquire_link_interval: builtins.int = 5000,
+        enquire_link_response_timeout: builtins.int = 2000,
+        response_timeout: builtins.int = 2000,
     ) -> tuple["Client", Events]: ...
     @classmethod
     async def connected(
         cls,
         read: asyncio.StreamReader,
         write: asyncio.StreamWriter,
-        enquire_link_interval: builtins.int,
-        enquire_link_response_timeout: builtins.int,
-        response_timeout: builtins.int,
+        enquire_link_interval: builtins.int = 5000,
+        enquire_link_response_timeout: builtins.int = 2000,
+        response_timeout: builtins.int = 2000,
     ) -> tuple["Client", Events]: ...
     async def bind_transceiver(
         self, system_id: builtins.str, password: builtins.str

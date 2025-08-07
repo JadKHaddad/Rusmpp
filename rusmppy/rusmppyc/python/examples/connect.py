@@ -1,4 +1,4 @@
-from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId
+from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId, Error
 from rusmppyc.exceptions import RusmppycException
 
 import logging
@@ -17,15 +17,15 @@ async def handle_events(events: Events, client: Client):
                             await client.deliver_sm_resp(
                                 cmd.sequence_number, "the message id"
                             )
-                        except:
-                            pass
+                        except RusmppycException as e:
+                            logging.error(f"Failed to send DeliverSm response: {e}")
 
             case Event.Error(err):
                 logging.error(f"Error occurred: {err}")
             case _:
                 logging.warning(f"Unknown event: {event}")
 
-    logging.debug("Event handling completed.")
+    logging.debug("Event handling completed")
 
 
 async def main():

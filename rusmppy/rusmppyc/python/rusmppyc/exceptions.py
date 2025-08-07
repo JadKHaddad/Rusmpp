@@ -3,28 +3,24 @@
 
 from .rusmppyc import (
     RusmppycException,
-    DnsResolverError,
-    ConnectionError,
-    IOError,
-    EncodeError,
-    DecodeError,
-    EnquireLinkTimeoutError,
-    ResponseTimeoutError,
-    UnexpectedResponseError,
-    PduError,
-    OtherError
+    DnsException,
+    ConnectException,
+    ConnectionClosedException,
+    IoException,
+    ResponseTimeoutException,
+    UnexpectedResponseException,
+    UnsupportedInterfaceVersionException,
+    PduException,
 )
 
-__all__ = (
+__all__ = [
     "RusmppycException",
-    "DnsResolverError",
-    "ConnectionError",
-    "IOError",
-    "EncodeError",
-    "DecodeError",
-    "EnquireLinkTimeoutError", 
-    "ResponseTimeoutError",
-    "UnexpectedResponseError",
-    "PduError",
-    "OtherError"
-)
+    "DnsException",
+    "ConnectException",
+    "ConnectionClosedException",
+    "IoException",
+    "ResponseTimeoutException",
+    "UnexpectedResponseException",
+    "UnsupportedInterfaceVersionException",
+    "PduException",
+]

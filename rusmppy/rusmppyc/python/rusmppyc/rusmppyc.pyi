@@ -2022,38 +2022,16 @@ class EncodingContentType:
     
 
 class Error:
+    r"""
+    An error that can occur in the background connection.
+    
+    This error is sent through the events stream.
+    """
     def __repr__(self) -> builtins.str: ...
-    class Dns(Error):
-        __match_args__ = ("_0",)
-        @property
-        def _0(self) -> builtins.str: ...
-        def __new__(cls, _0:builtins.str) -> Error.Dns: ...
-        def __len__(self) -> builtins.int: ...
-        def __getitem__(self, key:builtins.int) -> typing.Any: ...
-    
-    class Connect(Error):
-        __match_args__ = ("_0",)
-        @property
-        def _0(self) -> builtins.str: ...
-        def __new__(cls, _0:builtins.str) -> Error.Connect: ...
-        def __len__(self) -> builtins.int: ...
-        def __getitem__(self, key:builtins.int) -> typing.Any: ...
-    
-    class Io(Error):
-        __match_args__ = ("_0",)
-        @property
-        def _0(self) -> builtins.str: ...
-        def __new__(cls, _0:builtins.str) -> Error.Io: ...
-        def __len__(self) -> builtins.int: ...
-        def __getitem__(self, key:builtins.int) -> typing.Any: ...
-    
-    class ConnectionClosed(Error):
-        __match_args__ = ((),)
-        def __new__(cls) -> Error.ConnectionClosed: ...
-        def __len__(self) -> builtins.int: ...
-        def __getitem__(self, key:builtins.int) -> typing.Any: ...
-    
     class Encode(Error):
+        r"""
+        Protocol encode error.
+        """
         __match_args__ = ("_0",)
         @property
         def _0(self) -> builtins.str: ...
@@ -2062,6 +2040,9 @@ class Error:
         def __getitem__(self, key:builtins.int) -> typing.Any: ...
     
     class Decode(Error):
+        r"""
+        Protocol decode error.
+        """
         __match_args__ = ("_0",)
         @property
         def _0(self) -> builtins.str: ...
@@ -2070,57 +2051,20 @@ class Error:
         def __getitem__(self, key:builtins.int) -> typing.Any: ...
     
     class EnquireLinkTimeout(Error):
+        r"""
+        The `SMPP` server did not respond to the EnquireLink request within the specified timeout.
+        """
         __match_args__ = ("timeout",)
         @property
         def timeout(self) -> builtins.str: ...
         def __new__(cls, timeout:builtins.str) -> Error.EnquireLinkTimeout: ...
     
-    class ResponseTimeout(Error):
-        __match_args__ = ("sequence_number", "timeout",)
-        @property
-        def sequence_number(self) -> builtins.int: ...
-        @property
-        def timeout(self) -> builtins.str: ...
-        def __new__(cls, sequence_number:builtins.int, timeout:builtins.str) -> Error.ResponseTimeout: ...
-    
-    class UnexpectedResponse(Error):
-        __match_args__ = ("response",)
-        @property
-        def response(self) -> builtins.str: ...
-        def __new__(cls, response:builtins.str) -> Error.UnexpectedResponse: ...
-    
-    class UnsupportedInterfaceVersion(Error):
-        __match_args__ = ("version", "supported_version",)
-        @property
-        def version(self) -> InterfaceVersion: ...
-        @property
-        def supported_version(self) -> InterfaceVersion: ...
-        def __new__(cls, version:InterfaceVersion, supported_version:InterfaceVersion) -> Error.UnsupportedInterfaceVersion: ...
-    
-    class Pdu(Error):
-        r"""
-        The user created a invalid `SMPP` PDU.
-        """
-        __match_args__ = ("field", "error",)
-        @property
-        def field(self) -> builtins.str: ...
-        @property
-        def error(self) -> builtins.str: ...
-        def __new__(cls, field:builtins.str, error:builtins.str) -> Error.Pdu: ...
-    
-    class Python(Error):
-        __match_args__ = ("_0",)
-        @property
-        def _0(self) -> builtins.str: ...
-        def __new__(cls, _0:builtins.str) -> Error.Python: ...
-        def __len__(self) -> builtins.int: ...
-        def __getitem__(self, key:builtins.int) -> typing.Any: ...
-    
     class Other(Error):
         r"""
         Other error type.
         
-        [`rusmppc::error::Error`] is not exhaustive.
+        Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the events stream.
+        This error should not be returned by this library and if so it should be considered a bug.
         """
         __match_args__ = ("_0",)
         @property
@@ -2210,9 +2154,14 @@ class EsmClass:
 
 class Event:
     r"""
-    A mapped class for [`Event`](rusmppc::Event).
+    `SMPP` event.
+    
+    Events are sent from the open connection through the events stream.
     """
     class Incoming(Event):
+        r"""
+        A command was received from the server.
+        """
         __match_args__ = ("_0",)
         @property
         def _0(self) -> Command: ...
@@ -2221,6 +2170,9 @@ class Event:
         def __getitem__(self, key:builtins.int) -> typing.Any: ...
     
     class Error(Event):
+        r"""
+        An error occurred.
+        """
         __match_args__ = ("_0",)
         @property
         def _0(self) -> Error: ...

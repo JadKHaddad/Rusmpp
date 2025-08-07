@@ -1,32 +1,44 @@
 class RusmppycException(Exception):
-    pass
+    "Base class for all exceptions in the Rusmppyc library."
 
-class DnsResolverError(RusmppycException):
-    pass
+    ...
 
-class ConnectionError(RusmppycException):
-    pass
+class DnsException(RusmppycException):
+    "DNS resolution failed."
 
-class IOError(RusmppycException):
-    pass
+    ...
 
-class EncodeError(RusmppycException):
-    pass
+class ConnectException(RusmppycException):
+    "Connection to `SMPP` server failed."
 
-class DecodeError(RusmppycException):
-    pass
+    ...
 
-class EnquireLinkTimeoutError(RusmppycException):
-    pass
+class ConnectionClosedException(RusmppycException):
+    "Connection to the `SMPP` server is closed"
 
-class ResponseTimeoutError(RusmppycException):
-    pass
+    ...
 
-class UnexpectedResponseError(RusmppycException):
-    pass
+class IoException(RusmppycException):
+    "IO error occurred."
 
-class PduError(RusmppycException):
-    pass
+    ...
 
-class OtherError(RusmppycException):
-    pass
+class ResponseTimeoutException(RusmppycException):
+    "The `SMPP` operation timed out."
+
+    ...
+
+class UnexpectedResponseException(RusmppycException):
+    "The `SMPP` operation failed with an error response from the server."
+
+    ...
+
+class UnsupportedInterfaceVersionException(RusmppycException):
+    "The client used an interface version that is not supported by the library."
+
+    ...
+
+class PduException(RusmppycException):
+    "The user created a invalid `SMPP` PDU."
+
+    ...

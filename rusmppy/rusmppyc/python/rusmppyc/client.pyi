@@ -1,5 +1,6 @@
 import builtins
 import asyncio
+from typing import Optional
 
 from .rusmppyc import BindTransceiverResp
 from .events import Events
@@ -11,7 +12,7 @@ class Client:
         host: builtins.str,
         enquire_link_interval: builtins.int = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
-        response_timeout: builtins.int = 2000,
+        response_timeout: Optional[builtins.int] = 2000,
     ) -> tuple["Client", Events]: ...
     @classmethod
     async def connected(
@@ -20,7 +21,7 @@ class Client:
         write: asyncio.StreamWriter,
         enquire_link_interval: builtins.int = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
-        response_timeout: builtins.int = 2000,
+        response_timeout: Optional[builtins.int] = 2000,
     ) -> tuple["Client", Events]: ...
     async def bind_transceiver(
         self, system_id: builtins.str, password: builtins.str

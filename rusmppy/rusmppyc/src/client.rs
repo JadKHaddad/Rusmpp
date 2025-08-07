@@ -31,16 +31,21 @@ impl Client {
         host: String,
         enquire_link_interval: u64,
         enquire_link_response_timeout: u64,
-        response_timeout: u64,
+        response_timeout: Option<u64>,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
-            let (client, events) = ConnectionBuilder::new()
+            let mut builder = ConnectionBuilder::new()
                 .enquire_link_interval(Duration::from_millis(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
-                .response_timeout(Duration::from_millis(response_timeout))
-                .connect(host)
-                .await
-                .map_err(Exception::from)?;
+                .enquire_link_response_timeout(Duration::from_millis(
+                    enquire_link_response_timeout,
+                ));
+
+            builder = match response_timeout {
+                Some(timeout) => builder.response_timeout(Duration::from_millis(timeout)),
+                None => builder.no_response_timeout(),
+            };
+
+            let (client, events) = builder.connect(host).await.map_err(Exception::from)?;
 
             let events = Box::pin(events.map(Event::from));
 
@@ -57,17 +62,23 @@ impl Client {
         write: PyObject,
         enquire_link_interval: u64,
         enquire_link_response_timeout: u64,
-        response_timeout: u64,
+        response_timeout: Option<u64>,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let read_write = (read, write).into_tokio_async_read_and_write();
 
-            let (client, events, connection) = ConnectionBuilder::new()
+            let mut builder = ConnectionBuilder::new()
                 .enquire_link_interval(Duration::from_millis(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
-                .response_timeout(Duration::from_millis(response_timeout))
-                .no_spawn()
-                .connected(read_write);
+                .enquire_link_response_timeout(Duration::from_millis(
+                    enquire_link_response_timeout,
+                ));
+
+            builder = match response_timeout {
+                Some(timeout) => builder.response_timeout(Duration::from_millis(timeout)),
+                None => builder.no_response_timeout(),
+            };
+
+            let (client, events, connection) = builder.no_spawn().connected(read_write);
 
             // the read and write are python-futures, we spawn them with current locals
             let task_locals = Python::with_gil(pyo3_async_runtimes::tokio::get_current_locals)?;

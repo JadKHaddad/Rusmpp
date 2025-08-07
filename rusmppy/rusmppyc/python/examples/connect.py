@@ -35,6 +35,7 @@ async def main():
             enquire_link_interval=5000,
             enquire_link_response_timeout=2000,
             response_timeout=2000,
+            max_command_length=4096,
         )
 
         asyncio.create_task(handle_events(events, client))

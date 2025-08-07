@@ -13,7 +13,7 @@ class Client:
         enquire_link_interval: builtins.int = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
-        status: CommandStatus = CommandStatus.EsmeRok(),
+        max_command_length: builtins.int = 4096,
     ) -> tuple["Client", Events]: ...
     @classmethod
     async def connected(
@@ -23,7 +23,7 @@ class Client:
         enquire_link_interval: builtins.int = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
-        status: CommandStatus = CommandStatus.EsmeRok(),
+        max_command_length: builtins.int = 4096,
     ) -> tuple["Client", Events]: ...
     async def bind_transceiver(
         self,

@@ -4,6 +4,8 @@ from rusmppyc.exceptions import RusmppycException
 import logging
 import asyncio
 
+from rusmppyc.rusmppyc import InterfaceVersion, Npi, Ton
+
 
 async def handle_events(events: Events, client: Client):
     async for event in events:
@@ -43,6 +45,10 @@ async def main():
         response: BindTransceiverResp = await client.bind_transceiver(
             system_id="test",
             password="test",
+            system_type="test",
+            interface_version=InterfaceVersion.Smpp5_0(),
+            addr_ton=Ton.Unknown(),
+            addr_npi=Npi.National(),
         )
 
         logging.info(f"Bind response: {response}")

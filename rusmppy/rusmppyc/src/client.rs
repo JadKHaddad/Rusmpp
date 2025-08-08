@@ -120,12 +120,24 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
+    #[pyo3(signature=(system_id = String::new(), 
+        password = String::new(),
+        system_type = String::new(),
+        interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
+        addr_ton = crate::generated::Ton::Unknown(),
+        addr_npi = crate::generated::Npi::Unknown(),
+        address_range = String::new(),
+        status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_transmitter<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        system_type: String,
+        interface_version: crate::generated::InterfaceVersion,
+        addr_ton: crate::generated::Ton,
+        addr_npi: crate::generated::Npi,
+        address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
@@ -138,6 +150,11 @@ impl Client {
                     BindTransmitter::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
+                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .interface_version(interface_version.into())
+                        .addr_ton(addr_ton.into())
+                        .addr_npi(addr_npi.into())
+                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
                         .build(),
                 )
                 .await
@@ -147,12 +164,24 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
+    #[pyo3(signature=(system_id = String::new(), 
+        password = String::new(),
+        system_type = String::new(),
+        interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
+        addr_ton = crate::generated::Ton::Unknown(),
+        addr_npi = crate::generated::Npi::Unknown(),
+        address_range = String::new(),
+        status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_receiver<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        system_type: String,
+        interface_version: crate::generated::InterfaceVersion,
+        addr_ton: crate::generated::Ton,
+        addr_npi: crate::generated::Npi,
+        address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
@@ -165,6 +194,11 @@ impl Client {
                     BindReceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
+                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .interface_version(interface_version.into())
+                        .addr_ton(addr_ton.into())
+                        .addr_npi(addr_npi.into())
+                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
                         .build(),
                 )
                 .await
@@ -174,12 +208,24 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id, password, status=crate::generated::CommandStatus::EsmeRok()))]
+    #[pyo3(signature=(system_id = String::new(), 
+        password = String::new(),
+        system_type = String::new(),
+        interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
+        addr_ton = crate::generated::Ton::Unknown(),
+        addr_npi = crate::generated::Npi::Unknown(),
+        address_range = String::new(),
+        status=crate::generated::CommandStatus::EsmeRok()))]
     fn bind_transceiver<'p>(
         &self,
         py: Python<'p>,
         system_id: String,
         password: String,
+        system_type: String,
+        interface_version: crate::generated::InterfaceVersion,
+        addr_ton: crate::generated::Ton,
+        addr_npi: crate::generated::Npi,
+        address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();
@@ -192,6 +238,11 @@ impl Client {
                     BindTransceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
+                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .interface_version(interface_version.into())
+                        .addr_ton(addr_ton.into())
+                        .addr_npi(addr_npi.into())
+                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
                         .build(),
                 )
                 .await

@@ -2,7 +2,15 @@ import builtins
 import asyncio
 from typing import Optional
 
-from .rusmppyc import CommandStatus, BindTransceiverResp
+from .rusmppyc import (
+    BindReceiverResp,
+    BindTransmitterResp,
+    CommandStatus,
+    BindTransceiverResp,
+    InterfaceVersion,
+    Ton,
+    Npi,
+)
 from .events import Events
 
 class Client:
@@ -27,10 +35,37 @@ class Client:
         max_command_length: builtins.int = 4096,
         disable_interface_version_check: bool = False,
     ) -> tuple["Client", Events]: ...
+    async def bind_transmitter(
+        self,
+        system_id: builtins.str = "",
+        password: builtins.str = "",
+        system_type: builtins.str = "",
+        interface_version: InterfaceVersion = InterfaceVersion.Smpp5_0(),
+        addr_ton: Ton = Ton.Unknown(),
+        addr_npi: Npi = Npi.Unknown(),
+        address_range: builtins.str = "",
+        status: CommandStatus = CommandStatus.EsmeRok(),
+    ) -> BindTransmitterResp: ...
+    async def bind_receiver(
+        self,
+        system_id: builtins.str = "",
+        password: builtins.str = "",
+        system_type: builtins.str = "",
+        interface_version: InterfaceVersion = InterfaceVersion.Smpp5_0(),
+        addr_ton: Ton = Ton.Unknown(),
+        addr_npi: Npi = Npi.Unknown(),
+        address_range: builtins.str = "",
+        status: CommandStatus = CommandStatus.EsmeRok(),
+    ) -> BindReceiverResp: ...
     async def bind_transceiver(
         self,
-        system_id: builtins.str,
-        password: builtins.str,
+        system_id: builtins.str = "",
+        password: builtins.str = "",
+        system_type: builtins.str = "",
+        interface_version: InterfaceVersion = InterfaceVersion.Smpp5_0(),
+        addr_ton: Ton = Ton.Unknown(),
+        addr_npi: Npi = Npi.Unknown(),
+        address_range: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> BindTransceiverResp: ...
     async def deliver_sm_resp(

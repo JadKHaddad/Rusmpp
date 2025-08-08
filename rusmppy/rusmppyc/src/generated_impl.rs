@@ -1,4 +1,7 @@
-use rusmpp::CommandStatus;
+use rusmpp::{
+    values::{InterfaceVersion, Npi, Ton},
+    CommandStatus,
+};
 
 impl From<crate::generated::CommandStatus> for CommandStatus {
     fn from(value: crate::generated::CommandStatus) -> Self {
@@ -106,7 +109,53 @@ impl From<crate::generated::CommandStatus> for CommandStatus {
             crate::generated::CommandStatus::EsmeRinvbcastchanind() => {
                 CommandStatus::EsmeRinvbcastchanind
             }
-            crate::generated::CommandStatus::Other(code) => CommandStatus::Other(code),
+            crate::generated::CommandStatus::Other(value) => CommandStatus::Other(value),
+        }
+    }
+}
+
+impl From<crate::generated::InterfaceVersion> for InterfaceVersion {
+    fn from(value: crate::generated::InterfaceVersion) -> Self {
+        match value {
+            crate::generated::InterfaceVersion::Smpp3_3OrEarlier(value) => {
+                InterfaceVersion::Smpp3_3OrEarlier(value)
+            }
+            crate::generated::InterfaceVersion::Smpp3_4() => InterfaceVersion::Smpp3_4,
+            crate::generated::InterfaceVersion::Smpp5_0() => InterfaceVersion::Smpp5_0,
+            crate::generated::InterfaceVersion::Other(value) => InterfaceVersion::Other(value),
+        }
+    }
+}
+
+impl From<crate::generated::Ton> for Ton {
+    fn from(value: crate::generated::Ton) -> Self {
+        match value {
+            crate::generated::Ton::Unknown() => Ton::Unknown,
+            crate::generated::Ton::International() => Ton::International,
+            crate::generated::Ton::National() => Ton::National,
+            crate::generated::Ton::NetworkSpecific() => Ton::NetworkSpecific,
+            crate::generated::Ton::SubscriberNumber() => Ton::SubscriberNumber,
+            crate::generated::Ton::Alphanumeric() => Ton::Alphanumeric,
+            crate::generated::Ton::Abbreviated() => Ton::Abbreviated,
+            crate::generated::Ton::Other(value) => Ton::Other(value),
+        }
+    }
+}
+
+impl From<crate::generated::Npi> for Npi {
+    fn from(value: crate::generated::Npi) -> Self {
+        match value {
+            crate::generated::Npi::Unknown() => Npi::Unknown,
+            crate::generated::Npi::Isdn() => Npi::Isdn,
+            crate::generated::Npi::Data() => Npi::Data,
+            crate::generated::Npi::Telex() => Npi::Telex,
+            crate::generated::Npi::LandMobile() => Npi::LandMobile,
+            crate::generated::Npi::National() => Npi::National,
+            crate::generated::Npi::Private() => Npi::Private,
+            crate::generated::Npi::Ermes() => Npi::Ermes,
+            crate::generated::Npi::Internet() => Npi::Internet,
+            crate::generated::Npi::WapClientId() => Npi::WapClientId,
+            crate::generated::Npi::Other(value) => Npi::Other(value),
         }
     }
 }

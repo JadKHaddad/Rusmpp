@@ -34,7 +34,7 @@ class Client:
     async def deliver_sm_resp(
         self,
         sequence_number: builtins.int,
-        message_id: builtins.str,
+        message_id: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> None: ...
     async def unbind(self) -> None: ...

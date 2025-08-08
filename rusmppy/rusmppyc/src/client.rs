@@ -177,7 +177,7 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(sequence_number, message_id, status=crate::generated::CommandStatus::EsmeRok()))]
+    #[pyo3(signature=(sequence_number, message_id=String::new(), status=crate::generated::CommandStatus::EsmeRok()))]
     fn deliver_sm_resp<'p>(
         &self,
         py: Python<'p>,

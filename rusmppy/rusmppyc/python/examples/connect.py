@@ -1,4 +1,4 @@
-from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId, Error
+from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId
 from rusmppyc.exceptions import RusmppycException
 
 import logging

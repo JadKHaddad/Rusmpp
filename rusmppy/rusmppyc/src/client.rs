@@ -361,4 +361,12 @@ impl Client {
             Ok(())
         })
     }
+
+    fn is_closed(&self) -> PyResult<bool> {
+        Ok(self.inner.is_closed())
+    }
+
+    fn is_active(&self) -> PyResult<bool> {
+        Ok(self.inner.is_active())
+    }
 }

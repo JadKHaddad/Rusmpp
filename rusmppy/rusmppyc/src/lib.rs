@@ -7,6 +7,7 @@ use pyo3_stub_gen::define_stub_info_gatherer;
 
 use crate::generated::{
     BindReceiverResp, BindTransceiverResp, BindTransmitterResp, Command, CommandId, CommandStatus,
+    InterfaceVersion, Npi, Ton,
 };
 
 mod client;
@@ -32,6 +33,9 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<Command>()?;
     m.add_class::<CommandId>()?;
     m.add_class::<CommandStatus>()?;
+    m.add_class::<InterfaceVersion>()?;
+    m.add_class::<Ton>()?;
+    m.add_class::<Npi>()?;
     m.add_class::<BindTransmitterResp>()?;
     m.add_class::<BindReceiverResp>()?;
     m.add_class::<BindTransceiverResp>()?;

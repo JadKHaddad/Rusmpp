@@ -14,6 +14,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
+        disable_interface_version_check: bool = False,
     ) -> tuple["Client", Events]: ...
     @classmethod
     async def connected(
@@ -24,6 +25,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
+        disable_interface_version_check: bool = False,
     ) -> tuple["Client", Events]: ...
     async def bind_transceiver(
         self,

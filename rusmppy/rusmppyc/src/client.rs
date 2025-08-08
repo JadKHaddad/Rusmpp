@@ -26,7 +26,12 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000, max_command_length=4096))]
+    #[pyo3(signature=(host, 
+        enquire_link_interval=5000, 
+        enquire_link_response_timeout=2000, 
+        response_timeout=2000, 
+        max_command_length=4096, 
+        disable_interface_version_check=false))]
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -35,6 +40,7 @@ impl Client {
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
         max_command_length: usize,
+        disable_interface_version_check: bool,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let mut builder = ConnectionBuilder::new()
@@ -49,6 +55,11 @@ impl Client {
                 None => builder.no_response_timeout(),
             };
 
+            builder = match disable_interface_version_check {
+                true => builder.disable_interface_version_check(),
+                false => builder,
+            };
+
             let (client, events) = builder.connect(host).await.map_err(Exception::from)?;
 
             let events = Box::pin(events.map(Event::from));
@@ -58,7 +69,13 @@ impl Client {
     }
 
     #[classmethod]
-    #[pyo3(signature=(read, write, enquire_link_interval=5000, enquire_link_response_timeout=2000, response_timeout=2000, max_command_length=4096))]
+    #[pyo3(signature=(read, 
+        write, 
+        enquire_link_interval=5000, 
+        enquire_link_response_timeout=2000, 
+        response_timeout=2000, 
+        max_command_length=4096,
+        disable_interface_version_check=false))]
     fn connected<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
@@ -68,6 +85,7 @@ impl Client {
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
         max_command_length: usize,
+        disable_interface_version_check: bool,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
             let read_write = (read, write).into_tokio_async_read_and_write();
@@ -83,6 +101,12 @@ impl Client {
                 Some(timeout) => builder.response_timeout(Duration::from_millis(timeout)),
                 None => builder.no_response_timeout(),
             };
+
+            builder = match disable_interface_version_check {
+                true => builder.disable_interface_version_check(),
+                false => builder,
+            };
+
 
             let (client, events, connection) = builder.no_spawn().connected(read_write);
 

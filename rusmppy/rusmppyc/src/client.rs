@@ -1,13 +1,22 @@
 #![allow(clippy::too_many_arguments)]
 
+// XXX: Current limitations:
+// - Sending requests without waiting for a response is not supported. In rusmppc:
+//   client.no_wait().submit_sm(...)
+// - Sending requests with a custom timeout or without a timeout is not supported. In rusmppc:
+//   client.response_timeout(...).submit_sm(...)
+//   client.no_response_timeout().submit_sm(...)
+
 use std::{str::FromStr, time::Duration};
 
 use futures::StreamExt;
 use pyo3::{pyclass, pymethods, types::PyType, Bound, PyAny, PyObject, PyResult, Python};
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{
-    pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp},
-    types::COctetString,
+    pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp, SubmitSm},
+    tlvs::MessageSubmissionRequestTlvValue,
+    types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString},
+    values::{MessagePayload, ServiceType},
 };
 use rusmppc::ConnectionBuilder;
 
@@ -26,11 +35,11 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host, 
-        enquire_link_interval=5000, 
-        enquire_link_response_timeout=2000, 
-        response_timeout=2000, 
-        max_command_length=4096, 
+    #[pyo3(signature=(host,
+        enquire_link_interval=5000,
+        enquire_link_response_timeout=2000,
+        response_timeout=2000,
+        max_command_length=4096,
         disable_interface_version_check=false))]
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
@@ -69,11 +78,11 @@ impl Client {
     }
 
     #[classmethod]
-    #[pyo3(signature=(read, 
-        write, 
-        enquire_link_interval=5000, 
-        enquire_link_response_timeout=2000, 
-        response_timeout=2000, 
+    #[pyo3(signature=(read,
+        write,
+        enquire_link_interval=5000,
+        enquire_link_response_timeout=2000,
+        response_timeout=2000,
         max_command_length=4096,
         disable_interface_version_check=false))]
     fn connected<'p>(
@@ -107,7 +116,6 @@ impl Client {
                 false => builder,
             };
 
-
             let (client, events, connection) = builder.no_spawn().connected(read_write);
 
             // the read and write are python-futures, we spawn them with current locals
@@ -120,7 +128,7 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id = String::new(), 
+    #[pyo3(signature=(system_id = String::new(),
         password = String::new(),
         system_type = String::new(),
         interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
@@ -150,11 +158,15 @@ impl Client {
                     BindTransmitter::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .system_type(
+                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
+                        )
                         .interface_version(interface_version.into())
                         .addr_ton(addr_ton.into())
                         .addr_npi(addr_npi.into())
-                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+                        .address_range(
+                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
+                        )
                         .build(),
                 )
                 .await
@@ -164,7 +176,7 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id = String::new(), 
+    #[pyo3(signature=(system_id = String::new(),
         password = String::new(),
         system_type = String::new(),
         interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
@@ -194,11 +206,15 @@ impl Client {
                     BindReceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .system_type(
+                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
+                        )
                         .interface_version(interface_version.into())
                         .addr_ton(addr_ton.into())
                         .addr_npi(addr_npi.into())
-                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+                        .address_range(
+                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
+                        )
                         .build(),
                 )
                 .await
@@ -208,7 +224,7 @@ impl Client {
         })
     }
 
-    #[pyo3(signature=(system_id = String::new(), 
+    #[pyo3(signature=(system_id = String::new(),
         password = String::new(),
         system_type = String::new(),
         interface_version = crate::generated::InterfaceVersion::Smpp5_0(),
@@ -238,11 +254,15 @@ impl Client {
                     BindTransceiver::builder()
                         .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
                         .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+                        .system_type(
+                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
+                        )
                         .interface_version(interface_version.into())
                         .addr_ton(addr_ton.into())
                         .addr_npi(addr_npi.into())
-                        .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+                        .address_range(
+                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
+                        )
                         .build(),
                 )
                 .await
@@ -252,13 +272,112 @@ impl Client {
         })
     }
 
+    // XXX: `ServiceType`, `EsmClass`, `PriorityFlag`, `RegisteredDelivery`, `ReplaceIfPresentFlag` and `DataCoding`
+    // are represented as u8 and then converted to the Rusmpp appropriate type.
+    // Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API.
+    // XXX: Message submission request TLVs are not supported.
+    #[pyo3(signature=(service_type=String::new(),
+        source_addr_ton=crate::generated::Ton::Unknown(),
+        source_addr_npi=crate::generated::Npi::Unknown(),
+        source_addr=String::new(),
+        dest_addr_ton=crate::generated::Ton::Unknown(),
+        dest_addr_npi=crate::generated::Npi::Unknown(),
+        destination_addr=String::new(),
+        esm_class=u8::default(),
+        protocol_id=u8::default(),
+        priority_flag=u8::default(),
+        schedule_delivery_time=String::new(),
+        validity_period=String::new(),
+        registered_delivery=u8::default(),
+        replace_if_present_flag=u8::default(),
+        data_coding=u8::default(),
+        sm_default_msg_id=u8::default(),
+        short_message=String::new(),
+        message_payload=None,
+        status=crate::generated::CommandStatus::EsmeRok()))]
+    fn submit_sm<'p>(
+        &self,
+        py: Python<'p>,
+        service_type: String,
+        source_addr_ton: crate::generated::Ton,
+        source_addr_npi: crate::generated::Npi,
+        source_addr: String,
+        dest_addr_ton: crate::generated::Ton,
+        dest_addr_npi: crate::generated::Npi,
+        destination_addr: String,
+        esm_class: u8,
+        protocol_id: u8,
+        priority_flag: u8,
+        schedule_delivery_time: String,
+        validity_period: String,
+        registered_delivery: u8,
+        replace_if_present_flag: u8,
+        data_coding: u8,
+        sm_default_msg_id: u8,
+        // XXX: Should this be Bytes or String?
+        short_message: String,
+        // XXX: Should this be Bytes or String?
+        message_payload: Option<String>,
+        status: crate::generated::CommandStatus,
+    ) -> PyResult<Bound<'p, PyAny>> {
+        let builder = SubmitSm::builder()
+            .service_type(ServiceType::new(
+                COctetString::from_str(&service_type).map_pdu_err("service_type")?,
+            ))
+            .source_addr_ton(source_addr_ton.into())
+            .source_addr_npi(source_addr_npi.into())
+            .source_addr(COctetString::from_str(&source_addr).map_pdu_err("source_addr")?)
+            .dest_addr_ton(dest_addr_ton.into())
+            .dest_addr_npi(dest_addr_npi.into())
+            .destination_addr(
+                COctetString::from_str(&destination_addr).map_pdu_err("destination_addr")?,
+            )
+            .esm_class(esm_class.into())
+            .protocol_id(protocol_id)
+            .priority_flag(priority_flag.into())
+            .schedule_delivery_time(
+                EmptyOrFullCOctetString::from_str(&schedule_delivery_time)
+                    .map_pdu_err("schedule_delivery_time")?,
+            )
+            .validity_period(
+                EmptyOrFullCOctetString::from_str(&validity_period)
+                    .map_pdu_err("validity_period")?,
+            )
+            .registered_delivery(registered_delivery.into())
+            .replace_if_present_flag(replace_if_present_flag.into())
+            .data_coding(data_coding.into())
+            .sm_default_msg_id(sm_default_msg_id)
+            .short_message(OctetString::from_str(&short_message).map_pdu_err("short_message")?);
+
+        let builder = match message_payload {
+            Some(payload) => builder.push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
+                MessagePayload::new(
+                    AnyOctetString::from_str(&payload).map_pdu_err("message_payload")?,
+                ),
+            )),
+            None => builder,
+        };
+
+        let client = self.clone();
+
+        future_into_py(py, async move {
+            let response = client
+                .inner
+                .status(status.into())
+                .submit_sm(builder.build())
+                .await
+                .map_err(Exception::from)?;
+
+            Ok(crate::generated::SubmitSmResp::from(response))
+        })
+    }
+
     #[pyo3(signature=(sequence_number, message_id=String::new(), status=crate::generated::CommandStatus::EsmeRok()))]
     fn deliver_sm_resp<'p>(
         &self,
         py: Python<'p>,
         sequence_number: u32,
         message_id: String,
-        // TODO: we add here the status, and custom timeouts
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let client = self.clone();

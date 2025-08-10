@@ -1,4 +1,4 @@
-from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId
+from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId, SubmitSmResp
 from rusmppyc.exceptions import RusmppycException
 
 import logging
@@ -42,7 +42,7 @@ async def main():
 
         asyncio.create_task(handle_events(events, client))
 
-        response: BindTransceiverResp = await client.bind_transceiver(
+        bind_response: BindTransceiverResp = await client.bind_transceiver(
             system_id="test",
             password="test",
             system_type="test",
@@ -51,13 +51,25 @@ async def main():
             addr_npi=Npi.National(),
         )
 
-        logging.info(f"Bind response: {response}")
-        logging.info(f"Bind response system_id: {response.system_id}")
+        logging.info(f"Bind response: {bind_response}")
+        logging.info(f"Bind response system_id: {bind_response.system_id}")
         logging.info(
-            f"Bind response sc_interface_version: {response.sc_interface_version}"
+            f"Bind response sc_interface_version: {bind_response.sc_interface_version}"
         )
 
-        await asyncio.sleep(2)
+        submit_sm_response: SubmitSmResp = await client.submit_sm(
+            source_addr_ton=Ton.International(),
+            source_addr_npi=Npi.National(),
+            source_addr="1234567890",
+            dest_addr_ton=Ton.International(),
+            dest_addr_npi=Npi.National(),
+            destination_addr="0987654321",
+            short_message="Hello, World!",
+        )
+
+        logging.info(f"SubmitSm response: {submit_sm_response}")
+
+        await asyncio.sleep(5)
 
         await client.unbind()
         await client.close()

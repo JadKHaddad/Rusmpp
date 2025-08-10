@@ -148,7 +148,7 @@ impl From<Exception> for PyErr {
                 sequence_number,
                 timeout,
             } => ResponseTimeoutException::new_err(format!(
-                "Sequence number: {sequence_number}, Timeout: {timeout}",
+                "Response timeout. Sequence number: {sequence_number}, Timeout: {timeout}",
             )),
             Exception::UnexpectedResponse { response } => {
                 UnexpectedResponseException::new_err(response)
@@ -157,10 +157,10 @@ impl From<Exception> for PyErr {
                 version,
                 supported_version,
             } => UnsupportedInterfaceVersionException::new_err(format!(
-                "Version: {version:?}, Supported version: {supported_version:?}",
+                "Unsupported interface version. Version: {version:?}, Supported version: {supported_version:?}",
             )),
             Exception::Pdu { field, error } => {
-                PduException::new_err(format!("Field: {field}, Error: {error}"))
+                PduException::new_err(format!("Invalid PDU. Field: {field}, Error: {error}"))
             }
             Exception::Other(error) => RusmppycException::new_err(error),
         }

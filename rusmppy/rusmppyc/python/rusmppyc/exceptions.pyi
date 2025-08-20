@@ -14,7 +14,7 @@ class ConnectException(RusmppycException):
     ...
 
 class ConnectionClosedException(RusmppycException):
-    "Connection to the `SMPP` server is closed"
+    "Connection to the `SMPP` server is closed."
 
     ...
 

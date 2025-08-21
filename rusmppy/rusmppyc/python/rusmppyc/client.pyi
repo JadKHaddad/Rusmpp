@@ -14,7 +14,13 @@ from .rusmppyc import (
 )
 from .events import Events
 
+
 class Client:
+    """
+    `SMPP` Client.
+
+    The client is a handle to communicate with the `SMPP` server through a managed connection in the background
+    """
     @classmethod
     async def connect(
         cls,
@@ -24,7 +30,16 @@ class Client:
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
         disable_interface_version_check: bool = False,
-    ) -> tuple["Client", Events]: ...
+    ) -> tuple["Client", Events]:
+        """
+        Connects to the `SMPP` server.
+        
+        Opens and manages a connection in the background and returns a client and an event stream.
+        
+        - The client is used as a handle to communicate with the server through the managed connection.
+        - The event stream is used to receive events from the server, such as incoming messages or errors.
+        """
+        ...
     @classmethod
     async def connected(
         cls,
@@ -35,7 +50,16 @@ class Client:
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
         disable_interface_version_check: bool = False,
-    ) -> tuple["Client", Events]: ...
+    ) -> tuple["Client", Events]:
+        """
+        Creates a client from an existing connection.
+    
+        Manages a connection in the background and returns a client and an event stream.
+    
+        - The client is used as a handle to communicate with the server through the managed connection.
+        - The event stream is used to receive events from the server, such as incoming messages or errors.
+        """
+        ...
     async def bind_transmitter(
         self,
         system_id: builtins.str = "",
@@ -46,7 +70,12 @@ class Client:
         addr_npi: Npi = Npi.Unknown(),
         address_range: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> BindTransmitterResp: ...
+    ) -> BindTransmitterResp:
+        """
+        Sends a BindTransmitter command to the server and waits for a successful :class:`BindTransmitterResp`.
+        """
+        ...
+    
     async def bind_receiver(
         self,
         system_id: builtins.str = "",
@@ -57,7 +86,11 @@ class Client:
         addr_npi: Npi = Npi.Unknown(),
         address_range: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> BindReceiverResp: ...
+    ) -> BindReceiverResp:
+        """
+        Sends a BindReceiver command to the server and waits for a successful :class:`BindReceiverResp`.
+        """
+        ...
     async def bind_transceiver(
         self,
         system_id: builtins.str = "",
@@ -68,7 +101,11 @@ class Client:
         addr_npi: Npi = Npi.Unknown(),
         address_range: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> BindTransceiverResp: ...
+    ) -> BindTransceiverResp:
+        """
+        Sends a BindTransceiver command to the server and waits for a successful :class:`BindTransceiverResp`.
+        """
+        ...
     async def submit_sm(
         self,
         service_type: builtins.str = "",
@@ -90,25 +127,81 @@ class Client:
         short_message: builtins.str = "",
         message_payload: Optional[builtins.str] = None,
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> SubmitSmResp: ...
+    ) -> SubmitSmResp:
+        """
+        Sends a SubmitSm command to the server and waits for a successful :class:`SubmitSmResp`.
+        """
+        ...
     async def deliver_sm_resp(
         self,
         sequence_number: builtins.int,
         message_id: builtins.str = "",
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> None: ...
-    async def unbind(self) -> None: ...
+    ) -> None:
+        """
+        Sends a DeliverSmResp command to the server.
+        """
+        ...
+    async def unbind(self) -> None:
+        """
+        Sends an Unbind command to the server and waits for a successful :class:`UnbindResp`.
+        """
+        ...
     async def unbind_resp(
         self,
         sequence_number: builtins.int,
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> None: ...
+    ) -> None:
+        """
+        Sends an UnbindResp command to the server.
+        """
+        ...
     async def generic_nack(
         self,
         sequence_number: builtins.int,
         status: CommandStatus = CommandStatus.EsmeRok(),
-    ) -> None: ...
-    async def close(self) -> None: ...
-    async def closed(self) -> None: ...
-    def is_closed(self) -> bool: ...
-    def is_active(self) -> bool: ...
+    ) -> None:
+        """
+        Sends a GenericNack command to the server.
+        """
+        ...
+    async def close(self) -> None:
+        """
+        Closes the connection.
+
+        This method completes, when the connection has registered the close request.
+        The connection will stop reading from the server, stop time keeping, close the requests channel, flush pending requests and terminate.
+
+        After calling this method, clients can no longer send requests to the server.
+        """
+        ...
+    async def closed(self) -> None:
+        """
+        Completes when the connection is closed.
+        """
+        ...
+    def is_closed(self) -> bool:
+        """
+        Checks if the connection is closed.
+        
+        # Note
+        If the connection is not closed, this does not mean that it is active.
+        The connection may be in the process of closing.
+        
+        To check if the connection is active, use :func:`is_active`.
+        """
+        ...
+    def is_active(self) -> bool:
+        """
+        Checks if the connection is active.
+        The connection is considered active if:
+        - :func:`close` was never called.
+        - The connection did not encounter an error.
+        - The connection can receive requests form the client.
+        # Note
+        If the connection is not active, this does not mean that it is closed.
+        The connection may be in the process of closing.
+
+        To check if the connection is closed, use :func:`is_closed`.
+        """
+        ...

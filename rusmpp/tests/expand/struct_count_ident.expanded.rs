@@ -28,6 +28,57 @@ impl ::core::fmt::Debug for SubmitMulti {
         )
     }
 }
+pub struct SubmitMultiParts {
+    pub other: u8,
+    pub number_of_dests: u8,
+    pub dest_address: ::alloc::vec::Vec<DestAddress>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for SubmitMultiParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "SubmitMultiParts",
+            "other",
+            &self.other,
+            "number_of_dests",
+            &self.number_of_dests,
+            "dest_address",
+            &&self.dest_address,
+        )
+    }
+}
+impl SubmitMultiParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        other: u8,
+        number_of_dests: u8,
+        dest_address: ::alloc::vec::Vec<DestAddress>,
+    ) -> Self {
+        Self {
+            other,
+            number_of_dests,
+            dest_address,
+        }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (u8, u8, ::alloc::vec::Vec<DestAddress>) {
+        (self.other, self.number_of_dests, self.dest_address)
+    }
+}
+impl SubmitMulti {
+    #[inline]
+    pub fn into_parts(self) -> SubmitMultiParts {
+        SubmitMultiParts {
+            other: self.other,
+            number_of_dests: self.number_of_dests,
+            dest_address: self.dest_address,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for SubmitMulti {
     fn length(&self) -> usize {
         let mut length = 0;

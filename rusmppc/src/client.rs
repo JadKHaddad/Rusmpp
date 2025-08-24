@@ -8,6 +8,7 @@ use std::{
 
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
+    command::CommandParts,
     pdus::{
         BindReceiver, BindReceiverResp, BindTransceiver, BindTransceiverResp, BindTransmitter,
         BindTransmitterResp, DeliverSmResp, SubmitSm, SubmitSmResp,
@@ -483,13 +484,15 @@ impl<'a> RegisteredRequestBuilder<'a> {
             .ok()
             .map_err(Error::unexpected_response)
             .map(Command::into_parts)
+            .map(CommandParts::raw)
             .map(|(id, status, sequence_number, pdu)| {
-                pdu.ok_or(Command::from_parts(id, status, sequence_number, None))
+                pdu.ok_or(CommandParts::new(id, status, sequence_number, None))
                     .and_then(|pdu| {
                         extract(pdu).map_err(|pdu| {
-                            Command::from_parts(id, status, sequence_number, Some(pdu))
+                            CommandParts::new(id, status, sequence_number, Some(pdu))
                         })
                     })
+                    .map_err(Command::from_parts)
             })?
             .map_err(Error::unexpected_response)
     }

@@ -5,7 +5,7 @@ crate::create! {
     #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
     #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
     #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
     pub enum TlvTag {
         /// The subcomponent in the destination device for which the user data is intended.
         ///

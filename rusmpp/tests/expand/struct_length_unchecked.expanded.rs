@@ -25,6 +25,45 @@ impl ::core::fmt::Debug for BroadcastAreaIdentifier {
         )
     }
 }
+pub struct BroadcastAreaIdentifierParts {
+    pub format: BroadcastAreaFormat,
+    pub area: OctetString<0, 100>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for BroadcastAreaIdentifierParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field2_finish(
+            f,
+            "BroadcastAreaIdentifierParts",
+            "format",
+            &self.format,
+            "area",
+            &&self.area,
+        )
+    }
+}
+impl BroadcastAreaIdentifierParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(format: BroadcastAreaFormat, area: OctetString<0, 100>) -> Self {
+        Self { format, area }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (BroadcastAreaFormat, OctetString<0, 100>) {
+        (self.format, self.area)
+    }
+}
+impl BroadcastAreaIdentifier {
+    #[inline]
+    pub fn into_parts(self) -> BroadcastAreaIdentifierParts {
+        BroadcastAreaIdentifierParts {
+            format: self.format,
+            area: self.area,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for BroadcastAreaIdentifier {
     fn length(&self) -> usize {
         let mut length = 0;

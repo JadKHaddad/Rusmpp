@@ -147,6 +147,12 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     }
 }
 
+impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for Vec<u8> {
+    fn from(value: OctetString<MIN, MAX>) -> Self {
+        value.bytes
+    }
+}
+
 impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<MIN, MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("OctetString")

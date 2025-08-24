@@ -211,6 +211,12 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     }
 }
 
+impl<const MIN: usize, const MAX: usize> From<COctetString<MIN, MAX>> for Vec<u8> {
+    fn from(value: COctetString<MIN, MAX>) -> Self {
+        value.bytes
+    }
+}
+
 impl<const MIN: usize, const MAX: usize> Default for COctetString<MIN, MAX> {
     fn default() -> Self {
         Self::empty()

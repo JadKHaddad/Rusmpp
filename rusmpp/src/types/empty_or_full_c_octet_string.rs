@@ -165,6 +165,12 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
     }
 }
 
+impl<const N: usize> From<EmptyOrFullCOctetString<N>> for Vec<u8> {
+    fn from(value: EmptyOrFullCOctetString<N>) -> Self {
+        value.bytes
+    }
+}
+
 impl<const N: usize> core::fmt::Debug for EmptyOrFullCOctetString<N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("EmptyOrFullCOctetString")

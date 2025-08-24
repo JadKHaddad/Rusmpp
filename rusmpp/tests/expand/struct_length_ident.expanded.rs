@@ -28,6 +28,57 @@ impl ::core::fmt::Debug for SubmitSm {
         )
     }
 }
+pub struct SubmitSmParts {
+    pub other: u8,
+    pub sm_length: u8,
+    pub short_message: OctetString<0, 255>,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for SubmitSmParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "SubmitSmParts",
+            "other",
+            &self.other,
+            "sm_length",
+            &self.sm_length,
+            "short_message",
+            &&self.short_message,
+        )
+    }
+}
+impl SubmitSmParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        other: u8,
+        sm_length: u8,
+        short_message: OctetString<0, 255>,
+    ) -> Self {
+        Self {
+            other,
+            sm_length,
+            short_message,
+        }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (u8, u8, OctetString<0, 255>) {
+        (self.other, self.sm_length, self.short_message)
+    }
+}
+impl SubmitSm {
+    #[inline]
+    pub fn into_parts(self) -> SubmitSmParts {
+        SubmitSmParts {
+            other: self.other,
+            sm_length: self.sm_length,
+            short_message: self.short_message,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for SubmitSm {
     fn length(&self) -> usize {
         let mut length = 0;

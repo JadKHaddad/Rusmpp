@@ -25,6 +25,57 @@ impl ::core::fmt::Debug for CancelSm {
         )
     }
 }
+pub struct CancelSmParts {
+    pub service_type: ServiceType,
+    pub message_id: COctetString<1, 65>,
+    pub other: u8,
+}
+#[automatically_derived]
+impl ::core::fmt::Debug for CancelSmParts {
+    #[inline]
+    fn fmt(&self, f: &mut ::core::fmt::Formatter) -> ::core::fmt::Result {
+        ::core::fmt::Formatter::debug_struct_field3_finish(
+            f,
+            "CancelSmParts",
+            "service_type",
+            &self.service_type,
+            "message_id",
+            &self.message_id,
+            "other",
+            &&self.other,
+        )
+    }
+}
+impl CancelSmParts {
+    #[inline]
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        service_type: ServiceType,
+        message_id: COctetString<1, 65>,
+        other: u8,
+    ) -> Self {
+        Self {
+            service_type,
+            message_id,
+            other,
+        }
+    }
+    #[inline]
+    #[allow(unused_parens)]
+    pub fn raw(self) -> (ServiceType, COctetString<1, 65>, u8) {
+        (self.service_type, self.message_id, self.other)
+    }
+}
+impl CancelSm {
+    #[inline]
+    pub fn into_parts(self) -> CancelSmParts {
+        CancelSmParts {
+            service_type: self.service_type,
+            message_id: self.message_id,
+            other: self.other,
+        }
+    }
+}
 impl ::rusmpp::encode::Length for CancelSm {
     fn length(&self) -> usize {
         let mut length = 0;

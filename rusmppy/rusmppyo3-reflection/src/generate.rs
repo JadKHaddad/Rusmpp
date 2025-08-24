@@ -240,10 +240,10 @@ where
         use Format::*;
         match format {
             TypeName(x) => {
-                if let Some(set) = known_sizes {
-                    if !set.contains(x.as_str()) {
-                        return format!("Box<{x}>");
-                    }
+                if let Some(set) = known_sizes
+                    && !set.contains(x.as_str())
+                {
+                    return format!("Box<{x}>");
                 }
                 x.to_string()
             }

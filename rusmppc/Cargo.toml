@@ -11,12 +11,12 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
-rusmpp = { path = "../rusmpp", version = "0.2.1", default-features = false, features = [
+rusmpp = { path = "../rusmpp", default-features = false, features = [
     "tokio-codec",
     "tracing",
     "verbose",
 ] }
-tokio = { version = "1.45.0", features = [
+tokio = { version = "1.47.1", features = [
     "rt",
     "net",
     "sync",
@@ -31,8 +31,8 @@ thiserror = "2.0.12"
 pin-project-lite = "0.2.16"
 
 [dev-dependencies]
-tokio = { version = "1.45.0", features = ["full"] }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
+tokio = { version = "1.47.1", features = ["full"] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [package.metadata.docs.rs]
 all-features = true

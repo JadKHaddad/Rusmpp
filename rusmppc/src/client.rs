@@ -187,34 +187,34 @@ impl Client {
     }
 
     /// Sets the command status for the next request.
-    pub const fn status(&self, status: CommandStatus) -> UnregisteredRequestBuilder {
+    pub const fn status(&'_ self, status: CommandStatus) -> UnregisteredRequestBuilder<'_> {
         self.unregistered_request().status(status)
     }
 
     /// Sets the response timeout for the next request.
-    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+    pub fn response_timeout(&'_ self, timeout: Duration) -> RegisteredRequestBuilder<'_> {
         self.registered_request().response_timeout(timeout)
     }
 
     /// Disables the response timeout for the next request.
-    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
+    pub fn no_response_timeout(&'_ self) -> RegisteredRequestBuilder<'_> {
         self.registered_request().no_response_timeout()
     }
 
     /// Sends a request without waiting for a response.
-    pub const fn no_wait(&self) -> NoWaitRequestBuilder {
+    pub const fn no_wait(&'_ self) -> NoWaitRequestBuilder<'_> {
         self.no_wait_request()
     }
 
-    const fn unregistered_request(&self) -> UnregisteredRequestBuilder {
+    const fn unregistered_request(&'_ self) -> UnregisteredRequestBuilder<'_> {
         UnregisteredRequestBuilder::new(self, CommandStatus::EsmeRok)
     }
 
-    fn registered_request(&self) -> RegisteredRequestBuilder {
+    fn registered_request(&'_ self) -> RegisteredRequestBuilder<'_> {
         RegisteredRequestBuilder::new(self, CommandStatus::EsmeRok)
     }
 
-    const fn no_wait_request(&self) -> NoWaitRequestBuilder {
+    const fn no_wait_request(&'_ self) -> NoWaitRequestBuilder<'_> {
         NoWaitRequestBuilder::new(self, CommandStatus::EsmeRok)
     }
 }
@@ -272,11 +272,11 @@ impl<'a> UnregisteredRequestBuilder<'a> {
         Self { client, status }
     }
 
-    fn registered_request(&self) -> RegisteredRequestBuilder {
+    fn registered_request(&'_ self) -> RegisteredRequestBuilder<'_> {
         RegisteredRequestBuilder::new(self.client, self.status)
     }
 
-    const fn no_wait_request(&self) -> NoWaitRequestBuilder {
+    const fn no_wait_request(&'_ self) -> NoWaitRequestBuilder<'_> {
         NoWaitRequestBuilder::new(self.client, self.status)
     }
 
@@ -285,15 +285,15 @@ impl<'a> UnregisteredRequestBuilder<'a> {
         self
     }
 
-    pub fn response_timeout(&self, timeout: Duration) -> RegisteredRequestBuilder {
+    pub fn response_timeout(&'_ self, timeout: Duration) -> RegisteredRequestBuilder<'_> {
         self.registered_request().response_timeout(timeout)
     }
 
-    pub fn no_response_timeout(&self) -> RegisteredRequestBuilder {
+    pub fn no_response_timeout(&'_ self) -> RegisteredRequestBuilder<'_> {
         self.registered_request().no_response_timeout()
     }
 
-    pub const fn no_wait(&self) -> NoWaitRequestBuilder {
+    pub const fn no_wait(&'_ self) -> NoWaitRequestBuilder<'_> {
         self.no_wait_request()
     }
 
@@ -572,7 +572,7 @@ impl<'a> NoWaitRequestBuilder<'a> {
         Self { client, status }
     }
 
-    const fn unregistered_request(&self) -> UnregisteredRequestBuilder {
+    const fn unregistered_request(&'_ self) -> UnregisteredRequestBuilder<'_> {
         UnregisteredRequestBuilder::new(self.client, self.status)
     }
 

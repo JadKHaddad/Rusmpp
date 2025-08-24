@@ -1,7 +1,7 @@
 //! If we panic!, we lose.
-//! 
+//!
 //! ```not_rust
-//! cargo fuzz run decode
+//! cargo +nightly fuzz run decode
 //! ```
 
 #![no_main]
@@ -9,13 +9,15 @@
 extern crate alloc;
 
 use arbitrary::Unstructured;
-use bytes::{BytesMut};
+use bytes::BytesMut;
 use libfuzzer_sys::fuzz_target;
 use rusmpp::{
-    codec::CommandCodec, decode::DecodeWithLength, encode::{Encode, Length}, Command
+    codec::CommandCodec,
+    decode::DecodeWithLength,
+    encode::{Encode, Length},
+    Command,
 };
 use tokio_util::codec::Decoder;
-
 
 fuzz_target!(|data: &[u8]| {
     let mut codec = CommandCodec::new().with_max_length(1024);

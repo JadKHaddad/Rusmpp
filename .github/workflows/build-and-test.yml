@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_LOG: rusmppc=off
 
 jobs:
   tests:
@@ -30,7 +31,7 @@ jobs:
           toolchain: stable
           override: true
           components: rustfmt, clippy
-    
+
       - name: Install cargo-expand
         uses: taiki-e/cache-cargo-install-action@v2
         with:

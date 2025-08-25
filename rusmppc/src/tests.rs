@@ -173,7 +173,7 @@ impl UnbindServer {
 
 fn init_tracing() {
     _ = tracing_subscriber::fmt()
-        .with_env_filter("rusmppc=trace")
+        .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .try_init();
 }
 

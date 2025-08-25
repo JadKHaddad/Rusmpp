@@ -144,7 +144,7 @@ impl DeliverSm {
         submit_sm
     }
 
-    pub fn sm_length(&self) -> u8 {
+    pub const fn sm_length(&self) -> u8 {
         self.sm_length
     }
 

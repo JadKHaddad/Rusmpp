@@ -72,7 +72,7 @@ impl QueryBroadcastSm {
         }
     }
 
-    pub fn user_message_reference_tlv(&self) -> Option<&Tlv> {
+    pub const fn user_message_reference_tlv(&self) -> Option<&Tlv> {
         self.user_message_reference.as_ref()
     }
 

@@ -64,7 +64,7 @@ impl AlertNotification {
         }
     }
 
-    pub fn ms_availability_status_tlv(&self) -> Option<&Tlv> {
+    pub const fn ms_availability_status_tlv(&self) -> Option<&Tlv> {
         self.ms_availability_status.as_ref()
     }
 

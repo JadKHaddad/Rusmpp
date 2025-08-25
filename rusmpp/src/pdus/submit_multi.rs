@@ -151,7 +151,7 @@ impl SubmitMulti {
         submit_multi
     }
 
-    pub fn number_of_dests(&self) -> u8 {
+    pub const fn number_of_dests(&self) -> u8 {
         self.number_of_dests
     }
 
@@ -174,11 +174,11 @@ impl SubmitMulti {
         self.number_of_dests = self.dest_address.len() as u8;
     }
 
-    pub fn sm_length(&self) -> u8 {
+    pub const fn sm_length(&self) -> u8 {
         self.sm_length
     }
 
-    pub fn short_message(&self) -> &OctetString<0, 255> {
+    pub const fn short_message(&self) -> &OctetString<0, 255> {
         &self.short_message
     }
 

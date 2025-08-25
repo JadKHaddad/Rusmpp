@@ -118,7 +118,7 @@ impl ReplaceSm {
         replace_sm
     }
 
-    pub fn sm_length(&self) -> u8 {
+    pub const fn sm_length(&self) -> u8 {
         self.sm_length
     }
 
@@ -137,7 +137,7 @@ impl ReplaceSm {
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn message_payload_tlv(&self) -> Option<&Tlv> {
+    pub const fn message_payload_tlv(&self) -> Option<&Tlv> {
         self.message_payload.as_ref()
     }
 

@@ -195,7 +195,7 @@ impl<const MIN: usize, const MAX: usize> COctetString<MIN, MAX> {
     /// Convert a [`COctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
-        core::str::from_utf8(&self.bytes)
+        core::str::from_utf8(&self.bytes[..self.bytes.len() - 1])
     }
 
     /// Get the bytes of a [`COctetString`].
@@ -272,7 +272,9 @@ impl<const MIN: usize, const MAX: usize> core::str::FromStr for COctetString<MIN
 
 impl<const MIN: usize, const MAX: usize> core::fmt::Display for COctetString<MIN, MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(&self.bytes))
+        f.write_str(&String::from_utf8_lossy(
+            &self.bytes[..self.bytes.len() - 1],
+        ))
     }
 }
 
@@ -560,8 +562,8 @@ mod tests {
         fn ok() {
             let bytes = b"Hello\0";
             let string = COctetString::<1, 6>::new(bytes).unwrap();
-            assert_eq!(string.to_str().unwrap(), "Hello\0");
-            assert_eq!(string.to_string(), "Hello\0");
+            assert_eq!(string.to_str().unwrap(), "Hello");
+            assert_eq!(string.to_string(), "Hello");
         }
     }
 

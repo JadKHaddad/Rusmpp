@@ -116,6 +116,7 @@
         "Rusmppy",
         "Rusmppyc",
         "rusmppyo",
+        "Rusmppz",
         "rustc",
         "rustdoc",
         "Seqnum",
@@ -141,8 +142,7 @@
         "Ussn",
         "venv",
         "Wcmp",
-        "wireshark",
-        "pastey"
+        "wireshark"
     ],
     "ignorePaths": [
         "target",

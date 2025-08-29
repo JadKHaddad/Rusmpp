@@ -65,6 +65,7 @@ async def main():
             dest_addr_npi=Npi.National(),
             destination_addr="0987654321",
             short_message=b"Hello, World!",
+            message_payload=b"Big Big Message!" * 10,
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")
@@ -110,5 +111,7 @@ if __name__ == "__main__":
 
     logging.getLogger().setLevel(logging.DEBUG)
     logging.getLogger("rusmpp").setLevel(logging.INFO)
+    logging.getLogger("rusmppc").setLevel(logging.INFO)
+    logging.getLogger("rusmppyc").setLevel(logging.DEBUG)
 
     asyncio.run(main())

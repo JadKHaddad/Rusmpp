@@ -148,27 +148,25 @@ impl Client {
         address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
+        let pdu = BindTransmitter::builder()
+            .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+            .password(COctetString::from_str(&password).map_pdu_err("password")?)
+            .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+            .interface_version(interface_version.into())
+            .addr_ton(addr_ton.into())
+            .addr_npi(addr_npi.into())
+            .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+            .build();
+
+        tracing::debug!(?pdu, "Built Pdu");
+
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
                 .status(status.into())
-                .bind_transmitter(
-                    BindTransmitter::builder()
-                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
-                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(
-                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
-                        )
-                        .interface_version(interface_version.into())
-                        .addr_ton(addr_ton.into())
-                        .addr_npi(addr_npi.into())
-                        .address_range(
-                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
-                        )
-                        .build(),
-                )
+                .bind_transmitter(pdu)
                 .await
                 .map_err(Exception::from)?;
 
@@ -196,27 +194,25 @@ impl Client {
         address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
+        let pdu = BindReceiver::builder()
+            .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+            .password(COctetString::from_str(&password).map_pdu_err("password")?)
+            .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+            .interface_version(interface_version.into())
+            .addr_ton(addr_ton.into())
+            .addr_npi(addr_npi.into())
+            .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+            .build();
+
+        tracing::debug!(?pdu, "Built Pdu");
+
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
                 .status(status.into())
-                .bind_receiver(
-                    BindReceiver::builder()
-                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
-                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(
-                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
-                        )
-                        .interface_version(interface_version.into())
-                        .addr_ton(addr_ton.into())
-                        .addr_npi(addr_npi.into())
-                        .address_range(
-                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
-                        )
-                        .build(),
-                )
+                .bind_receiver(pdu)
                 .await
                 .map_err(Exception::from)?;
 
@@ -244,27 +240,25 @@ impl Client {
         address_range: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
+        let pdu = BindTransceiver::builder()
+            .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
+            .password(COctetString::from_str(&password).map_pdu_err("password")?)
+            .system_type(COctetString::from_str(&system_type).map_pdu_err("system_type")?)
+            .interface_version(interface_version.into())
+            .addr_ton(addr_ton.into())
+            .addr_npi(addr_npi.into())
+            .address_range(COctetString::from_str(&address_range).map_pdu_err("address_range")?)
+            .build();
+
+        tracing::debug!(?pdu, "Built Pdu");
+
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
                 .status(status.into())
-                .bind_transceiver(
-                    BindTransceiver::builder()
-                        .system_id(COctetString::from_str(&system_id).map_pdu_err("system_id")?)
-                        .password(COctetString::from_str(&password).map_pdu_err("password")?)
-                        .system_type(
-                            COctetString::from_str(&system_type).map_pdu_err("system_type")?,
-                        )
-                        .interface_version(interface_version.into())
-                        .addr_ton(addr_ton.into())
-                        .addr_npi(addr_npi.into())
-                        .address_range(
-                            COctetString::from_str(&address_range).map_pdu_err("address_range")?,
-                        )
-                        .build(),
-                )
+                .bind_transceiver(pdu)
                 .await
                 .map_err(Exception::from)?;
 
@@ -354,13 +348,17 @@ impl Client {
             None => builder,
         };
 
+        let pdu = builder.build();
+
+        tracing::debug!(?pdu, "Built Pdu");
+
         let client = self.clone();
 
         future_into_py(py, async move {
             let response = client
                 .inner
                 .status(status.into())
-                .submit_sm(builder.build())
+                .submit_sm(pdu)
                 .await
                 .map_err(Exception::from)?;
 
@@ -376,18 +374,19 @@ impl Client {
         message_id: String,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
+        let pdu = DeliverSmResp::builder()
+            .message_id(COctetString::from_str(&message_id).map_pdu_err("message_id")?)
+            .build();
+
+        tracing::debug!(?pdu, "Built Pdu");
+
         let client = self.clone();
 
         future_into_py(py, async move {
             client
                 .inner
                 .status(status.into())
-                .deliver_sm_resp(
-                    sequence_number,
-                    DeliverSmResp::builder()
-                        .message_id(COctetString::from_str(&message_id).map_pdu_err("message_id")?)
-                        .build(),
-                )
+                .deliver_sm_resp(sequence_number, pdu)
                 .await
                 .map_err(Exception::from)?;
 

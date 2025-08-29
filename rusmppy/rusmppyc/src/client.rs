@@ -292,7 +292,7 @@ impl Client {
         replace_if_present_flag=u8::default(),
         data_coding=u8::default(),
         sm_default_msg_id=u8::default(),
-        short_message=String::new(),
+        short_message=Vec::new(),
         message_payload=None,
         status=crate::generated::CommandStatus::EsmeRok()))]
     fn submit_sm<'p>(
@@ -314,10 +314,8 @@ impl Client {
         replace_if_present_flag: u8,
         data_coding: u8,
         sm_default_msg_id: u8,
-        // XXX: Should this be Bytes or String?
-        short_message: String,
-        // XXX: Should this be Bytes or String?
-        message_payload: Option<String>,
+        short_message: Vec<u8>,
+        message_payload: Option<Vec<u8>>,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let builder = SubmitSm::builder()
@@ -347,13 +345,11 @@ impl Client {
             .replace_if_present_flag(replace_if_present_flag.into())
             .data_coding(data_coding.into())
             .sm_default_msg_id(sm_default_msg_id)
-            .short_message(OctetString::from_str(&short_message).map_pdu_err("short_message")?);
+            .short_message(OctetString::new(short_message).map_pdu_err("short_message")?);
 
         let builder = match message_payload {
             Some(payload) => builder.push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
-                MessagePayload::new(
-                    AnyOctetString::from_str(&payload).map_pdu_err("message_payload")?,
-                ),
+                MessagePayload::new(AnyOctetString::new(payload)),
             )),
             None => builder,
         };

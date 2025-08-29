@@ -14,7 +14,6 @@ from .rusmppyc import (
 )
 from .events import Events
 
-
 class Client:
     """
     `SMPP` Client.
@@ -33,9 +32,9 @@ class Client:
     ) -> tuple["Client", Events]:
         """
         Connects to the `SMPP` server.
-        
+
         Opens and manages a connection in the background and returns a client and an event stream.
-        
+
         - The client is used as a handle to communicate with the server through the managed connection.
         - The event stream is used to receive events from the server, such as incoming messages or errors.
         """
@@ -53,9 +52,9 @@ class Client:
     ) -> tuple["Client", Events]:
         """
         Creates a client from an existing connection.
-    
+
         Manages a connection in the background and returns a client and an event stream.
-    
+
         - The client is used as a handle to communicate with the server through the managed connection.
         - The event stream is used to receive events from the server, such as incoming messages or errors.
         """
@@ -75,7 +74,7 @@ class Client:
         Sends a BindTransmitter command to the server and waits for a successful :class:`BindTransmitterResp`.
         """
         ...
-    
+
     async def bind_receiver(
         self,
         system_id: builtins.str = "",
@@ -124,8 +123,8 @@ class Client:
         replace_if_present_flag: builtins.int = 0,
         data_coding: builtins.int = 0,
         sm_default_msg_id: builtins.int = 0,
-        short_message: builtins.str = "",
-        message_payload: Optional[builtins.str] = None,
+        short_message: builtins.bytes = b"",
+        message_payload: Optional[builtins.bytes] = None,
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> SubmitSmResp:
         """
@@ -183,11 +182,11 @@ class Client:
     def is_closed(self) -> bool:
         """
         Checks if the connection is closed.
-        
+
         # Note
         If the connection is not closed, this does not mean that it is active.
         The connection may be in the process of closing.
-        
+
         To check if the connection is active, use :func:`is_active`.
         """
         ...

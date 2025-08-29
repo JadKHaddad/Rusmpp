@@ -64,7 +64,7 @@ async def main():
             dest_addr_ton=Ton.International(),
             dest_addr_npi=Npi.National(),
             destination_addr="0987654321",
-            short_message="Hello, World!",
+            short_message=b"Hello, World!",
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")

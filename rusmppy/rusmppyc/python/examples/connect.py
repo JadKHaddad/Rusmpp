@@ -1,4 +1,12 @@
-from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId, SubmitSmResp
+from rusmppyc import (
+    Events,
+    Client,
+    BindTransceiverResp,
+    Event,
+    CommandId,
+    SubmitSmResp,
+    DataCoding,
+)
 from rusmppyc.exceptions import RusmppycException
 
 import logging
@@ -64,6 +72,7 @@ async def main():
             dest_addr_ton=Ton.International(),
             dest_addr_npi=Npi.National(),
             destination_addr="0987654321",
+            data_coding=DataCoding.Ucs2(),
             short_message=b"Hello, World!",
             message_payload=b"Big Big Message!" * 10,
         )

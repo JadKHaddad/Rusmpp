@@ -266,9 +266,10 @@ impl Client {
         })
     }
 
-    // XXX: `ServiceType`, `EsmClass`, `PriorityFlag`, `RegisteredDelivery`, `ReplaceIfPresentFlag` and `DataCoding`
-    // are represented as u8 and then converted to the Rusmpp appropriate type.
+    // XXX: `ServiceType`, `EsmClass`, `PriorityFlag`, `RegisteredDelivery` and `ReplaceIfPresentFlag`
+    // are represented as u8 and then converted to the Rusmpp appropriate type: Structs that are repr(u8): (u8 values wrapped in helper structs).
     // Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API.
+
     // XXX: Message submission request TLVs are not supported.
     #[pyo3(signature=(service_type=String::new(),
         source_addr_ton=crate::generated::Ton::Unknown(),
@@ -284,7 +285,7 @@ impl Client {
         validity_period=String::new(),
         registered_delivery=u8::default(),
         replace_if_present_flag=u8::default(),
-        data_coding=u8::default(),
+        data_coding=crate::generated::DataCoding::McSpecific(),
         sm_default_msg_id=u8::default(),
         short_message=Vec::new(),
         message_payload=None,
@@ -306,7 +307,7 @@ impl Client {
         validity_period: String,
         registered_delivery: u8,
         replace_if_present_flag: u8,
-        data_coding: u8,
+        data_coding: crate::generated::DataCoding,
         sm_default_msg_id: u8,
         short_message: Vec<u8>,
         message_payload: Option<Vec<u8>>,

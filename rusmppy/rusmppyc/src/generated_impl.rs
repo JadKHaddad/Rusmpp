@@ -1,7 +1,9 @@
 use rusmpp::{
-    values::{InterfaceVersion, Npi, Ton},
+    values::{DataCoding, InterfaceVersion, Npi, Ton},
     CommandStatus,
 };
+
+// TODO: can we implement this in the generated.rs instead?
 
 impl From<crate::generated::CommandStatus> for CommandStatus {
     fn from(value: crate::generated::CommandStatus) -> Self {
@@ -156,6 +158,32 @@ impl From<crate::generated::Npi> for Npi {
             crate::generated::Npi::Internet() => Npi::Internet,
             crate::generated::Npi::WapClientId() => Npi::WapClientId,
             crate::generated::Npi::Other(value) => Npi::Other(value),
+        }
+    }
+}
+
+impl From<crate::generated::DataCoding> for DataCoding {
+    fn from(value: crate::generated::DataCoding) -> Self {
+        match value {
+            crate::generated::DataCoding::McSpecific() => DataCoding::McSpecific,
+            crate::generated::DataCoding::Ia5() => DataCoding::Ia5,
+            crate::generated::DataCoding::OctetUnspecified() => DataCoding::OctetUnspecified,
+            crate::generated::DataCoding::Latin1() => DataCoding::Latin1,
+            crate::generated::DataCoding::OctetUnspecified2() => DataCoding::OctetUnspecified2,
+            crate::generated::DataCoding::Jis() => DataCoding::Jis,
+            crate::generated::DataCoding::Cyrillic() => DataCoding::Cyrillic,
+            crate::generated::DataCoding::LatinHebrew() => DataCoding::LatinHebrew,
+            crate::generated::DataCoding::Ucs2() => DataCoding::Ucs2,
+            crate::generated::DataCoding::PictogramEncoding() => DataCoding::PictogramEncoding,
+            crate::generated::DataCoding::Iso2022JpMusicCodes() => DataCoding::Iso2022JpMusicCodes,
+            crate::generated::DataCoding::ExtendedKanjiJis() => DataCoding::ExtendedKanjiJis,
+            crate::generated::DataCoding::Ksc5601() => DataCoding::Ksc5601,
+            crate::generated::DataCoding::GsmMwiControl() => DataCoding::GsmMwiControl,
+            crate::generated::DataCoding::GsmMwiControl2() => DataCoding::GsmMwiControl2,
+            crate::generated::DataCoding::GsmMessageClassControl() => {
+                DataCoding::GsmMessageClassControl
+            }
+            crate::generated::DataCoding::Other(value) => DataCoding::Other(value),
         }
     }
 }

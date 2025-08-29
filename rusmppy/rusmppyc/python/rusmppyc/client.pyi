@@ -11,6 +11,7 @@ from .rusmppyc import (
     InterfaceVersion,
     Ton,
     Npi,
+    DataCoding,
 )
 from .events import Events
 
@@ -121,7 +122,7 @@ class Client:
         validity_period: builtins.str = "",
         registered_delivery: builtins.int = 0,
         replace_if_present_flag: builtins.int = 0,
-        data_coding: builtins.int = 0,
+        data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
         message_payload: Optional[builtins.bytes] = None,

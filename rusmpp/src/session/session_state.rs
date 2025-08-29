@@ -64,6 +64,15 @@ impl SessionState {
         self == Self::BoundTx || self == Self::BoundRx || self == Self::BoundTrx
     }
 
+    /// Determines whether the current session state allows sending a given SMPP command as an ESME.
+    ///
+    /// # Arguments
+    ///
+    /// * `command` - The SMPP command to check.
+    ///
+    /// # Returns true if an ESME in that state can send this command.
+    ///
+    /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
     pub fn can_send_as_esme(self, command: CommandId) -> bool {
         match self {
             SessionState::Closed => false,
@@ -112,10 +121,28 @@ impl SessionState {
         }
     }
 
+    /// Determines whether the current session state allows an ESME to receive a given SMPP command.
+    ///
+    /// # Arguments
+    ///
+    /// * `command` - The SMPP command to check.
+    ///
+    /// # Returns true if an ESME in that state can receive this command.
+    ///
+    /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
     pub fn can_receive_as_esme(self, command: CommandId) -> bool {
         self.can_send_as_mc(command)
     }
 
+    /// Determines whether the current session state allows a MC to send a given SMPP command.
+    ///
+    /// # Arguments
+    ///
+    /// * `command` - The SMPP command to check.
+    ///
+    /// # Returns true if a MC in that state can send this command.
+    ///
+    /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
     pub fn can_send_as_mc(self, command: CommandId) -> bool {
         match self {
             SessionState::Closed => false,
@@ -174,6 +201,15 @@ impl SessionState {
         }
     }
 
+    /// Determines whether the current session state allows a MC to receive a given SMPP command.
+    ///
+    /// # Arguments
+    ///
+    /// * `command` - The SMPP command to check.
+    ///
+    /// # Returns true if a MC in that state can receive this command.
+    ///
+    /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
     pub fn can_receive_as_mc(self, command: CommandId) -> bool {
         self.can_send_as_mc(command)
     }

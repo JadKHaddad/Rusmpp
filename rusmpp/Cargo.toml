@@ -11,6 +11,7 @@ readme = "../Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dev-dependencies]
+rstest = "0.26.1"
 tracing = { version = "0.1.40" }
 tokio = { version = "1.47.1", features = ["full"] }
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
@@ -19,6 +20,8 @@ futures = "0.3.31"
 testcontainers = "0.25.0"
 # XXX: do not update because of the patch
 macrotest = "1.1.0"
+strum = "0.27.2"
+strum_macros = "0.27.2"
 
 [dependencies]
 tokio-util = { version = "0.7.16", default-features = false, features = [

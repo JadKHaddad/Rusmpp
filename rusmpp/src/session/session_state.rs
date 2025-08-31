@@ -211,6 +211,119 @@ impl SessionState {
     ///
     /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
     pub fn can_receive_as_mc(self, command: CommandId) -> bool {
-        self.can_send_as_mc(command)
+        self.can_send_as_esme(command)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use strum::IntoEnumIterator;
+
+    const ESME_BOUND_TX_COMMANDS: [CommandId; 9] = [
+        CommandId::BroadcastSm,
+        CommandId::CancelBroadcastSm,
+        CommandId::CancelSm,
+        CommandId::DataSm,
+        CommandId::QueryBroadcastSm,
+        CommandId::QuerySm,
+        CommandId::ReplaceSm,
+        CommandId::SubmitMulti,
+        CommandId::SubmitSm,
+    ];
+
+    const ESME_BOUND_RX_COMMANDS: [CommandId; 2] =
+        [CommandId::DataSmResp, CommandId::DeliverSmResp];
+
+    #[test]
+    fn test_is_bound() {
+        assert!(!SessionState::Closed.is_bound());
+        assert!(SessionState::BoundTx.is_bound());
+        assert!(SessionState::BoundRx.is_bound());
+        assert!(SessionState::BoundTrx.is_bound());
+        assert!(!SessionState::Open.is_bound());
+        assert!(!SessionState::Outbound.is_bound());
+        assert!(!SessionState::Unbound.is_bound());
+    }
+
+    #[test]
+    fn test_status_close() {
+        for command in CommandId::iter() {
+            assert!(!SessionState::Closed.can_send_as_esme(command));
+            assert!(!SessionState::Closed.can_send_as_mc(command));
+            assert!(!SessionState::Closed.can_receive_as_esme(command));
+            assert!(!SessionState::Closed.can_receive_as_mc(command));
+        }
+    }
+
+    #[test]
+    fn test_link_nack() {
+        for command in [
+            CommandId::GenericNack,
+            CommandId::EnquireLink,
+            CommandId::EnquireLinkResp,
+        ] {
+            for state in [
+                SessionState::Open,
+                SessionState::Outbound,
+                SessionState::BoundTx,
+                SessionState::BoundRx,
+                SessionState::BoundTrx,
+                SessionState::Unbound,
+            ] {
+                assert!(state.can_send_as_esme(command));
+                assert!(state.can_send_as_mc(command));
+                assert!(state.can_receive_as_esme(command));
+                assert!(state.can_receive_as_mc(command));
+            }
+        }
+    }
+
+    #[test]
+    fn test_open_outbound() {
+        for state in [SessionState::Open, SessionState::Outbound] {
+            assert!(state.can_send_as_esme(CommandId::BindTransmitter));
+            assert!(state.can_send_as_esme(CommandId::BindTransceiver));
+            assert!(state.can_send_as_esme(CommandId::BindReceiver));
+            assert!(state.can_send_as_mc(CommandId::BindTransmitterResp));
+            assert!(state.can_send_as_mc(CommandId::BindTransceiverResp));
+            assert!(state.can_send_as_mc(CommandId::BindReceiverResp));
+        }
+    }
+
+    #[test]
+    fn test_tx() {
+        for command in ESME_BOUND_TX_COMMANDS {
+            assert!(SessionState::BoundTx.can_send_as_esme(command));
+            assert!(SessionState::BoundTx.can_receive_as_esme(command.matching_response()));
+            assert!(SessionState::BoundTx.can_receive_as_mc(command));
+            assert!(SessionState::BoundTx.can_send_as_mc(command.matching_response()));
+        }
+    }
+
+    #[test]
+    fn test_rx() {
+        for command in ESME_BOUND_RX_COMMANDS {
+            assert!(SessionState::BoundRx.can_send_as_esme(command));
+            assert!(SessionState::BoundRx.can_receive_as_esme(command.matching_request()));
+            assert!(SessionState::BoundRx.can_receive_as_mc(command));
+            assert!(SessionState::BoundRx.can_send_as_mc(command.matching_request()));
+        }
+    }
+
+    #[test]
+    fn test_trx() {
+        for command in ESME_BOUND_TX_COMMANDS {
+            assert!(SessionState::BoundTrx.can_send_as_esme(command));
+            assert!(SessionState::BoundTrx.can_receive_as_esme(command.matching_response()));
+            assert!(SessionState::BoundTrx.can_receive_as_mc(command));
+            assert!(SessionState::BoundTrx.can_send_as_mc(command.matching_response()));
+        }
+        for command in ESME_BOUND_RX_COMMANDS {
+            assert!(SessionState::BoundTrx.can_send_as_esme(command));
+            assert!(SessionState::BoundTrx.can_receive_as_esme(command.matching_request()));
+            assert!(SessionState::BoundTrx.can_receive_as_mc(command));
+            assert!(SessionState::BoundTrx.can_send_as_mc(command.matching_request()));
+        }
     }
 }

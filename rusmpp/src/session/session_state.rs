@@ -60,8 +60,8 @@ impl SessionState {
     ///
     /// One of the following states:
     /// [`SessionState::BoundTx`], [`SessionState::BoundRx`] or [`SessionState::BoundTrx`].
-    pub fn is_bound(self) -> bool {
-        self == Self::BoundTx || self == Self::BoundRx || self == Self::BoundTrx
+    pub const fn is_bound(self) -> bool {
+        matches!(self, Self::BoundTx | Self::BoundRx | Self::BoundTrx)
     }
 
     /// Determines whether the current session state allows sending a given SMPP command as an ESME.
@@ -73,50 +73,60 @@ impl SessionState {
     /// # Returns true if an ESME in that state can send this command.
     ///
     /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
-    pub fn can_send_as_esme(self, command: CommandId) -> bool {
+    pub const fn can_send_as_esme(self, command: CommandId) -> bool {
         match self {
             SessionState::Closed => false,
             SessionState::Open | SessionState::Outbound => {
-                command == CommandId::BindReceiver
-                    || command == CommandId::BindTransmitter
-                    || command == CommandId::BindTransceiver
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
+                matches!(
+                    command,
+                    CommandId::BindReceiver
+                        | CommandId::BindTransmitter
+                        | CommandId::BindTransceiver
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                )
             }
             SessionState::BoundTx => {
-                command == CommandId::BroadcastSm
-                    || command == CommandId::CancelBroadcastSm
-                    || command == CommandId::CancelSm
-                    || command == CommandId::DataSm
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
-                    || command == CommandId::QueryBroadcastSm
-                    || command == CommandId::QuerySm
-                    || command == CommandId::ReplaceSm
-                    || command == CommandId::SubmitMulti
-                    || command == CommandId::SubmitSm
-                    || command == CommandId::Unbind
-                    || command == CommandId::UnbindResp
+                matches!(
+                    command,
+                    CommandId::BroadcastSm
+                        | CommandId::CancelBroadcastSm
+                        | CommandId::CancelSm
+                        | CommandId::DataSm
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                        | CommandId::QueryBroadcastSm
+                        | CommandId::QuerySm
+                        | CommandId::ReplaceSm
+                        | CommandId::SubmitMulti
+                        | CommandId::SubmitSm
+                        | CommandId::Unbind
+                        | CommandId::UnbindResp
+                )
             }
             SessionState::BoundRx => {
-                command == CommandId::DataSmResp
-                    || command == CommandId::DeliverSmResp
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
-                    || command == CommandId::Unbind
-                    || command == CommandId::UnbindResp
+                matches!(
+                    command,
+                    CommandId::DataSmResp
+                        | CommandId::DeliverSmResp
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                        | CommandId::Unbind
+                        | CommandId::UnbindResp
+                )
             }
             SessionState::BoundTrx => {
                 SessionState::BoundTx.can_send_as_esme(command)
                     || SessionState::BoundRx.can_send_as_esme(command)
             }
             SessionState::Unbound => {
-                command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
+                matches!(
+                    command,
+                    CommandId::EnquireLink | CommandId::EnquireLinkResp | CommandId::GenericNack
+                )
             }
         }
     }
@@ -130,7 +140,7 @@ impl SessionState {
     /// # Returns true if an ESME in that state can receive this command.
     ///
     /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
-    pub fn can_receive_as_esme(self, command: CommandId) -> bool {
+    pub const fn can_receive_as_esme(self, command: CommandId) -> bool {
         self.can_send_as_mc(command)
     }
 
@@ -143,60 +153,73 @@ impl SessionState {
     /// # Returns true if a MC in that state can send this command.
     ///
     /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
-    pub fn can_send_as_mc(self, command: CommandId) -> bool {
+    pub const fn can_send_as_mc(self, command: CommandId) -> bool {
         match self {
             SessionState::Closed => false,
             SessionState::Open => {
-                command == CommandId::BindReceiverResp
-                    || command == CommandId::BindTransmitterResp
-                    || command == CommandId::BindTransceiverResp
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
-                    || command == CommandId::Outbind
+                matches!(
+                    command,
+                    CommandId::BindReceiverResp
+                        | CommandId::BindTransmitterResp
+                        | CommandId::BindTransceiverResp
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                        | CommandId::Outbind
+                )
             }
             SessionState::Outbound => {
-                command == CommandId::BindReceiverResp
-                    || command == CommandId::BindTransmitterResp
-                    || command == CommandId::BindTransceiverResp
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
+                matches!(
+                    command,
+                    CommandId::BindReceiverResp
+                        | CommandId::BindTransmitterResp
+                        | CommandId::BindTransceiverResp
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                )
             }
             SessionState::BoundTx => {
-                command == CommandId::BroadcastSmResp
-                    || command == CommandId::CancelBroadcastSmResp
-                    || command == CommandId::CancelSmResp
-                    || command == CommandId::DataSmResp
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
-                    || command == CommandId::QueryBroadcastSmResp
-                    || command == CommandId::QuerySmResp
-                    || command == CommandId::ReplaceSmResp
-                    || command == CommandId::SubmitMultiResp
-                    || command == CommandId::SubmitSmResp
-                    || command == CommandId::Unbind
-                    || command == CommandId::UnbindResp
+                matches!(
+                    command,
+                    CommandId::BroadcastSmResp
+                        | CommandId::CancelBroadcastSmResp
+                        | CommandId::CancelSmResp
+                        | CommandId::DataSmResp
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                        | CommandId::QueryBroadcastSmResp
+                        | CommandId::QuerySmResp
+                        | CommandId::ReplaceSmResp
+                        | CommandId::SubmitMultiResp
+                        | CommandId::SubmitSmResp
+                        | CommandId::Unbind
+                        | CommandId::UnbindResp
+                )
             }
             SessionState::BoundRx => {
-                command == CommandId::AlertNotification
-                    || command == CommandId::DataSm
-                    || command == CommandId::DeliverSm
-                    || command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
-                    || command == CommandId::Unbind
-                    || command == CommandId::UnbindResp
+                matches!(
+                    command,
+                    CommandId::AlertNotification
+                        | CommandId::DataSm
+                        | CommandId::DeliverSm
+                        | CommandId::EnquireLink
+                        | CommandId::EnquireLinkResp
+                        | CommandId::GenericNack
+                        | CommandId::Unbind
+                        | CommandId::UnbindResp
+                )
             }
             SessionState::BoundTrx => {
                 SessionState::BoundTx.can_send_as_mc(command)
                     || SessionState::BoundRx.can_send_as_mc(command)
             }
             SessionState::Unbound => {
-                command == CommandId::EnquireLink
-                    || command == CommandId::EnquireLinkResp
-                    || command == CommandId::GenericNack
+                matches!(
+                    command,
+                    CommandId::EnquireLink | CommandId::EnquireLinkResp | CommandId::GenericNack
+                )
             }
         }
     }
@@ -210,7 +233,7 @@ impl SessionState {
     /// # Returns true if a MC in that state can receive this command.
     ///
     /// This follows the 2.4 Operation Matrix of the SMPP 5.0 specification
-    pub fn can_receive_as_mc(self, command: CommandId) -> bool {
+    pub const fn can_receive_as_mc(self, command: CommandId) -> bool {
         self.can_send_as_esme(command)
     }
 }

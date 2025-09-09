@@ -204,6 +204,7 @@ impl NoSpawnConnectionBuilder {
             watch,
         );
 
+        // See comments on Connection struct to understand why we fuse the connection future.
         (client, events, connection.fuse())
     }
 }

@@ -1835,7 +1835,7 @@ dependencies = [
 
 [[package]]
 name = "rusmppc"
-version = "0.2.2"
+version = "0.2.3"
 dependencies = [
  "futures",
  "pin-project-lite",

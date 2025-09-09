@@ -16,7 +16,6 @@ use std::{
     borrow::Cow,
     collections::{BTreeMap, HashSet},
     io::{Result, Write},
-    path::PathBuf,
 };
 
 const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &["TlvTag", "TlvValue"];
@@ -554,78 +553,5 @@ where
             }
         }
         self.output_custom_code(name)
-    }
-}
-
-/// Installer for generated source files in Rust.
-pub struct Installer {
-    install_dir: PathBuf,
-}
-
-impl Installer {
-    pub fn new(install_dir: PathBuf) -> Self {
-        Installer { install_dir }
-    }
-
-    fn runtime_installation_message(name: &str) {
-        eprintln!("Not installing sources for published crate {name}");
-    }
-}
-
-impl serde_generate::SourceInstaller for Installer {
-    type Error = Box<dyn std::error::Error>;
-
-    fn install_module(
-        &self,
-        config: &CodeGeneratorConfig,
-        registry: &Registry,
-    ) -> std::result::Result<(), Self::Error> {
-        let generator = CodeGenerator::new(config);
-        let (name, version) = {
-            let parts = config.module_name.splitn(2, ':').collect::<Vec<_>>();
-            if parts.len() >= 2 {
-                (parts[0].to_string(), parts[1].to_string())
-            } else {
-                (parts[0].to_string(), "0.1.0".to_string())
-            }
-        };
-        let dir_path = self.install_dir.join(&name);
-        std::fs::create_dir_all(&dir_path)?;
-
-        if config.package_manifest {
-            let mut cargo = std::fs::File::create(dir_path.join("Cargo.toml"))?;
-            write!(
-                cargo,
-                r#"[package]
-name = "{name}"
-version = "{version}"
-edition = "2018"
-
-[dependencies]
-serde = {{ version = "1.0", features = ["derive"] }}
-serde_bytes = "0.11"
-"#,
-            )?;
-        }
-
-        std::fs::create_dir_all(dir_path.join("src"))?;
-        let source_path = dir_path.join("src/lib.rs");
-        let mut source = std::fs::File::create(source_path)?;
-        generator.output(&mut source, registry)
-    }
-
-    fn install_serde_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("serde");
-        Ok(())
-    }
-
-    fn install_bincode_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("bincode");
-        Ok(())
-    }
-
-    fn install_bcs_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("bcs");
-        Ok(())
     }
 }

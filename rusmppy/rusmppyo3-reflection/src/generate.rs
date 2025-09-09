@@ -118,6 +118,9 @@ impl<'a> CodeGenerator<'a> {
             emitter.output_container(name, format)?;
             emitter.known_sizes.to_mut().insert(name);
         }
+
+        emitter.output_add_classes(registry)?;
+
         Ok(())
     }
 
@@ -192,20 +195,20 @@ where
             .flatten()
             .cloned()
             .collect::<HashSet<_>>();
+
         writeln!(self.out, "#![allow(clippy::enum_variant_names)]")?;
         writeln!(self.out, "#![allow(clippy::useless_conversion)]")?;
 
         writeln!(self.out)?;
 
-        if !external_names.contains("Map") {
-            // writeln!(self.out, "use std::collections::BTreeMap as Map;")?;
-        }
         if self.generator.config.serialization {
             writeln!(self.out, "use serde::{{Serialize, Deserialize}};")?;
         }
+
         if self.generator.config.serialization && !external_names.contains("Bytes") {
             writeln!(self.out, "use serde_bytes::ByteBuf as Bytes;")?;
         }
+
         for (module, definitions) in &self.generator.config.external_definitions {
             // Skip the empty module name.
             if !module.is_empty() {
@@ -217,21 +220,24 @@ where
                 )?;
             }
         }
+
         writeln!(self.out)?;
-        if !self.generator.config.serialization && !external_names.contains("Bytes") {
-            // If we are not going to use Serde derive macros, use plain vectors.
-            // writeln!(self.out, "type Bytes = Vec<u8>;\n")?;
-        }
+
         // We add a module here called rusmpp_types. inside of this module we reexport all rusmpp types.
         // When we generate the 'impl From', we use `rusmpp_types::` prefix.
         writeln!(self.out, "pub mod rusmpp_types {{")?;
+
         self.out.indent();
+
         writeln!(
             self.out,
             "pub use ::rusmpp::{{pdus::*,tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu}};"
         )?;
+
         self.out.unindent();
+
         writeln!(self.out, "}}")?;
+
         writeln!(self.out)?;
 
         Ok(())
@@ -553,5 +559,28 @@ where
             }
         }
         self.output_custom_code(name)
+    }
+
+    fn output_add_classes(&mut self, registry: &Registry) -> Result<()> {
+        writeln!(
+            self.out,
+            "pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::PyResult<()> {{"
+        )?;
+
+        writeln!(self.out, "use ::pyo3::types::PyModuleMethods;")?;
+
+        self.out.indent();
+
+        for name in registry.keys() {
+            writeln!(self.out, "m.add_class::<{}>()?;", name)?;
+        }
+
+        writeln!(self.out, "Ok(())")?;
+
+        self.out.unindent();
+
+        writeln!(self.out, "}}")?;
+
+        Ok(())
     }
 }

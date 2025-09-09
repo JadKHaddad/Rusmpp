@@ -5,10 +5,7 @@ use pyo3::{
 };
 use pyo3_stub_gen::define_stub_info_gatherer;
 
-use crate::generated::{
-    BindReceiverResp, BindTransceiverResp, BindTransmitterResp, Command, CommandId, CommandStatus,
-    DataCoding, InterfaceVersion, Npi, SubmitSmResp, Ton,
-};
+use crate::generated::{add_classes, Command, CommandId, CommandStatus};
 
 mod client;
 mod error;
@@ -29,18 +26,11 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<event::Events>()?;
     m.add_class::<error::Error>()?;
 
-    // TODO: must bind all generated structs and enums
     m.add_class::<Command>()?;
     m.add_class::<CommandId>()?;
     m.add_class::<CommandStatus>()?;
-    m.add_class::<InterfaceVersion>()?;
-    m.add_class::<Ton>()?;
-    m.add_class::<Npi>()?;
-    m.add_class::<DataCoding>()?;
-    m.add_class::<BindTransmitterResp>()?;
-    m.add_class::<BindReceiverResp>()?;
-    m.add_class::<BindTransceiverResp>()?;
-    m.add_class::<SubmitSmResp>()?;
+    // add all auto generated structs and enums
+    add_classes(m)?;
 
     use exception::*;
     m.add("RusmppycException", py.get_type::<RusmppycException>())?;

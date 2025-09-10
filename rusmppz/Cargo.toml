@@ -10,3 +10,18 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
+framez = { version = "0.3.0", default-features = false, optional = true }
+arbitrary = { version = "1.4.2", default-features = false, features = [
+    "derive_arbitrary",
+], optional = true }
+
+[features]
+default = ["framez"]
+# Enables the `alloc` crate.
+alloc = []
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = []
+# Implements framez' Encoder/Decoder traits for the CommandCodec.
+framez = ["dep:framez"]
+# Implements arbitrary's Arbitrary trait for fuzz testing.
+arbitrary = ["dep:arbitrary"]

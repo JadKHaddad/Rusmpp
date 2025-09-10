@@ -1,6 +1,6 @@
 [package]
 name = "rusmppyc"
-version = "0.1.0"
+version = "0.1.0-alpha.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -10,7 +10,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pyo3 = "0.25.0"
-pyo3-async-runtimes = { version = "0.25", features = [
+pyo3-async-runtimes = { version = "0.25.0", features = [
     "attributes",
     "tokio-runtime",
 ] }

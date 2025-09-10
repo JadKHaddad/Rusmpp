@@ -37,7 +37,7 @@ macro_rules! declare_bind_resp {
                 }
             }
 
-            pub fn sc_interface_version_tlv(&self) -> Option<&Tlv> {
+            pub const fn sc_interface_version_tlv(&self) -> Option<&Tlv> {
                 self.sc_interface_version.as_ref()
             }
 

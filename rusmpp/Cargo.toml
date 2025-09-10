@@ -1,6 +1,6 @@
 [package]
 name = "rusmpp"
-version = "0.2.2"
+version = "0.2.3"
 edition = "2024"
 rust-version = "1.85.0"
 description = "A Rust SMPP library."
@@ -19,6 +19,8 @@ futures = "0.3.31"
 testcontainers = "0.25.0"
 # XXX: do not update because of the patch
 macrotest = "1.1.0"
+strum = "0.27.2"
+strum_macros = "0.27.2"
 
 [dependencies]
 tokio-util = { version = "0.7.16", default-features = false, features = [

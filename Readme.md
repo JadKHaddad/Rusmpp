@@ -86,7 +86,7 @@ async fn launch_server(stream: DuplexStream) -> Result<(), Box<dyn Error>> {
 }
 ```
 
-See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/examples) directory for more examples.
+See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/rusmpp/examples) directory for more examples.
 
 ## Features
 

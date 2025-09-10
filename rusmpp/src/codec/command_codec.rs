@@ -55,9 +55,11 @@ pub mod tokio {
 
     use super::CommandCodec;
 
+    /// An error that can occur when encoding a `Command`.
     #[derive(Debug)]
     #[non_exhaustive]
     pub enum EncodeError {
+        /// I/O error.
         Io(std::io::Error),
     }
 
@@ -117,12 +119,17 @@ pub mod tokio {
         }
     }
 
+    /// An error that can occur when decoding a `Command`.
     #[derive(Debug)]
     #[non_exhaustive]
     pub enum DecodeError {
+        /// I/O error.
         Io(std::io::Error),
+        /// Decode error.
         Decode(crate::decode::DecodeError),
+        /// Minimum command length not met.
         MinLength { actual: usize, min: usize },
+        /// Maximum command length exceeded.
         MaxLength { actual: usize, max: usize },
     }
 

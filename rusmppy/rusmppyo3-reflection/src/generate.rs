@@ -16,8 +16,9 @@ use std::{
     borrow::Cow,
     collections::{BTreeMap, HashSet},
     io::{Result, Write},
-    path::PathBuf,
 };
+
+const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &["TlvTag", "TlvValue"];
 
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {
@@ -117,6 +118,9 @@ impl<'a> CodeGenerator<'a> {
             emitter.output_container(name, format)?;
             emitter.known_sizes.to_mut().insert(name);
         }
+
+        emitter.output_add_classes(registry)?;
+
         Ok(())
     }
 
@@ -191,20 +195,20 @@ where
             .flatten()
             .cloned()
             .collect::<HashSet<_>>();
-        writeln!(self.out, "#![allow(unused_imports)]")?;
-        writeln!(self.out, "#![allow(dead_code)]")?;
+
         writeln!(self.out, "#![allow(clippy::enum_variant_names)]")?;
+        writeln!(self.out, "#![allow(clippy::useless_conversion)]")?;
+
         writeln!(self.out)?;
 
-        if !external_names.contains("Map") {
-            writeln!(self.out, "use std::collections::BTreeMap as Map;")?;
-        }
         if self.generator.config.serialization {
             writeln!(self.out, "use serde::{{Serialize, Deserialize}};")?;
         }
+
         if self.generator.config.serialization && !external_names.contains("Bytes") {
             writeln!(self.out, "use serde_bytes::ByteBuf as Bytes;")?;
         }
+
         for (module, definitions) in &self.generator.config.external_definitions {
             // Skip the empty module name.
             if !module.is_empty() {
@@ -216,21 +220,24 @@ where
                 )?;
             }
         }
+
         writeln!(self.out)?;
-        if !self.generator.config.serialization && !external_names.contains("Bytes") {
-            // If we are not going to use Serde derive macros, use plain vectors.
-            writeln!(self.out, "type Bytes = Vec<u8>;\n")?;
-        }
+
         // We add a module here called rusmpp_types. inside of this module we reexport all rusmpp types.
         // When we generate the 'impl From', we use `rusmpp_types::` prefix.
         writeln!(self.out, "pub mod rusmpp_types {{")?;
+
         self.out.indent();
+
         writeln!(
             self.out,
-            "pub use ::rusmpp::{{pdus::*, tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu}};"
+            "pub use ::rusmpp::{{pdus::*,tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu}};"
         )?;
+
         self.out.unindent();
+
         writeln!(self.out, "}}")?;
+
         writeln!(self.out)?;
 
         Ok(())
@@ -401,6 +408,57 @@ where
                 self.out.unindent();
                 self.current_namespace.pop();
                 writeln!(self.out, "}}\n")?;
+
+                // Implement `From` for Rusmpp types
+                writeln!(self.out, "impl From<rusmpp_types::{name}> for {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn from(value: rusmpp_types::{name}) -> Self {{")?;
+                self.out.indent();
+                writeln!(self.out, "let value = value.into_parts();")?;
+                writeln!(self.out, "Self {{")?;
+                self.out.indent();
+
+                for field in fields {
+                    let field_name = &field.name;
+                    let conversion = match &field.value {
+                        Format::Option(_) => {
+                            format!("value.{field_name}.map(Into::into)")
+                        }
+                        Format::Seq(inner_format) => {
+                            // If its a sequence of bytes we can use `Into` directly.
+                            if matches!(**inner_format, Format::U8) {
+                                format!("value.{field_name}.into()")
+                            } else {
+                                format!("value.{field_name}.into_iter().map(Into::into).collect()")
+                            }
+                        }
+                        _ => {
+                            format!("value.{field_name}.into()")
+                        }
+                    };
+
+                    writeln!(self.out, "{field_name}: {conversion},")?;
+                }
+
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
+
+                // Generate the methods
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
+                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "impl {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn __repr__(&self) -> String {{")?;
+                self.out.indent();
+                writeln!(self.out, "format!(\"{{self:?}}\")")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
             }
             Enum(variants) => {
                 writeln!(
@@ -414,81 +472,115 @@ where
                 self.out.unindent();
                 self.current_namespace.pop();
                 writeln!(self.out, "}}\n")?;
+
+                // Implement `From` for Rusmpp types
+                writeln!(self.out, "impl From<rusmpp_types::{name}> for {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn from(value: rusmpp_types::{name}) -> Self {{")?;
+                self.out.indent();
+                writeln!(self.out, "match value {{")?;
+                self.out.indent();
+
+                for variant in variants.values() {
+                    let vname = &variant.name;
+                    use VariantFormat::*;
+                    match &variant.value {
+                        Unit => {
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname} => {name}::{vname}(),"
+                            )?;
+                        }
+                        NewType(_) => {
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname}(inner) => {name}::{vname}(inner.into()),"
+                            )?;
+                        }
+                        Tuple(fields) => {
+                            let vars: Vec<String> =
+                                (0..fields.len()).map(|i| format!("f{i}")).collect();
+                            writeln!(
+                                self.out,
+                                "rusmpp_types::{name}::{vname}({}) => {name}::{vname}({}),",
+                                vars.join(", "),
+                                vars.iter()
+                                    .map(|v| format!("{v}.into()"))
+                                    .collect::<Vec<_>>()
+                                    .join(", "),
+                            )?;
+                        }
+                        Struct(fields) => {
+                            writeln!(self.out, "rusmpp_types::{name}::{vname} {{")?;
+                            self.out.indent();
+                            for field in fields {
+                                writeln!(self.out, "{},", field.name)?;
+                            }
+                            self.out.unindent();
+                            writeln!(self.out, "}} => {name}::{vname} {{")?;
+                            self.out.indent();
+                            for field in fields {
+                                writeln!(self.out, "{}: {}.into(),", field.name, field.name)?;
+                            }
+                            self.out.unindent();
+                            writeln!(self.out, "}},")?;
+                        }
+                        Variable(_) => panic!("unexpected Variable variant"),
+                    }
+                }
+
+                // handle the _ case for NON_EXHAUSTIVE_RUSMPP_ENUMS
+                if NON_EXHAUSTIVE_RUSMPP_ENUMS.contains(&name) {
+                    writeln!(
+                        self.out,
+                        "_ => panic!(\"Unexpected variant in Rusmpp type {name}\"),"
+                    )?;
+                }
+
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
+
+                // Generate the methods
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
+                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "impl {name} {{")?;
+                self.out.indent();
+                writeln!(self.out, "fn __repr__(&self) -> String {{")?;
+                self.out.indent();
+                writeln!(self.out, "format!(\"{{self:?}}\")")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}\n")?;
             }
         }
         self.output_custom_code(name)
     }
-}
 
-/// Installer for generated source files in Rust.
-pub struct Installer {
-    install_dir: PathBuf,
-}
+    fn output_add_classes(&mut self, registry: &Registry) -> Result<()> {
+        writeln!(
+            self.out,
+            "pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::PyResult<()> {{"
+        )?;
 
-impl Installer {
-    pub fn new(install_dir: PathBuf) -> Self {
-        Installer { install_dir }
-    }
+        writeln!(self.out, "use ::pyo3::types::PyModuleMethods;")?;
 
-    fn runtime_installation_message(name: &str) {
-        eprintln!("Not installing sources for published crate {name}");
-    }
-}
+        self.out.indent();
 
-impl serde_generate::SourceInstaller for Installer {
-    type Error = Box<dyn std::error::Error>;
-
-    fn install_module(
-        &self,
-        config: &CodeGeneratorConfig,
-        registry: &Registry,
-    ) -> std::result::Result<(), Self::Error> {
-        let generator = CodeGenerator::new(config);
-        let (name, version) = {
-            let parts = config.module_name.splitn(2, ':').collect::<Vec<_>>();
-            if parts.len() >= 2 {
-                (parts[0].to_string(), parts[1].to_string())
-            } else {
-                (parts[0].to_string(), "0.1.0".to_string())
-            }
-        };
-        let dir_path = self.install_dir.join(&name);
-        std::fs::create_dir_all(&dir_path)?;
-
-        if config.package_manifest {
-            let mut cargo = std::fs::File::create(dir_path.join("Cargo.toml"))?;
-            write!(
-                cargo,
-                r#"[package]
-name = "{name}"
-version = "{version}"
-edition = "2018"
-
-[dependencies]
-serde = {{ version = "1.0", features = ["derive"] }}
-serde_bytes = "0.11"
-"#,
-            )?;
+        for name in registry.keys() {
+            writeln!(self.out, "m.add_class::<{}>()?;", name)?;
         }
 
-        std::fs::create_dir_all(dir_path.join("src"))?;
-        let source_path = dir_path.join("src/lib.rs");
-        let mut source = std::fs::File::create(source_path)?;
-        generator.output(&mut source, registry)
-    }
+        writeln!(self.out, "Ok(())")?;
 
-    fn install_serde_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("serde");
-        Ok(())
-    }
+        self.out.unindent();
 
-    fn install_bincode_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("bincode");
-        Ok(())
-    }
+        writeln!(self.out, "}}")?;
 
-    fn install_bcs_runtime(&self) -> std::result::Result<(), Self::Error> {
-        Self::runtime_installation_message("bcs");
         Ok(())
     }
 }

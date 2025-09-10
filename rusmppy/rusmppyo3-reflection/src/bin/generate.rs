@@ -100,13 +100,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = CodeGeneratorConfig::new(String::from("types")).with_serialization(false);
 
     let generator = CodeGenerator::new(&config)
-        .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass]")));
+        .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass(get_all, set_all)]")));
 
     let mut output = Vec::new();
 
     generator.output(&mut output, &registry)?;
 
-    let mut file = std::fs::File::create("rusmppy/rusmppyc-sys/src/generated.rs")?;
+    let mut file = std::fs::File::create("rusmppy/rusmppyc/src/generated.rs")?;
 
     file.write_all(&output)?;
 

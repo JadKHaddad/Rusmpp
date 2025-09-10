@@ -1,15 +1,3 @@
-# Rusmppyc
-
-[![PyPI - License](https://img.shields.io/pypi/l/rusmppyc)](https://github.com/JadKHaddad/Rusmpp?tab=readme-ov-file#license)
-![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FJadKHaddad%2FRusmpp%2Frefs%2Fheads%2Fmain%2Frusmppy%2Frusmppyc%2Fpyproject.toml&logo=python)
-[![PyPI](https://img.shields.io/pypi/v/rusmppyc?logo=python)](https://pypi.org/project/rusmppyc/)
-[![PyPI Downloads](https://static.pepy.tech/badge/rusmppyc)](https://pepy.tech/projects/rusmppyc)
-
-An async [SMPP v5](https://smpp.org/SMPP_v5.pdf) `Python` client powered by `Rust`.
-
-## Example
-
-```python
 import logging
 import asyncio
 
@@ -25,7 +13,6 @@ from rusmppyc import (
     SubmitSmResp,
     Ton,
 )
-
 from rusmppyc.exceptions import RusmppycException
 
 
@@ -106,6 +93,28 @@ async def main():
 
 
 if __name__ == "__main__":
+    # Blue
+    logging.addLevelName(
+        logging.DEBUG, "\033[1;34m%s\033[1;0m" % logging.getLevelName(logging.DEBUG)
+    )
+    # Green
+    logging.addLevelName(
+        logging.INFO, "\033[1;32m%s\033[1;0m" % logging.getLevelName(logging.INFO)
+    )
+    # Yellow
+    logging.addLevelName(
+        logging.WARNING, "\033[1;33m%s\033[1;0m" % logging.getLevelName(logging.WARNING)
+    )
+    # Red
+    logging.addLevelName(
+        logging.ERROR, "\033[1;31m%s\033[1;0m" % logging.getLevelName(logging.ERROR)
+    )
+    # White on Red Background
+    logging.addLevelName(
+        logging.CRITICAL,
+        "\033[1;37;41m%s\033[1;0m" % logging.getLevelName(logging.CRITICAL),
+    )
+
     logging.basicConfig(
         format="%(asctime)-15s %(levelname)s %(name)s %(filename)s:%(lineno)d %(message)s"
     )
@@ -116,33 +125,3 @@ if __name__ == "__main__":
     logging.getLogger("rusmppyc").setLevel(logging.DEBUG)
 
     asyncio.run(main())
-```
-
-## Develop
-
-- Install [`maturin`](https://www.maturin.rs/installation.html)
-
-- Create a virtual environment:
-
-  ```bash
-  python3 -m venv venv
-  source venv/bin/activate
-  ```
-
-- Generate the `pyi` stubs:
-
-  ```bash
-  cargo run --bin stub-gen
-  ```
-
-- Generate the bindings:
-
-  ```bash
-  maturin develop
-  ```
-
-- The bindings are now available in the virtual environment. You can test them by running:
-
-  ```bash
-  python3 -c "import rusmppyc; print(rusmppyc.__version__)"
-  ```

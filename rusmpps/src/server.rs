@@ -6,15 +6,15 @@ use tokio::net::TcpListener;
 
 use crate::{
     client::{Client, ConnectedClients},
-    config::Config,
-    connection::Connection,
+    connection::{Connection, ConnectionConfig},
 };
 
 #[derive(Debug)]
 pub struct ServerParameters {
     pub clients: Vec<Client>,
     pub enquire_link_interval: Duration,
-    pub response_timeout: Duration,
+    pub enquire_link_response_timeout: Duration,
+    pub enquire_link_response_delay: Duration,
     pub session_timeout: Duration,
     pub bind_delay: Duration,
     pub response_delay: Duration,
@@ -23,21 +23,22 @@ pub struct ServerParameters {
 
 #[derive(Debug)]
 pub struct Server {
-    config: Arc<Config>,
+    config: Arc<ConnectionConfig>,
     socket_addr: SocketAddr,
     session_id: u64,
 }
 
 impl Server {
     pub fn new(parameters: ServerParameters) -> Self {
-        let config = Arc::new(Config {
+        let config = Arc::new(ConnectionConfig {
             connected_clients: ConnectedClients::new(),
             clients: parameters.clients,
             enquire_link_interval: parameters.enquire_link_interval,
-            response_timeout: parameters.response_timeout,
+            enquire_link_response_timeout: parameters.enquire_link_response_timeout,
             session_timeout: parameters.session_timeout,
             bind_delay: parameters.bind_delay,
             response_delay: parameters.response_delay,
+            enquire_link_response_delay: parameters.enquire_link_response_delay,
         });
 
         Self {

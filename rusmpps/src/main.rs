@@ -1,23 +1,38 @@
-use std::time::Duration;
-
-use rusmpps::server::{Server, ServerParameters};
+use clap::Parser;
+use rusmpps::{
+    args::Args,
+    config::Config,
+    server::{Server, ServerParameters},
+};
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn core::error::Error>> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter("rusmpps=debug")
         .init();
 
+    dotenvy::dotenv().ok();
+
+    let args = Args::parse();
+
+    let config = Config::from_yaml_file(args.config_file).unwrap_or_else(|err| {
+        tracing::error!("Failed to load config: {}", err);
+        tracing::warn!("Using default configuration");
+
+        Config::default()
+    });
+
+    tracing::info!(?config);
+
     let parameters = ServerParameters {
         clients: vec![],
-        enquire_link_interval: Duration::from_secs(10),
-        response_timeout: Duration::from_secs(3),
-        session_timeout: Duration::from_secs(3),
-        bind_delay: Duration::from_millis(100),
-        response_delay: Duration::from_secs(1),
-        socket_addr: "127.0.0.1:2775"
-            .parse()
-            .expect("Failed to parse socket address"),
+        enquire_link_interval: config.enquire_link_interval,
+        enquire_link_response_timeout: config.enquire_link_response_timeout,
+        enquire_link_response_delay: config.enquire_link_response_delay,
+        session_timeout: config.session_timeout,
+        bind_delay: config.bind_delay,
+        response_delay: config.response_delay,
+        socket_addr: config.socket_addr,
     };
 
     let server = Server::new(parameters);

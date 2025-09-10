@@ -1,4 +1,4 @@
-# rusmppyc/__init__.py
+# rusmppyc/__init__.pyi
 from .rusmppyc import *  # type: ignore  # low-level Rust bindings  # noqa: F403
 
 from .client import Client

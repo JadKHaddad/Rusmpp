@@ -1,8 +1,14 @@
-from rusmppyc import Events, Client, BindTransceiverResp, Event, CommandId
-from rusmppyc.exceptions import RusmppycException
-
 import logging
 import asyncio
+
+from rusmppyc import (
+    BindTransceiverResp,
+    Client,
+    CommandId,
+    Event,
+    Events,
+)
+from rusmppyc.exceptions import RusmppycException
 
 
 async def handle_events(events: Events, client: Client):

@@ -42,6 +42,8 @@ impl Default for CommandCodec {
 pub mod tokio {
     //! Tokio's util [`Encoder`] and [`Decoder`] implementations for [`CommandCodec`].
 
+    use core::num::TryFromIntError;
+
     use tokio_util::{
         bytes::{Buf, BufMut, BytesMut},
         codec::{Decoder, Encoder},
@@ -131,6 +133,8 @@ pub mod tokio {
         MinLength { actual: usize, min: usize },
         /// Maximum command length exceeded.
         MaxLength { actual: usize, max: usize },
+        /// Integral type conversion failed.
+        InvalidLength(TryFromIntError),
     }
 
     impl From<std::io::Error> for DecodeError {
@@ -156,6 +160,9 @@ pub mod tokio {
                         "Maximum command length exceeded. actual: {actual}, max: {max}"
                     )
                 }
+                DecodeError::InvalidLength(e) => {
+                    write!(f, "Integral type conversion failed: {e}")
+                }
             }
         }
     }
@@ -167,6 +174,7 @@ pub mod tokio {
                 DecodeError::Decode(e) => Some(e),
                 DecodeError::MinLength { .. } => None,
                 DecodeError::MaxLength { .. } => None,
+                DecodeError::InvalidLength(e) => Some(e),
             }
         }
 
@@ -188,7 +196,12 @@ pub mod tokio {
                 return Ok(None);
             }
 
-            let command_length = u32::from_be_bytes([src[0], src[1], src[2], src[3]]) as usize;
+            let command_length = usize::try_from(u32::from_be_bytes([src[0], src[1], src[2], src[3]])).map_err(|err|
+             {
+                crate::error!(target: "rusmpp::codec::decode", ?err, "Failed to convert command length to usize");
+
+                DecodeError::InvalidLength(err)
+             })?;
 
             crate::trace!(target: "rusmpp::codec::decode", command_length);
 

@@ -1,31 +1,10 @@
 #![allow(path_statements)]
 
 use crate::{
-    decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
+    decode::{DecodeError, OctetStringDecodeError, borrowed::DecodeWithLength},
     encode::{Encode, Length},
+    types::octet_string::Error,
 };
-
-/// An error that can occur when creating an [`OctetString`]
-#[derive(Debug)]
-pub enum Error {
-    TooManyBytes { actual: usize, max: usize },
-    TooFewBytes { actual: usize, min: usize },
-}
-
-impl core::fmt::Display for Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            Self::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {actual}, max: {max}")
-            }
-            Self::TooFewBytes { actual, min } => {
-                write!(f, "Too few bytes. actual: {actual}, min: {min}")
-            }
-        }
-    }
-}
-
-impl core::error::Error for Error {}
 
 /// An [`OctetString`] is a sequence of octets not necessarily
 /// terminated with a NULL octet `0x00`.
@@ -55,7 +34,7 @@ impl core::error::Error for Error {}
 ///
 /// `MIN` must be less than or equal to `MAX`.
 /// ```rust, compile_fail
-/// use rusmpp::types::OctetString;
+/// # use rusmpp_core::types::borrowed::octet_string::OctetString;
 ///
 /// // does not compile
 /// let string = OctetString::<10,5>::new(b"Hello");
@@ -150,7 +129,7 @@ impl<const MIN: usize, const MAX: usize> core::fmt::Display for OctetString<'_, 
 }
 
 impl<'a, const MIN: usize, const MAX: usize> From<OctetString<'a, MIN, MAX>>
-    for super::AnyOctetString<'a>
+    for super::any_octet_string::AnyOctetString<'a>
 {
     fn from(octet_string: OctetString<'a, MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)

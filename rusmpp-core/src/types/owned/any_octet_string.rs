@@ -1,28 +1,36 @@
+use alloc::{string::String, string::ToString, vec::Vec};
+
 use crate::{
-    decode::{DecodeError, DecodeWithLength},
+    decode::{DecodeError, owned::DecodeWithLength},
     encode::{Encode, Length},
 };
 
-/// No fixed size [`OctetString`](struct@crate::types::OctetString).
+/// No fixed size [`OctetString`](struct@crate::types::owned::octet_string::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-pub struct AnyOctetString<'a> {
-    bytes: &'a [u8],
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+#[cfg_attr(
+    any(feature = "serde", feature = "serde-deserialize-unchecked"),
+    serde(transparent)
+)]
+pub struct AnyOctetString {
+    bytes: Vec<u8>,
 }
 
-impl<'a> AnyOctetString<'a> {
+impl AnyOctetString {
     /// Create a new empty [`AnyOctetString`].
     ///
     /// Equivalent to [`AnyOctetString::empty`].
     #[inline]
-    pub const fn null() -> Self {
+    pub fn null() -> Self {
         Self::empty()
     }
 
     /// Create a new empty [`AnyOctetString`].
     #[inline]
-    pub const fn empty() -> Self {
-        Self { bytes: &[] }
+    pub fn empty() -> Self {
+        Self { bytes: Vec::new() }
     }
 
     /// Check if an [`AnyOctetString`] is empty.
@@ -30,71 +38,107 @@ impl<'a> AnyOctetString<'a> {
     /// An [`AnyOctetString`] is considered empty if it
     /// contains no octets.
     #[inline]
-    pub const fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
 
     /// Create a new [`AnyOctetString`] from a sequence of bytes.
     #[inline]
-    pub const fn new(bytes: &'a [u8]) -> Self {
+    pub fn new(bytes: impl AsRef<[u8]>) -> Self {
+        let bytes = bytes.as_ref().to_vec();
+
         Self { bytes }
     }
 
     /// Convert an [`AnyOctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
-        core::str::from_utf8(self.bytes)
+        core::str::from_utf8(&self.bytes)
     }
 
     /// Get the bytes of an [`AnyOctetString`].
     #[inline]
-    pub const fn bytes(&self) -> &[u8] {
+    pub fn bytes(&self) -> &[u8] {
+        &self.bytes
+    }
+
+    /// Convert an [`AnyOctetString`] to a [`Vec`] of [`u8`].
+    #[inline]
+    pub fn into_bytes(self) -> Vec<u8> {
         self.bytes
     }
 }
 
-impl core::fmt::Debug for AnyOctetString<'_> {
+impl From<Vec<u8>> for AnyOctetString {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self { bytes }
+    }
+}
+
+impl From<AnyOctetString> for Vec<u8> {
+    fn from(value: AnyOctetString) -> Self {
+        value.bytes
+    }
+}
+
+impl core::fmt::Debug for AnyOctetString {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("AnyOctetString")
-            .field("bytes", &crate::utils::HexFormatter(self.bytes))
-            .field("string", &self.to_str().unwrap_or("<invalid utf-8>"))
+            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+            .field("string", &self.to_string())
             .finish()
     }
 }
 
-impl Default for AnyOctetString<'_> {
+impl Default for AnyOctetString {
     fn default() -> Self {
         Self::empty()
     }
 }
 
-impl core::fmt::Display for AnyOctetString<'_> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(self.to_str().unwrap_or("<invalid utf-8>"))
+impl core::str::FromStr for AnyOctetString {
+    type Err = core::convert::Infallible;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(Self::new(s.as_bytes()))
     }
 }
 
-impl Length for AnyOctetString<'_> {
+impl core::fmt::Display for AnyOctetString {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str(&String::from_utf8_lossy(&self.bytes))
+    }
+}
+
+impl AsRef<[u8]> for AnyOctetString {
+    fn as_ref(&self) -> &[u8] {
+        &self.bytes
+    }
+}
+
+impl Length for AnyOctetString {
     fn length(&self) -> usize {
         self.bytes.len()
     }
 }
 
-impl Encode for AnyOctetString<'_> {
+impl Encode for AnyOctetString {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        _ = &mut dst[..self.bytes.len()].copy_from_slice(self.bytes);
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
 
         self.bytes.len()
     }
 }
 
-impl<'a> DecodeWithLength<'a> for AnyOctetString<'a> {
-    fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+impl DecodeWithLength for AnyOctetString {
+    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
         if src.len() < length {
             return Err(DecodeError::unexpected_eof());
         }
 
-        let bytes = &src[..length];
+        let mut bytes = Vec::with_capacity(length);
+
+        bytes.extend_from_slice(&src[..length]);
 
         Ok((Self { bytes }, length))
     }

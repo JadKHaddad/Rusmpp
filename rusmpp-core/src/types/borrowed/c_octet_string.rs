@@ -1,37 +1,10 @@
 #![allow(path_statements)]
 
 use crate::{
-    decode::{COctetStringDecodeError, Decode, DecodeError},
+    decode::{COctetStringDecodeError, DecodeError, borrowed::Decode},
     encode::{Encode, Length},
+    types::c_octet_string::Error,
 };
-
-/// An Error that can occur when creating a [`COctetString`]
-#[derive(Debug)]
-pub enum Error {
-    TooManyBytes { actual: usize, max: usize },
-    TooFewBytes { actual: usize, min: usize },
-    NotNullTerminated,
-    NotAscii,
-    NullByteFound,
-}
-
-impl core::fmt::Display for Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            Error::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {actual}, max: {max}")
-            }
-            Error::TooFewBytes { actual, min } => {
-                write!(f, "Too few bytes. actual: {actual}, min: {min}")
-            }
-            Error::NotNullTerminated => write!(f, "Not null terminated"),
-            Error::NotAscii => write!(f, "Not ASCII"),
-            Error::NullByteFound => write!(f, "Null byte found"),
-        }
-    }
-}
-
-impl core::error::Error for Error {}
 
 /// A [`COctetString`] is a sequence of ASCII characters
 /// terminated with a NULL octet `0x00`.
@@ -74,7 +47,7 @@ impl core::error::Error for Error {}
 ///
 /// `MIN` must be greater than 0.
 /// ```rust, compile_fail
-/// use rusmpp::types::COctetString;
+/// # use rusmpp_core::types::borrowed::c_octet_string::COctetString;
 ///
 /// // does not compile
 /// let string = COctetString::<0, 6>::new(b"Hello\0");
@@ -82,7 +55,7 @@ impl core::error::Error for Error {}
 /// `MIN` must be less than or equal to `MAX`.
 ///
 /// ```rust, compile_fail
-/// use rusmpp::types::COctetString;
+/// # use rusmpp_core::types::borrowed::c_octet_string::COctetString;
 ///
 /// // does not compile
 /// let string = COctetString::<10, 6>::new(b"Hello\0");
@@ -175,7 +148,8 @@ impl<'a, const MIN: usize, const MAX: usize> COctetString<'a, MIN, MAX> {
 
     /// Create a new [`COctetString`] from a sequence of bytes without checking the length and null termination.
     #[inline]
-    pub(crate) const fn new_unchecked(bytes: &'a [u8]) -> Self {
+    #[doc(hidden)]
+    pub const fn new_unchecked(bytes: &'a [u8]) -> Self {
         Self::_ASSERT_VALID;
 
         Self { bytes }

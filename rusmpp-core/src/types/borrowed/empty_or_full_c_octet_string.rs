@@ -1,39 +1,12 @@
 #![allow(path_statements)]
 
 use crate::{
-    decode::{COctetStringDecodeError, Decode, DecodeError},
+    decode::{COctetStringDecodeError, DecodeError, borrowed::Decode},
     encode::{Encode, Length},
+    types::empty_or_full_c_octet_string::Error,
 };
 
-/// An error that can occur when creating an [`EmptyOrFullCOctetString`].
-#[derive(Debug)]
-pub enum Error {
-    TooManyBytes { actual: usize, max: usize },
-    TooFewBytes { actual: usize },
-    NotNullTerminated,
-    NotAscii,
-    NullByteFound,
-}
-
-impl core::fmt::Display for Error {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            Self::TooManyBytes { actual, max } => {
-                write!(f, "Too many bytes. actual: {actual}, max: {max}")
-            }
-            Self::TooFewBytes { actual } => {
-                write!(f, "Too few bytes. actual: {actual}, min: 1")
-            }
-            Self::NotNullTerminated => write!(f, "Not null terminated"),
-            Self::NotAscii => write!(f, "Not ASCII"),
-            Self::NullByteFound => write!(f, "Null byte found"),
-        }
-    }
-}
-
-impl core::error::Error for Error {}
-
-/// Empty or full [`COctetString`](struct@crate::types::COctetString).
+/// Empty or full [`COctetString`](struct@crate::types::borrowed::c_octet_string::COctetString).
 ///
 /// `N` is the maximum length of the string, including the null terminator.
 ///
@@ -45,7 +18,7 @@ impl core::error::Error for Error {}
 ///
 /// `N` must be greater than `0`.
 /// ```rust, compile_fail
-/// use rusmpp::types::EmptyOrFullCOctetString;
+/// # use rusmpp_core::types::borrowed::empty_or_full_c_octet_string::EmptyOrFullCOctetString;
 ///
 /// // does not compile
 /// let string = EmptyOrFullCOctetString::<0>::new(b"Hello\0");

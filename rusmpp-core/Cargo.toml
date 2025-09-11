@@ -1,0 +1,27 @@
+[package]
+name = "rusmpp-core"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+arbitrary = { version = "1.4.2", default-features = false, features = [
+    "derive_arbitrary",
+], optional = true }
+serde = { version = "1.0.219", default-features = false, features = [
+    "derive",
+], optional = true }
+
+[features]
+default = []
+# Enables the `alloc` crate.
+alloc = ["serde/alloc"]
+# Enables verbose DecodeError with DecodeErrorSource.
+verbose = []
+# Implements arbitrary's Arbitrary trait for fuzz testing.
+arbitrary = ["dep:arbitrary"]
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = []
+# Derives serde Serialize for all SMPP types.
+serde = ["dep:serde"]
+# Derives serde Deserialize for all SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
+serde-deserialize-unchecked = ["dep:serde"]

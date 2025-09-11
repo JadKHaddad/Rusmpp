@@ -1,13 +1,42 @@
+use crate::fields::SmppField;
+
 /// An error that can occur when decoding `SMPP` values.
 #[derive(Debug)]
 pub struct DecodeError {
     kind: DecodeErrorKind,
+    #[cfg(feature = "verbose")]
+    source: Option<alloc::boxed::Box<DecodeErrorSource>>,
 }
 
 impl DecodeError {
     #[inline]
     pub const fn new(kind: DecodeErrorKind) -> Self {
+        #[cfg(feature = "verbose")]
+        return Self { kind, source: None };
+
+        #[cfg(not(feature = "verbose"))]
         Self { kind }
+    }
+
+    #[inline]
+    #[cold]
+    #[cfg(feature = "verbose")]
+    pub fn with_source(mut self, field: SmppField, error: DecodeError) -> Self {
+        self.source = Some(alloc::boxed::Box::new(DecodeErrorSource { field, error }));
+        self
+    }
+
+    #[inline]
+    #[cold]
+    #[cfg(feature = "verbose")]
+    pub fn as_source(self, field: SmppField) -> DecodeError {
+        DecodeError::new(self.kind).with_source(field, self)
+    }
+
+    #[inline]
+    #[cfg(feature = "verbose")]
+    pub fn source(&self) -> Option<&DecodeErrorSource> {
+        self.source.as_deref()
     }
 
     #[inline]
@@ -34,6 +63,39 @@ impl DecodeError {
     pub const fn unsupported_key(key: u32) -> Self {
         Self::new(DecodeErrorKind::UnsupportedKey { key })
     }
+
+    /// Checks recursively if the field exists in the sources tree.
+    #[cfg(feature = "verbose")]
+    pub fn field_exists(&self, field: SmppField) -> bool {
+        if let Some(source) = &self.source {
+            if source.field == field {
+                return true;
+            }
+
+            return source.error.field_exists(field);
+        }
+
+        false
+    }
+}
+
+/// Source of [`DecodeError`].
+#[derive(Debug)]
+#[cfg(feature = "verbose")]
+pub struct DecodeErrorSource {
+    field: SmppField,
+    error: DecodeError,
+}
+
+#[cfg(feature = "verbose")]
+impl DecodeErrorSource {
+    pub const fn field(&self) -> SmppField {
+        self.field
+    }
+
+    pub const fn error(&self) -> &DecodeError {
+        &self.error
+    }
 }
 
 /// Kind of [`DecodeError`].
@@ -46,7 +108,7 @@ pub enum DecodeErrorKind {
     UnsupportedKey { key: u32 },
 }
 
-/// An error that can occur when decoding a [`COctetString`](struct@crate::types::COctetString).
+/// An error that can occur when decoding a `COctetString`.
 #[derive(Debug, Copy, Clone)]
 #[non_exhaustive]
 pub enum COctetStringDecodeError {
@@ -55,7 +117,7 @@ pub enum COctetStringDecodeError {
     NotNullTerminated,
 }
 
-/// An error that can occur when decoding an [`OctetString`](struct@crate::types::OctetString).
+/// An error that can occur when decoding an `OctetString`.
 #[derive(Debug, Copy, Clone)]
 #[non_exhaustive]
 pub enum OctetStringDecodeError {
@@ -63,13 +125,55 @@ pub enum OctetStringDecodeError {
     TooFewBytes { actual: usize, min: usize },
 }
 
+#[cfg(feature = "verbose")]
+impl core::fmt::Display for DecodeErrorSource {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "field: {:?}, error: {}", self.field, self.error)
+    }
+}
+
+#[cfg(feature = "verbose")]
+impl core::error::Error for DecodeErrorSource {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+        Some(&self.error)
+    }
+
+    fn cause(&self) -> Option<&dyn core::error::Error> {
+        self.source()
+    }
+}
+
 impl core::fmt::Display for DecodeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        #[cfg(feature = "verbose")]
+        return match &self.source {
+            Some(source) => {
+                write!(f, "Decode error. kind: {}, source: [{source}]", self.kind,)
+            }
+            None => write!(f, "Decode error. kind: {}", self.kind),
+        };
+
+        #[cfg(not(feature = "verbose"))]
         write!(f, "Decode error. kind: {}", self.kind)
     }
 }
 
-impl core::error::Error for DecodeError {}
+impl core::error::Error for DecodeError {
+    fn source(&self) -> Option<&(dyn core::error::Error + 'static)> {
+        #[cfg(feature = "verbose")]
+        return match &self.source {
+            Some(source) => Some(source.as_ref()),
+            None => None,
+        };
+
+        #[cfg(not(feature = "verbose"))]
+        None
+    }
+
+    fn cause(&self) -> Option<&dyn core::error::Error> {
+        core::error::Error::source(self)
+    }
+}
 
 impl core::fmt::Display for DecodeErrorKind {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
@@ -111,7 +215,8 @@ impl core::fmt::Display for OctetStringDecodeError {
 
 impl core::error::Error for OctetStringDecodeError {}
 
-pub(crate) trait DecodeResultExt<T, E> {
+#[doc(hidden)]
+pub trait DecodeResultExt<T, E> {
     fn map_decoded<F, U>(self, op: F) -> Result<(U, usize), E>
     where
         F: FnOnce(T) -> U;
@@ -123,5 +228,21 @@ impl<T, E> DecodeResultExt<T, E> for Result<(T, usize), E> {
         F: FnOnce(T) -> U,
     {
         self.map(|(this, size)| (op(this), size))
+    }
+}
+
+#[doc(hidden)]
+pub trait DecodeErrorExt<T> {
+    fn map_as_source(self, field: SmppField) -> Result<T, DecodeError>;
+}
+
+impl<T> DecodeErrorExt<T> for Result<T, DecodeError> {
+    #[cold]
+    fn map_as_source(self, _field: SmppField) -> Result<T, DecodeError> {
+        #[cfg(feature = "verbose")]
+        return self.map_err(|error| error.as_source(_field));
+
+        #[cfg(not(feature = "verbose"))]
+        self
     }
 }

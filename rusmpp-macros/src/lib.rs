@@ -2,7 +2,10 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DeriveInput, Ident, Lit, parse, parse_macro_input};
 
-/// Implements `Length`, `Encode` and `Decode` for structs and enums.
+// TODO: parts
+
+/// Implements `Length`, `Encode` and `Decode` for structs and enums
+/// and creates parts structs for structs with `new` and `raw` methods and adds `into_parts` method to the original struct.
 ///
 /// # Enums
 ///
@@ -81,6 +84,10 @@ pub fn rusmpp(input: TokenStream) -> TokenStream {
                 }
             }
 
+            if let Some(repr) = repr {
+                return repr.expand(name);
+            }
+
             let expanded = quote! {};
 
             TokenStream::from(expanded)
@@ -115,29 +122,8 @@ pub fn rusmpp(input: TokenStream) -> TokenStream {
             }
 
             let repr = repr.expect("enums must have a #[repr(...)] attribute");
-            let repr_ident = repr.to_ident();
 
-            let expanded = quote! {
-                impl ::rusmpp_core::encode::Length for #name {
-                    fn length(&self) -> usize {
-                        #repr_ident::from(*self).length()
-                    }
-                }
-
-                impl ::rusmpp_core::encode::Encode for #name {
-                    fn encode(&self, dst: &mut [u8]) -> usize {
-                        #repr_ident::from(*self).encode(dst)
-                    }
-                }
-
-                impl ::rusmpp_core::decode::Decode for #name {
-                    fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp_core::decode::DecodeError> {
-                        #repr_ident::decode(src).map(|(this, size)| (Self::from(this), size))
-                    }
-                }
-            };
-
-            TokenStream::from(expanded)
+            repr.expand(name)
         }
 
         _ => panic!("Rusmpp can only be derived for enums or structs with named fields"),
@@ -153,5 +139,31 @@ impl Repr {
         match self {
             Repr::U8 => Ident::new("u8", proc_macro2::Span::call_site()),
         }
+    }
+
+    fn expand(&self, name: &Ident) -> TokenStream {
+        let repr_ident = self.to_ident();
+
+        let expanded = quote! {
+            impl ::rusmpp_core::encode::Length for #name {
+                fn length(&self) -> usize {
+                    #repr_ident::from(*self).length()
+                }
+            }
+
+            impl ::rusmpp_core::encode::Encode for #name {
+                fn encode(&self, dst: &mut [u8]) -> usize {
+                    #repr_ident::from(*self).encode(dst)
+                }
+            }
+
+            impl ::rusmpp_core::decode::Decode for #name {
+                fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp_core::decode::DecodeError> {
+                    #repr_ident::decode(src).map(|(this, size)| (Self::from(this), size))
+                }
+            }
+        };
+
+        TokenStream::from(expanded)
     }
 }

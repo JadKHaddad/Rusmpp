@@ -103,14 +103,38 @@ impl<'a, const MIN: usize, const MAX: usize> COctetString<'a, MIN, MAX> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
     };
 
-    // TODO: null and empty
+    const EMPTY: [u8; MIN] = {
+        let mut arr = [1u8; MIN];
+
+        arr[MIN - 1] = 0;
+
+        arr
+    };
+
+    /// Create a new empty [`COctetString`].
+    ///
+    /// Equivalent to [`COctetString::empty`].
+    #[inline]
+    pub const fn null() -> Self {
+        Self::empty()
+    }
+
+    /// Create a new empty [`COctetString`].
+    #[inline]
+    pub const fn empty() -> Self {
+        Self::_ASSERT_VALID;
+
+        Self {
+            bytes: &Self::EMPTY,
+        }
+    }
 
     /// Check if a [`COctetString`] is empty.
     ///
     /// A [`COctetString`] is considered empty if it
     /// contains only a single NULL octet (0x00).
     #[inline]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.bytes.len() == 1
     }
 
@@ -151,7 +175,7 @@ impl<'a, const MIN: usize, const MAX: usize> COctetString<'a, MIN, MAX> {
 
     /// Create a new [`COctetString`] from a sequence of bytes without checking the length and null termination.
     #[inline]
-    pub(crate) fn new_unchecked(bytes: &'a [u8]) -> Self {
+    pub(crate) const fn new_unchecked(bytes: &'a [u8]) -> Self {
         Self::_ASSERT_VALID;
 
         Self { bytes }
@@ -166,7 +190,7 @@ impl<'a, const MIN: usize, const MAX: usize> COctetString<'a, MIN, MAX> {
 
     /// Get the bytes of a [`COctetString`].
     #[inline]
-    pub fn bytes(&self) -> &[u8] {
+    pub const fn bytes(&self) -> &[u8] {
         self.bytes
     }
 }
@@ -177,6 +201,12 @@ impl<const MIN: usize, const MAX: usize> core::fmt::Debug for COctetString<'_, M
             .field("bytes", &crate::utils::HexFormatter(self.bytes))
             .field("string", &self.as_str())
             .finish()
+    }
+}
+
+impl<const MIN: usize, const MAX: usize> Default for COctetString<'_, MIN, MAX> {
+    fn default() -> Self {
+        Self::empty()
     }
 }
 

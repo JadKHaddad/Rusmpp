@@ -1,5 +1,4 @@
 #![allow(path_statements)]
-use alloc::{string::String, string::ToString, vec::Vec};
 
 use crate::{
     decode::{DecodeError, DecodeWithLength, OctetStringDecodeError},
@@ -63,17 +62,11 @@ impl core::error::Error for Error {}
 /// ```
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-#[cfg_attr(
-    any(feature = "serde", feature = "serde-deserialize-unchecked"),
-    serde(transparent)
-)]
-pub struct OctetString<const MIN: usize, const MAX: usize> {
-    bytes: Vec<u8>,
+pub struct OctetString<'a, const MIN: usize, const MAX: usize> {
+    bytes: &'a [u8],
 }
 
-impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
+impl<'a, const MIN: usize, const MAX: usize> OctetString<'a, MIN, MAX> {
     const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
         assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
 
@@ -81,18 +74,16 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     ///
     /// Equivalent to [`OctetString::empty`].
     #[inline]
-    pub fn null() -> Self {
+    pub const fn null() -> Self {
         Self::empty()
     }
 
     /// Create a new empty [`OctetString`].
     #[inline]
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
-        Self {
-            bytes: alloc::vec![0; MIN],
-        }
+        Self { bytes: &[0; MIN] }
     }
 
     /// Check if an [`OctetString`] is empty.
@@ -100,14 +91,12 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     /// An [`OctetString`] is considered empty if it
     /// contains no octets.
     #[inline]
-    pub fn is_empty(&self) -> bool {
+    pub const fn is_empty(&self) -> bool {
         self.bytes.is_empty()
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+    pub const fn new(bytes: &'a [u8]) -> Result<Self, Error> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
-
-        let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
             return Err(Error::TooManyBytes {
@@ -123,93 +112,67 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
             });
         }
 
-        let bytes = bytes.to_vec();
-
         Ok(Self { bytes })
     }
 
     /// Convert an [`OctetString`] to a &[`str`].
     #[inline]
     pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
-        core::str::from_utf8(&self.bytes)
+        core::str::from_utf8(self.bytes)
     }
 
     /// Get the bytes of an [`OctetString`].
     #[inline]
-    pub fn bytes(&self) -> &[u8] {
-        &self.bytes
-    }
-
-    /// Convert an [`OctetString`] to a [`Vec`] of [`u8`].
-    #[inline]
-    pub fn into_bytes(self) -> Vec<u8> {
+    pub const fn bytes(&self) -> &[u8] {
         self.bytes
     }
 }
 
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for Vec<u8> {
-    fn from(value: OctetString<MIN, MAX>) -> Self {
-        value.bytes
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> core::fmt::Debug for OctetString<'_, MIN, MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("OctetString")
-            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
-            .field("string", &self.to_string())
+            .field("bytes", &crate::utils::HexFormatter(self.bytes))
+            .field("string", &self.to_str().unwrap_or("<invalid utf-8>"))
             .finish()
     }
 }
 
-impl<const MIN: usize, const MAX: usize> Default for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> Default for OctetString<'_, MIN, MAX> {
     fn default() -> Self {
         Self::empty()
     }
 }
 
-impl<const MIN: usize, const MAX: usize> core::str::FromStr for OctetString<MIN, MAX> {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        Self::new(s.as_bytes())
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> core::fmt::Display for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> core::fmt::Display for OctetString<'_, MIN, MAX> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str(&String::from_utf8_lossy(&self.bytes))
+        f.write_str(self.to_str().unwrap_or("<invalid utf-8>"))
     }
 }
 
-impl<const MIN: usize, const MAX: usize> AsRef<[u8]> for OctetString<MIN, MAX> {
-    fn as_ref(&self) -> &[u8] {
-        &self.bytes
-    }
-}
-
-impl<const MIN: usize, const MAX: usize> From<OctetString<MIN, MAX>> for super::AnyOctetString {
-    fn from(octet_string: OctetString<MIN, MAX>) -> Self {
+impl<'a, const MIN: usize, const MAX: usize> From<OctetString<'a, MIN, MAX>>
+    for super::AnyOctetString<'a>
+{
+    fn from(octet_string: OctetString<'a, MIN, MAX>) -> Self {
         Self::new(octet_string.bytes)
     }
 }
 
-impl<const MIN: usize, const MAX: usize> Length for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> Length for OctetString<'_, MIN, MAX> {
     fn length(&self) -> usize {
         self.bytes.len()
     }
 }
 
-impl<const MIN: usize, const MAX: usize> Encode for OctetString<MIN, MAX> {
+impl<const MIN: usize, const MAX: usize> Encode for OctetString<'_, MIN, MAX> {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        _ = &mut dst[..self.bytes.len()].copy_from_slice(&self.bytes);
+        _ = &mut dst[..self.bytes.len()].copy_from_slice(self.bytes);
 
         self.bytes.len()
     }
 }
 
-impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, MAX> {
-    fn decode(src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+impl<'a, const MIN: usize, const MAX: usize> DecodeWithLength<'a> for OctetString<'a, MIN, MAX> {
+    fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), DecodeError> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if length > MAX {
@@ -234,7 +197,7 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
             return Err(DecodeError::unexpected_eof());
         }
 
-        let bytes = src[..length].to_vec();
+        let bytes = &src[..length];
 
         Ok((Self { bytes }, length))
     }
@@ -243,24 +206,6 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for OctetString<MIN, MAX> {
-        fn instances() -> Vec<Self> {
-            alloc::vec![
-                Self::empty(),
-                Self::new(core::iter::repeat_n(b'1', MIN).collect::<Vec<_>>()).unwrap(),
-                Self::new(core::iter::repeat_n(b'1', MAX / 2).collect::<Vec<_>>()).unwrap(),
-                Self::new(core::iter::repeat_n(b'1', MAX).collect::<Vec<_>>()).unwrap(),
-            ]
-        }
-    }
-
-    #[test]
-    fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<OctetString<0, 5>>();
-        crate::tests::encode_decode_with_length_test_instances::<OctetString<1, 5>>();
-        crate::tests::encode_decode_with_length_test_instances::<OctetString<2, 5>>();
-    }
 
     mod new {
         use super::*;

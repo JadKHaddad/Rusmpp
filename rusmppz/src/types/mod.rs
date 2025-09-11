@@ -11,9 +11,8 @@ pub use empty_or_full_c_octet_string::{
 mod any_octet_string;
 pub use any_octet_string::AnyOctetString;
 
-// TODO
-// mod octet_string;
-// pub use octet_string::{Error as OctetStringError, OctetString};
+mod octet_string;
+pub use octet_string::{Error as OctetStringError, OctetString};
 
 pub mod u16;
 pub mod u32;

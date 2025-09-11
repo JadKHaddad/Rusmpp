@@ -2039,6 +2039,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "rusmpp-macros"
+version = "0.1.0"
+dependencies = [
+ "macrotest",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
 name = "rusmppc"
 version = "0.2.3"
 dependencies = [

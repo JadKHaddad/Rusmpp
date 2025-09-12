@@ -7,7 +7,10 @@ use crate::{
     repr::{Repr, ReprType},
 };
 
-pub fn derive_struct(input: &DeriveInput, fields_named: &FieldsNamed) -> syn::Result<TokenStream> {
+pub fn derive_for_struct(
+    input: &DeriveInput,
+    fields_named: &FieldsNamed,
+) -> syn::Result<TokenStream> {
     let struct_attrs = StructAttributes::extract(input)?;
 
     if let Some(repr) = struct_attrs.repr {

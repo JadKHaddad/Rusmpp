@@ -6,7 +6,7 @@ use crate::{
     repr::{Repr, ReprType},
 };
 
-pub fn derive_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
+pub fn derive_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
     let enum_attrs = EnumAttributes::extract(input)?;
 
     Ok(enum_attrs.repr.expand(

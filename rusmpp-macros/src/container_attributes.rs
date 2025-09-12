@@ -1,12 +1,10 @@
 use syn::Ident;
 
-#[derive(Debug)]
 pub enum DecodeAttributes {
     Skip,
     Implement(DecodeImplementation),
 }
 
-#[derive(Debug)]
 pub enum DecodeImplementation {
     Owned,
     Borrowed,
@@ -36,17 +34,11 @@ impl Default for DecodeAttributes {
     }
 }
 
-#[derive(Debug)]
+#[derive(Default)]
 pub enum TestAttributes {
     Skip,
-    Implement(TestImplementation),
-}
-
-#[derive(Debug)]
-pub enum TestImplementation {
-    Owned,
-    Borrowed,
-    All,
+    #[default]
+    Implement,
 }
 
 impl TestAttributes {
@@ -55,19 +47,10 @@ impl TestAttributes {
 
         match ident.to_string().as_str() {
             "skip" => Ok(Self::Skip),
-            "owned" => Ok(Self::Implement(TestImplementation::Owned)),
-            "borrowed" => Ok(Self::Implement(TestImplementation::Borrowed)),
-            "all" => Ok(Self::Implement(TestImplementation::All)),
             other => Err(meta.error(format!(
-                "unknown decode attribute: {}, expected skip, owned, borrowed, or all",
+                "unknown decode attribute: {}, expected skip",
                 other
             ))),
         }
-    }
-}
-
-impl Default for TestAttributes {
-    fn default() -> Self {
-        Self::Implement(TestImplementation::All)
     }
 }

@@ -2,9 +2,7 @@ use proc_macro2::TokenStream;
 use quote::quote;
 use syn::Ident;
 
-use crate::container_attributes::{
-    DecodeAttributes, DecodeImplementation, TestAttributes, TestImplementation,
-};
+use crate::container_attributes::{DecodeAttributes, DecodeImplementation, TestAttributes};
 
 pub struct Repr {
     ident: Ident,
@@ -102,43 +100,19 @@ impl Repr {
         }
     }
 
-    fn quote_owned_test_impl(&self, name: &Ident) -> TokenStream {
-        let repr_ident = &self.ident;
-
-        quote! {
-            #[cfg(test)]
-            impl crate::tests::TestInstance for #name {
-                fn instances() -> alloc::vec::Vec<Self> {
-                    alloc::vec![Self::default(),]
-                }
-            }
-        }
-    }
-
-    fn quote_borrowed_test_impl(&self, name: &Ident) -> TokenStream {
-        let repr_ident = &self.ident;
-
-        quote! {
-            // TODO: Implement borrowed test instances
-        }
-    }
-
     fn quote_test_impl(&self, name: &Ident, test_attrs: &TestAttributes) -> TokenStream {
         match test_attrs {
             TestAttributes::Skip => quote! {},
-            TestAttributes::Implement(impl_type) => match impl_type {
-                TestImplementation::Owned => self.quote_owned_test_impl(name),
-                TestImplementation::Borrowed => self.quote_borrowed_test_impl(name),
-                TestImplementation::All => {
-                    let owned = self.quote_owned_test_impl(name);
-                    let borrowed = self.quote_borrowed_test_impl(name);
-
-                    quote! {
-                        #owned
-                        #borrowed
+            TestAttributes::Implement => {
+                quote! {
+                    #[cfg(test)]
+                    impl crate::tests::TestInstance for #name {
+                        fn instances() -> alloc::vec::Vec<Self> {
+                            alloc::vec![Self::default(),]
+                        }
                     }
                 }
-            },
+            }
         }
     }
 

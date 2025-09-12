@@ -9,8 +9,8 @@ mod struct_;
 
 // TODO: parts
 
-/// Implements `Length`, `Encode` and `Decode` for structs and enums
-/// and creates parts structs for structs with `new` and `raw` methods and adds `into_parts` method to the original struct.
+/// Implements `Length`, `Encode`, `Decode` and `TestInstance` with one default value for structs and enums.
+/// And creates parts structs for structs with `new` and `raw` methods and adds `into_parts` method to the original struct.
 ///
 /// # Enums
 ///
@@ -18,7 +18,7 @@ mod struct_;
 ///
 /// - `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
 /// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
-/// - `#[rusmpp(test = skip|owned|borrowed|all)]`: Control which test instances to generate. Default is `all`.
+/// - `#[rusmpp(test = skip)]`: Skip impl `TestInstance` for the enum.
 ///
 /// # Structs
 ///
@@ -26,7 +26,7 @@ mod struct_;
 ///
 /// - `#[rusmpp(repr = "u8")]`: Use the `From<u8>`/`Into<u8>` representation for decoding.
 /// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
-/// - `#[rusmpp(test = skip|owned|borrowed|all)]`: Control which test instances to generate. Default is `all`.
+/// - `#[rusmpp(test = skip)]`: Skip impl `TestInstance` for the struct.
 ///
 /// ## Field attributes
 ///

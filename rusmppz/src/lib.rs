@@ -10,3 +10,5 @@ pub mod types;
 
 pub mod decode;
 pub mod encode;
+
+mod macros;

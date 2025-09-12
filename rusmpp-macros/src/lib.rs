@@ -12,14 +12,15 @@ mod derive;
 ///
 /// ## Container attributes
 ///
-/// Enums must be annotated with `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
+/// - `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
+/// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
 ///
 /// # Structs
 ///
 /// ## Container attributes
 ///
 /// - `#[rusmpp(repr = "u8")]`: Use the `From<u8>`/`Into<u8>` representation for decoding.
-/// - `#[rusmpp(skip_decode)]`: Skip implementing the `Decode` trait if the struct is not annotated with a `repr`.
+/// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
 ///
 /// ## Field attributes
 ///

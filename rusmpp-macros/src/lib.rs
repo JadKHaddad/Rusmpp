@@ -34,7 +34,7 @@ mod derive;
 /// # Examples
 ///
 /// See `tests/expand`.
-#[proc_macro_derive(Rusmpp)]
+#[proc_macro_derive(Rusmpp, attributes(rusmpp))]
 pub fn rusmpp(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 

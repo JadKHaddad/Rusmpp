@@ -4,6 +4,7 @@ use syn::{DeriveInput, Field, FieldsNamed, Ident, Lit};
 
 use crate::{
     container_attributes::{DecodeAttributes, TestAttributes},
+    parts,
     repr::{Repr, ReprType},
 };
 
@@ -13,12 +14,21 @@ pub fn derive_for_struct(
 ) -> syn::Result<TokenStream> {
     let struct_attrs = StructAttributes::extract(input)?;
 
+    let parts = parts::quote_parts(&input.ident, fields_named);
+
     if let Some(repr) = struct_attrs.repr {
-        return Ok(repr.expand(
+        let repr_expanded = repr.quote(
             &input.ident,
             &struct_attrs.decode_attrs,
             &struct_attrs.test_attrs,
-        ));
+        );
+
+        let expanded = quote! {
+            #parts
+            #repr_expanded
+        };
+
+        return Ok(expanded);
     }
 
     let fields = fields_named.named.iter().map(|field| {
@@ -28,7 +38,9 @@ pub fn derive_for_struct(
         }
     });
 
-    let expanded = quote! {};
+    let expanded = quote! {
+        #parts
+    };
 
     Ok(expanded)
 }

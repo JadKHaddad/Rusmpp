@@ -28,18 +28,23 @@ impl ::core::fmt::Debug for DestFlag {
         }
     }
 }
-impl ::rusmpp_core::encode::Length for DestFlag {
+impl crate::encode::Length for DestFlag {
     fn length(&self) -> usize {
         u8::from(*self).length()
     }
 }
-impl ::rusmpp_core::encode::Encode for DestFlag {
+impl crate::encode::Encode for DestFlag {
     fn encode(&self, dst: &mut [u8]) -> usize {
         u8::from(*self).encode(dst)
     }
 }
-impl ::rusmpp_core::decode::Decode for DestFlag {
-    fn decode(src: &[u8]) -> Result<(Self, usize), ::rusmpp_core::decode::DecodeError> {
+impl crate::decode::owned::Decode for DestFlag {
+    fn decode(src: &[u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
+        u8::decode(src).map(|(this, size)| (Self::from(this), size))
+    }
+}
+impl<'a> crate::decode::borrowed::Decode<'a> for DestFlag {
+    fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
         u8::decode(src).map(|(this, size)| (Self::from(this), size))
     }
 }

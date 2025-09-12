@@ -1,0 +1,68 @@
+use proc_macro2::TokenStream;
+use quote::quote;
+use syn::{FieldsNamed, Ident};
+
+pub fn quote_parts(name: &Ident, fields_named: &FieldsNamed) -> TokenStream {
+    let parts_struct_name = Ident::new(&format!("{}Parts", name), name.span());
+
+    let parts_struct_field_names_and_types = fields_named.named.iter().map(|f| {
+        let ident = f.ident.as_ref().expect("Named fields must have idents");
+        let ty = &f.ty;
+
+        (ident, ty)
+    });
+
+    let parts_struct_fields = parts_struct_field_names_and_types
+        .clone()
+        .map(|(ident, ty)| quote! { pub #ident: #ty });
+
+    let parts_struct_new_parameters = parts_struct_field_names_and_types
+        .clone()
+        .map(|(ident, ty)| quote! { #ident: #ty });
+
+    let parts_struct_field_names = parts_struct_field_names_and_types
+        .clone()
+        .map(|(ident, _)| ident);
+
+    let parts_struct_field_names_clone = parts_struct_field_names.clone();
+
+    let parts_struct_field_types = parts_struct_field_names_and_types.clone().map(|(_, ty)| ty);
+
+    let parts_struct_field_names_self_names = parts_struct_field_names
+        .clone()
+        .map(|ident| quote! { #ident: self.#ident });
+
+    quote! {
+        #[derive(Debug)]
+        pub struct #parts_struct_name {
+            #(#parts_struct_fields),*
+        }
+
+        impl #parts_struct_name {
+            #[inline]
+            #[allow(clippy::too_many_arguments)]
+            pub const fn new(
+                #(#parts_struct_new_parameters),*
+            ) -> Self {
+                Self {
+                    #(#parts_struct_field_names),*
+                }
+            }
+
+            #[inline]
+            #[allow(unused_parens)]
+            pub fn raw(self) -> (#(#parts_struct_field_types),*) {
+                (#(self.#parts_struct_field_names_clone),*)
+            }
+        }
+
+        impl #name {
+            #[inline]
+            pub fn into_parts(self) -> #parts_struct_name {
+                #parts_struct_name {
+                    #(#parts_struct_field_names_self_names),*
+                }
+            }
+        }
+    }
+}

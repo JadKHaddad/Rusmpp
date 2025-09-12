@@ -116,7 +116,7 @@ impl Repr {
         }
     }
 
-    pub fn expand(
+    pub fn quote(
         &self,
         name: &Ident,
         decode_attrs: &DecodeAttributes,

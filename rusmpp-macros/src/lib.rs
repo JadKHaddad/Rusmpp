@@ -4,10 +4,9 @@ use syn::{DeriveInput, parse_macro_input};
 mod container_attributes;
 mod derive;
 mod enums;
+mod parts;
 mod repr;
 mod structs;
-
-// TODO: parts
 
 /// Implements `Length`, `Encode`, `Decode` and `TestInstance` with one default value for structs and enums.
 /// And creates parts structs for structs with `new` and `raw` methods and adds `into_parts` method to the original struct.

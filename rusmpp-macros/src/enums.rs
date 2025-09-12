@@ -9,7 +9,7 @@ use crate::{
 pub fn derive_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
     let enum_attrs = EnumAttributes::extract(input)?;
 
-    Ok(enum_attrs.repr.expand(
+    Ok(enum_attrs.repr.quote(
         &input.ident,
         &enum_attrs.decode_attrs,
         &enum_attrs.test_attrs,

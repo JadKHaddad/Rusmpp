@@ -1,7 +1,11 @@
 use proc_macro::TokenStream;
 use syn::{DeriveInput, parse_macro_input};
 
+mod container_attributes;
 mod derive;
+mod enum_;
+mod repr;
+mod struct_;
 
 // TODO: parts
 
@@ -14,6 +18,7 @@ mod derive;
 ///
 /// - `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
 /// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
+/// - `#[rusmpp(test = skip|owned|borrowed|all)]`: Control which test instances to generate. Default is `all`.
 ///
 /// # Structs
 ///
@@ -21,6 +26,7 @@ mod derive;
 ///
 /// - `#[rusmpp(repr = "u8")]`: Use the `From<u8>`/`Into<u8>` representation for decoding.
 /// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
+/// - `#[rusmpp(test = skip|owned|borrowed|all)]`: Control which test instances to generate. Default is `all`.
 ///
 /// ## Field attributes
 ///

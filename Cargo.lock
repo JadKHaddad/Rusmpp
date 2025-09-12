@@ -2035,7 +2035,10 @@ name = "rusmpp-core"
 version = "0.1.0"
 dependencies = [
  "arbitrary",
+ "rusmpp-macros",
  "serde",
+ "strum",
+ "strum_macros",
 ]
 
 [[package]]

@@ -4,12 +4,17 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+rusmpp-macros = { path = "../rusmpp-macros" }
 arbitrary = { version = "1.4.2", default-features = false, features = [
     "derive_arbitrary",
 ], optional = true }
 serde = { version = "1.0.219", default-features = false, features = [
     "derive",
 ], optional = true }
+
+[dev-dependencies]
+strum = "0.27.2"
+strum_macros = "0.27.2"
 
 [features]
 default = []

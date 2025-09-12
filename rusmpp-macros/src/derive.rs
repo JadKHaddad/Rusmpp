@@ -1,7 +1,7 @@
 use proc_macro2::TokenStream;
 use syn::{Data, DeriveInput};
 
-use crate::{enum_::derive_for_enum, struct_::derive_for_struct};
+use crate::{enums::derive_for_enum, structs::derive_for_struct};
 
 pub fn derive(input: DeriveInput) -> syn::Result<TokenStream> {
     match &input.data {

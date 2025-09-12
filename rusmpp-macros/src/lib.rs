@@ -3,9 +3,9 @@ use syn::{DeriveInput, parse_macro_input};
 
 mod container_attributes;
 mod derive;
-mod enum_;
+mod enums;
 mod repr;
-mod struct_;
+mod structs;
 
 // TODO: parts
 

@@ -225,6 +225,24 @@ impl<const MIN: usize, const MAX: usize> DecodeWithLength for OctetString<MIN, M
 mod tests {
     use super::*;
 
+    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance for OctetString<MIN, MAX> {
+        fn instances() -> Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(core::iter::repeat_n(b'1', MIN).collect::<Vec<_>>()).unwrap(),
+                Self::new(core::iter::repeat_n(b'1', MAX / 2).collect::<Vec<_>>()).unwrap(),
+                Self::new(core::iter::repeat_n(b'1', MAX).collect::<Vec<_>>()).unwrap(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::owned::encode_decode_with_length_test_instances::<OctetString<0, 5>>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<OctetString<1, 5>>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<OctetString<2, 5>>();
+    }
+
     mod new {
         use super::*;
 

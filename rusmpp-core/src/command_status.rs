@@ -592,6 +592,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::test::owned::encode_decode_test_instances::<CommandStatus>();
+        crate::tests::owned::encode_decode_test_instances::<CommandStatus>();
     }
 }

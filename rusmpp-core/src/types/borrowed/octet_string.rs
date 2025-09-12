@@ -186,6 +186,47 @@ impl<'a, const MIN: usize, const MAX: usize> DecodeWithLength<'a> for OctetStrin
 mod tests {
     use super::*;
 
+    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance
+        for OctetString<'static, MIN, MAX>
+    {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MIN)
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak()
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MAX / 2)
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak()
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MAX)
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak()
+                )
+                .unwrap(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<
+            OctetString<'static, 0, 5>,
+        >();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<
+            OctetString<'static, 1, 5>,
+        >();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<
+            OctetString<'static, 2, 5>,
+        >();
+    }
+
     mod new {
         use super::*;
 

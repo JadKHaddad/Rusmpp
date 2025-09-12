@@ -247,6 +247,44 @@ impl<'a, const MIN: usize, const MAX: usize> Decode<'a> for COctetString<'a, MIN
 mod tests {
     use super::*;
 
+    impl<const MIN: usize, const MAX: usize> crate::tests::TestInstance
+        for COctetString<'static, MIN, MAX>
+    {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MIN - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak(),
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', ((MIN + MAX) / 2) - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak(),
+                )
+                .unwrap(),
+                Self::new(
+                    core::iter::repeat_n(b'1', MAX - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak(),
+                )
+                .unwrap(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::borrowed::encode_decode_test_instances::<COctetString<'static, 1, 5>>();
+        crate::tests::borrowed::encode_decode_test_instances::<COctetString<'static, 2, 5>>();
+        crate::tests::borrowed::encode_decode_test_instances::<COctetString<'static, 3, 5>>();
+    }
+
     mod new {
         use super::*;
 

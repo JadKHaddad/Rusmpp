@@ -1,13 +1,8 @@
 use crate::{
     decode::owned::{Decode, DecodeWithLength},
     encode::Encode,
+    tests::TestInstance,
 };
-
-/// Trait for creating test instances of a type.
-pub trait TestInstance: Sized {
-    /// Create test instances of the type.
-    fn instances() -> alloc::vec::Vec<Self>;
-}
 
 /// Test encoding and decoding of a type.
 ///

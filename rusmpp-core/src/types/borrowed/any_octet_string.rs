@@ -104,6 +104,25 @@ impl<'a> DecodeWithLength<'a> for AnyOctetString<'a> {
 mod tests {
     use super::*;
 
+    impl crate::tests::TestInstance for AnyOctetString<'static> {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(
+                    std::iter::repeat_n(b'1', 100)
+                        .collect::<alloc::vec::Vec<_>>()
+                        .leak()
+                )
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<AnyOctetString<'static>>(
+        );
+    }
+
     mod new {
         use super::*;
 

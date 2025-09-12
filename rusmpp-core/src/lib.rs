@@ -25,4 +25,4 @@ pub mod types;
 pub(crate) mod utils;
 
 #[cfg(test)]
-pub(crate) mod test;
+pub(crate) mod tests;

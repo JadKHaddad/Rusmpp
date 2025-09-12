@@ -276,6 +276,27 @@ impl<const N: usize> Decode for EmptyOrFullCOctetString<N> {
 mod tests {
     use super::*;
 
+    impl<const N: usize> crate::tests::TestInstance for EmptyOrFullCOctetString<N> {
+        fn instances() -> Vec<Self> {
+            alloc::vec![
+                Self::empty(),
+                Self::new(
+                    core::iter::repeat_n(b'1', N - 1)
+                        .chain(core::iter::once(b'\0'))
+                        .collect::<Vec<_>>(),
+                )
+                .unwrap(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::owned::encode_decode_test_instances::<EmptyOrFullCOctetString<1>>();
+        crate::tests::owned::encode_decode_test_instances::<EmptyOrFullCOctetString<2>>();
+        crate::tests::owned::encode_decode_test_instances::<EmptyOrFullCOctetString<3>>();
+    }
+
     mod new {
         use super::*;
 

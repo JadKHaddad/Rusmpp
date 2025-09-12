@@ -107,7 +107,7 @@ impl Repr {
 
         quote! {
             #[cfg(test)]
-            impl crate::test::owned::TestInstance for #name {
+            impl crate::tests::TestInstance for #name {
                 fn instances() -> alloc::vec::Vec<Self> {
                     alloc::vec![Self::default(),]
                 }

@@ -9,6 +9,10 @@ extern crate alloc;
 #[cfg(any(test, feature = "arbitrary"))]
 extern crate std;
 
+pub mod pdus;
+
+pub mod values;
+
 mod command_id;
 pub use command_id::CommandId;
 

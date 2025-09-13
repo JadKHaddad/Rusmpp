@@ -14,7 +14,7 @@ pub fn derive_for_struct(
 ) -> syn::Result<TokenStream> {
     let struct_attrs = StructAttributes::extract(input)?;
 
-    let parts = parts::quote_parts(&input.ident, fields_named);
+    let parts = parts::quote_parts(input, fields_named);
 
     if let Some(repr) = struct_attrs.repr {
         let repr_expanded = repr.quote(

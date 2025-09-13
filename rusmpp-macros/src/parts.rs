@@ -1,8 +1,11 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::{FieldsNamed, Ident};
+use syn::{DeriveInput, FieldsNamed, Ident};
 
-pub fn quote_parts(name: &Ident, fields_named: &FieldsNamed) -> TokenStream {
+pub fn quote_parts(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
+    let name = &input.ident;
+    let generics = &input.generics;
+
     let parts_struct_name = Ident::new(&format!("{}Parts", name), name.span());
 
     let parts_struct_field_names_and_types = fields_named.named.iter().map(|f| {
@@ -34,11 +37,11 @@ pub fn quote_parts(name: &Ident, fields_named: &FieldsNamed) -> TokenStream {
 
     quote! {
         #[derive(Debug)]
-        pub struct #parts_struct_name {
+        pub struct #parts_struct_name #generics {
             #(#parts_struct_fields),*
         }
 
-        impl #parts_struct_name {
+        impl #generics #parts_struct_name #generics {
             #[inline]
             #[allow(clippy::too_many_arguments)]
             pub const fn new(
@@ -56,9 +59,9 @@ pub fn quote_parts(name: &Ident, fields_named: &FieldsNamed) -> TokenStream {
             }
         }
 
-        impl #name {
+        impl #generics #name #generics {
             #[inline]
-            pub fn into_parts(self) -> #parts_struct_name {
+            pub fn into_parts(self) -> #parts_struct_name #generics {
                 #parts_struct_name {
                     #(#parts_struct_field_names_self_names),*
                 }

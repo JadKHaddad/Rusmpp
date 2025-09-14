@@ -15,6 +15,8 @@ from .rusmppyc import (
 )
 from .events import Events
 
+__all__ = ["Client"]
+
 class Client:
     """
     `SMPP` Client.

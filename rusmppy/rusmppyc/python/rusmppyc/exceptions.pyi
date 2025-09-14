@@ -1,3 +1,15 @@
+__all__ = [
+    "RusmppycException",
+    "DnsException",
+    "ConnectException",
+    "ConnectionClosedException",
+    "IoException",
+    "ResponseTimeoutException",
+    "UnexpectedResponseException",
+    "UnsupportedInterfaceVersionException",
+    "PduException",
+]
+
 class RusmppycException(Exception):
     "Base class for all exceptions in the Rusmppyc library."
 

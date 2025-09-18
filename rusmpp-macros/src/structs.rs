@@ -3,7 +3,7 @@ use quote::quote;
 use syn::{DeriveInput, Field, FieldsNamed, Ident, Lit};
 
 use crate::{
-    container_attributes::{DecodeAttributes, TestAttributes},
+    container_attributes::{DecodeAttributes, DecodeImplementation, TestAttributes},
     parts,
     repr::{Repr, ReprType},
 };
@@ -33,12 +33,13 @@ pub fn derive_for_struct(
 
     let length = quote_length(input, fields_named);
     let encode = quote_encode(input, fields_named);
-    let decode = quote_decode(input, fields_named, &struct_attrs.decode_attrs);
+    let decode = quote_decode(input, fields_named, &struct_attrs.decode_attrs)?;
 
     let expanded = quote! {
         #parts
         #length
         #encode
+        #decode
     };
 
     Ok(expanded)
@@ -93,22 +94,70 @@ fn quote_decode(
     fields_named: &FieldsNamed,
     decode_attrs: &DecodeAttributes,
 ) -> syn::Result<TokenStream> {
+    match decode_attrs {
+        DecodeAttributes::Skip => Ok(quote! {}),
+        DecodeAttributes::Implement(impl_type) => {
+            let fields: ValidFields = fields_named
+                .named
+                .iter()
+                .map(
+                    |field| match FieldAttributes::extract(field).and_then(|a| a.validated()) {
+                        Ok(attrs) => Ok(ValidField { field, attrs }),
+                        Err(err) => Err(syn::Error::new_spanned(field, err)),
+                    },
+                )
+                .collect::<Result<Vec<_>, _>>()?
+                .into();
+
+            let decode_type = fields.decode_type();
+
+            match impl_type {
+                DecodeImplementation::Owned => todo!(),
+                DecodeImplementation::Borrowed => match decode_type {
+                    DecodeType::Decode => Ok(quote_borrowed_decode(input, &fields)),
+                    DecodeType::DecodeWithLength => {
+                        Ok(quote_borrowed_decode_with_length(input, &fields))
+                    }
+                },
+                DecodeImplementation::All => todo!(),
+            }
+        }
+    }
+}
+
+// XXX: Generics on the struct must be lifetime 'a
+fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let generics = &input.generics;
 
-    let fields: ValidFields = fields_named
-        .named
-        .iter()
-        .map(
-            |field| match FieldAttributes::extract(field).and_then(|a| a.validated()) {
-                Ok(attrs) => Ok(ValidField { field, attrs }),
-                Err(err) => Err(syn::Error::new_spanned(field, err)),
-            },
-        )
-        .collect::<Result<Vec<_>, _>>()?
-        .into();
+    let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
+        f.field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents")
+    });
 
-    Ok(quote! {})
+    let fields = fields.fields.iter().map(|f| f.quote_borrowed_decode());
+
+    quote! {
+        impl #generics crate::decode::borrowed::Decode<'a> for #name #generics {
+            fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
+                let size = 0;
+                #(
+                    #fields
+                )*
+
+                Ok((Self {
+                    #(#fields_names),*
+                 }, size))
+            }
+        }
+    }
+}
+
+// XXX: Generics on the struct must be lifetime 'a
+fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
+    quote! {}
 }
 
 struct StructAttributes {
@@ -290,15 +339,41 @@ enum ValidFieldAttributes {
     Count { count: Ident },
 }
 
+impl ValidFieldAttributes {
+    const fn requires_decode_with_length(&self) -> bool {
+        matches!(
+            self,
+            ValidFieldAttributes::LengthIdent { .. }
+                | ValidFieldAttributes::KeyLengthUnchecked { .. }
+                | ValidFieldAttributes::Count { .. }
+        )
+    }
+
+    const fn skip(&self) -> bool {
+        matches!(self, ValidFieldAttributes::SkipDecode)
+    }
+}
+
 struct ValidField<'a> {
     field: &'a Field,
     attrs: ValidFieldAttributes,
 }
 
 impl ValidField<'_> {
-    fn quote_decode(&self) -> TokenStream {
+    fn quote_borrowed_decode(&self) -> TokenStream {
+        let name = self
+            .field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents");
+
         match &self.attrs {
-            ValidFieldAttributes::None => quote! {},
+            ValidFieldAttributes::None => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(
+                    crate::decode::borrowed::DecodeExt::decode_move(src, size),
+                    crate::fields::SmppField::#name,
+                )?;
+            },
             ValidFieldAttributes::SkipDecode => quote! {},
             ValidFieldAttributes::LengthUnchecked => quote! {},
             ValidFieldAttributes::LengthChecked => quote! {},
@@ -316,8 +391,13 @@ struct ValidFields<'a> {
 
 impl ValidFields<'_> {
     /// Depending on the attributes, determine which decode impl to generate.
+    #[allow(clippy::obfuscated_if_else)]
     fn decode_type(&self) -> DecodeType {
-        todo!()
+        self.fields
+            .iter()
+            .any(|f| f.attrs.requires_decode_with_length())
+            .then_some(DecodeType::DecodeWithLength)
+            .unwrap_or(DecodeType::Decode)
     }
 }
 
@@ -329,7 +409,5 @@ impl<'a> From<Vec<ValidField<'a>>> for ValidFields<'a> {
 
 enum DecodeType {
     Decode,
-    DecodeWithKey,
-    DecodeWithKeyOptional,
     DecodeWithLength,
 }

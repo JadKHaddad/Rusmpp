@@ -174,7 +174,7 @@ macro_rules! create {
 
     };
 
-    // `impl Decode` generation for single field.
+    // Skip `impl Decode` generation for single field.
     // Example: SmeAddress
     (
         $(@[$skip_test:ident])?

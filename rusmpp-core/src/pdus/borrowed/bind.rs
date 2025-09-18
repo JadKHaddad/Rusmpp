@@ -7,7 +7,7 @@ use crate::{
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
-#[rusmpp(test = skip)]
+#[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
@@ -115,52 +115,6 @@ impl<'a> BindTransmitterBuilder<'a> {
 
     pub fn build(self) -> BindTransmitter<'a> {
         self.inner
-    }
-}
-
-impl<'a> crate::decode::borrowed::Decode<'a> for BindTransmitter<'a> {
-    fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
-        let size = 0;
-        let (system_id, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::system_id,
-        )?;
-        let (password, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::password,
-        )?;
-        let (system_type, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::system_type,
-        )?;
-        let (interface_version, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::interface_version,
-        )?;
-        let (addr_ton, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::addr_ton,
-        )?;
-        let (addr_npi, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::addr_npi,
-        )?;
-        let (address_range, size) = crate::decode::DecodeErrorExt::map_as_source(
-            crate::decode::borrowed::DecodeExt::decode_move(src, size),
-            crate::fields::SmppField::address_range,
-        )?;
-        Ok((
-            Self {
-                system_id,
-                password,
-                system_type,
-                interface_version,
-                addr_ton,
-                addr_npi,
-                address_range,
-            },
-            size,
-        ))
     }
 }
 
@@ -293,3 +247,49 @@ mod tests {
         // crate::tests::encode_decode_test_instances::<BindTransceiver>();
     }
 }
+
+// impl<'a> crate::decode::borrowed::Decode<'a> for BindTransmitter<'a> {
+//     fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
+//         let size = 0;
+//         let (system_id, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::system_id,
+//         )?;
+//         let (password, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::password,
+//         )?;
+//         let (system_type, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::system_type,
+//         )?;
+//         let (interface_version, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::interface_version,
+//         )?;
+//         let (addr_ton, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::addr_ton,
+//         )?;
+//         let (addr_npi, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::addr_npi,
+//         )?;
+//         let (address_range, size) = crate::decode::DecodeErrorExt::map_as_source(
+//             crate::decode::borrowed::DecodeExt::decode_move(src, size),
+//             crate::fields::SmppField::address_range,
+//         )?;
+//         Ok((
+//             Self {
+//                 system_id,
+//                 password,
+//                 system_type,
+//                 interface_version,
+//                 addr_ton,
+//                 addr_npi,
+//                 address_range,
+//             },
+//             size,
+//         ))
+//     }
+// }

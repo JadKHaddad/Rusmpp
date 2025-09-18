@@ -118,32 +118,6 @@ impl<'a> BindTransmitterBuilder<'a> {
     }
 }
 
-impl crate::encode::Length for BindTransmitter<'_> {
-    fn length(&self) -> usize {
-        let mut length = 0;
-        length += crate::encode::Length::length(&self.system_id);
-        length += crate::encode::Length::length(&self.password);
-        length += crate::encode::Length::length(&self.system_type);
-        length += crate::encode::Length::length(&self.interface_version);
-        length += crate::encode::Length::length(&self.addr_ton);
-        length += crate::encode::Length::length(&self.addr_npi);
-        length += crate::encode::Length::length(&self.address_range);
-        length
-    }
-}
-impl crate::encode::Encode for BindTransmitter<'_> {
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        let size = 0;
-        let size = crate::encode::EncodeExt::encode_move(&self.system_id, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.password, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.system_type, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.interface_version, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.addr_ton, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.addr_npi, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.address_range, dst, size);
-        size
-    }
-}
 impl<'a> crate::decode::borrowed::Decode<'a> for BindTransmitter<'a> {
     fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
         let size = 0;

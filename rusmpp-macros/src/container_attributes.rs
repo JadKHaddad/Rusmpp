@@ -1,5 +1,6 @@
 use syn::Ident;
 
+/// `#[rusmpp(decode = skip|owned|borrowed|all)]`
 pub enum DecodeAttributes {
     Skip,
     Implement(DecodeImplementation),
@@ -34,6 +35,7 @@ impl Default for DecodeAttributes {
     }
 }
 
+/// `#[rusmpp(test = skip)]`
 #[derive(Default)]
 pub enum TestAttributes {
     Skip,

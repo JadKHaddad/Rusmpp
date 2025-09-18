@@ -19,9 +19,7 @@ pub fn derive_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
 struct EnumAttributes {
     /// #[repr(u8)]
     repr: Repr,
-    /// #[rusmpp(decode = skip|owned|borrowed|all)]
     decode_attrs: DecodeAttributes,
-    /// #[rusmpp(test = skip|owned|borrowed|all)]
     test_attrs: TestAttributes,
 }
 

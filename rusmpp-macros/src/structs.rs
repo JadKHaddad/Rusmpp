@@ -31,26 +31,90 @@ pub fn derive_for_struct(
         return Ok(expanded);
     }
 
-    let fields = fields_named.named.iter().map(|field| {
-        match FieldAttributes::extract(field).and_then(|a| a.validated()) {
-            Ok(attrs) => Ok((field, attrs)),
-            Err(err) => Err(syn::Error::new_spanned(field, err)),
-        }
-    });
+    let length = quote_length(input, fields_named);
+    let encode = quote_encode(input, fields_named);
+    let decode = quote_decode(input, fields_named, &struct_attrs.decode_attrs);
 
     let expanded = quote! {
         #parts
+        #length
+        #encode
     };
 
     Ok(expanded)
 }
 
+fn quote_length(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let field_idents = fields_named
+        .named
+        .iter()
+        .map(|f| f.ident.as_ref().expect("Named fields must have idents"));
+
+    quote! {
+        impl #generics crate::encode::Length for #name #generics {
+            fn length(&self) -> usize {
+                let mut length = 0;
+                #(
+                    length += crate::encode::Length::length(&self.#field_idents);
+                )*
+                length
+            }
+        }
+    }
+}
+
+fn quote_encode(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let field_idents = fields_named
+        .named
+        .iter()
+        .map(|f| f.ident.as_ref().expect("Named fields must have idents"));
+
+    quote! {
+        impl #generics crate::encode::Encode for #name #generics {
+            fn encode(&self, dst: &mut [u8]) -> usize {
+                let size = 0;
+                #(
+                    let size = crate::encode::EncodeExt::encode_move(&self.#field_idents, dst, size);
+                )*
+                size
+            }
+        }
+    }
+}
+
+fn quote_decode(
+    input: &DeriveInput,
+    fields_named: &FieldsNamed,
+    decode_attrs: &DecodeAttributes,
+) -> syn::Result<TokenStream> {
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let fields: ValidFields = fields_named
+        .named
+        .iter()
+        .map(
+            |field| match FieldAttributes::extract(field).and_then(|a| a.validated()) {
+                Ok(attrs) => Ok(ValidField { field, attrs }),
+                Err(err) => Err(syn::Error::new_spanned(field, err)),
+            },
+        )
+        .collect::<Result<Vec<_>, _>>()?
+        .into();
+
+    Ok(quote! {})
+}
+
 struct StructAttributes {
     /// #[rusmpp(repr = "u8")]
     repr: Option<Repr>,
-    /// #[rusmpp(decode = skip|owned|borrowed|all)]
     decode_attrs: DecodeAttributes,
-    /// #[rusmpp(test = skip|owned|borrowed|all)]
     test_attrs: TestAttributes,
 }
 
@@ -224,4 +288,48 @@ enum ValidFieldAttributes {
     KeyLengthUnchecked { key: Ident },
     KeyLengthIdent { key: Ident, length: Ident },
     Count { count: Ident },
+}
+
+struct ValidField<'a> {
+    field: &'a Field,
+    attrs: ValidFieldAttributes,
+}
+
+impl ValidField<'_> {
+    fn quote_decode(&self) -> TokenStream {
+        match &self.attrs {
+            ValidFieldAttributes::None => quote! {},
+            ValidFieldAttributes::SkipDecode => quote! {},
+            ValidFieldAttributes::LengthUnchecked => quote! {},
+            ValidFieldAttributes::LengthChecked => quote! {},
+            ValidFieldAttributes::LengthIdent { length } => quote! {},
+            ValidFieldAttributes::KeyLengthUnchecked { key } => quote! {},
+            ValidFieldAttributes::KeyLengthIdent { key, length } => quote! {},
+            ValidFieldAttributes::Count { count } => quote! {},
+        }
+    }
+}
+
+struct ValidFields<'a> {
+    fields: Vec<ValidField<'a>>,
+}
+
+impl ValidFields<'_> {
+    /// Depending on the attributes, determine which decode impl to generate.
+    fn decode_type(&self) -> DecodeType {
+        todo!()
+    }
+}
+
+impl<'a> From<Vec<ValidField<'a>>> for ValidFields<'a> {
+    fn from(fields: Vec<ValidField<'a>>) -> Self {
+        Self { fields }
+    }
+}
+
+enum DecodeType {
+    Decode,
+    DecodeWithKey,
+    DecodeWithKeyOptional,
+    DecodeWithLength,
 }

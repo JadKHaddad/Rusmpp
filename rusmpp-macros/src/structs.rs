@@ -34,6 +34,7 @@ pub fn derive_for_struct(
     let length = quote_length(input, fields_named);
     let encode = quote_encode(input, fields_named);
     let decode = quote_decode(input, fields_named, &struct_attrs.decode_attrs)?;
+    // TODO: test impl
 
     let expanded = quote! {
         #parts
@@ -126,6 +127,7 @@ fn quote_decode(
 }
 
 // XXX: Generics on the struct must be lifetime 'a
+// TODO: Skipped fields require a new constructor
 fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let generics = &input.generics;
@@ -156,8 +158,34 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
 }
 
 // XXX: Generics on the struct must be lifetime 'a
+// TODO: Skipped fields require a new constructor
 fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
-    quote! {}
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
+        f.field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents")
+    });
+
+    let fields = fields.fields.iter().map(|f| f.quote_borrowed_decode());
+
+    quote! {
+        impl #generics crate::decode::borrowed::DecodeWithLength<'a> for #name #generics {
+            fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
+                let size = 0;
+                #(
+                    #fields
+                )*
+
+                Ok((Self {
+                    #(#fields_names),*
+                 }, size))
+            }
+        }
+    }
 }
 
 struct StructAttributes {
@@ -303,16 +331,19 @@ impl FieldAttributes {
         match (length, key, count) {
             (Some(Length::Unchecked), None, None) => Ok(ValidFieldAttributes::LengthUnchecked),
             (Some(Length::Checked), None, None) => Ok(ValidFieldAttributes::LengthChecked),
-            (Some(Length::Ident(length)), None, None) => {
-                Ok(ValidFieldAttributes::LengthIdent { length })
-            }
+            (Some(Length::Ident(length)), None, None) => Ok(ValidFieldAttributes::LengthIdent {
+                length_ident: length,
+            }),
             (Some(Length::Unchecked), Some(key), None) => {
-                Ok(ValidFieldAttributes::KeyLengthUnchecked { key })
+                Ok(ValidFieldAttributes::KeyLengthUnchecked { key_ident: key })
             }
             (Some(Length::Ident(length)), Some(key), None) => {
-                Ok(ValidFieldAttributes::KeyLengthIdent { key, length })
+                Ok(ValidFieldAttributes::KeyLengthIdent {
+                    key_ident: key,
+                    length_ident: length,
+                })
             }
-            (None, None, Some(count)) => Ok(ValidFieldAttributes::Count { count }),
+            (None, None, Some(count)) => Ok(ValidFieldAttributes::Count { count_ident: count }),
             (None, None, None) => Ok(ValidFieldAttributes::None),
             _ => Err(syn::Error::new(
                 proc_macro2::Span::call_site(),
@@ -333,10 +364,19 @@ enum ValidFieldAttributes {
     SkipDecode,
     LengthUnchecked,
     LengthChecked,
-    LengthIdent { length: Ident },
-    KeyLengthUnchecked { key: Ident },
-    KeyLengthIdent { key: Ident, length: Ident },
-    Count { count: Ident },
+    LengthIdent {
+        length_ident: Ident,
+    },
+    KeyLengthUnchecked {
+        key_ident: Ident,
+    },
+    KeyLengthIdent {
+        key_ident: Ident,
+        length_ident: Ident,
+    },
+    Count {
+        count_ident: Ident,
+    },
 }
 
 impl ValidFieldAttributes {
@@ -375,12 +415,45 @@ impl ValidField<'_> {
                 )?;
             },
             ValidFieldAttributes::SkipDecode => quote! {},
-            ValidFieldAttributes::LengthUnchecked => quote! {},
-            ValidFieldAttributes::LengthChecked => quote! {},
-            ValidFieldAttributes::LengthIdent { length } => quote! {},
-            ValidFieldAttributes::KeyLengthUnchecked { key } => quote! {},
-            ValidFieldAttributes::KeyLengthIdent { key, length } => quote! {},
-            ValidFieldAttributes::Count { count } => quote! {},
+            ValidFieldAttributes::LengthUnchecked => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeWithLengthExt::decode_move(
+                    src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?;
+            },
+            ValidFieldAttributes::LengthChecked => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeExt::length_checked_decode_move(
+                    src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::LengthIdent { length_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeWithLengthExt::decode_move(
+                    src, #length_ident as usize, size
+                ),crate::fields::SmppField::#name)?;
+            },
+            ValidFieldAttributes::KeyLengthUnchecked { key_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeWithKeyOptionalExt::decode_move(
+                    #key_ident, src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::KeyLengthIdent {
+                key_ident,
+                length_ident,
+            } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeWithKeyExt::optional_length_checked_decode_move(
+                    #key_ident, src, #length_ident as usize, size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::Count { count_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeExt::counted_move(
+                    src, #count_ident as usize, size
+                ),crate::fields::SmppField::#name)?;
+            },
         }
     }
 }

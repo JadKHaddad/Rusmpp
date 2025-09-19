@@ -19,6 +19,8 @@ pub use command_id::CommandId;
 mod command_status;
 pub use command_status::CommandStatus;
 
+pub mod command;
+
 pub mod fields;
 
 pub mod decode;

@@ -145,47 +145,49 @@ impl From<BindTransceiver> for Pdu {
     }
 }
 
-impl From<BindAny> for BindTransmitter {
-    fn from(value: BindAny) -> Self {
-        Self {
-            system_id: value.system_id,
-            password: value.password,
-            system_type: value.system_type,
-            interface_version: value.interface_version,
-            addr_ton: value.addr_ton,
-            addr_npi: value.addr_npi,
-            address_range: value.address_range,
+macro_rules! from_bind_any {
+    ($target:ident) => {
+        impl From<BindAny> for $target {
+            fn from(value: BindAny) -> Self {
+                Self {
+                    system_id: value.system_id,
+                    password: value.password,
+                    system_type: value.system_type,
+                    interface_version: value.interface_version,
+                    addr_ton: value.addr_ton,
+                    addr_npi: value.addr_npi,
+                    address_range: value.address_range,
+                }
+            }
         }
-    }
+    };
 }
 
-impl From<BindAny> for BindReceiver {
-    fn from(value: BindAny) -> Self {
-        Self {
-            system_id: value.system_id,
-            password: value.password,
-            system_type: value.system_type,
-            interface_version: value.interface_version,
-            addr_ton: value.addr_ton,
-            addr_npi: value.addr_npi,
-            address_range: value.address_range,
+from_bind_any!(BindTransmitter);
+from_bind_any!(BindReceiver);
+from_bind_any!(BindTransceiver);
+
+macro_rules! into_bind_any {
+    ($from:ident) => {
+        impl From<$from> for BindAny {
+            fn from(value: $from) -> Self {
+                Self {
+                    system_id: value.system_id,
+                    password: value.password,
+                    system_type: value.system_type,
+                    interface_version: value.interface_version,
+                    addr_ton: value.addr_ton,
+                    addr_npi: value.addr_npi,
+                    address_range: value.address_range,
+                }
+            }
         }
-    }
+    };
 }
 
-impl From<BindAny> for BindTransceiver {
-    fn from(value: BindAny) -> Self {
-        Self {
-            system_id: value.system_id,
-            password: value.password,
-            system_type: value.system_type,
-            interface_version: value.interface_version,
-            addr_ton: value.addr_ton,
-            addr_npi: value.addr_npi,
-            address_range: value.address_range,
-        }
-    }
-}
+into_bind_any!(BindTransmitter);
+into_bind_any!(BindReceiver);
+into_bind_any!(BindTransceiver);
 
 #[cfg(test)]
 mod tests {

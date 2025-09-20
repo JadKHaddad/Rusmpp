@@ -113,7 +113,12 @@ fn quote_decode(
             let decode_type = fields.decode_type();
 
             match impl_type {
-                DecodeImplementation::Owned => todo!(),
+                DecodeImplementation::Owned => match decode_type {
+                    DecodeType::Decode => Ok(quote_owned_decode(input, &fields)),
+                    DecodeType::DecodeWithLength => {
+                        Ok(quote_owned_decode_with_length(input, &fields))
+                    }
+                },
                 DecodeImplementation::Borrowed => match decode_type {
                     DecodeType::Decode => Ok(quote_borrowed_decode(input, &fields)),
                     DecodeType::DecodeWithLength => {
@@ -157,6 +162,36 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
     }
 }
 
+// TODO: Skipped fields require a new constructor
+fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
+        f.field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents")
+    });
+
+    let fields = fields.fields.iter().map(|f| f.quote_owned_decode());
+
+    quote! {
+        impl #generics crate::decode::owned::Decode for #name #generics {
+            fn decode(src: &[u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
+                let size = 0;
+                #(
+                    #fields
+                )*
+
+                Ok((Self {
+                    #(#fields_names),*
+                 }, size))
+            }
+        }
+    }
+}
+
 // XXX: Generics on the struct must be lifetime 'a
 // TODO: Skipped fields require a new constructor
 fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
@@ -175,6 +210,36 @@ fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) 
     quote! {
         impl #generics crate::decode::borrowed::DecodeWithLength<'a> for #name #generics {
             fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
+                let size = 0;
+                #(
+                    #fields
+                )*
+
+                Ok((Self {
+                    #(#fields_names),*
+                 }, size))
+            }
+        }
+    }
+}
+
+// TODO: Skipped fields require a new constructor
+fn quote_owned_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
+    let name = &input.ident;
+    let generics = &input.generics;
+
+    let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
+        f.field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents")
+    });
+
+    let fields = fields.fields.iter().map(|f| f.quote_owned_decode());
+
+    quote! {
+        impl #generics crate::decode::owned::DecodeWithLength for #name #generics {
+            fn decode(src: &[u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
                 let size = 0;
                 #(
                     #fields
@@ -451,6 +516,63 @@ impl ValidField<'_> {
             },
             ValidFieldAttributes::Count { count_ident } => quote! {
                 let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::borrowed::DecodeExt::counted_move(
+                    src, #count_ident as usize, size
+                ),crate::fields::SmppField::#name)?;
+            },
+        }
+    }
+
+    fn quote_owned_decode(&self) -> TokenStream {
+        let name = self
+            .field
+            .ident
+            .as_ref()
+            .expect("Named fields must have idents");
+
+        match &self.attrs {
+            ValidFieldAttributes::None => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(
+                    crate::decode::owned::DecodeExt::decode_move(src, size),
+                    crate::fields::SmppField::#name,
+                )?;
+            },
+            ValidFieldAttributes::SkipDecode => quote! {},
+            ValidFieldAttributes::LengthUnchecked => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeWithLengthExt::decode_move(
+                    src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?;
+            },
+            ValidFieldAttributes::LengthChecked => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeExt::length_checked_decode_move(
+                    src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::LengthIdent { length_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeWithLengthExt::decode_move(
+                    src, #length_ident as usize, size
+                ),crate::fields::SmppField::#name)?;
+            },
+            ValidFieldAttributes::KeyLengthUnchecked { key_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeWithKeyOptionalExt::decode_move(
+                    #key_ident, src, length.saturating_sub(size), size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::KeyLengthIdent {
+                key_ident,
+                length_ident,
+            } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeWithKeyExt::optional_length_checked_decode_move(
+                    #key_ident, src, #length_ident as usize, size
+                ),crate::fields::SmppField::#name)?
+                .map(|(this, size)| (Some(this), size))
+                .unwrap_or((None, size));
+            },
+            ValidFieldAttributes::Count { count_ident } => quote! {
+                let (#name, size) = crate::decode::DecodeErrorExt::map_as_source(crate::decode::owned::DecodeExt::counted_move(
                     src, #count_ident as usize, size
                 ),crate::fields::SmppField::#name)?;
             },

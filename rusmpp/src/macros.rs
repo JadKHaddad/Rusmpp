@@ -47,7 +47,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -96,7 +96,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -146,7 +146,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -174,7 +174,7 @@ macro_rules! create {
 
     };
 
-    // `impl Decode` generation for single field.
+    // Skip `impl Decode` generation for single field.
     // Example: SmeAddress
     (
         $(@[$skip_test:ident])?
@@ -191,7 +191,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -251,7 +251,7 @@ macro_rules! create {
             )*
         }
     ) => {
-        $crate::create!(@create_struct_with_parts_and_length_and_encode_and_test {
+        $crate::create!(@create_struct_with_parts_and_length_and_encode {
             $(#[$struct_meta])*
             $struct_vis $struct_ident
             $(
@@ -351,7 +351,7 @@ macro_rules! create {
         }
     };
 
-    (@create_struct_with_parts_and_length_and_encode_and_test {
+    (@create_struct_with_parts_and_length_and_encode {
         $(#[$struct_meta:meta])*
         $struct_vis:vis $struct_ident:ident
         $(
@@ -699,8 +699,9 @@ macro_rules! create_tlv_value {
         $enum_vis:vis enum $enum_ident:ident {
             $(
                 $(#[$variant_meta:meta])*
-                $variant:ident($variant_ty:ty),
+                $variant:ident($variant_ty:ty)$(,)?
             )*
+
         }
     ) => {
         $(#[$enum_meta])*

@@ -28,6 +28,6 @@ rusmpp::create_tlv_value! {
         SourceAddrSubunit(AddrSubunit),
         SourcePort(u16),
         SourceSubaddress(Subaddress),
-        UserMessageReference(UserMessageReference)
+        UserMessageReference(UserMessageReference),
     }
 }

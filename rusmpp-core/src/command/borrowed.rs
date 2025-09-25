@@ -55,3 +55,115 @@ pub struct Command<'a> {
     #[rusmpp(key = id, length = "unchecked")]
     pdu: Option<Pdu<'a>>,
 }
+
+impl<'a> Default for Command<'a> {
+    fn default() -> Self {
+        Self {
+            id: CommandId::EnquireLink,
+            status: CommandStatus::EsmeRok,
+            sequence_number: 0,
+            pdu: Some(Pdu::EnquireLink),
+        }
+    }
+}
+
+impl<'a> Command<'a> {
+    pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu<'a>>) -> Self {
+        let pdu = pdu.into();
+
+        let id = pdu.command_id();
+
+        Self {
+            id,
+            status,
+            sequence_number,
+            pdu: Some(pdu),
+        }
+    }
+
+    pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu<'a>) -> Self {
+        let id = pdu.command_id();
+
+        Self {
+            id,
+            status,
+            sequence_number,
+            pdu: Some(pdu),
+        }
+    }
+
+    #[inline]
+    pub const fn id(&self) -> CommandId {
+        self.id
+    }
+
+    #[inline]
+    pub const fn status(&self) -> CommandStatus {
+        self.status
+    }
+
+    #[inline]
+    pub const fn sequence_number(&self) -> u32 {
+        self.sequence_number
+    }
+
+    #[inline]
+    pub const fn pdu(&self) -> Option<&Pdu<'a>> {
+        self.pdu.as_ref()
+    }
+
+    #[inline]
+    pub fn set_pdu(&mut self, pdu: impl Into<Pdu<'a>>) {
+        let pdu = pdu.into();
+
+        self.id = pdu.command_id();
+
+        self.pdu = Some(pdu);
+    }
+
+    #[inline]
+    pub fn builder() -> CommandStatusBuilder<'a> {
+        Default::default()
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct CommandStatusBuilder<'a> {
+    inner: Command<'a>,
+}
+
+impl<'a> CommandStatusBuilder<'a> {
+    #[inline]
+    pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder<'a> {
+        self.inner.status = status;
+
+        SequenceNumberBuilder { inner: self.inner }
+    }
+}
+
+#[derive(Debug)]
+pub struct SequenceNumberBuilder<'a> {
+    inner: Command<'a>,
+}
+
+impl<'a> SequenceNumberBuilder<'a> {
+    #[inline]
+    pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder<'a> {
+        self.inner.sequence_number = sequence_number;
+
+        PduBuilder { inner: self.inner }
+    }
+}
+
+#[derive(Debug)]
+pub struct PduBuilder<'a> {
+    inner: Command<'a>,
+}
+
+impl<'a> PduBuilder<'a> {
+    #[inline]
+    pub fn pdu(mut self, pdu: impl Into<Pdu<'a>>) -> Command<'a> {
+        self.inner.set_pdu(pdu);
+        self.inner
+    }
+}

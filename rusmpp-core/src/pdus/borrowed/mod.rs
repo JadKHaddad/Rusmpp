@@ -61,7 +61,7 @@ pub use pdu::Pdu;
 // pub use alert_notification::AlertNotification;
 
 mod bind;
-pub use bind::{/*BindAny, BindReceiver, BindTransceiver, */ BindTransmitter};
+pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
 
 // mod bind_resp;
 // pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};

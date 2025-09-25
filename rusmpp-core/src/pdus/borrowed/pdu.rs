@@ -24,12 +24,12 @@ pub enum Pdu<'a> {
     // /// PDU indicates the success or failure of the ESME’s attempt
     // /// to bind as a transmitter.
     // BindTransmitterResp(BindTransmitterResp),
-    // /// Authentication PDU used by a receiver ESME to bind to the
-    // /// Message Centre. The PDU contains identification information,
-    // /// an access password for the ESME and may also contain
-    // /// routing information specifying the range of addresses
-    // /// serviced by the ESME.
-    // BindReceiver(BindReceiver<'a>),
+    /// Authentication PDU used by a receiver ESME to bind to the
+    /// Message Centre. The PDU contains identification information,
+    /// an access password for the ESME and may also contain
+    /// routing information specifying the range of addresses
+    /// serviced by the ESME.
+    BindReceiver(BindReceiver<'a>),
     // /// Message Centre response to a bind_receiver PDU. This PDU
     // /// indicates the success or failure of the ESME’s attempt to bind
     // /// as a receiver.
@@ -39,7 +39,7 @@ pub enum Pdu<'a> {
     // /// information, an access password for the ESME and may also
     // /// contain routing information specifying the range of addresses
     // /// serviced by the ESME.
-    // BindTransceiver(BindTransceiver<'a>),
+    BindTransceiver(BindTransceiver<'a>),
     // /// Message Centre response to a bind_transceiver PDU. This
     // /// PDU indicates the success or failure of the ESME’s attempt
     // /// to bind as a transceiver.
@@ -144,43 +144,43 @@ pub enum Pdu<'a> {
     // /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
     // /// address in the cancel_broadcast_sm command should also be NULL.
     // CancelBroadcastSm(CancelBroadcastSm),
-    // /// This PDU can be sent by the ESME or MC as a means of
-    // /// initiating the termination of a `SMPP` session.
-    // Unbind,
-    // /// This PDU can be sent by the ESME or MC as a means of
-    // /// acknowledging the receipt of an unbind request. After
-    // /// sending this PDU the MC typically closes the network
-    // /// connection.
-    // UnbindResp,
-    // /// This PDU can be sent by the ESME or MC to test the network
-    // /// connection. The receiving peer is expected to acknowledge
-    // /// the PDU as a means of verifying the test.
-    // EnquireLink,
-    // /// This PDU is used to acknowledge an enquire_link request
-    // /// sent by an ESME or MC.
-    // EnquireLinkResp,
-    // /// This PDU can be sent by an ESME or MC as a means of
-    // /// indicating the receipt of an invalid PDU. The receipt of a
-    // /// generic_nack usually indicates that the remote peer either
-    // /// cannot identify the PDU or has deemed it an invalid PDU due
-    // /// to its size or content.
-    // GenericNack,
-    // /// The MC returns this PDU to indicate the success or failure of
-    // /// a cancel_sm PDU.
-    // CancelSmResp,
-    // /// The replace_sm_resp PDU indicates the success or failure of
-    // /// a replace_sm PDU.
-    // ReplaceSmResp,
-    // /// The MC returns a query_broadcast_sm_resp PDU as a
-    // /// means of indicating the result of a broadcast query
-    // /// attempt. The PDU will indicate the success or failure of the
-    // /// attempt and for successful attempts will also include the
-    // /// current state of the message.
-    // CancelBroadcastSmResp,
-    // Other {
-    //     command_id: CommandId,
-    //     body: AnyOctetString,
-    // },
+    /// This PDU can be sent by the ESME or MC as a means of
+    /// initiating the termination of a `SMPP` session.
+    Unbind,
+    /// This PDU can be sent by the ESME or MC as a means of
+    /// acknowledging the receipt of an unbind request. After
+    /// sending this PDU the MC typically closes the network
+    /// connection.
+    UnbindResp,
+    /// This PDU can be sent by the ESME or MC to test the network
+    /// connection. The receiving peer is expected to acknowledge
+    /// the PDU as a means of verifying the test.
+    EnquireLink,
+    /// This PDU is used to acknowledge an enquire_link request
+    /// sent by an ESME or MC.
+    EnquireLinkResp,
+    /// This PDU can be sent by an ESME or MC as a means of
+    /// indicating the receipt of an invalid PDU. The receipt of a
+    /// generic_nack usually indicates that the remote peer either
+    /// cannot identify the PDU or has deemed it an invalid PDU due
+    /// to its size or content.
+    GenericNack,
+    /// The MC returns this PDU to indicate the success or failure of
+    /// a cancel_sm PDU.
+    CancelSmResp,
+    /// The replace_sm_resp PDU indicates the success or failure of
+    /// a replace_sm PDU.
+    ReplaceSmResp,
+    /// The MC returns a query_broadcast_sm_resp PDU as a
+    /// means of indicating the result of a broadcast query
+    /// attempt. The PDU will indicate the success or failure of the
+    /// attempt and for successful attempts will also include the
+    /// current state of the message.
+    CancelBroadcastSmResp,
+    Other {
+        command_id: CommandId,
+        body: AnyOctetString<'a>,
+    },
 }
 
 impl<'a> Pdu<'a> {
@@ -188,9 +188,9 @@ impl<'a> Pdu<'a> {
         match self {
             Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
             // Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
-            // Pdu::BindReceiver(_) => CommandId::BindReceiver,
+            Pdu::BindReceiver(_) => CommandId::BindReceiver,
             // Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
-            // Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
+            Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
             // Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             // Pdu::Outbind(_) => CommandId::Outbind,
             // Pdu::AlertNotification(_) => CommandId::AlertNotification,
@@ -211,17 +211,17 @@ impl<'a> Pdu<'a> {
             // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
             // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
             // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
-            // Pdu::Other { command_id, .. } => *command_id,
-            // // These are empty pdus.
-            // // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
-            // Pdu::Unbind => CommandId::Unbind,
-            // Pdu::UnbindResp => CommandId::UnbindResp,
-            // Pdu::EnquireLink => CommandId::EnquireLink,
-            // Pdu::EnquireLinkResp => CommandId::EnquireLinkResp,
-            // Pdu::GenericNack => CommandId::GenericNack,
-            // Pdu::CancelSmResp => CommandId::CancelSmResp,
-            // Pdu::ReplaceSmResp => CommandId::ReplaceSmResp,
-            // Pdu::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
+            Pdu::Other { command_id, .. } => *command_id,
+            // These are empty pdus.
+            // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
+            Pdu::Unbind => CommandId::Unbind,
+            Pdu::UnbindResp => CommandId::UnbindResp,
+            Pdu::EnquireLink => CommandId::EnquireLink,
+            Pdu::EnquireLinkResp => CommandId::EnquireLinkResp,
+            Pdu::GenericNack => CommandId::GenericNack,
+            Pdu::CancelSmResp => CommandId::CancelSmResp,
+            Pdu::ReplaceSmResp => CommandId::ReplaceSmResp,
+            Pdu::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
         }
     }
 }
@@ -231,9 +231,9 @@ impl Length for Pdu<'_> {
         match self {
             Pdu::BindTransmitter(body) => body.length(),
             // Pdu::BindTransmitterResp(body) => body.length(),
-            // Pdu::BindReceiver(body) => body.length(),
+            Pdu::BindReceiver(body) => body.length(),
             // Pdu::BindReceiverResp(body) => body.length(),
-            // Pdu::BindTransceiver(body) => body.length(),
+            Pdu::BindTransceiver(body) => body.length(),
             // Pdu::BindTransceiverResp(body) => body.length(),
             // Pdu::Outbind(body) => body.length(),
             // Pdu::AlertNotification(body) => body.length(),
@@ -254,15 +254,15 @@ impl Length for Pdu<'_> {
             // Pdu::QueryBroadcastSm(body) => body.length(),
             // Pdu::QueryBroadcastSmResp(body) => body.length(),
             // Pdu::CancelBroadcastSm(body) => body.length(),
-            // Pdu::Unbind => 0,
-            // Pdu::UnbindResp => 0,
-            // Pdu::EnquireLink => 0,
-            // Pdu::EnquireLinkResp => 0,
-            // Pdu::GenericNack => 0,
-            // Pdu::CancelSmResp => 0,
-            // Pdu::ReplaceSmResp => 0,
-            // Pdu::CancelBroadcastSmResp => 0,
-            // Pdu::Other { body, .. } => body.length(),
+            Pdu::Unbind => 0,
+            Pdu::UnbindResp => 0,
+            Pdu::EnquireLink => 0,
+            Pdu::EnquireLinkResp => 0,
+            Pdu::GenericNack => 0,
+            Pdu::CancelSmResp => 0,
+            Pdu::ReplaceSmResp => 0,
+            Pdu::CancelBroadcastSmResp => 0,
+            Pdu::Other { body, .. } => body.length(),
         }
     }
 }
@@ -272,9 +272,9 @@ impl Encode for Pdu<'_> {
         match self {
             Pdu::BindTransmitter(body) => body.encode(dst),
             // Pdu::BindTransmitterResp(body) => body.encode(dst),
-            // Pdu::BindReceiver(body) => body.encode(dst),
+            Pdu::BindReceiver(body) => body.encode(dst),
             // Pdu::BindReceiverResp(body) => body.encode(dst),
-            // Pdu::BindTransceiver(body) => body.encode(dst),
+            Pdu::BindTransceiver(body) => body.encode(dst),
             // Pdu::BindTransceiverResp(body) => body.encode(dst),
             // Pdu::Outbind(body) => body.encode(dst),
             // Pdu::AlertNotification(body) => body.encode(dst),
@@ -295,15 +295,15 @@ impl Encode for Pdu<'_> {
             // Pdu::QueryBroadcastSm(body) => body.encode(dst),
             // Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
             // Pdu::CancelBroadcastSm(body) => body.encode(dst),
-            // Pdu::Unbind
-            // | Pdu::UnbindResp
-            // | Pdu::EnquireLink
-            // | Pdu::EnquireLinkResp
-            // | Pdu::GenericNack
-            // | Pdu::CancelSmResp
-            // | Pdu::ReplaceSmResp
-            // | Pdu::CancelBroadcastSmResp => 0,
-            // Pdu::Other { body, .. } => body.encode(dst),
+            Pdu::Unbind
+            | Pdu::UnbindResp
+            | Pdu::EnquireLink
+            | Pdu::EnquireLinkResp
+            | Pdu::GenericNack
+            | Pdu::CancelSmResp
+            | Pdu::ReplaceSmResp
+            | Pdu::CancelBroadcastSmResp => 0,
+            Pdu::Other { body, .. } => body.encode(dst),
         }
     }
 }
@@ -316,32 +316,32 @@ impl<'a> DecodeWithKeyOptional<'a> for Pdu<'a> {
         src: &'a [u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
-        // if length == 0 {
-        //     let body = match key {
-        //         CommandId::Unbind => Pdu::Unbind,
-        //         CommandId::UnbindResp => Pdu::UnbindResp,
-        //         CommandId::EnquireLink => Pdu::EnquireLink,
-        //         CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
-        //         CommandId::GenericNack => Pdu::GenericNack,
-        //         CommandId::CancelSmResp => Pdu::CancelSmResp,
-        //         CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
-        //         CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
-        //         _ => return Ok(None),
-        //     };
+        if length == 0 {
+            let body = match key {
+                CommandId::Unbind => Pdu::Unbind,
+                CommandId::UnbindResp => Pdu::UnbindResp,
+                CommandId::EnquireLink => Pdu::EnquireLink,
+                CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
+                CommandId::GenericNack => Pdu::GenericNack,
+                CommandId::CancelSmResp => Pdu::CancelSmResp,
+                CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
+                CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
+                _ => return Ok(None),
+            };
 
-        //     return Ok(Some((body, 0)));
-        // }
+            return Ok(Some((body, 0)));
+        }
 
         let (body, size) = match key {
             CommandId::BindTransmitter => Decode::decode(src).map_decoded(Self::BindTransmitter)?,
             // CommandId::BindTransmitterResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::BindTransmitterResp)?
             // }
-            // CommandId::BindReceiver => Decode::decode(src).map_decoded(Self::BindReceiver)?,
+            CommandId::BindReceiver => Decode::decode(src).map_decoded(Self::BindReceiver)?,
             // CommandId::BindReceiverResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::BindReceiverResp)?
             // }
-            // CommandId::BindTransceiver => Decode::decode(src).map_decoded(Self::BindTransceiver)?,
+            CommandId::BindTransceiver => Decode::decode(src).map_decoded(Self::BindTransceiver)?,
             // CommandId::BindTransceiverResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
             // }
@@ -390,22 +390,21 @@ impl<'a> DecodeWithKeyOptional<'a> for Pdu<'a> {
             // CommandId::CancelBroadcastSm => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::CancelBroadcastSm)?
             // }
-
-            // CommandId::Other(_) => {
-            //     DecodeWithLength::decode(src, length).map_decoded(|body| Pdu::Other {
-            //         command_id: key,
-            //         body,
-            //     })?
-            // }
-            // // Length is not 0 and still have to decode the body. This is an invalid PDU.
-            // CommandId::Unbind
-            // | CommandId::UnbindResp
-            // | CommandId::EnquireLink
-            // | CommandId::EnquireLinkResp
-            // | CommandId::GenericNack
-            // | CommandId::CancelSmResp
-            // | CommandId::ReplaceSmResp
-            // | CommandId::CancelBroadcastSmResp => return Ok(None),
+            CommandId::Other(_) => {
+                DecodeWithLength::decode(src, length).map_decoded(|body| Pdu::Other {
+                    command_id: key,
+                    body,
+                })?
+            }
+            // Length is not 0 and still have to decode the body. This is an invalid PDU.
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
             // TODO: remove after implementing all pdus.
             _ => todo!(),
         };

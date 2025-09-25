@@ -2035,6 +2035,7 @@ name = "rusmpp-core"
 version = "0.1.0"
 dependencies = [
  "arbitrary",
+ "pastey",
  "rusmpp-macros",
  "serde",
  "strum",

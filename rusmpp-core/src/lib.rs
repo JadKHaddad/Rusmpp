@@ -28,6 +28,8 @@ pub mod encode;
 
 pub mod types;
 
+pub mod tlvs;
+
 pub(crate) mod utils;
 
 #[cfg(test)]

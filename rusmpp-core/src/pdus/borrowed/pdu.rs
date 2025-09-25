@@ -20,30 +20,30 @@ pub enum Pdu<'a> {
     /// the Message Centre. The PDU contains identification
     /// information and an access password for the ESME.
     BindTransmitter(BindTransmitter<'a>),
-    // /// Message Centre response to a bind_transmitter PDU. This
-    // /// PDU indicates the success or failure of the ESME’s attempt
-    // /// to bind as a transmitter.
-    // BindTransmitterResp(BindTransmitterResp),
+    /// Message Centre response to a bind_transmitter PDU. This
+    /// PDU indicates the success or failure of the ESME’s attempt
+    /// to bind as a transmitter.
+    BindTransmitterResp(BindTransmitterResp<'a>),
     /// Authentication PDU used by a receiver ESME to bind to the
     /// Message Centre. The PDU contains identification information,
     /// an access password for the ESME and may also contain
     /// routing information specifying the range of addresses
     /// serviced by the ESME.
     BindReceiver(BindReceiver<'a>),
-    // /// Message Centre response to a bind_receiver PDU. This PDU
-    // /// indicates the success or failure of the ESME’s attempt to bind
-    // /// as a receiver.
-    // BindReceiverResp(BindReceiverResp),
+    /// Message Centre response to a bind_receiver PDU. This PDU
+    /// indicates the success or failure of the ESME’s attempt to bind
+    /// as a receiver.
+    BindReceiverResp(BindReceiverResp<'a>),
     // /// Authentication PDU used by a transceiver ESME to bind to
     // /// the Message Centre. The PDU contains identification
     // /// information, an access password for the ESME and may also
     // /// contain routing information specifying the range of addresses
     // /// serviced by the ESME.
     BindTransceiver(BindTransceiver<'a>),
-    // /// Message Centre response to a bind_transceiver PDU. This
-    // /// PDU indicates the success or failure of the ESME’s attempt
-    // /// to bind as a transceiver.
-    // BindTransceiverResp(BindTransceiverResp),
+    /// Message Centre response to a bind_transceiver PDU. This
+    /// PDU indicates the success or failure of the ESME’s attempt
+    /// to bind as a transceiver.
+    BindTransceiverResp(BindTransceiverResp<'a>),
     // /// Authentication PDU used by a Message Centre to Outbind to
     // /// an ESME to inform it that messages are present in the MC.
     // /// The PDU contains identification, and access password for the
@@ -187,11 +187,11 @@ impl<'a> Pdu<'a> {
     pub const fn command_id(&self) -> CommandId {
         match self {
             Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
-            // Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
+            Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
             Pdu::BindReceiver(_) => CommandId::BindReceiver,
-            // Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
+            Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
             Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
-            // Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
+            Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             // Pdu::Outbind(_) => CommandId::Outbind,
             // Pdu::AlertNotification(_) => CommandId::AlertNotification,
             // Pdu::SubmitSm(_) => CommandId::SubmitSm,
@@ -230,11 +230,11 @@ impl Length for Pdu<'_> {
     fn length(&self) -> usize {
         match self {
             Pdu::BindTransmitter(body) => body.length(),
-            // Pdu::BindTransmitterResp(body) => body.length(),
+            Pdu::BindTransmitterResp(body) => body.length(),
             Pdu::BindReceiver(body) => body.length(),
-            // Pdu::BindReceiverResp(body) => body.length(),
+            Pdu::BindReceiverResp(body) => body.length(),
             Pdu::BindTransceiver(body) => body.length(),
-            // Pdu::BindTransceiverResp(body) => body.length(),
+            Pdu::BindTransceiverResp(body) => body.length(),
             // Pdu::Outbind(body) => body.length(),
             // Pdu::AlertNotification(body) => body.length(),
             // Pdu::SubmitSm(body) => body.length(),
@@ -271,11 +271,11 @@ impl Encode for Pdu<'_> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         match self {
             Pdu::BindTransmitter(body) => body.encode(dst),
-            // Pdu::BindTransmitterResp(body) => body.encode(dst),
+            Pdu::BindTransmitterResp(body) => body.encode(dst),
             Pdu::BindReceiver(body) => body.encode(dst),
-            // Pdu::BindReceiverResp(body) => body.encode(dst),
+            Pdu::BindReceiverResp(body) => body.encode(dst),
             Pdu::BindTransceiver(body) => body.encode(dst),
-            // Pdu::BindTransceiverResp(body) => body.encode(dst),
+            Pdu::BindTransceiverResp(body) => body.encode(dst),
             // Pdu::Outbind(body) => body.encode(dst),
             // Pdu::AlertNotification(body) => body.encode(dst),
             // Pdu::SubmitSm(body) => body.encode(dst),
@@ -334,17 +334,17 @@ impl<'a> DecodeWithKeyOptional<'a> for Pdu<'a> {
 
         let (body, size) = match key {
             CommandId::BindTransmitter => Decode::decode(src).map_decoded(Self::BindTransmitter)?,
-            // CommandId::BindTransmitterResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BindTransmitterResp)?
-            // }
+            CommandId::BindTransmitterResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BindTransmitterResp)?
+            }
             CommandId::BindReceiver => Decode::decode(src).map_decoded(Self::BindReceiver)?,
-            // CommandId::BindReceiverResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BindReceiverResp)?
-            // }
+            CommandId::BindReceiverResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BindReceiverResp)?
+            }
             CommandId::BindTransceiver => Decode::decode(src).map_decoded(Self::BindTransceiver)?,
-            // CommandId::BindTransceiverResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
-            // }
+            CommandId::BindTransceiverResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
+            }
             // CommandId::Outbind => Decode::decode(src).map_decoded(Self::Outbind)?,
             // CommandId::AlertNotification => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?

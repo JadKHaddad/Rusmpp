@@ -448,7 +448,8 @@ impl ValidFieldAttributes {
     const fn requires_decode_with_length(&self) -> bool {
         matches!(
             self,
-            ValidFieldAttributes::LengthIdent { .. }
+            ValidFieldAttributes::LengthChecked
+                | ValidFieldAttributes::LengthIdent { .. }
                 | ValidFieldAttributes::KeyLengthUnchecked { .. }
                 | ValidFieldAttributes::Count { .. }
         )

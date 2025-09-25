@@ -63,8 +63,8 @@ pub use pdu::Pdu;
 mod bind;
 pub use bind::{BindReceiver, BindTransceiver, BindTransmitter};
 
-// mod bind_resp;
-// pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
+mod bind_resp;
+pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
 
 // mod cancel_sm;
 // pub use cancel_sm::CancelSm;

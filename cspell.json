@@ -17,6 +17,7 @@
         "classmethod",
         "clippy",
         "Datagram",
+        "defmt",
         "Deque",
         "dests",
         "devcontainers",
@@ -161,7 +162,8 @@
         "venv",
         "vname",
         "Wcmp",
-        "wireshark"
+        "wireshark",
+        "zerocopy"
     ],
     "ignorePaths": [
         "target",

@@ -2,7 +2,7 @@
 name = "rusmppz"
 version = "0.0.0"
 edition = "2024"
-description = "A zero copy Rust SMPP library."
+description = "A zerocopy Rust SMPP library."
 authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/JadKHaddad/Rusmpp"
@@ -15,12 +15,29 @@ framez = { version = "0.3.0", default-features = false, optional = true }
 arbitrary = { version = "1.4.2", default-features = false, features = [
     "derive_arbitrary",
 ], optional = true }
+log = { version = "0.4.22", default-features = false, optional = true }
+tracing = { version = "0.1.40", default-features = false, optional = true }
+defmt = { version = "1.0.1", default-features = false, optional = true }
+
+
+[dev-dependencies]
+embedded-io-adapters = { version = "0.6.2", default-features = false, features = [
+    "tokio-1",
+] }
+tokio = { version = "1", features = ["full"] }
+tracing = { version = "0.1.41", default-features = false }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 
 [features]
-default = ["framez"]
-# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
-pretty-hex-fmt = []
+default = ["framez", "char-fmt"]
 # Implements framez' Encoder/Decoder traits for the CommandCodec.
 framez = ["dep:framez"]
-# Implements arbitrary's Arbitrary trait for fuzz testing.
-arbitrary = ["dep:arbitrary", "rusmpp-core/arbitrary"]
+log = ["dep:log"]
+tracing = ["dep:tracing"]
+defmt = ["dep:defmt"]
+pretty-hex-fmt = []
+char-fmt = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

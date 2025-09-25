@@ -28,6 +28,7 @@ pub mod framez {
         Command,
         decode::DecodeWithLength,
         encode::{Encode, Length},
+        logging::{debug, error, trace},
     };
 
     use super::CommandCodec;
@@ -61,6 +62,9 @@ pub mod framez {
             }
 
             let _ = item.encode(&mut dst[..size]);
+
+            debug!(target: "rusmppz::codec::encode", command=?item, "Encoding");
+            debug!(target: "rusmppz::codec::encode", encoded=?crate::logging::Formatter(&dst[..size]), encoded_length=item.length(), size, "Encoded");
 
             Ok(size)
         }
@@ -112,17 +116,22 @@ pub mod framez {
             const HEADER_LENGTH: usize = 16;
 
             if src.len() < HEADER_LENGTH {
-                // Not enough bytes to read the header
+                trace!(target: "rusmppz::codec::decode", source_length=src.len(), "Not enough bytes to read the header");
 
                 return Ok(None);
             }
 
             let command_length =
                 usize::try_from(u32::from_be_bytes([src[0], src[1], src[2], src[3]]))
+                    .inspect_err(|_err| {
+                        error!(target: "rusmppz::codec::decode", err=?_err, "Failed to convert command length to usize");
+                    })
                     .map_err(DecodeError::InvalidLength)?;
 
+            trace!(target: "rusmppz::codec::decode", command_length);
+
             if command_length < HEADER_LENGTH {
-                // Minimum command length not met
+                error!(target: "rusmppz::codec::decode", command_length, min_command_length=HEADER_LENGTH, "Minimum command length not met");
 
                 return Err(DecodeError::MinLength {
                     actual: command_length,
@@ -131,7 +140,7 @@ pub mod framez {
             }
 
             if src.len() < command_length {
-                // Not enough bytes to read the entire command
+                trace!(target: "rusmppz::codec::decode", command_length, "Not enough bytes to read the entire command");
 
                 return Ok(None);
             }
@@ -139,9 +148,17 @@ pub mod framez {
             // command_length is at least 16 bytes
             let pdu_len = command_length - 4;
 
+            debug!(target: "rusmppz::codec::decode", decoding=?crate::logging::Formatter(&src[..command_length]), "Decoding");
+
             let (command, _size) = match Command::decode(&src[4..command_length], pdu_len) {
-                Ok((command, size)) => (command, size),
+                Ok((command, size)) => {
+                    debug!(target: "rusmppz::codec::decode", command=?command, command_length, decoded_length=size, "Decoded");
+
+                    (command, size)
+                }
                 Err(err) => {
+                    error!(target: "rusmppz::codec::decode", ?err);
+
                     return Err(DecodeError::Decode(err));
                 }
             };

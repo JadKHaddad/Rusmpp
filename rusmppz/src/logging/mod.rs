@@ -1,9 +1,7 @@
 //! Logging utilities.
 
-#[cfg(any(feature = "log", feature = "defmt", feature = "tracing"))]
 mod formatter;
 
-#[cfg(any(feature = "log", feature = "defmt", feature = "tracing"))]
 pub(crate) use formatter::Formatter;
 
 macro_rules! trace {

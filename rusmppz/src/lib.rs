@@ -25,4 +25,8 @@ pub mod tlvs;
 
 pub mod pdus;
 
+#[cfg(all(
+    feature = "framez",
+    any(feature = "log", feature = "defmt", feature = "tracing")
+))]
 pub(crate) mod logging;

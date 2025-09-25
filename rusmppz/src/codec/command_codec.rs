@@ -55,18 +55,19 @@ pub mod framez {
         type Error = EncodeError;
 
         fn encode(&mut self, item: Command<'buf>, dst: &mut [u8]) -> Result<usize, Self::Error> {
-            let size = item.length();
+            let command_length = 4 + item.length();
 
-            if dst.len() < size {
+            if dst.len() < command_length {
                 return Err(EncodeError::BufferTooSmall);
             }
 
-            let _ = item.encode(&mut dst[..size]);
+            dst[..4].copy_from_slice(&(command_length as u32).to_be_bytes());
+            let _ = item.encode(&mut dst[4..command_length]);
 
             debug!(target: "rusmppz::codec::encode", command=?item, "Encoding");
-            debug!(target: "rusmppz::codec::encode", encoded=?crate::logging::Formatter(&dst[..size]), encoded_length=item.length(), size, "Encoded");
+            debug!(target: "rusmppz::codec::encode", encoded=?crate::logging::Formatter(&dst[..command_length]), encoded_length=item.length(), command_length, "Encoded");
 
-            Ok(size)
+            Ok(command_length)
         }
     }
 

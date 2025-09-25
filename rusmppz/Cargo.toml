@@ -26,9 +26,10 @@ embedded-io-adapters = { version = "0.6.2", default-features = false, features =
 tokio = { version = "1", features = ["full"] }
 tracing = { version = "0.1.41", default-features = false }
 tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+framez = { version = "0.3.0", default-features = false, features = ["tracing"] }
 
 [features]
-default = ["framez", "char-fmt"]
+default = ["framez", "char-fmt", "tracing"]
 # Implements framez' Encoder/Decoder traits for the CommandCodec.
 framez = ["dep:framez"]
 log = ["dep:log"]
@@ -36,6 +37,11 @@ tracing = ["dep:tracing"]
 defmt = ["dep:defmt"]
 pretty-hex-fmt = []
 char-fmt = []
+
+[[example]]
+name = "rusmppz_client_server"
+path = "examples/rusmppz_client_server.rs"
+required-features = ["framez", "tracing"]
 
 [package.metadata.docs.rs]
 all-features = true

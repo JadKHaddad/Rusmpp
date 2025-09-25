@@ -652,6 +652,7 @@ checksum = "474fb26e41fcc113f86bb8e0818c7e1150dd1d28dd9c47dfdd95f925df5f2947"
 dependencies = [
  "embedded-io-async",
  "futures",
+ "tracing",
 ]
 
 [[package]]

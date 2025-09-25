@@ -103,6 +103,7 @@ impl<T: Length> Length for Option<T> {
 }
 
 #[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T: Length> Length for alloc::vec::Vec<T> {
     fn length(&self) -> usize {
         self.iter().map(Length::length).sum()
@@ -116,6 +117,7 @@ impl<T: Encode> Encode for Option<T> {
 }
 
 #[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T: Encode> Encode for alloc::vec::Vec<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         self.iter()

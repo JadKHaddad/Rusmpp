@@ -13,6 +13,7 @@ pub use octet_string::Error as OctetStringError;
 
 pub mod borrowed;
 #[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 pub mod owned;
 pub mod u16;
 pub mod u32;

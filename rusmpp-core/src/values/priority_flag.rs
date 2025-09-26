@@ -84,7 +84,7 @@ impl From<Ansi41Cbs> for PriorityFlag {
 /// # Example
 ///
 /// ```rust
-/// use rusmpp::values::{GsmSms, PriorityFlag, PriorityFlagType};
+/// use rusmpp_core::values::priority_flag::{GsmSms, PriorityFlag, PriorityFlagType};
 ///
 /// let gsm_sms = GsmSms::from(1);
 /// assert_eq!(gsm_sms, GsmSms::Priority1);

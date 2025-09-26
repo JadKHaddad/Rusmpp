@@ -159,13 +159,13 @@ mod tests {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .system_id(COctetString::new(b"system_id").unwrap())
-                    .password(COctetString::new(b"password").unwrap())
-                    .system_type(COctetString::new(b"system_type").unwrap())
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .password(COctetString::new(b"password\0").unwrap())
+                    .system_type(COctetString::new(b"system_type\0").unwrap())
                     .interface_version(InterfaceVersion::Smpp5_0)
                     .addr_ton(Ton::International)
                     .addr_npi(Npi::Isdn)
-                    .address_range(COctetString::new(b"address_range").unwrap())
+                    .address_range(COctetString::new(b"address_range\0").unwrap())
                     .build(),
             ]
         }
@@ -176,13 +176,13 @@ mod tests {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .system_id(COctetString::new(b"system_id").unwrap())
-                    .password(COctetString::new(b"password").unwrap())
-                    .system_type(COctetString::new(b"system_type").unwrap())
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .password(COctetString::new(b"password\0").unwrap())
+                    .system_type(COctetString::new(b"system_type\0").unwrap())
                     .interface_version(InterfaceVersion::Smpp3_4)
                     .addr_ton(Ton::Alphanumeric)
                     .addr_npi(Npi::Ermes)
-                    .address_range(COctetString::new(b"address_range").unwrap())
+                    .address_range(COctetString::new(b"address_range\0").unwrap())
                     .build(),
             ]
         }
@@ -193,13 +193,13 @@ mod tests {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .system_id(COctetString::new(b"system_id").unwrap())
-                    .password(COctetString::new(b"password").unwrap())
-                    .system_type(COctetString::new(b"system_type").unwrap())
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .password(COctetString::new(b"password\0").unwrap())
+                    .system_type(COctetString::new(b"system_type\0").unwrap())
                     .interface_version(InterfaceVersion::Smpp3_3OrEarlier(2))
                     .addr_ton(Ton::International)
                     .addr_npi(Npi::Ermes)
-                    .address_range(COctetString::new(b"address_range").unwrap())
+                    .address_range(COctetString::new(b"address_range\0").unwrap())
                     .build(),
             ]
         }

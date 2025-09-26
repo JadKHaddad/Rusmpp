@@ -26,6 +26,12 @@ impl From<GenericServiceType> for COctetString<'static, 1, 6> {
     }
 }
 
+impl<'a> From<GenericServiceType> for ServiceType<'a> {
+    fn from(value: GenericServiceType) -> Self {
+        ServiceType::new(value.into())
+    }
+}
+
 /// The service_type parameter can be used to indicate the SMS Application service associated
 /// with the message. Specifying the service_type allows the ESME to:
 ///

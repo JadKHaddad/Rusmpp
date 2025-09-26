@@ -40,7 +40,7 @@ use crate::{CommandId, CommandStatus, pdus::borrowed::Pdu};
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-pub struct Command<'a> {
+pub struct Command<'a, const N: usize> {
     /// See [`CommandId`]
     id: CommandId,
     /// See [`CommandStatus`]
@@ -53,10 +53,10 @@ pub struct Command<'a> {
     ///
     /// Optional because incoming commands may not have a PDU.
     #[rusmpp(key = id, length = "unchecked")]
-    pdu: Option<Pdu<'a>>,
+    pdu: Option<Pdu<'a, N>>,
 }
 
-impl<'a> Default for Command<'a> {
+impl<'a, const N: usize> Default for Command<'a, N> {
     fn default() -> Self {
         Self {
             id: CommandId::EnquireLink,
@@ -67,8 +67,8 @@ impl<'a> Default for Command<'a> {
     }
 }
 
-impl<'a> Command<'a> {
-    pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu<'a>>) -> Self {
+impl<'a, const N: usize> Command<'a, N> {
+    pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu<'a, N>>) -> Self {
         let pdu = pdu.into();
 
         let id = pdu.command_id();
@@ -81,7 +81,7 @@ impl<'a> Command<'a> {
         }
     }
 
-    pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu<'a>) -> Self {
+    pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu<'a, N>) -> Self {
         let id = pdu.command_id();
 
         Self {
@@ -108,12 +108,12 @@ impl<'a> Command<'a> {
     }
 
     #[inline]
-    pub const fn pdu(&self) -> Option<&Pdu<'a>> {
+    pub const fn pdu(&self) -> Option<&Pdu<'a, N>> {
         self.pdu.as_ref()
     }
 
     #[inline]
-    pub fn set_pdu(&mut self, pdu: impl Into<Pdu<'a>>) {
+    pub fn set_pdu(&mut self, pdu: impl Into<Pdu<'a, N>>) {
         let pdu = pdu.into();
 
         self.id = pdu.command_id();
@@ -122,19 +122,19 @@ impl<'a> Command<'a> {
     }
 
     #[inline]
-    pub fn builder() -> CommandStatusBuilder<'a> {
+    pub fn builder() -> CommandStatusBuilder<'a, N> {
         Default::default()
     }
 }
 
 #[derive(Debug, Default)]
-pub struct CommandStatusBuilder<'a> {
-    inner: Command<'a>,
+pub struct CommandStatusBuilder<'a, const N: usize> {
+    inner: Command<'a, N>,
 }
 
-impl<'a> CommandStatusBuilder<'a> {
+impl<'a, const N: usize> CommandStatusBuilder<'a, N> {
     #[inline]
-    pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder<'a> {
+    pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder<'a, N> {
         self.inner.status = status;
 
         SequenceNumberBuilder { inner: self.inner }
@@ -142,13 +142,13 @@ impl<'a> CommandStatusBuilder<'a> {
 }
 
 #[derive(Debug)]
-pub struct SequenceNumberBuilder<'a> {
-    inner: Command<'a>,
+pub struct SequenceNumberBuilder<'a, const N: usize> {
+    inner: Command<'a, N>,
 }
 
-impl<'a> SequenceNumberBuilder<'a> {
+impl<'a, const N: usize> SequenceNumberBuilder<'a, N> {
     #[inline]
-    pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder<'a> {
+    pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder<'a, N> {
         self.inner.sequence_number = sequence_number;
 
         PduBuilder { inner: self.inner }
@@ -156,13 +156,13 @@ impl<'a> SequenceNumberBuilder<'a> {
 }
 
 #[derive(Debug)]
-pub struct PduBuilder<'a> {
-    inner: Command<'a>,
+pub struct PduBuilder<'a, const N: usize> {
+    inner: Command<'a, N>,
 }
 
-impl<'a> PduBuilder<'a> {
+impl<'a, const N: usize> PduBuilder<'a, N> {
     #[inline]
-    pub fn pdu(mut self, pdu: impl Into<Pdu<'a>>) -> Command<'a> {
+    pub fn pdu(mut self, pdu: impl Into<Pdu<'a, N>>) -> Command<'a, N> {
         self.inner.set_pdu(pdu);
         self.inner
     }

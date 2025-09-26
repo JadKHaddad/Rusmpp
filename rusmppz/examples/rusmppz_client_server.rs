@@ -9,7 +9,7 @@
 
 use core::error::Error;
 use embedded_io_adapters::tokio_1::FromTokio;
-use framez::{Framed, next};
+use framez::{Framed, next, send};
 use rusmppz::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
 use tracing::info;
 
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         // The CommandCodec encodes/decodes SMPP commands into/from bytes.
         let mut framed = Framed::new(
-            CommandCodec::new(),
+            CommandCodec::<6>::new(),
             FromTokio::new(client),
             read_buf,
             write_buf,
@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         let write_buf = &mut [0u8; 1024];
 
         let mut framed = Framed::new(
-            CommandCodec::new(),
+            CommandCodec::<6>::new(),
             FromTokio::new(server),
             read_buf,
             write_buf,
@@ -76,7 +76,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .sequence_number(command.sequence_number())
                     .pdu(Pdu::EnquireLinkResp);
 
-                framed.send(response).await?;
+                send!(framed, response)?;
 
                 info!(target: "server", "EnquireLink response sent");
 

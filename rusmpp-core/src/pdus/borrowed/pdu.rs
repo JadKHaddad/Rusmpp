@@ -5,6 +5,7 @@ use crate::{
         borrowed::{Decode, DecodeWithKeyOptional, DecodeWithLength},
     },
     encode::{Encode, Length},
+    pdus::borrowed::submit_sm::SubmitSm,
     types::borrowed::AnyOctetString,
 };
 
@@ -15,7 +16,7 @@ use super::*;
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-pub enum Pdu<'a> {
+pub enum Pdu<'a, const N: usize> {
     /// Authentication PDU used by a transmitter ESME to bind to
     /// the Message Centre. The PDU contains identification
     /// information and an access password for the ESME.
@@ -63,7 +64,7 @@ pub enum Pdu<'a> {
     // AlertNotification(AlertNotification),
     // /// This operation is used by an ESME to submit a short message to the MC for onward
     // /// transmission to a specified short message entity (SME).
-    // SubmitSm(SubmitSm),
+    SubmitSm(SubmitSm<'a, N>),
     // SubmitSmResp(SubmitSmResp),
     // /// This command is issued by the ESME to query the status of a previously submitted short
     // /// message.
@@ -183,7 +184,7 @@ pub enum Pdu<'a> {
     },
 }
 
-impl<'a> Pdu<'a> {
+impl<'a, const N: usize> Pdu<'a, N> {
     pub const fn command_id(&self) -> CommandId {
         match self {
             Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
@@ -194,7 +195,7 @@ impl<'a> Pdu<'a> {
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             // Pdu::Outbind(_) => CommandId::Outbind,
             // Pdu::AlertNotification(_) => CommandId::AlertNotification,
-            // Pdu::SubmitSm(_) => CommandId::SubmitSm,
+            Pdu::SubmitSm(_) => CommandId::SubmitSm,
             // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
             // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
@@ -226,7 +227,7 @@ impl<'a> Pdu<'a> {
     }
 }
 
-impl Length for Pdu<'_> {
+impl<const N: usize> Length for Pdu<'_, N> {
     fn length(&self) -> usize {
         match self {
             Pdu::BindTransmitter(body) => body.length(),
@@ -237,7 +238,7 @@ impl Length for Pdu<'_> {
             Pdu::BindTransceiverResp(body) => body.length(),
             // Pdu::Outbind(body) => body.length(),
             // Pdu::AlertNotification(body) => body.length(),
-            // Pdu::SubmitSm(body) => body.length(),
+            Pdu::SubmitSm(body) => body.length(),
             // Pdu::SubmitSmResp(body) => body.length(),
             // Pdu::QuerySm(body) => body.length(),
             // Pdu::QuerySmResp(body) => body.length(),
@@ -267,7 +268,7 @@ impl Length for Pdu<'_> {
     }
 }
 
-impl Encode for Pdu<'_> {
+impl<const N: usize> Encode for Pdu<'_, N> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         match self {
             Pdu::BindTransmitter(body) => body.encode(dst),
@@ -278,7 +279,7 @@ impl Encode for Pdu<'_> {
             Pdu::BindTransceiverResp(body) => body.encode(dst),
             // Pdu::Outbind(body) => body.encode(dst),
             // Pdu::AlertNotification(body) => body.encode(dst),
-            // Pdu::SubmitSm(body) => body.encode(dst),
+            Pdu::SubmitSm(body) => body.encode(dst),
             // Pdu::SubmitSmResp(body) => body.encode(dst),
             // Pdu::QuerySm(body) => body.encode(dst),
             // Pdu::QuerySmResp(body) => body.encode(dst),
@@ -308,7 +309,7 @@ impl Encode for Pdu<'_> {
     }
 }
 
-impl<'a> DecodeWithKeyOptional<'a> for Pdu<'a> {
+impl<'a, const N: usize> DecodeWithKeyOptional<'a> for Pdu<'a, N> {
     type Key = CommandId;
 
     fn decode(
@@ -349,7 +350,7 @@ impl<'a> DecodeWithKeyOptional<'a> for Pdu<'a> {
             // CommandId::AlertNotification => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
             // }
-            // CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
+            CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
             // CommandId::SubmitSmResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
             // }

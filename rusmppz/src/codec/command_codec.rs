@@ -1,15 +1,15 @@
 /// Codec for encoding and decoding `SMPP` PDUs.
 #[derive(Debug)]
 #[non_exhaustive]
-pub struct CommandCodec {}
+pub struct CommandCodec<const N: usize> {}
 
-impl CommandCodec {
+impl<const N: usize> CommandCodec<N> {
     pub const fn new() -> Self {
         Self {}
     }
 }
 
-impl Default for CommandCodec {
+impl<const N: usize> Default for CommandCodec<N> {
     fn default() -> Self {
         Self::new()
     }
@@ -51,10 +51,10 @@ pub mod framez {
 
     impl core::error::Error for EncodeError {}
 
-    impl<'buf> Encoder<Command<'buf>> for CommandCodec {
+    impl<'buf, const N: usize> Encoder<Command<'buf, N>> for CommandCodec<N> {
         type Error = EncodeError;
 
-        fn encode(&mut self, item: Command<'buf>, dst: &mut [u8]) -> Result<usize, Self::Error> {
+        fn encode(&mut self, item: Command<'buf, N>, dst: &mut [u8]) -> Result<usize, Self::Error> {
             let command_length = 4 + item.length();
 
             if dst.len() < command_length {
@@ -103,12 +103,12 @@ pub mod framez {
 
     impl core::error::Error for DecodeError {}
 
-    impl framez::decode::DecodeError for CommandCodec {
+    impl<const N: usize> framez::decode::DecodeError for CommandCodec<N> {
         type Error = DecodeError;
     }
 
-    impl<'buf> Decoder<'buf> for CommandCodec {
-        type Item = Command<'buf>;
+    impl<'buf, const N: usize> Decoder<'buf> for CommandCodec<N> {
+        type Item = Command<'buf, N>;
 
         fn decode(
             &mut self,

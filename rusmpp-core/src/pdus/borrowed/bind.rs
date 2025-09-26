@@ -130,19 +130,19 @@ bind!(BindTransmitter);
 bind!(BindReceiver);
 bind!(BindTransceiver);
 
-impl<'a> From<BindTransmitter<'a>> for Pdu<'a> {
+impl<'a, const N: usize> From<BindTransmitter<'a>> for Pdu<'a, N> {
     fn from(value: BindTransmitter<'a>) -> Self {
         Self::BindTransmitter(value)
     }
 }
 
-impl<'a> From<BindReceiver<'a>> for Pdu<'a> {
+impl<'a, const N: usize> From<BindReceiver<'a>> for Pdu<'a, N> {
     fn from(value: BindReceiver<'a>) -> Self {
         Self::BindReceiver(value)
     }
 }
 
-impl<'a> From<BindTransceiver<'a>> for Pdu<'a> {
+impl<'a, const N: usize> From<BindTransceiver<'a>> for Pdu<'a, N> {
     fn from(value: BindTransceiver<'a>) -> Self {
         Self::BindTransceiver(value)
     }

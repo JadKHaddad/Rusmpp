@@ -5,6 +5,7 @@ use syn::{DeriveInput, FieldsNamed, Ident};
 pub fn quote_parts(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
     let name = &input.ident;
     let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
     let parts_struct_name = Ident::new(&format!("{}Parts", name), name.span());
 
@@ -41,7 +42,7 @@ pub fn quote_parts(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStre
             #(#parts_struct_fields),*
         }
 
-        impl #generics #parts_struct_name #generics {
+        impl #impl_generics #parts_struct_name #ty_generics #where_clause {
             #[inline]
             #[allow(clippy::too_many_arguments)]
             pub const fn new(
@@ -59,9 +60,9 @@ pub fn quote_parts(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStre
             }
         }
 
-        impl #generics #name #generics {
+        impl #impl_generics #name #ty_generics #where_clause {
             #[inline]
-            pub fn into_parts(self) -> #parts_struct_name #generics {
+            pub fn into_parts(self) -> #parts_struct_name #ty_generics #where_clause {
                 #parts_struct_name {
                     #(#parts_struct_field_names_self_names),*
                 }

@@ -48,7 +48,7 @@ pub fn derive_for_struct(
 
 fn quote_length(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let field_idents = fields_named
         .named
@@ -56,7 +56,7 @@ fn quote_length(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream 
         .map(|f| f.ident.as_ref().expect("Named fields must have idents"));
 
     quote! {
-        impl #generics crate::encode::Length for #name #generics {
+        impl #impl_generics crate::encode::Length for #name #ty_generics #where_clause {
             fn length(&self) -> usize {
                 let mut length = 0;
                 #(
@@ -70,7 +70,7 @@ fn quote_length(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream 
 
 fn quote_encode(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let field_idents = fields_named
         .named
@@ -78,7 +78,7 @@ fn quote_encode(input: &DeriveInput, fields_named: &FieldsNamed) -> TokenStream 
         .map(|f| f.ident.as_ref().expect("Named fields must have idents"));
 
     quote! {
-        impl #generics crate::encode::Encode for #name #generics {
+        impl #impl_generics crate::encode::Encode for #name #ty_generics #where_clause {
             fn encode(&self, dst: &mut [u8]) -> usize {
                 let size = 0;
                 #(
@@ -155,7 +155,7 @@ fn quote_decode(
 // TODO: Skipped fields require a new constructor
 fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
@@ -167,7 +167,7 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
     let fields = fields.fields.iter().map(|f| f.quote_borrowed_decode());
 
     quote! {
-        impl #generics crate::decode::borrowed::Decode<'a> for #name #generics {
+        impl #impl_generics crate::decode::borrowed::Decode<'a> for #name #ty_generics #where_clause {
             fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
                 let size = 0;
                 #(
@@ -185,7 +185,7 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
 // TODO: Skipped fields require a new constructor
 fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
@@ -197,7 +197,7 @@ fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream 
     let fields = fields.fields.iter().map(|f| f.quote_owned_decode());
 
     quote! {
-        impl #generics crate::decode::owned::Decode for #name #generics {
+        impl #impl_generics crate::decode::owned::Decode for #name #ty_generics #where_clause {
             fn decode(src: &[u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
                 let size = 0;
                 #(
@@ -216,7 +216,7 @@ fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream 
 // TODO: Skipped fields require a new constructor
 fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
@@ -228,7 +228,7 @@ fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) 
     let fields = fields.fields.iter().map(|f| f.quote_borrowed_decode());
 
     quote! {
-        impl #generics crate::decode::borrowed::DecodeWithLength<'a> for #name #generics {
+        impl #impl_generics crate::decode::borrowed::DecodeWithLength<'a> for #name #ty_generics #where_clause {
             fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
                 let size = 0;
                 #(
@@ -246,7 +246,7 @@ fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) 
 // TODO: Skipped fields require a new constructor
 fn quote_owned_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let generics = &input.generics;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
@@ -258,7 +258,7 @@ fn quote_owned_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> 
     let fields = fields.fields.iter().map(|f| f.quote_owned_decode());
 
     quote! {
-        impl #generics crate::decode::owned::DecodeWithLength for #name #generics {
+        impl #impl_generics crate::decode::owned::DecodeWithLength for #name #ty_generics #where_clause {
             fn decode(src: &[u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
                 let size = 0;
                 #(

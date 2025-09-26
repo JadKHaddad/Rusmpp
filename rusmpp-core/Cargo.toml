@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 rusmpp-macros = { path = "../rusmpp-macros" }
+heapless = { version = "0.9.1", default-features = false }
 arbitrary = { version = "1.4.2", default-features = false, features = [
     "derive_arbitrary",
 ], optional = true }

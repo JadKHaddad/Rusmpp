@@ -116,6 +116,12 @@ impl<T: Length> Length for alloc::vec::Vec<T> {
     }
 }
 
+impl<T: Length, const N: usize> Length for heapless::vec::Vec<T, N> {
+    fn length(&self) -> usize {
+        self.as_slice().length()
+    }
+}
+
 impl<T: Encode> Encode for Option<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         self.as_ref().map(|item| item.encode(dst)).unwrap_or(0)
@@ -132,6 +138,12 @@ impl<T: Encode> Encode for &[T] {
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T: Encode> Encode for alloc::vec::Vec<T> {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        self.as_slice().encode(dst)
+    }
+}
+
+impl<T: Encode, const N: usize> Encode for heapless::vec::Vec<T, N> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         self.as_slice().encode(dst)
     }

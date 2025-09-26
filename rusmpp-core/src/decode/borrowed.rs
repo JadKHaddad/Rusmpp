@@ -361,18 +361,6 @@ pub trait DecodeWithKeyOptional<'a>: 'a + Sized {
     ) -> Result<Option<(Self, usize)>, DecodeError>;
 }
 
-/// Trait for decoding `SMPP` values from a slice with a specified length and a mutable slice of `T`.
-///
-/// Used for decoding a slice of TLVs in place.
-pub trait DecodeWithSlice<'a, 's, T>: 'a + Sized {
-    /// Decode a value and a slice of `T` from a slice, with a specified length
-    fn decode(
-        src: &'a [u8],
-        length: usize,
-        slice: &'s mut [T],
-    ) -> Result<(Self, usize), DecodeError>;
-}
-
 #[doc(hidden)]
 pub trait DecodeExt<'a>: Decode<'a> {
     fn decode_move(src: &'a [u8], size: usize) -> Result<(Self, usize), DecodeError> {
@@ -460,3 +448,30 @@ pub trait DecodeWithKeyOptionalExt<'a>: DecodeWithKeyOptional<'a> {
 }
 
 impl<'a, T: DecodeWithKeyOptional<'a>> DecodeWithKeyOptionalExt<'a> for T {}
+
+impl<'a, const N: usize, T: Decode<'a>> DecodeWithLength<'a> for heapless::vec::Vec<T, N> {
+    fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        if length == 0 {
+            return Ok((heapless::vec::Vec::new(), 0));
+        }
+
+        if length > src.len() {
+            return Err(DecodeError::unexpected_eof());
+        }
+
+        let mut size = 0;
+
+        let mut vec = heapless::vec::Vec::new();
+
+        while size < length {
+            let (item, size_) = T::decode(&src[size..length])?;
+
+            size += size_;
+
+            // TODO: handle error here and add a new decode error for this case
+            let _ = vec.push(item);
+        }
+
+        Ok((vec, size))
+    }
+}

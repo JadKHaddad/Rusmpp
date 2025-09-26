@@ -15,7 +15,8 @@ use crate::{
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-pub struct SubmitSm<'a, 'tlvs> {
+// TODO: fix the generics in rusmpp-macros
+pub struct SubmitSm<'a, const N: usize = 6> {
     /// The service_type parameter can be used to
     /// indicate the SMS Application service
     /// associated with the message. Specifying the
@@ -82,11 +83,11 @@ pub struct SubmitSm<'a, 'tlvs> {
     // #[rusmpp(length = sm_length)]
     short_message: OctetString<'a, 0, 255>,
     // /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
-    // @[length = unchecked]
-    tlvs: &'tlvs [Tlv<'a>],
+    // #[rusmpp(length = "unchecked")]
+    tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 
-impl<'a, 'tlvs> crate::encode::Length for SubmitSm<'a, 'tlvs> {
+impl<'a, const N: usize> crate::encode::Length for SubmitSm<'a, N> {
     fn length(&self) -> usize {
         let mut length = 0;
         length += crate::encode::Length::length(&self.service_type);
@@ -111,7 +112,7 @@ impl<'a, 'tlvs> crate::encode::Length for SubmitSm<'a, 'tlvs> {
         length
     }
 }
-impl<'a, 'tlvs> crate::encode::Encode for SubmitSm<'a, 'tlvs> {
+impl<'a, const N: usize> crate::encode::Encode for SubmitSm<'a, N> {
     fn encode(&self, dst: &mut [u8]) -> usize {
         let size = 0;
         let size = crate::encode::EncodeExt::encode_move(&self.service_type, dst, size);
@@ -137,15 +138,8 @@ impl<'a, 'tlvs> crate::encode::Encode for SubmitSm<'a, 'tlvs> {
     }
 }
 
-impl<'a, 'tlvs> crate::decode::borrowed::DecodeWithSlice<'a, 'tlvs, Tlv<'a>> for SubmitSm<'a, 'tlvs>
-where
-    'tlvs: 'a,
-{
-    fn decode(
-        src: &'a [u8],
-        length: usize,
-        slice: &'tlvs mut [Tlv<'a>],
-    ) -> Result<(Self, usize), crate::decode::DecodeError> {
+impl<'a, const N: usize> crate::decode::borrowed::DecodeWithLength<'a> for SubmitSm<'a, N> {
+    fn decode(src: &'a [u8], length: usize) -> Result<(Self, usize), crate::decode::DecodeError> {
         let size = 0;
         let (service_type, size) = crate::decode::DecodeErrorExt::map_as_source(
             crate::decode::borrowed::DecodeExt::decode_move(src, size),
@@ -223,14 +217,14 @@ where
             ),
             crate::fields::SmppField::short_message,
         )?;
-        // let (tlvs, size) = crate::decode::DecodeErrorExt::map_as_source(
-        //     crate::decode::borrowed::DecodeWithLengthExt::decode_move(
-        //         src,
-        //         length.saturating_sub(size),
-        //         size,
-        //     ),
-        //     crate::fields::SmppField::tlvs,
-        // )?;
+        let (tlvs, size) = crate::decode::DecodeErrorExt::map_as_source(
+            crate::decode::borrowed::DecodeWithLengthExt::decode_move(
+                src,
+                length.saturating_sub(size),
+                size,
+            ),
+            crate::fields::SmppField::tlvs,
+        )?;
         Ok((
             Self {
                 service_type,
@@ -251,7 +245,7 @@ where
                 sm_default_msg_id,
                 sm_length,
                 short_message,
-                tlvs: &[],
+                tlvs,
             },
             size,
         ))

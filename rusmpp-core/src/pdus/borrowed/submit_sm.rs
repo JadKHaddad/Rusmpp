@@ -85,3 +85,6 @@ pub struct SubmitSm<'a, const N: usize> {
     #[rusmpp(length = "unchecked")]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
+
+// TODO: the tlvs
+// TODO: everything else in here the builder and the tests

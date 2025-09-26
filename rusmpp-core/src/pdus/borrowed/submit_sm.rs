@@ -11,7 +11,7 @@ use crate::{
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
-#[rusmpp(decode = skip, test = skip)]
+#[rusmpp(decode = borrowed,test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
@@ -79,7 +79,7 @@ pub struct SubmitSm<'a, const N: usize> {
     ///
     /// Note: this field is superceded by the message_payload TLV if
     /// specified.
-    // #[rusmpp(length = sm_length)]
+    #[rusmpp(length = sm_length)]
     short_message: OctetString<'a, 0, 255>,
     /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
     #[rusmpp(length = "unchecked")]

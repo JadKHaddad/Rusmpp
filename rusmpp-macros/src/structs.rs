@@ -468,15 +468,16 @@ impl ValidFieldAttributes {
     const fn requires_decode_with_length(&self) -> bool {
         matches!(
             self,
-            ValidFieldAttributes::LengthChecked
-                | ValidFieldAttributes::LengthIdent { .. }
-                | ValidFieldAttributes::KeyLengthUnchecked { .. }
-                | ValidFieldAttributes::Count { .. }
+            Self::LengthUnchecked
+                | Self::LengthChecked
+                | Self::LengthIdent { .. }
+                | Self::KeyLengthUnchecked { .. }
+                | Self::Count { .. }
         )
     }
 
     const fn skip(&self) -> bool {
-        matches!(self, ValidFieldAttributes::SkipDecode)
+        matches!(self, Self::SkipDecode)
     }
 }
 

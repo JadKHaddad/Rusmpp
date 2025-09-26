@@ -102,11 +102,17 @@ impl<T: Length> Length for Option<T> {
     }
 }
 
+impl<T: Length> Length for &[T] {
+    fn length(&self) -> usize {
+        self.iter().map(Length::length).sum()
+    }
+}
+
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T: Length> Length for alloc::vec::Vec<T> {
     fn length(&self) -> usize {
-        self.iter().map(Length::length).sum()
+        self.as_slice().length()
     }
 }
 
@@ -116,12 +122,18 @@ impl<T: Encode> Encode for Option<T> {
     }
 }
 
+impl<T: Encode> Encode for &[T] {
+    fn encode(&self, dst: &mut [u8]) -> usize {
+        self.iter()
+            .fold(0, |acc, item| acc + item.encode(&mut dst[acc..]))
+    }
+}
+
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl<T: Encode> Encode for alloc::vec::Vec<T> {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        self.iter()
-            .fold(0, |acc, item| acc + item.encode(&mut dst[acc..]))
+        self.as_slice().encode(dst)
     }
 }
 

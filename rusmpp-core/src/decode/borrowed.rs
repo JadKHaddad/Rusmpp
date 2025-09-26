@@ -361,6 +361,18 @@ pub trait DecodeWithKeyOptional<'a>: 'a + Sized {
     ) -> Result<Option<(Self, usize)>, DecodeError>;
 }
 
+/// Trait for decoding `SMPP` values from a slice with a specified length and a mutable slice of `T`.
+///
+/// Used for decoding a slice of TLVs in place.
+pub trait DecodeWithSlice<'a, 's, T>: 'a + Sized {
+    /// Decode a value and a slice of `T` from a slice, with a specified length
+    fn decode(
+        src: &'a [u8],
+        length: usize,
+        slice: &'s mut [T],
+    ) -> Result<(Self, usize), DecodeError>;
+}
+
 #[doc(hidden)]
 pub trait DecodeExt<'a>: Decode<'a> {
     fn decode_move(src: &'a [u8], size: usize) -> Result<(Self, usize), DecodeError> {

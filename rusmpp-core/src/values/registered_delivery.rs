@@ -1,15 +1,15 @@
-crate::create! {
-    @[repr = u8]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct RegisteredDelivery {
-        mc_delivery_receipt: MCDeliveryReceipt,
-        sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
-        intermediate_notification: IntermediateNotification,
-        other: u8,
-    }
+use rusmpp_macros::Rusmpp;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[rusmpp(repr = "u8")]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct RegisteredDelivery {
+    mc_delivery_receipt: MCDeliveryReceipt,
+    sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
+    intermediate_notification: IntermediateNotification,
+    other: u8,
 }
 
 impl RegisteredDelivery {
@@ -82,20 +82,18 @@ impl From<RegisteredDelivery> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum MCDeliveryReceipt {
-        #[default]
-        NoMcDeliveryReceiptRequested = 0b00000000,
-        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
-        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
-        McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
-        Other(u8),
-    }
+pub enum MCDeliveryReceipt {
+    #[default]
+    NoMcDeliveryReceiptRequested = 0b00000000,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure = 0b00000001,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure = 0b00000010,
+    McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess = 0b00000011,
+    Other(u8),
 }
 
 impl From<u8> for MCDeliveryReceipt {
@@ -122,20 +120,18 @@ impl From<MCDeliveryReceipt> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum SmeOriginatedAcknowledgement {
-        #[default]
-        NoReceiptSmeAcknowledgementRequested = 0b00000000,
-        SmeDeliveryAcknowledgementRequested = 0b00000100,
-        SmeUserAcknowledgementRequested = 0b00001000,
-        BothDeliveryAndUserAcknowledgmentRequested = 0b00001100,
-        Other(u8),
-    }
+pub enum SmeOriginatedAcknowledgement {
+    #[default]
+    NoReceiptSmeAcknowledgementRequested = 0b00000000,
+    SmeDeliveryAcknowledgementRequested = 0b00000100,
+    SmeUserAcknowledgementRequested = 0b00001000,
+    BothDeliveryAndUserAcknowledgmentRequested = 0b00001100,
+    Other(u8),
 }
 
 impl From<u8> for SmeOriginatedAcknowledgement {
@@ -162,18 +158,16 @@ impl From<SmeOriginatedAcknowledgement> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum IntermediateNotification {
-        #[default]
-        NoIntermediaryNotificationRequested = 0b00000000,
-        IntermediateNotificationRequested = 0b00010000,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum IntermediateNotification {
+    #[default]
+    NoIntermediaryNotificationRequested = 0b00000000,
+    IntermediateNotificationRequested = 0b00010000,
+    Other(u8),
 }
 
 impl From<u8> for IntermediateNotification {
@@ -202,9 +196,16 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<RegisteredDelivery>();
-        crate::tests::encode_decode_test_instances::<MCDeliveryReceipt>();
-        crate::tests::encode_decode_test_instances::<SmeOriginatedAcknowledgement>();
-        crate::tests::encode_decode_test_instances::<IntermediateNotification>();
+        crate::tests::owned::encode_decode_test_instances::<RegisteredDelivery>();
+        crate::tests::borrowed::encode_decode_test_instances::<RegisteredDelivery>();
+
+        crate::tests::owned::encode_decode_test_instances::<MCDeliveryReceipt>();
+        crate::tests::borrowed::encode_decode_test_instances::<MCDeliveryReceipt>();
+
+        crate::tests::owned::encode_decode_test_instances::<SmeOriginatedAcknowledgement>();
+        crate::tests::borrowed::encode_decode_test_instances::<SmeOriginatedAcknowledgement>();
+
+        crate::tests::owned::encode_decode_test_instances::<IntermediateNotification>();
+        crate::tests::borrowed::encode_decode_test_instances::<IntermediateNotification>();
     }
 }

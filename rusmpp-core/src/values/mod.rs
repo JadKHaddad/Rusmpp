@@ -54,8 +54,7 @@
 // mod congestion_state;
 // pub use congestion_state::CongestionState;
 
-// mod data_coding;
-// pub use data_coding::DataCoding;
+pub mod data_coding;
 
 // mod delivery_failure_reason;
 // pub use delivery_failure_reason::DeliveryFailureReason;
@@ -72,11 +71,9 @@
 // mod dpf_result;
 // pub use dpf_result::DpfResult;
 
-// mod esm_class;
-// pub use esm_class::{Ansi41Specific, EsmClass, GsmFeatures, MessageType, MessagingMode};
+pub mod esm_class;
 
-mod interface_version;
-pub use interface_version::InterfaceVersion;
+pub mod interface_version;
 
 // mod its_reply_type;
 // pub use its_reply_type::ItsReplyType;
@@ -108,8 +105,7 @@ pub use interface_version::InterfaceVersion;
 // mod network_type;
 // pub use network_type::NetworkType;
 
-mod npi;
-pub use npi::Npi;
+pub mod npi;
 
 // mod number_of_messages;
 // pub use number_of_messages::NumberOfMessages;
@@ -117,22 +113,16 @@ pub use npi::Npi;
 // mod payload_type;
 // pub use payload_type::PayloadType;
 
-// mod priority_flag;
-// pub use priority_flag::{Ansi41Cbs, Ansi136, GsmCbs, GsmSms, Is95, PriorityFlag, PriorityFlagType};
+pub mod priority_flag;
 
 // mod privacy_indicator;
 // pub use privacy_indicator::PrivacyIndicator;
 
-// mod registered_delivery;
-// pub use registered_delivery::{
-//     IntermediateNotification, MCDeliveryReceipt, RegisteredDelivery, SmeOriginatedAcknowledgement,
-// };
+pub mod registered_delivery;
 
-// mod replace_if_present_flag;
-// pub use replace_if_present_flag::ReplaceIfPresentFlag;
+pub mod replace_if_present_flag;
 
-// mod service_type;
-// pub use service_type::{GenericServiceType, ServiceType};
+pub mod service_type;
 
 // mod set_dpf;
 // pub use set_dpf::SetDpf;
@@ -140,8 +130,7 @@ pub use npi::Npi;
 // mod sub_address;
 // pub use sub_address::{Subaddress, SubaddressTag};
 
-mod ton;
-pub use ton::Ton;
+pub mod ton;
 
 // mod unsuccess_sme;
 // pub use unsuccess_sme::UnsuccessSme;

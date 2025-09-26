@@ -90,7 +90,7 @@ pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
 // mod sm_resp;
 // pub use sm_resp::{DataSmResp, DeliverSmResp};
 
-// mod submit_sm;
+mod submit_sm;
 // pub use submit_sm::SubmitSm;
 
 // mod submit_sm_resp;

@@ -1,13 +1,13 @@
-crate::create! {
-    @[repr = u8]
-    /// See [`PriorityFlagType`].
-    #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct PriorityFlag {
-        pub value: u8,
-    }
+use rusmpp_macros::Rusmpp;
+
+/// See [`PriorityFlagType`].
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[rusmpp(repr = "u8")]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct PriorityFlag {
+    pub value: u8,
 }
 
 impl PriorityFlag {
@@ -341,6 +341,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<PriorityFlag>();
+        crate::tests::owned::encode_decode_test_instances::<PriorityFlag>();
+        crate::tests::borrowed::encode_decode_test_instances::<PriorityFlag>();
     }
 }

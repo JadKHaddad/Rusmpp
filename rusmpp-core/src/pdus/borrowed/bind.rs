@@ -3,7 +3,7 @@ use rusmpp_macros::Rusmpp;
 use crate::{
     pdus::borrowed::Pdu,
     types::borrowed::COctetString,
-    values::{InterfaceVersion, Npi, Ton},
+    values::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
 };
 
 macro_rules! bind {

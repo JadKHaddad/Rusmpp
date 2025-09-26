@@ -7,7 +7,7 @@ use crate::{
     encode::{Encode, Length},
     tlvs::TlvTag,
     types::borrowed::{AnyOctetString, COctetString, OctetString},
-    values::*,
+    values::interface_version::InterfaceVersion,
 };
 
 /// See module level documentation.

@@ -125,7 +125,27 @@ fn quote_decode(
                         Ok(quote_borrowed_decode_with_length(input, &fields))
                     }
                 },
-                DecodeImplementation::All => todo!(),
+                DecodeImplementation::All => match decode_type {
+                    DecodeType::Decode => {
+                        let quote_borrowed_decode = quote_borrowed_decode(input, &fields);
+                        let quote_owned_decode = quote_owned_decode(input, &fields);
+
+                        Ok(quote! {
+                            #quote_borrowed_decode
+                            #quote_owned_decode
+                        })
+                    }
+                    DecodeType::DecodeWithLength => {
+                        let quote_borrowed_decode =
+                            quote_borrowed_decode_with_length(input, &fields);
+                        let quote_owned_decode = quote_owned_decode_with_length(input, &fields);
+
+                        Ok(quote! {
+                            #quote_borrowed_decode
+                            #quote_owned_decode
+                        })
+                    }
+                },
             }
         }
     }

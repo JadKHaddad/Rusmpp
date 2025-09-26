@@ -3,7 +3,7 @@ use rusmpp_macros::Rusmpp;
 use crate::{
     tlvs::borrowed::{Tlv, TlvValue},
     types::borrowed::COctetString,
-    values::InterfaceVersion,
+    values::interface_version::InterfaceVersion,
 };
 
 macro_rules! bind_resp {

@@ -1,16 +1,15 @@
-crate::create! {
-    @[repr = u8]
-    @[skip_test]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct EsmClass {
-        pub messaging_mode: MessagingMode,
-        pub message_type: MessageType,
-        pub ansi41_specific: Ansi41Specific,
-        pub gsm_features: GsmFeatures,
-    }
+use rusmpp_macros::Rusmpp;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[rusmpp(repr = "u8", test = skip)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct EsmClass {
+    pub messaging_mode: MessagingMode,
+    pub message_type: MessageType,
+    pub ansi41_specific: Ansi41Specific,
+    pub gsm_features: GsmFeatures,
 }
 
 impl EsmClass {
@@ -49,20 +48,18 @@ impl From<EsmClass> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum MessagingMode {
-        #[default]
-        Default = 0b00_00_00_00,
-        Datagram = 0b00_00_00_01,
-        Forward = 0b00_00_00_10,
-        StoreAndForward = 0b00_00_00_11,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum MessagingMode {
+    #[default]
+    Default = 0b00_00_00_00,
+    Datagram = 0b00_00_00_01,
+    Forward = 0b00_00_00_10,
+    StoreAndForward = 0b00_00_00_11,
+    Other(u8),
 }
 
 impl From<u8> for MessagingMode {
@@ -89,19 +86,17 @@ impl From<MessagingMode> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum MessageType {
-        #[default]
-        Default = 0b00_00_00_00,
-        ShortMessageContainsMCDeliveryReceipt = 0b00_00_01_00,
-        ShortMessageContainsIntermediateDeliveryNotification = 0b00_10_00_00,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum MessageType {
+    #[default]
+    Default = 0b00_00_00_00,
+    ShortMessageContainsMCDeliveryReceipt = 0b00_00_01_00,
+    ShortMessageContainsIntermediateDeliveryNotification = 0b00_10_00_00,
+    Other(u8),
 }
 
 impl From<u8> for MessageType {
@@ -126,19 +121,17 @@ impl From<MessageType> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum Ansi41Specific {
-        #[default]
-        ShortMessageContainsDeliveryAcknowledgement = 0b00_00_10_00,
-        ShortMessageContainsUserAcknowledgment = 0b00_01_00_00,
-        ShortMessageContainsConversationAbort = 0b00_01_10_00,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum Ansi41Specific {
+    #[default]
+    ShortMessageContainsDeliveryAcknowledgement = 0b00_00_10_00,
+    ShortMessageContainsUserAcknowledgment = 0b00_01_00_00,
+    ShortMessageContainsConversationAbort = 0b00_01_10_00,
+    Other(u8),
 }
 
 impl From<u8> for Ansi41Specific {
@@ -163,20 +156,18 @@ impl From<Ansi41Specific> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum GsmFeatures {
-        #[default]
-        NotSelected = 0b00_00_00_00,
-        UdhiIndicator = 0b01_00_00_00,
-        SetReplyPath = 0b10_00_00_00,
-        SetUdhiAndReplyPath = 0b11_00_00_00,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum GsmFeatures {
+    #[default]
+    NotSelected = 0b00_00_00_00,
+    UdhiIndicator = 0b01_00_00_00,
+    SetReplyPath = 0b10_00_00_00,
+    SetUdhiAndReplyPath = 0b11_00_00_00,
+    Other(u8),
 }
 
 impl From<u8> for GsmFeatures {
@@ -231,10 +222,16 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<EsmClass>();
-        crate::tests::encode_decode_test_instances::<MessagingMode>();
-        crate::tests::encode_decode_test_instances::<MessageType>();
-        crate::tests::encode_decode_test_instances::<Ansi41Specific>();
-        crate::tests::encode_decode_test_instances::<GsmFeatures>();
+        crate::tests::owned::encode_decode_test_instances::<EsmClass>();
+        crate::tests::borrowed::encode_decode_test_instances::<EsmClass>();
+
+        crate::tests::owned::encode_decode_test_instances::<MessagingMode>();
+        crate::tests::borrowed::encode_decode_test_instances::<MessagingMode>();
+
+        crate::tests::owned::encode_decode_test_instances::<MessageType>();
+        crate::tests::borrowed::encode_decode_test_instances::<MessageType>();
+
+        crate::tests::owned::encode_decode_test_instances::<Ansi41Specific>();
+        crate::tests::borrowed::encode_decode_test_instances::<GsmFeatures>();
     }
 }

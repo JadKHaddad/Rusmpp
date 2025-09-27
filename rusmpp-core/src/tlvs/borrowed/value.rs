@@ -7,7 +7,7 @@ use crate::{
     encode::{Encode, Length},
     tlvs::TlvTag,
     types::borrowed::{AnyOctetString, COctetString, OctetString},
-    values::interface_version::InterfaceVersion,
+    values::{interface_version::InterfaceVersion, message_payload::borrowed::MessagePayload},
 };
 
 /// See module level documentation.
@@ -80,7 +80,7 @@ pub enum TlvValue<'a> {
     // ItsReplyType(ItsReplyType),
     // ItsSessionInfo(ItsSessionInfo),
     // LanguageIndicator(LanguageIndicator),
-    // MessagePayload(MessagePayload),
+    MessagePayload(MessagePayload<'a>),
     // /// This field indicates the current status of the broadcast message.
     // MessageState(MessageState),
     // MoreMessagesToSend(MoreMessagesToSend),
@@ -155,7 +155,7 @@ impl TlvValue<'_> {
             // TlvValue::ItsReplyType(_) => TlvTag::ItsReplyType,
             // TlvValue::ItsSessionInfo(_) => TlvTag::ItsSessionInfo,
             // TlvValue::LanguageIndicator(_) => TlvTag::LanguageIndicator,
-            // TlvValue::MessagePayload(_) => TlvTag::MessagePayload,
+            TlvValue::MessagePayload(_) => TlvTag::MessagePayload,
             // TlvValue::MessageState(_) => TlvTag::MessageState,
             // TlvValue::MoreMessagesToSend(_) => TlvTag::MoreMessagesToSend,
             // TlvValue::MsAvailabilityStatus(_) => TlvTag::MsAvailabilityStatus,
@@ -227,7 +227,7 @@ impl Length for TlvValue<'_> {
             // TlvValue::ItsReplyType(value) => value.length(),
             // TlvValue::ItsSessionInfo(value) => value.length(),
             // TlvValue::LanguageIndicator(value) => value.length(),
-            // TlvValue::MessagePayload(value) => value.length(),
+            TlvValue::MessagePayload(value) => value.length(),
             // TlvValue::MessageState(value) => value.length(),
             // TlvValue::MoreMessagesToSend(value) => value.length(),
             // TlvValue::MsAvailabilityStatus(value) => value.length(),
@@ -299,7 +299,7 @@ impl Encode for TlvValue<'_> {
             // TlvValue::ItsReplyType(value) => value.encode(dst),
             // TlvValue::ItsSessionInfo(value) => value.encode(dst),
             // TlvValue::LanguageIndicator(value) => value.encode(dst),
-            // TlvValue::MessagePayload(value) => value.encode(dst),
+            TlvValue::MessagePayload(value) => value.encode(dst),
             // TlvValue::MessageState(value) => value.encode(dst),
             // TlvValue::MoreMessagesToSend(value) => value.encode(dst),
             // TlvValue::MsAvailabilityStatus(value) => value.encode(dst),
@@ -419,9 +419,9 @@ impl<'a> DecodeWithKey<'a> for TlvValue<'a> {
             // TlvTag::LanguageIndicator => {
             //     Decode::decode(src).map_decoded(Self::LanguageIndicator)?
             // }
-            // TlvTag::MessagePayload => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::MessagePayload)?
-            // }
+            TlvTag::MessagePayload => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::MessagePayload)?
+            }
             // TlvTag::MessageState => Decode::decode(src).map_decoded(Self::MessageState)?,
             // TlvTag::MoreMessagesToSend => {
             //     Decode::decode(src).map_decoded(Self::MoreMessagesToSend)?

@@ -144,5 +144,4 @@ pub mod ton;
 // mod broadcast_rep_num;
 // pub use broadcast_rep_num::BroadcastRepNum;
 
-// mod message_payload;
-// pub use message_payload::MessagePayload;
+pub mod message_payload;

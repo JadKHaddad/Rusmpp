@@ -6,6 +6,7 @@ use crate::{
         borrowed::{Tlv, TlvValue},
     },
     types::borrowed::{COctetString, OctetString},
+    values::message_payload::borrowed::MessagePayload,
 };
 
 #[non_exhaustive]
@@ -31,7 +32,7 @@ pub enum MessageSubmissionRequestTlvValue<'a> {
     // ItsReplyType(ItsReplyType),
     // ItsSessionInfo(ItsSessionInfo),
     // LanguageIndicator(LanguageIndicator),
-    // MessagePayload(MessagePayload),
+    MessagePayload(MessagePayload<'a>),
     // MoreMessagesToSend(MoreMessagesToSend),
     // MsMsgWaitFacilities(MsMsgWaitFacilities),
     // MsValidity(MsValidity),

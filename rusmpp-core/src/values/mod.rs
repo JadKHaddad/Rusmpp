@@ -27,8 +27,7 @@
 // mod alert_on_msg_delivery;
 // pub use alert_on_msg_delivery::AlertOnMessageDelivery;
 
-// mod bearer_type;
-// pub use bearer_type::BearerType;
+pub mod bearer_type;
 
 // mod broadcast_area_identifier;
 // pub use broadcast_area_identifier::{BroadcastAreaFormat, BroadcastAreaIdentifier};
@@ -127,8 +126,7 @@ pub mod service_type;
 // mod set_dpf;
 // pub use set_dpf::SetDpf;
 
-// mod sub_address;
-// pub use sub_address::{Subaddress, SubaddressTag};
+pub mod sub_address;
 
 pub mod ton;
 

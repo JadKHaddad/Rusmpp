@@ -7,7 +7,10 @@ use crate::{
     encode::{Encode, Length},
     tlvs::TlvTag,
     types::borrowed::{AnyOctetString, COctetString, OctetString},
-    values::{interface_version::InterfaceVersion, message_payload::borrowed::MessagePayload},
+    values::{
+        bearer_type::BearerType, interface_version::InterfaceVersion,
+        message_payload::borrowed::MessagePayload, sub_address::borrowed::Subaddress,
+    },
 };
 
 /// See module level documentation.
@@ -68,7 +71,7 @@ pub enum TlvValue<'a> {
     // DestAddrNpInformation(OctetString<0, 10>),
     // DestAddrNpResolution(DestAddrNpResolution),
     // DestAddrSubunit(AddrSubunit),
-    // DestBearerType(BearerType),
+    DestBearerType(BearerType),
     // DestNetworkId(COctetString<7, 66>),
     // DestNetworkType(NetworkType),
     // DestNodeId(OctetString<6, 6>),
@@ -106,10 +109,10 @@ pub enum TlvValue<'a> {
     // SourceNetworkType(NetworkType),
     // SourceNodeId(OctetString<6, 6>),
     // SourcePort(u16),
-    // SourceSubaddress(Subaddress),
+    SourceSubaddress(Subaddress<'a>),
     // SourceTelematicsId(u16),
     // UserMessageReference(UserMessageReference),
-    // UserResponseCode(u8),
+    UserResponseCode(u8),
     // UssdServiceOp(UssdServiceOp),
     Other {
         tag: TlvTag,
@@ -143,7 +146,7 @@ impl TlvValue<'_> {
             // TlvValue::DestAddrNpInformation(_) => TlvTag::DestAddrNpInformation,
             // TlvValue::DestAddrNpResolution(_) => TlvTag::DestAddrNpResolution,
             // TlvValue::DestAddrSubunit(_) => TlvTag::DestAddrSubunit,
-            // TlvValue::DestBearerType(_) => TlvTag::DestBearerType,
+            TlvValue::DestBearerType(_) => TlvTag::DestBearerType,
             // TlvValue::DestNetworkId(_) => TlvTag::DestNetworkId,
             // TlvValue::DestNetworkType(_) => TlvTag::DestNetworkType,
             // TlvValue::DestNodeId(_) => TlvTag::DestNodeId,
@@ -179,10 +182,10 @@ impl TlvValue<'_> {
             // TlvValue::SourceNetworkType(_) => TlvTag::SourceNetworkType,
             // TlvValue::SourceNodeId(_) => TlvTag::SourceNodeId,
             // TlvValue::SourcePort(_) => TlvTag::SourcePort,
-            // TlvValue::SourceSubaddress(_) => TlvTag::SourceSubaddress,
+            TlvValue::SourceSubaddress(_) => TlvTag::SourceSubaddress,
             // TlvValue::SourceTelematicsId(_) => TlvTag::SourceTelematicsId,
             // TlvValue::UserMessageReference(_) => TlvTag::UserMessageReference,
-            // TlvValue::UserResponseCode(_) => TlvTag::UserResponseCode,
+            TlvValue::UserResponseCode(_) => TlvTag::UserResponseCode,
             // TlvValue::UssdServiceOp(_) => TlvTag::UssdServiceOp,
             TlvValue::Other { tag, .. } => *tag,
         }
@@ -215,7 +218,7 @@ impl Length for TlvValue<'_> {
             // TlvValue::DestAddrNpInformation(value) => value.length(),
             // TlvValue::DestAddrNpResolution(value) => value.length(),
             // TlvValue::DestAddrSubunit(value) => value.length(),
-            // TlvValue::DestBearerType(value) => value.length(),
+            TlvValue::DestBearerType(value) => value.length(),
             // TlvValue::DestNetworkId(value) => value.length(),
             // TlvValue::DestNetworkType(value) => value.length(),
             // TlvValue::DestNodeId(value) => value.length(),
@@ -251,10 +254,10 @@ impl Length for TlvValue<'_> {
             // TlvValue::SourceNetworkType(value) => value.length(),
             // TlvValue::SourceNodeId(value) => value.length(),
             // TlvValue::SourcePort(value) => value.length(),
-            // TlvValue::SourceSubaddress(value) => value.length(),
+            TlvValue::SourceSubaddress(value) => value.length(),
             // TlvValue::SourceTelematicsId(value) => value.length(),
             // TlvValue::UserMessageReference(value) => value.length(),
-            // TlvValue::UserResponseCode(value) => value.length(),
+            TlvValue::UserResponseCode(value) => value.length(),
             // TlvValue::UssdServiceOp(value) => value.length(),
             TlvValue::Other { value, .. } => value.length(),
         }
@@ -287,7 +290,7 @@ impl Encode for TlvValue<'_> {
             // TlvValue::DestAddrNpInformation(value) => value.encode(dst),
             // TlvValue::DestAddrNpResolution(value) => value.encode(dst),
             // TlvValue::DestAddrSubunit(value) => value.encode(dst),
-            // TlvValue::DestBearerType(value) => value.encode(dst),
+            TlvValue::DestBearerType(value) => value.encode(dst),
             // TlvValue::DestNetworkId(value) => value.encode(dst),
             // TlvValue::DestNetworkType(value) => value.encode(dst),
             // TlvValue::DestNodeId(value) => value.encode(dst),
@@ -323,10 +326,10 @@ impl Encode for TlvValue<'_> {
             // TlvValue::SourceNetworkType(value) => value.encode(dst),
             // TlvValue::SourceNodeId(value) => value.encode(dst),
             // TlvValue::SourcePort(value) => value.encode(dst),
-            // TlvValue::SourceSubaddress(value) => value.encode(dst),
+            TlvValue::SourceSubaddress(value) => value.encode(dst),
             // TlvValue::SourceTelematicsId(value) => value.encode(dst),
             // TlvValue::UserMessageReference(value) => value.encode(dst),
-            // TlvValue::UserResponseCode(value) => value.encode(dst),
+            TlvValue::UserResponseCode(value) => value.encode(dst),
             // TlvValue::UssdServiceOp(value) => value.encode(dst),
             TlvValue::Other { value, .. } => value.encode(dst),
         }
@@ -401,7 +404,7 @@ impl<'a> DecodeWithKey<'a> for TlvValue<'a> {
             //     Decode::decode(src).map_decoded(Self::DestAddrNpResolution)?
             // }
             // TlvTag::DestAddrSubunit => Decode::decode(src).map_decoded(Self::DestAddrSubunit)?,
-            // TlvTag::DestBearerType => Decode::decode(src).map_decoded(Self::DestBearerType)?,
+            TlvTag::DestBearerType => Decode::decode(src).map_decoded(Self::DestBearerType)?,
             // TlvTag::DestNetworkId => Decode::decode(src).map_decoded(Self::DestNetworkId)?,
             // TlvTag::DestNetworkType => Decode::decode(src).map_decoded(Self::DestNetworkType)?,
             // TlvTag::DestNodeId => {
@@ -463,16 +466,16 @@ impl<'a> DecodeWithKey<'a> for TlvValue<'a> {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::SourceNodeId)?
             // }
             // TlvTag::SourcePort => Decode::decode(src).map_decoded(Self::SourcePort)?,
-            // TlvTag::SourceSubaddress => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::SourceSubaddress)?
-            // }
+            TlvTag::SourceSubaddress => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::SourceSubaddress)?
+            }
             // TlvTag::SourceTelematicsId => {
             //     Decode::decode(src).map_decoded(Self::SourceTelematicsId)?
             // }
             // TlvTag::UserMessageReference => {
             //     Decode::decode(src).map_decoded(Self::UserMessageReference)?
             // }
-            // TlvTag::UserResponseCode => Decode::decode(src).map_decoded(Self::UserResponseCode)?,
+            TlvTag::UserResponseCode => Decode::decode(src).map_decoded(Self::UserResponseCode)?,
             // TlvTag::UssdServiceOp => Decode::decode(src).map_decoded(Self::UssdServiceOp)?,
             TlvTag::Other(other) => {
                 DecodeWithLength::decode(src, length).map_decoded(|value| TlvValue::Other {

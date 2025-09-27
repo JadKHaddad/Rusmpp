@@ -6,7 +6,10 @@ use crate::{
         borrowed::{Tlv, TlvValue},
     },
     types::borrowed::{COctetString, OctetString},
-    values::message_payload::borrowed::MessagePayload,
+    values::{
+        bearer_type::BearerType, message_payload::borrowed::MessagePayload,
+        sub_address::borrowed::Subaddress,
+    },
 };
 
 #[non_exhaustive]
@@ -21,7 +24,7 @@ pub enum MessageSubmissionRequestTlvValue<'a> {
     // DestAddrNpInformation(OctetString<0, 10>),
     // DestAddrNpResolution(DestAddrNpResolution),
     // DestAddrSubunit(AddrSubunit),
-    // DestBearerType(BearerType),
+    DestBearerType(BearerType),
     // DestNetworkId(COctetString<7, 66>),
     // DestNetworkType(NetworkType),
     // DestNodeId(OctetString<6, 6>),
@@ -51,9 +54,9 @@ pub enum MessageSubmissionRequestTlvValue<'a> {
     // SourceNetworkType(NetworkType),
     // SourceNodeId(OctetString<6, 6>),
     // SourcePort(u16),
-    // SourceSubaddress(Subaddress),
+    SourceSubaddress(Subaddress<'a>),
     // SourceTelematicsId(u16),
     // UserMessageReference(UserMessageReference),
-    // UserResponseCode(u8),
+    UserResponseCode(u8),
     // UssdServiceOp(UssdServiceOp),
 }

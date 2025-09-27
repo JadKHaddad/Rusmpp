@@ -354,10 +354,12 @@ mod tests {
         tests::TestInstance,
         types::borrowed::AnyOctetString,
         values::{
+            bearer_type::BearerType,
             esm_class::{Ansi41Specific, GsmFeatures, MessageType, MessagingMode},
             message_payload::borrowed::MessagePayload,
             priority_flag::{Ansi136, PriorityFlagType},
             service_type::GenericServiceType,
+            sub_address::{SubaddressTag, borrowed::Subaddress},
         },
     };
 
@@ -438,13 +440,14 @@ mod tests {
                             MessageSubmissionRequestTlvValue::MessagePayload(MessagePayload::new(
                                 AnyOctetString::new(b"Message Payload"),
                             )),
-                            // TODO: restore after implementing more TLVs
-                            // MessageSubmissionRequestTlvValue::UserResponseCode(3),
-                            // MessageSubmissionRequestTlvValue::DestBearerType(BearerType::FlexReFlex),
-                            // MessageSubmissionRequestTlvValue::SourceSubaddress(Subaddress::new(
-                            //     SubaddressTag::NsapOdd,
-                            //     OctetString::from_str("Subaddress :D").unwrap(),
-                            // )),
+                            MessageSubmissionRequestTlvValue::UserResponseCode(3),
+                            MessageSubmissionRequestTlvValue::DestBearerType(
+                                BearerType::FlexReFlex
+                            ),
+                            MessageSubmissionRequestTlvValue::SourceSubaddress(Subaddress::new(
+                                SubaddressTag::NsapOdd,
+                                OctetString::new(b"Subaddress :D\0").unwrap(),
+                            )),
                         ]
                         .into()
                     )

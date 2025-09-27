@@ -1,5 +1,5 @@
 mod tlv;
 mod value;
 
-pub use tlv::Tlv;
+pub use tlv::*;
 pub use value::TlvValue;

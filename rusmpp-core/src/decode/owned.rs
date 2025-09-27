@@ -511,221 +511,214 @@ impl<T: Decode> DecodeWithLength for alloc::vec::Vec<T> {
 // TODO: fuzz the decode functions
 #[cfg(test)]
 mod tests {
+
+    use alloc::vec::Vec;
+
+    use crate::{
+        decode::{COctetStringDecodeError, DecodeErrorKind},
+        types::owned::{COctetString, EmptyOrFullCOctetString},
+    };
+
     use super::*;
 
-    mod owned {
-        use alloc::vec::Vec;
+    /// Testing [`counted_move`](DecodeExt::counted_move) will automatically test [`counted`](DecodeExt::counted).
+    #[test]
+    fn counted_move() {
+        // Count is 0
+        let buf = &[0, 1, 2];
 
-        use crate::{
-            decode::{COctetStringDecodeError, DecodeErrorKind},
-            types::owned::{COctetString, EmptyOrFullCOctetString},
-        };
+        let (values, size) = u8::counted_move(buf, 0, 0).unwrap();
 
-        use super::*;
+        assert_eq!(size, 0);
+        assert_eq!(&buf[size..], &[0, 1, 2]);
+        assert_eq!(values, Vec::<u8>::new());
 
-        /// Testing [`counted_move`](DecodeExt::counted_move) will automatically test [`counted`](DecodeExt::counted).
-        #[test]
-        fn counted_move() {
-            // Count is 0
-            let buf = &[0, 1, 2];
+        // Count is more than the buffer
+        let buf = &[0, 1, 2];
 
-            let (values, size) = u8::counted_move(buf, 0, 0).unwrap();
+        let error = u8::counted_move(buf, 5, 0).unwrap_err();
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
-            assert_eq!(size, 0);
-            assert_eq!(&buf[size..], &[0, 1, 2]);
-            assert_eq!(values, Vec::<u8>::new());
+        // Count is within the buffer
+        let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-            // Count is more than the buffer
-            let buf = &[0, 1, 2];
+        let (values, size) = u8::counted_move(buf, 10, 0).unwrap();
 
-            let error = u8::counted_move(buf, 5, 0).unwrap_err();
-            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
+        assert_eq!(size, 10);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-            // Count is within the buffer
-            let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
-            let (values, size) = u8::counted_move(buf, 10, 0).unwrap();
+        let (values, size) = u16::counted_move(buf, 10, 0).unwrap();
 
-            assert_eq!(size, 10);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(size, 20);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-            let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
+        let buf = &[
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0,
+            0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9,
+        ];
 
-            let (values, size) = u16::counted_move(buf, 10, 0).unwrap();
+        // Actually 10 values, 12 will break
+        let error = u32::counted_move(buf, 12, 0).unwrap_err();
 
-            assert_eq!(size, 20);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
-            let buf = &[
-                0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6,
-                0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9,
-            ];
+        let buf = b"Hello\0World\0";
 
-            // Actually 10 values, 12 will break
-            let error = u32::counted_move(buf, 12, 0).unwrap_err();
+        let (values, size) = COctetString::<1, 6>::counted_move(buf, 2, 0).unwrap();
 
-            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
+        assert_eq!(size, 12);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(
+            values,
+            alloc::vec![
+                COctetString::<1, 6>::new(b"Hello\0").unwrap(),
+                COctetString::<1, 6>::new(b"World\0").unwrap(),
+            ]
+        );
 
-            let buf = b"Hello\0World\0";
+        let buf = b"Hello\0World\0";
 
-            let (values, size) = COctetString::<1, 6>::counted_move(buf, 2, 0).unwrap();
+        let (values, size) = EmptyOrFullCOctetString::<6>::counted_move(buf, 2, 0).unwrap();
 
-            assert_eq!(size, 12);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(
-                values,
-                alloc::vec![
-                    COctetString::<1, 6>::new(b"Hello\0").unwrap(),
-                    COctetString::<1, 6>::new(b"World\0").unwrap(),
-                ]
-            );
+        assert_eq!(size, 12);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(
+            values,
+            alloc::vec![
+                EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
+                EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
+            ]
+        );
 
-            let buf = b"Hello\0World\0";
+        let buf = b"Hello\0World\0Hi";
 
-            let (values, size) = EmptyOrFullCOctetString::<6>::counted_move(buf, 2, 0).unwrap();
+        let error = COctetString::<1, 6>::counted_move(buf, 3, 0).unwrap_err();
 
-            assert_eq!(size, 12);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(
-                values,
-                alloc::vec![
-                    EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
-                    EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
-                ]
-            );
+        assert!(matches!(
+            error.kind(),
+            DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+        ));
 
-            let buf = b"Hello\0World\0Hi";
+        // Remaining bytes
+        let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-            let error = COctetString::<1, 6>::counted_move(buf, 3, 0).unwrap_err();
+        let (values, size) = u8::counted_move(buf, 5, 0).unwrap();
 
-            assert!(matches!(
-                error.kind(),
-                DecodeErrorKind::COctetStringDecodeError(
-                    COctetStringDecodeError::NotNullTerminated
-                )
-            ));
+        assert_eq!(size, 5);
+        assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
 
-            // Remaining bytes
-            let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
-            let (values, size) = u8::counted_move(buf, 5, 0).unwrap();
+        let (values, size) = u16::counted_move(buf, 5, 0).unwrap();
 
-            assert_eq!(size, 5);
-            assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
+        assert_eq!(size, 10);
+        assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
+    }
 
-            let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
+    #[test]
+    fn decode_with_length_vec() {
+        // Length is 0
+        let buf = &[0, 1, 2];
 
-            let (values, size) = u16::counted_move(buf, 5, 0).unwrap();
+        let (values, size) = Vec::<u8>::decode(buf, 0).unwrap();
 
-            assert_eq!(size, 10);
-            assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
-        }
+        assert_eq!(size, 0);
+        assert_eq!(&buf[size..], &[0, 1, 2]);
+        assert_eq!(values, Vec::<u8>::new());
 
-        #[test]
-        fn decode_with_length_vec() {
-            // Length is 0
-            let buf = &[0, 1, 2];
+        // Length is bigger than the buffer
+        let buf = &[0, 1, 2];
 
-            let (values, size) = Vec::<u8>::decode(buf, 0).unwrap();
+        let error = Vec::<u8>::decode(buf, 5).unwrap_err();
 
-            assert_eq!(size, 0);
-            assert_eq!(&buf[size..], &[0, 1, 2]);
-            assert_eq!(values, Vec::<u8>::new());
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
-            // Length is bigger than the buffer
-            let buf = &[0, 1, 2];
+        // Length is within the buffer
+        let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-            let error = Vec::<u8>::decode(buf, 5).unwrap_err();
+        let (values, size) = Vec::<u8>::decode(buf, 10).unwrap();
 
-            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
+        assert_eq!(size, 10);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-            // Length is within the buffer
-            let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
-            let (values, size) = Vec::<u8>::decode(buf, 10).unwrap();
+        let (values, size) = Vec::<u16>::decode(buf, 20).unwrap();
 
-            assert_eq!(size, 10);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert_eq!(size, 20);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-            let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
+        let buf = &[
+            0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6, 0,
+            0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9,
+        ];
 
-            let (values, size) = Vec::<u16>::decode(buf, 20).unwrap();
+        // Actually 40 bytes, 50 will break
+        let error = Vec::<u32>::decode(buf, 50).unwrap_err();
 
-            assert_eq!(size, 20);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+        assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
 
-            let buf = &[
-                0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 3, 0, 0, 0, 4, 0, 0, 0, 5, 0, 0, 0, 6,
-                0, 0, 0, 7, 0, 0, 0, 8, 0, 0, 0, 9,
-            ];
+        let buf = b"Hello\0World\0";
 
-            // Actually 40 bytes, 50 will break
-            let error = Vec::<u32>::decode(buf, 50).unwrap_err();
+        let (values, size) = Vec::<COctetString<1, 6>>::decode(buf, 12).unwrap();
 
-            assert!(matches!(error.kind(), DecodeErrorKind::UnexpectedEof));
+        assert_eq!(size, 12);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(
+            values,
+            alloc::vec![
+                COctetString::<1, 6>::new(b"Hello\0").unwrap(),
+                COctetString::<1, 6>::new(b"World\0").unwrap(),
+            ]
+        );
 
-            let buf = b"Hello\0World\0";
+        let buf = b"Hello\0World\0";
 
-            let (values, size) = Vec::<COctetString<1, 6>>::decode(buf, 12).unwrap();
+        let (values, size) = Vec::<EmptyOrFullCOctetString<6>>::decode(buf, 12).unwrap();
 
-            assert_eq!(size, 12);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(
-                values,
-                alloc::vec![
-                    COctetString::<1, 6>::new(b"Hello\0").unwrap(),
-                    COctetString::<1, 6>::new(b"World\0").unwrap(),
-                ]
-            );
+        assert_eq!(size, 12);
+        assert!(&buf[size..].is_empty());
+        assert_eq!(
+            values,
+            alloc::vec![
+                EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
+                EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
+            ]
+        );
 
-            let buf = b"Hello\0World\0";
+        let buf = b"Hello\0World\0Hi";
 
-            let (values, size) = Vec::<EmptyOrFullCOctetString<6>>::decode(buf, 12).unwrap();
+        // This will try to decode 11 bytes b"Hello\0World"
+        let error = Vec::<COctetString<1, 6>>::decode(buf, 11).unwrap_err();
 
-            assert_eq!(size, 12);
-            assert!(&buf[size..].is_empty());
-            assert_eq!(
-                values,
-                alloc::vec![
-                    EmptyOrFullCOctetString::<6>::new(b"Hello\0").unwrap(),
-                    EmptyOrFullCOctetString::<6>::new(b"World\0").unwrap(),
-                ]
-            );
+        assert!(matches!(
+            error.kind(),
+            DecodeErrorKind::COctetStringDecodeError(COctetStringDecodeError::NotNullTerminated)
+        ));
 
-            let buf = b"Hello\0World\0Hi";
+        // Remaining bytes
+        let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-            // This will try to decode 11 bytes b"Hello\0World"
-            let error = Vec::<COctetString<1, 6>>::decode(buf, 11).unwrap_err();
+        let (values, size) = Vec::<u8>::decode(buf, 5).unwrap();
 
-            assert!(matches!(
-                error.kind(),
-                DecodeErrorKind::COctetStringDecodeError(
-                    COctetStringDecodeError::NotNullTerminated
-                )
-            ));
+        assert_eq!(size, 5);
+        assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
 
-            // Remaining bytes
-            let buf = &[0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+        let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
 
-            let (values, size) = Vec::<u8>::decode(buf, 5).unwrap();
+        let (values, size) = Vec::<u16>::decode(buf, 10).unwrap();
 
-            assert_eq!(size, 5);
-            assert_eq!(&buf[size..], &[5, 6, 7, 8, 9]);
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
-
-            let buf = &[0, 0, 0, 1, 0, 2, 0, 3, 0, 4, 0, 5, 0, 6, 0, 7, 0, 8, 0, 9];
-
-            let (values, size) = Vec::<u16>::decode(buf, 10).unwrap();
-
-            assert_eq!(size, 10);
-            assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
-            assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
-        }
+        assert_eq!(size, 10);
+        assert_eq!(&buf[size..], &[0, 5, 0, 6, 0, 7, 0, 8, 0, 9]);
+        assert_eq!(values, alloc::vec![0, 1, 2, 3, 4]);
     }
 }

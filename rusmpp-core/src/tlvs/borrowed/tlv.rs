@@ -5,6 +5,9 @@ use crate::{
     tlvs::{borrowed::TlvValue, tag::TlvTag},
 };
 
+mod message_submission_request;
+pub use message_submission_request::*;
+
 /// See module level documentation.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
 #[rusmpp(decode = borrowed, test = skip)]

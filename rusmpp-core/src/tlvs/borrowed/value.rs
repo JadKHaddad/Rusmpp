@@ -18,7 +18,7 @@ use crate::{
 pub enum TlvValue<'a> {
     // AdditionalStatusInfoText(COctetString<1, 256>),
     // AlertOnMessageDelivery(AlertOnMessageDelivery),
-    // BillingIdentification(OctetString<0, 1024>),
+    BillingIdentification(OctetString<'a, 0, 1024>),
     // /// Identifies one or more target Broadcast Area(s) for which the
     // /// status information applies.
     // ///
@@ -122,7 +122,7 @@ impl TlvValue<'_> {
         match self {
             // TlvValue::AdditionalStatusInfoText(_) => TlvTag::AdditionalStatusInfoText,
             // TlvValue::AlertOnMessageDelivery(_) => TlvTag::AlertOnMessageDelivery,
-            // TlvValue::BillingIdentification(_) => TlvTag::BillingIdentification,
+            TlvValue::BillingIdentification(_) => TlvTag::BillingIdentification,
             // TlvValue::BroadcastAreaIdentifier(_) => TlvTag::BroadcastAreaIdentifier,
             // TlvValue::BroadcastAreaSuccess(_) => TlvTag::BroadcastAreaSuccess,
             // TlvValue::BroadcastContentTypeInfo(_) => TlvTag::BroadcastContentTypeInfo,
@@ -194,7 +194,7 @@ impl Length for TlvValue<'_> {
         match self {
             // TlvValue::AdditionalStatusInfoText(value) => value.length(),
             // TlvValue::AlertOnMessageDelivery(value) => value.length(),
-            // TlvValue::BillingIdentification(value) => value.length(),
+            TlvValue::BillingIdentification(value) => value.length(),
             // TlvValue::BroadcastAreaIdentifier(value) => value.length(),
             // TlvValue::BroadcastAreaSuccess(value) => value.length(),
             // TlvValue::BroadcastContentTypeInfo(value) => value.length(),
@@ -266,7 +266,7 @@ impl Encode for TlvValue<'_> {
         match self {
             // TlvValue::AdditionalStatusInfoText(value) => value.encode(dst),
             // TlvValue::AlertOnMessageDelivery(value) => value.encode(dst),
-            // TlvValue::BillingIdentification(value) => value.encode(dst),
+            TlvValue::BillingIdentification(value) => value.encode(dst),
             // TlvValue::BroadcastAreaIdentifier(value) => value.encode(dst),
             // TlvValue::BroadcastAreaSuccess(value) => value.encode(dst),
             // TlvValue::BroadcastContentTypeInfo(value) => value.encode(dst),
@@ -344,9 +344,9 @@ impl<'a> DecodeWithKey<'a> for TlvValue<'a> {
             // TlvTag::AlertOnMessageDelivery => {
             //     Decode::decode(src).map_decoded(Self::AlertOnMessageDelivery)?
             // }
-            // TlvTag::BillingIdentification => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BillingIdentification)?
-            // }
+            TlvTag::BillingIdentification => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BillingIdentification)?
+            }
             // TlvTag::BroadcastAreaIdentifier => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastAreaIdentifier)?
             // }

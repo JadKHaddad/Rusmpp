@@ -8,7 +8,7 @@ use crate::{
     repr::{Repr, ReprType},
 };
 
-pub fn derive_for_struct(
+pub fn derive_rusmpp_for_struct(
     input: &DeriveInput,
     fields_named: &FieldsNamed,
 ) -> syn::Result<TokenStream> {
@@ -17,7 +17,7 @@ pub fn derive_for_struct(
     let parts = parts::quote_parts(input, fields_named);
 
     if let Some(repr) = struct_attrs.repr {
-        let repr_expanded = repr.quote(
+        let repr_expanded = repr.quote_rusmpp(
             &input.ident,
             &struct_attrs.decode_attrs,
             &struct_attrs.test_attrs,

@@ -1,15 +1,16 @@
 use proc_macro2::TokenStream;
-use syn::{DeriveInput, Ident, parse};
+use quote::quote;
+use syn::{DataEnum, DeriveInput, Fields, Ident, parse};
 
 use crate::{
     container_attributes::{DecodeAttributes, TestAttributes},
     repr::{Repr, ReprType},
 };
 
-pub fn derive_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
+pub fn derive_rusmpp_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
     let enum_attrs = EnumAttributes::extract(input)?;
 
-    Ok(enum_attrs.repr.quote(
+    Ok(enum_attrs.repr.quote_rusmpp(
         &input.ident,
         &enum_attrs.decode_attrs,
         &enum_attrs.test_attrs,
@@ -77,4 +78,62 @@ impl EnumAttributes {
             test_attrs,
         })
     }
+}
+
+pub fn derive_tlv_value_for_enum(
+    input: &DeriveInput,
+    data_enum: &DataEnum,
+) -> syn::Result<TokenStream> {
+    let ident = &input.ident;
+    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+    // Collect match arms
+    let mut tag_arms = Vec::new();
+    let mut value_arms = Vec::new();
+
+    for variant in &data_enum.variants {
+        let v_ident = &variant.ident;
+
+        match &variant.fields {
+            Fields::Unnamed(fields) if fields.unnamed.len() == 1 => {
+                tag_arms.push(quote! {
+                    #ident::#v_ident(_) => TlvTag::#v_ident,
+                });
+
+                value_arms.push(quote! {
+                    #ident::#v_ident(value) => TlvValue::#v_ident(value),
+                });
+            }
+            _ => {
+                return Err(syn::Error::new_spanned(
+                    &variant.ident,
+                    "TlvValue can only be derived for tuple variants with a single field",
+                ));
+            }
+        }
+    }
+
+    Ok(quote! {
+        impl #impl_generics #ident #ty_generics #where_clause {
+            pub const fn tag(&self) -> TlvTag {
+                match self {
+                    #(#tag_arms)*
+                }
+            }
+        }
+
+        impl #impl_generics From<#ident #ty_generics> for TlvValue #ty_generics #where_clause {
+            fn from(value: #ident #ty_generics) -> Self {
+                match value {
+                    #(#value_arms)*
+                }
+            }
+        }
+
+        impl #impl_generics From<#ident #ty_generics> for Tlv #ty_generics #where_clause {
+            fn from(value: #ident #ty_generics) -> Self {
+                Self::new(TlvValue::from(value))
+            }
+        }
+    })
 }

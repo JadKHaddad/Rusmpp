@@ -116,7 +116,7 @@ impl Repr {
         }
     }
 
-    pub fn quote(
+    pub fn quote_rusmpp(
         &self,
         name: &Ident,
         decode_attrs: &DecodeAttributes,

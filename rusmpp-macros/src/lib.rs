@@ -44,7 +44,17 @@ mod structs;
 pub fn rusmpp(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    derive::derive(input)
+    derive::rusmpp(input)
+        .unwrap_or_else(syn::Error::into_compile_error)
+        .into()
+}
+
+/// Creates a `TlvValue`-like and implements `Into<TlvValue>` and `Into<Tlv>`.
+#[proc_macro_derive(TlvValue)]
+pub fn tlv_value(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    derive::tlv_value(input)
         .unwrap_or_else(syn::Error::into_compile_error)
         .into()
 }

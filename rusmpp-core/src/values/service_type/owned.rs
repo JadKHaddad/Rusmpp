@@ -60,7 +60,7 @@ pub struct ServiceType {
 }
 
 impl ServiceType {
-    pub fn new(value: COctetString<1, 6>) -> Self {
+    pub const fn new(value: COctetString<1, 6>) -> Self {
         Self { value }
     }
 
@@ -71,7 +71,7 @@ impl ServiceType {
         }
     }
 
-    pub fn value(&self) -> &COctetString<1, 6> {
+    pub const fn value(&self) -> &COctetString<1, 6> {
         &self.value
     }
 }

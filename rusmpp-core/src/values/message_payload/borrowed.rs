@@ -13,7 +13,7 @@ pub struct MessagePayload<'a> {
 }
 
 impl<'a> MessagePayload<'a> {
-    pub fn new(value: AnyOctetString<'a>) -> Self {
+    pub const fn new(value: AnyOctetString<'a>) -> Self {
         Self { value }
     }
 }

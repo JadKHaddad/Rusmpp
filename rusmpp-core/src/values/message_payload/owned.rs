@@ -13,7 +13,7 @@ pub struct MessagePayload {
 }
 
 impl MessagePayload {
-    pub fn new(value: AnyOctetString) -> Self {
+    pub const fn new(value: AnyOctetString) -> Self {
         Self { value }
     }
 }

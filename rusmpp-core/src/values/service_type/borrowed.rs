@@ -60,18 +60,18 @@ pub struct ServiceType<'a> {
 }
 
 impl<'a> ServiceType<'a> {
-    pub fn new(value: COctetString<'a, 1, 6>) -> Self {
+    pub const fn new(value: COctetString<'a, 1, 6>) -> Self {
         Self { value }
     }
 
     /// Create a new [`ServiceType`] with a value of 0.
-    pub fn null() -> Self {
+    pub const fn null() -> Self {
         Self {
             value: COctetString::null(),
         }
     }
 
-    pub fn value(&'_ self) -> &'_ COctetString<'_, 1, 6> {
+    pub const fn value(&'_ self) -> &'_ COctetString<'_, 1, 6> {
         &self.value
     }
 }

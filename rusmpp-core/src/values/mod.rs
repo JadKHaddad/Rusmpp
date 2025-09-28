@@ -61,8 +61,7 @@ pub mod data_coding;
 // mod dest_addr_np_resolution;
 // pub use dest_addr_np_resolution::DestAddrNpResolution;
 
-// mod dest_address;
-// pub use dest_address::{DestAddress, DestFlag, DistributionListName, SmeAddress};
+pub mod dest_address;
 
 // mod display_time;
 // pub use display_time::DisplayTime;

@@ -152,12 +152,12 @@ fn quote_decode(
     }
 }
 
-// XXX: Generics on the struct must be lifetime 'a
-// TODO: Skipped fields require a new constructor
+// XXX: Duplicated code with quote_owned_decode
 fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
+    let skipped_field_exists = fields.fields.iter().any(|f| f.attrs.skip());
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
             .ident
@@ -167,6 +167,20 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
 
     let fields = fields.fields.iter().map(|f| f.quote_borrowed_decode());
 
+    let constructor = if skipped_field_exists {
+        quote! {
+            Self::new(
+                #(#fields_names),*
+            )
+        }
+    } else {
+        quote! {
+            Self {
+                #(#fields_names),*
+            }
+        }
+    };
+
     quote! {
         impl #impl_generics crate::decode::borrowed::Decode<'a> for #name #ty_generics #where_clause {
             fn decode(src: &'a [u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
@@ -175,19 +189,17 @@ fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStre
                     #fields
                 )*
 
-                Ok((Self {
-                    #(#fields_names),*
-                 }, size))
+                Ok((#constructor, size))
             }
         }
     }
 }
 
-// TODO: Skipped fields require a new constructor
 fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
 
+    let skipped_field_exists = fields.fields.iter().any(|f| f.attrs.skip());
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field
             .ident
@@ -197,6 +209,20 @@ fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream 
 
     let fields = fields.fields.iter().map(|f| f.quote_owned_decode());
 
+    let constructor = if skipped_field_exists {
+        quote! {
+            Self::new(
+                #(#fields_names),*
+            )
+        }
+    } else {
+        quote! {
+            Self {
+                #(#fields_names),*
+            }
+        }
+    };
+
     quote! {
         impl #impl_generics crate::decode::owned::Decode for #name #ty_generics #where_clause {
             fn decode(src: &[u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
@@ -205,16 +231,13 @@ fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream 
                     #fields
                 )*
 
-                Ok((Self {
-                    #(#fields_names),*
-                 }, size))
+                Ok((#constructor, size))
             }
         }
     }
 }
 
-// XXX: Generics on the struct must be lifetime 'a
-// TODO: Skipped fields require a new constructor
+// XXX: Skipped fields are not used here
 fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
@@ -244,7 +267,7 @@ fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) 
     }
 }
 
-// TODO: Skipped fields require a new constructor
+// XXX: Skipped fields are not used here
 fn quote_owned_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
     let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();

@@ -373,12 +373,12 @@ pub trait DecodeExt<'a>: Decode<'a> {
         count: usize,
     ) -> Result<(heapless::vec::Vec<Self, N>, usize), DecodeError> {
         (0..count).try_fold((heapless::vec::Vec::new(), 0), |(mut vec, size), _| {
-            Self::decode(&src[size..]).map(|(item, size_)| {
-                // TODO: handle error here and add a new decode error for this case
-                vec.push(item);
+            let (item, size_) = Self::decode(&src[size..])?;
 
-                (vec, size + size_)
-            })
+            vec.push(item)
+                .map_err(|_| DecodeError::too_many_elements(N))?;
+
+            Ok((vec, size + size_))
         })
     }
 
@@ -491,8 +491,8 @@ impl<'a, const N: usize, T: Decode<'a>> DecodeWithLength<'a> for heapless::vec::
 
             size += size_;
 
-            // TODO: handle error here and add a new decode error for this case
-            vec.push(item);
+            vec.push(item)
+                .map_err(|_| DecodeError::too_many_elements(N))?;
         }
 
         Ok((vec, size))

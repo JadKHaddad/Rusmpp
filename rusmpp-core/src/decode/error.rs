@@ -64,6 +64,11 @@ impl DecodeError {
         Self::new(DecodeErrorKind::UnsupportedKey { key })
     }
 
+    #[inline]
+    pub const fn too_many_elements(max: usize) -> Self {
+        Self::new(DecodeErrorKind::TooManyElements { max })
+    }
+
     /// Checks recursively if the field exists in the sources tree.
     #[cfg(feature = "verbose")]
     pub fn field_exists(&self, field: SmppField) -> bool {
@@ -105,7 +110,15 @@ pub enum DecodeErrorKind {
     UnexpectedEof,
     COctetStringDecodeError(COctetStringDecodeError),
     OctetStringDecodeError(OctetStringDecodeError),
-    UnsupportedKey { key: u32 },
+    UnsupportedKey {
+        key: u32,
+    },
+    /// An error that can occur when decoding a fixed size of elements.
+    ///
+    /// E.g. decoding `[T; N]` where `N` is the fixed size. Mostly while decoding arrays of `TLVs`.
+    TooManyElements {
+        max: usize,
+    },
 }
 
 /// An error that can occur when decoding a `COctetString`.
@@ -182,6 +195,9 @@ impl core::fmt::Display for DecodeErrorKind {
             DecodeErrorKind::COctetStringDecodeError(e) => write!(f, "COctetString error: {e}"),
             DecodeErrorKind::OctetStringDecodeError(e) => write!(f, "OctetString error: {e}"),
             DecodeErrorKind::UnsupportedKey { key } => write!(f, "Unsupported key: {key}"),
+            DecodeErrorKind::TooManyElements { max } => {
+                write!(f, "Too many elements. max: {max}")
+            }
         }
     }
 }

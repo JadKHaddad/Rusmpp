@@ -27,6 +27,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        // crate::tests::borrowed::encode_decode_with_length_test_instances::<Subaddress>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<Subaddress>();
     }
 }

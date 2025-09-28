@@ -3,13 +3,11 @@ pub mod borrowed;
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 pub mod owned;
 
-// TODO: add example for the owned ServiceType as well
-/// Helper for creating a [`ServiceType`] with predefined values.
+/// Helper for creating a `ServiceType` with predefined values.
 ///
 /// # Example
 /// ```rust
-/// use rusmpp_core::values::service_type::{GenericServiceType, borrowed::ServiceType};
-///
+/// # use rusmpp_core::values::service_type::{GenericServiceType, borrowed::ServiceType};
 /// let service_type = ServiceType::new(GenericServiceType::CellularMessaging.into());
 /// assert_eq!(service_type.value().bytes(), b"CMT\0");
 /// assert_eq!(service_type.value().as_str(), "CMT");

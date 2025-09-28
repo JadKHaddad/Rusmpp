@@ -1,3 +1,5 @@
+//! `SMPP` command.
+
 pub mod borrowed;
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]

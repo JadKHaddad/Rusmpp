@@ -82,7 +82,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        // TODO
-        // crate::tests::owned::encode_decode_test_instances::<ServiceType>();
+        crate::tests::owned::encode_decode_test_instances::<ServiceType>();
     }
 }

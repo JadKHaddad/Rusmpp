@@ -2,13 +2,11 @@ use crate::{
     CommandId,
     decode::{
         DecodeError, DecodeResultExt,
-        owned::{Decode, DecodeWithKeyOptional, DecodeWithLength},
+        owned::{DecodeWithKeyOptional, DecodeWithLength},
     },
     encode::{Encode, Length},
     types::owned::AnyOctetString,
 };
-
-use super::*;
 
 /// `SMPP` PDU.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -144,172 +142,167 @@ pub enum Pdu {
     // /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
     // /// address in the cancel_broadcast_sm command should also be NULL.
     // CancelBroadcastSm(CancelBroadcastSm),
-    // /// This PDU can be sent by the ESME or MC as a means of
-    // /// initiating the termination of a `SMPP` session.
-    // Unbind,
-    // /// This PDU can be sent by the ESME or MC as a means of
-    // /// acknowledging the receipt of an unbind request. After
-    // /// sending this PDU the MC typically closes the network
-    // /// connection.
-    // UnbindResp,
-    // /// This PDU can be sent by the ESME or MC to test the network
-    // /// connection. The receiving peer is expected to acknowledge
-    // /// the PDU as a means of verifying the test.
-    // EnquireLink,
-    // /// This PDU is used to acknowledge an enquire_link request
-    // /// sent by an ESME or MC.
-    // EnquireLinkResp,
-    // /// This PDU can be sent by an ESME or MC as a means of
-    // /// indicating the receipt of an invalid PDU. The receipt of a
-    // /// generic_nack usually indicates that the remote peer either
-    // /// cannot identify the PDU or has deemed it an invalid PDU due
-    // /// to its size or content.
-    // GenericNack,
-    // /// The MC returns this PDU to indicate the success or failure of
-    // /// a cancel_sm PDU.
-    // CancelSmResp,
-    // /// The replace_sm_resp PDU indicates the success or failure of
-    // /// a replace_sm PDU.
-    // ReplaceSmResp,
-    // /// The MC returns a query_broadcast_sm_resp PDU as a
-    // /// means of indicating the result of a broadcast query
-    // /// attempt. The PDU will indicate the success or failure of the
-    // /// attempt and for successful attempts will also include the
-    // /// current state of the message.
-    // CancelBroadcastSmResp,
-    // Other {
-    //     command_id: CommandId,
-    //     body: AnyOctetString,
-    // },
+    /// This PDU can be sent by the ESME or MC as a means of
+    /// initiating the termination of a `SMPP` session.
+    Unbind,
+    /// This PDU can be sent by the ESME or MC as a means of
+    /// acknowledging the receipt of an unbind request. After
+    /// sending this PDU the MC typically closes the network
+    /// connection.
+    UnbindResp,
+    /// This PDU can be sent by the ESME or MC to test the network
+    /// connection. The receiving peer is expected to acknowledge
+    /// the PDU as a means of verifying the test.
+    EnquireLink,
+    /// This PDU is used to acknowledge an enquire_link request
+    /// sent by an ESME or MC.
+    EnquireLinkResp,
+    /// This PDU can be sent by an ESME or MC as a means of
+    /// indicating the receipt of an invalid PDU. The receipt of a
+    /// generic_nack usually indicates that the remote peer either
+    /// cannot identify the PDU or has deemed it an invalid PDU due
+    /// to its size or content.
+    GenericNack,
+    /// The MC returns this PDU to indicate the success or failure of
+    /// a cancel_sm PDU.
+    CancelSmResp,
+    /// The replace_sm_resp PDU indicates the success or failure of
+    /// a replace_sm PDU.
+    ReplaceSmResp,
+    /// The MC returns a query_broadcast_sm_resp PDU as a
+    /// means of indicating the result of a broadcast query
+    /// attempt. The PDU will indicate the success or failure of the
+    /// attempt and for successful attempts will also include the
+    /// current state of the message.
+    CancelBroadcastSmResp,
+    Other {
+        command_id: CommandId,
+        body: AnyOctetString,
+    },
 }
 
 impl Pdu {
     pub const fn command_id(&self) -> CommandId {
-        // match self {
-        //     Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
-        //     Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
-        //     Pdu::BindReceiver(_) => CommandId::BindReceiver,
-        //     Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
-        //     Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
-        //     Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
-        //     Pdu::Outbind(_) => CommandId::Outbind,
-        //     Pdu::AlertNotification(_) => CommandId::AlertNotification,
-        //     Pdu::SubmitSm(_) => CommandId::SubmitSm,
-        //     Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
-        //     Pdu::QuerySm(_) => CommandId::QuerySm,
-        //     Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
-        //     Pdu::DeliverSm(_) => CommandId::DeliverSm,
-        //     Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
-        //     Pdu::DataSm(_) => CommandId::DataSm,
-        //     Pdu::DataSmResp(_) => CommandId::DataSmResp,
-        //     Pdu::CancelSm(_) => CommandId::CancelSm,
-        //     Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
-        //     Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
-        //     Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
-        //     Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
-        //     Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
-        //     Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
-        //     Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
-        //     Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
-        //     Pdu::Other { command_id, .. } => *command_id,
-        //     // These are empty pdus.
-        //     // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
-        //     Pdu::Unbind => CommandId::Unbind,
-        //     Pdu::UnbindResp => CommandId::UnbindResp,
-        //     Pdu::EnquireLink => CommandId::EnquireLink,
-        //     Pdu::EnquireLinkResp => CommandId::EnquireLinkResp,
-        //     Pdu::GenericNack => CommandId::GenericNack,
-        //     Pdu::CancelSmResp => CommandId::CancelSmResp,
-        //     Pdu::ReplaceSmResp => CommandId::ReplaceSmResp,
-        //     Pdu::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
-        // }
-
-        todo!()
+        match self {
+            //     Pdu::BindTransmitter(_) => CommandId::BindTransmitter,
+            //     Pdu::BindTransmitterResp(_) => CommandId::BindTransmitterResp,
+            //     Pdu::BindReceiver(_) => CommandId::BindReceiver,
+            //     Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
+            //     Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
+            //     Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
+            //     Pdu::Outbind(_) => CommandId::Outbind,
+            //     Pdu::AlertNotification(_) => CommandId::AlertNotification,
+            //     Pdu::SubmitSm(_) => CommandId::SubmitSm,
+            //     Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
+            //     Pdu::QuerySm(_) => CommandId::QuerySm,
+            //     Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
+            //     Pdu::DeliverSm(_) => CommandId::DeliverSm,
+            //     Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            //     Pdu::DataSm(_) => CommandId::DataSm,
+            //     Pdu::DataSmResp(_) => CommandId::DataSmResp,
+            //     Pdu::CancelSm(_) => CommandId::CancelSm,
+            //     Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
+            //     Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
+            //     Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
+            //     Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
+            //     Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
+            //     Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
+            //     Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            //     Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
+            Pdu::Other { command_id, .. } => *command_id,
+            // These are empty pdus.
+            // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
+            Pdu::Unbind => CommandId::Unbind,
+            Pdu::UnbindResp => CommandId::UnbindResp,
+            Pdu::EnquireLink => CommandId::EnquireLink,
+            Pdu::EnquireLinkResp => CommandId::EnquireLinkResp,
+            Pdu::GenericNack => CommandId::GenericNack,
+            Pdu::CancelSmResp => CommandId::CancelSmResp,
+            Pdu::ReplaceSmResp => CommandId::ReplaceSmResp,
+            Pdu::CancelBroadcastSmResp => CommandId::CancelBroadcastSmResp,
+        }
     }
 }
 
 impl Length for Pdu {
     fn length(&self) -> usize {
-        // match self {
-        //     Pdu::BindTransmitter(body) => body.length(),
-        //     Pdu::BindTransmitterResp(body) => body.length(),
-        //     Pdu::BindReceiver(body) => body.length(),
-        //     Pdu::BindReceiverResp(body) => body.length(),
-        //     Pdu::BindTransceiver(body) => body.length(),
-        //     Pdu::BindTransceiverResp(body) => body.length(),
-        //     Pdu::Outbind(body) => body.length(),
-        //     Pdu::AlertNotification(body) => body.length(),
-        //     Pdu::SubmitSm(body) => body.length(),
-        //     Pdu::SubmitSmResp(body) => body.length(),
-        //     Pdu::QuerySm(body) => body.length(),
-        //     Pdu::QuerySmResp(body) => body.length(),
-        //     Pdu::DeliverSm(body) => body.length(),
-        //     Pdu::DeliverSmResp(body) => body.length(),
-        //     Pdu::DataSm(body) => body.length(),
-        //     Pdu::DataSmResp(body) => body.length(),
-        //     Pdu::CancelSm(body) => body.length(),
-        //     Pdu::ReplaceSm(body) => body.length(),
-        //     Pdu::SubmitMulti(body) => body.length(),
-        //     Pdu::SubmitMultiResp(body) => body.length(),
-        //     Pdu::BroadcastSm(body) => body.length(),
-        //     Pdu::BroadcastSmResp(body) => body.length(),
-        //     Pdu::QueryBroadcastSm(body) => body.length(),
-        //     Pdu::QueryBroadcastSmResp(body) => body.length(),
-        //     Pdu::CancelBroadcastSm(body) => body.length(),
-        //     Pdu::Unbind => 0,
-        //     Pdu::UnbindResp => 0,
-        //     Pdu::EnquireLink => 0,
-        //     Pdu::EnquireLinkResp => 0,
-        //     Pdu::GenericNack => 0,
-        //     Pdu::CancelSmResp => 0,
-        //     Pdu::ReplaceSmResp => 0,
-        //     Pdu::CancelBroadcastSmResp => 0,
-        //     Pdu::Other { body, .. } => body.length(),
-        // }
-
-        todo!()
+        match self {
+            //     Pdu::BindTransmitter(body) => body.length(),
+            //     Pdu::BindTransmitterResp(body) => body.length(),
+            //     Pdu::BindReceiver(body) => body.length(),
+            //     Pdu::BindReceiverResp(body) => body.length(),
+            //     Pdu::BindTransceiver(body) => body.length(),
+            //     Pdu::BindTransceiverResp(body) => body.length(),
+            //     Pdu::Outbind(body) => body.length(),
+            //     Pdu::AlertNotification(body) => body.length(),
+            //     Pdu::SubmitSm(body) => body.length(),
+            //     Pdu::SubmitSmResp(body) => body.length(),
+            //     Pdu::QuerySm(body) => body.length(),
+            //     Pdu::QuerySmResp(body) => body.length(),
+            //     Pdu::DeliverSm(body) => body.length(),
+            //     Pdu::DeliverSmResp(body) => body.length(),
+            //     Pdu::DataSm(body) => body.length(),
+            //     Pdu::DataSmResp(body) => body.length(),
+            //     Pdu::CancelSm(body) => body.length(),
+            //     Pdu::ReplaceSm(body) => body.length(),
+            //     Pdu::SubmitMulti(body) => body.length(),
+            //     Pdu::SubmitMultiResp(body) => body.length(),
+            //     Pdu::BroadcastSm(body) => body.length(),
+            //     Pdu::BroadcastSmResp(body) => body.length(),
+            //     Pdu::QueryBroadcastSm(body) => body.length(),
+            //     Pdu::QueryBroadcastSmResp(body) => body.length(),
+            //     Pdu::CancelBroadcastSm(body) => body.length(),
+            Pdu::Unbind => 0,
+            Pdu::UnbindResp => 0,
+            Pdu::EnquireLink => 0,
+            Pdu::EnquireLinkResp => 0,
+            Pdu::GenericNack => 0,
+            Pdu::CancelSmResp => 0,
+            Pdu::ReplaceSmResp => 0,
+            Pdu::CancelBroadcastSmResp => 0,
+            Pdu::Other { body, .. } => body.length(),
+        }
     }
 }
 
 impl Encode for Pdu {
     fn encode(&self, dst: &mut [u8]) -> usize {
-        // match self {
-        //     Pdu::BindTransmitter(body) => body.encode(dst),
-        //     Pdu::BindTransmitterResp(body) => body.encode(dst),
-        //     Pdu::BindReceiver(body) => body.encode(dst),
-        //     Pdu::BindReceiverResp(body) => body.encode(dst),
-        //     Pdu::BindTransceiver(body) => body.encode(dst),
-        //     Pdu::BindTransceiverResp(body) => body.encode(dst),
-        //     Pdu::Outbind(body) => body.encode(dst),
-        //     Pdu::AlertNotification(body) => body.encode(dst),
-        //     Pdu::SubmitSm(body) => body.encode(dst),
-        //     Pdu::SubmitSmResp(body) => body.encode(dst),
-        //     Pdu::QuerySm(body) => body.encode(dst),
-        //     Pdu::QuerySmResp(body) => body.encode(dst),
-        //     Pdu::DeliverSm(body) => body.encode(dst),
-        //     Pdu::DeliverSmResp(body) => body.encode(dst),
-        //     Pdu::DataSm(body) => body.encode(dst),
-        //     Pdu::DataSmResp(body) => body.encode(dst),
-        //     Pdu::CancelSm(body) => body.encode(dst),
-        //     Pdu::ReplaceSm(body) => body.encode(dst),
-        //     Pdu::SubmitMulti(body) => body.encode(dst),
-        //     Pdu::SubmitMultiResp(body) => body.encode(dst),
-        //     Pdu::BroadcastSm(body) => body.encode(dst),
-        //     Pdu::BroadcastSmResp(body) => body.encode(dst),
-        //     Pdu::QueryBroadcastSm(body) => body.encode(dst),
-        //     Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
-        //     Pdu::CancelBroadcastSm(body) => body.encode(dst),
-        //     Pdu::Unbind
-        //     | Pdu::UnbindResp
-        //     | Pdu::EnquireLink
-        //     | Pdu::EnquireLinkResp
-        //     | Pdu::GenericNack
-        //     | Pdu::CancelSmResp
-        //     | Pdu::ReplaceSmResp
-        //     | Pdu::CancelBroadcastSmResp => 0,
-        //     Pdu::Other { body, .. } => body.encode(dst),
-        // }
-        todo!()
+        match self {
+            //     Pdu::BindTransmitter(body) => body.encode(dst),
+            //     Pdu::BindTransmitterResp(body) => body.encode(dst),
+            //     Pdu::BindReceiver(body) => body.encode(dst),
+            //     Pdu::BindReceiverResp(body) => body.encode(dst),
+            //     Pdu::BindTransceiver(body) => body.encode(dst),
+            //     Pdu::BindTransceiverResp(body) => body.encode(dst),
+            //     Pdu::Outbind(body) => body.encode(dst),
+            //     Pdu::AlertNotification(body) => body.encode(dst),
+            //     Pdu::SubmitSm(body) => body.encode(dst),
+            //     Pdu::SubmitSmResp(body) => body.encode(dst),
+            //     Pdu::QuerySm(body) => body.encode(dst),
+            //     Pdu::QuerySmResp(body) => body.encode(dst),
+            //     Pdu::DeliverSm(body) => body.encode(dst),
+            //     Pdu::DeliverSmResp(body) => body.encode(dst),
+            //     Pdu::DataSm(body) => body.encode(dst),
+            //     Pdu::DataSmResp(body) => body.encode(dst),
+            //     Pdu::CancelSm(body) => body.encode(dst),
+            //     Pdu::ReplaceSm(body) => body.encode(dst),
+            //     Pdu::SubmitMulti(body) => body.encode(dst),
+            //     Pdu::SubmitMultiResp(body) => body.encode(dst),
+            //     Pdu::BroadcastSm(body) => body.encode(dst),
+            //     Pdu::BroadcastSmResp(body) => body.encode(dst),
+            //     Pdu::QueryBroadcastSm(body) => body.encode(dst),
+            //     Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
+            //     Pdu::CancelBroadcastSm(body) => body.encode(dst),
+            Pdu::Unbind
+            | Pdu::UnbindResp
+            | Pdu::EnquireLink
+            | Pdu::EnquireLinkResp
+            | Pdu::GenericNack
+            | Pdu::CancelSmResp
+            | Pdu::ReplaceSmResp
+            | Pdu::CancelBroadcastSmResp => 0,
+            Pdu::Other { body, .. } => body.encode(dst),
+        }
     }
 }
 
@@ -321,100 +314,99 @@ impl DecodeWithKeyOptional for Pdu {
         src: &[u8],
         length: usize,
     ) -> Result<Option<(Self, usize)>, DecodeError> {
-        // if length == 0 {
-        //     let body = match key {
-        //         CommandId::Unbind => Pdu::Unbind,
-        //         CommandId::UnbindResp => Pdu::UnbindResp,
-        //         CommandId::EnquireLink => Pdu::EnquireLink,
-        //         CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
-        //         CommandId::GenericNack => Pdu::GenericNack,
-        //         CommandId::CancelSmResp => Pdu::CancelSmResp,
-        //         CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
-        //         CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
-        //         _ => return Ok(None),
-        //     };
+        if length == 0 {
+            let body = match key {
+                CommandId::Unbind => Pdu::Unbind,
+                CommandId::UnbindResp => Pdu::UnbindResp,
+                CommandId::EnquireLink => Pdu::EnquireLink,
+                CommandId::EnquireLinkResp => Pdu::EnquireLinkResp,
+                CommandId::GenericNack => Pdu::GenericNack,
+                CommandId::CancelSmResp => Pdu::CancelSmResp,
+                CommandId::ReplaceSmResp => Pdu::ReplaceSmResp,
+                CommandId::CancelBroadcastSmResp => Pdu::CancelBroadcastSmResp,
+                _ => return Ok(None),
+            };
 
-        //     return Ok(Some((body, 0)));
-        // }
+            return Ok(Some((body, 0)));
+        }
 
-        // let (body, size) = match key {
-        //     CommandId::BindTransmitter => Decode::decode(src).map_decoded(Self::BindTransmitter)?,
-        //     CommandId::BindTransmitterResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::BindTransmitterResp)?
-        //     }
-        //     CommandId::BindReceiver => Decode::decode(src).map_decoded(Self::BindReceiver)?,
-        //     CommandId::BindReceiverResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::BindReceiverResp)?
-        //     }
-        //     CommandId::BindTransceiver => Decode::decode(src).map_decoded(Self::BindTransceiver)?,
-        //     CommandId::BindTransceiverResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
-        //     }
-        //     CommandId::Outbind => Decode::decode(src).map_decoded(Self::Outbind)?,
-        //     CommandId::AlertNotification => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
-        //     }
-        //     CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
-        //     CommandId::SubmitSmResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
-        //     }
-        //     CommandId::QuerySm => Decode::decode(src).map_decoded(Self::QuerySm)?,
-        //     CommandId::QuerySmResp => Decode::decode(src).map_decoded(Self::QuerySmResp)?,
-        //     CommandId::DeliverSm => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSm)?
-        //     }
-        //     CommandId::DeliverSmResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSmResp)?
-        //     }
-        //     CommandId::DataSm => DecodeWithLength::decode(src, length).map_decoded(Self::DataSm)?,
-        //     CommandId::DataSmResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::DataSmResp)?
-        //     }
-        //     CommandId::CancelSm => Decode::decode(src).map_decoded(Self::CancelSm)?,
-        //     CommandId::ReplaceSm => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::ReplaceSm)?
-        //     }
-        //     CommandId::SubmitMulti => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMulti)?
-        //     }
-        //     CommandId::SubmitMultiResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMultiResp)?
-        //     }
-        //     CommandId::BroadcastSm => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSm)?
-        //     }
-        //     CommandId::BroadcastSmResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSmResp)?
-        //     }
-        //     CommandId::QueryBroadcastSm => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSm)?
-        //     }
-        //     CommandId::QueryBroadcastSmResp => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSmResp)?
-        //     }
-        //     CommandId::CancelBroadcastSm => {
-        //         DecodeWithLength::decode(src, length).map_decoded(Self::CancelBroadcastSm)?
-        //     }
+        let (body, size) = match key {
+            //     CommandId::BindTransmitter => Decode::decode(src).map_decoded(Self::BindTransmitter)?,
+            //     CommandId::BindTransmitterResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::BindTransmitterResp)?
+            //     }
+            //     CommandId::BindReceiver => Decode::decode(src).map_decoded(Self::BindReceiver)?,
+            //     CommandId::BindReceiverResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::BindReceiverResp)?
+            //     }
+            //     CommandId::BindTransceiver => Decode::decode(src).map_decoded(Self::BindTransceiver)?,
+            //     CommandId::BindTransceiverResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
+            //     }
+            //     CommandId::Outbind => Decode::decode(src).map_decoded(Self::Outbind)?,
+            //     CommandId::AlertNotification => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
+            //     }
+            //     CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
+            //     CommandId::SubmitSmResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
+            //     }
+            //     CommandId::QuerySm => Decode::decode(src).map_decoded(Self::QuerySm)?,
+            //     CommandId::QuerySmResp => Decode::decode(src).map_decoded(Self::QuerySmResp)?,
+            //     CommandId::DeliverSm => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSm)?
+            //     }
+            //     CommandId::DeliverSmResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSmResp)?
+            //     }
+            //     CommandId::DataSm => DecodeWithLength::decode(src, length).map_decoded(Self::DataSm)?,
+            //     CommandId::DataSmResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::DataSmResp)?
+            //     }
+            //     CommandId::CancelSm => Decode::decode(src).map_decoded(Self::CancelSm)?,
+            //     CommandId::ReplaceSm => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::ReplaceSm)?
+            //     }
+            //     CommandId::SubmitMulti => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMulti)?
+            //     }
+            //     CommandId::SubmitMultiResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMultiResp)?
+            //     }
+            //     CommandId::BroadcastSm => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSm)?
+            //     }
+            //     CommandId::BroadcastSmResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSmResp)?
+            //     }
+            //     CommandId::QueryBroadcastSm => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSm)?
+            //     }
+            //     CommandId::QueryBroadcastSmResp => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSmResp)?
+            //     }
+            //     CommandId::CancelBroadcastSm => {
+            //         DecodeWithLength::decode(src, length).map_decoded(Self::CancelBroadcastSm)?
+            //     }
+            CommandId::Other(_) => {
+                DecodeWithLength::decode(src, length).map_decoded(|body| Pdu::Other {
+                    command_id: key,
+                    body,
+                })?
+            }
+            // Length is not 0 and still have to decode the body. This is an invalid PDU.
+            CommandId::Unbind
+            | CommandId::UnbindResp
+            | CommandId::EnquireLink
+            | CommandId::EnquireLinkResp
+            | CommandId::GenericNack
+            | CommandId::CancelSmResp
+            | CommandId::ReplaceSmResp
+            | CommandId::CancelBroadcastSmResp => return Ok(None),
+            // TODO: remove after implementing all pdus.
+            _ => todo!(),
+        };
 
-        //     CommandId::Other(_) => {
-        //         DecodeWithLength::decode(src, length).map_decoded(|body| Pdu::Other {
-        //             command_id: key,
-        //             body,
-        //         })?
-        //     }
-        //     // Length is not 0 and still have to decode the body. This is an invalid PDU.
-        //     CommandId::Unbind
-        //     | CommandId::UnbindResp
-        //     | CommandId::EnquireLink
-        //     | CommandId::EnquireLinkResp
-        //     | CommandId::GenericNack
-        //     | CommandId::CancelSmResp
-        //     | CommandId::ReplaceSmResp
-        //     | CommandId::CancelBroadcastSmResp => return Ok(None),
-        // };
-
-        // Ok(Some((body, size)))
-
-        todo!()
+        Ok(Some((body, size)))
     }
 }

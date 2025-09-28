@@ -55,3 +55,140 @@ pub struct Command {
     #[rusmpp(key = id, length = "unchecked")]
     pdu: Option<Pdu>,
 }
+
+impl Default for Command {
+    fn default() -> Self {
+        Self {
+            id: CommandId::EnquireLink,
+            status: CommandStatus::EsmeRok,
+            sequence_number: 0,
+            pdu: Some(Pdu::EnquireLink),
+        }
+    }
+}
+
+impl Command {
+    pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
+        let pdu = pdu.into();
+
+        let id = pdu.command_id();
+
+        Self {
+            id,
+            status,
+            sequence_number,
+            pdu: Some(pdu),
+        }
+    }
+
+    pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {
+        let id = pdu.command_id();
+
+        Self {
+            id,
+            status,
+            sequence_number,
+            pdu: Some(pdu),
+        }
+    }
+
+    #[inline]
+    pub const fn id(&self) -> CommandId {
+        self.id
+    }
+
+    #[inline]
+    pub const fn status(&self) -> CommandStatus {
+        self.status
+    }
+
+    #[inline]
+    pub const fn sequence_number(&self) -> u32 {
+        self.sequence_number
+    }
+
+    #[inline]
+    pub const fn pdu(&self) -> Option<&Pdu> {
+        self.pdu.as_ref()
+    }
+
+    #[inline]
+    pub fn set_pdu(&mut self, pdu: impl Into<Pdu>) {
+        let pdu = pdu.into();
+
+        self.id = pdu.command_id();
+
+        self.pdu = Some(pdu);
+    }
+
+    #[inline]
+    pub fn builder() -> CommandStatusBuilder {
+        Default::default()
+    }
+
+    /// Creates a new command from it's parts.
+    ///
+    /// # Note
+    ///
+    /// This may create invalid commands. It's up to the caller to ensure that the [`CommandId`] and [`Pdu`] match.
+    #[inline]
+    pub fn from_parts(parts: CommandParts) -> Self {
+        Self {
+            id: parts.id,
+            status: parts.status,
+            sequence_number: parts.sequence_number,
+            pdu: parts.pdu,
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct CommandStatusBuilder {
+    inner: Command,
+}
+
+impl CommandStatusBuilder {
+    #[inline]
+    pub fn status(mut self, status: CommandStatus) -> SequenceNumberBuilder {
+        self.inner.status = status;
+
+        SequenceNumberBuilder { inner: self.inner }
+    }
+}
+
+#[derive(Debug)]
+pub struct SequenceNumberBuilder {
+    inner: Command,
+}
+
+impl SequenceNumberBuilder {
+    #[inline]
+    pub fn sequence_number(mut self, sequence_number: u32) -> PduBuilder {
+        self.inner.sequence_number = sequence_number;
+
+        PduBuilder { inner: self.inner }
+    }
+}
+
+#[derive(Debug)]
+pub struct PduBuilder {
+    inner: Command,
+}
+
+impl PduBuilder {
+    #[inline]
+    pub fn pdu(mut self, pdu: impl Into<Pdu>) -> Command {
+        self.inner.set_pdu(pdu);
+        self.inner
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::owned::encode_decode_with_length_test_instances::<Command>();
+    }
+}

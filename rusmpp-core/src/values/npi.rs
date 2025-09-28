@@ -66,7 +66,6 @@ impl From<Npi> for u8 {
     }
 }
 
-/// XXX: did not exist in Rusmpp
 #[cfg(test)]
 mod tests {
     use super::*;

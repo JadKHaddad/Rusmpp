@@ -167,3 +167,13 @@ impl<'a, const N: usize> PduBuilder<'a, N> {
         self.inner
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<Command<'static, 16>>();
+    }
+}

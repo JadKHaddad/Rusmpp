@@ -34,13 +34,14 @@ pub fn derive_rusmpp_for_struct(
     let length = quote_length(input, fields_named);
     let encode = quote_encode(input, fields_named);
     let decode = quote_decode(input, fields_named, &struct_attrs.decode_attrs)?;
-    // TODO: test impl
+    let test = quote_test(input, &struct_attrs.test_attrs);
 
     let expanded = quote! {
         #parts
         #length
         #encode
         #decode
+        #test
     };
 
     Ok(expanded)
@@ -274,7 +275,7 @@ fn quote_owned_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> 
 }
 
 struct StructAttributes {
-    /// #[rusmpp(repr = "u8")]
+    /// `#[rusmpp(repr = "u8")]`
     repr: Option<Repr>,
     decode_attrs: DecodeAttributes,
     test_attrs: TestAttributes,
@@ -446,19 +447,26 @@ enum Length {
 
 enum ValidFieldAttributes {
     None,
+    /// `#[rusmpp(skip_decode)]`
     SkipDecode,
+    /// `#[rusmpp(length = "unchecked")]`
     LengthUnchecked,
+    /// `#[rusmpp(length = "checked")]`
     LengthChecked,
+    /// `#[rusmpp(length = ident)]`
     LengthIdent {
         length_ident: Ident,
     },
+    /// `#[rusmpp(key = ident, length = "unchecked")]`
     KeyLengthUnchecked {
         key_ident: Ident,
     },
+    /// `#[rusmpp(key = ident, length = ident)]`
     KeyLengthIdent {
         key_ident: Ident,
         length_ident: Ident,
     },
+    /// `#[rusmpp(count = ident)]`
     Count {
         count_ident: Ident,
     },
@@ -627,4 +635,23 @@ impl<'a> From<Vec<ValidField<'a>>> for ValidFields<'a> {
 enum DecodeType {
     Decode,
     DecodeWithLength,
+}
+
+fn quote_test(input: &DeriveInput, test_attrs: &TestAttributes) -> TokenStream {
+    match test_attrs {
+        TestAttributes::Skip => quote! {},
+        TestAttributes::Implement => {
+            let name = &input.ident;
+            let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+            quote! {
+                #[cfg(test)]
+                impl #impl_generics crate::tests::TestInstance for #name #ty_generics #where_clause {
+                    fn instances() -> alloc::vec::Vec<Self> {
+                        alloc::vec![Self::default(),]
+                    }
+                }
+            }
+        }
+    }
 }

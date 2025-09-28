@@ -36,7 +36,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        // TODO
-        // crate::tests::owned::encode_decode_test_instances::<MessagePayload>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<MessagePayload>();
     }
 }

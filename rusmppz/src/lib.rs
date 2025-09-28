@@ -13,8 +13,6 @@ pub mod types;
 pub mod decode;
 pub mod encode;
 
-mod macros;
-
 pub use rusmpp_core::{CommandId, CommandStatus, command::borrowed::Command, pdus::borrowed::Pdu};
 
 pub mod command;

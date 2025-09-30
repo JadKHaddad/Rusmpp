@@ -1,5 +1,5 @@
-use proc_macro2::TokenStream;
-use quote::quote;
+use proc_macro2::{Span, TokenStream};
+use quote::{ToTokens, quote};
 use syn::{DeriveInput, Field, FieldsNamed, Ident, Lit};
 
 use crate::{
@@ -155,7 +155,23 @@ fn quote_decode(
 // XXX: Duplicated code with quote_owned_decode
 fn quote_borrowed_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+    let (_, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+    // If there are no lifetimes, add <'a> to align with Decode<'a>
+    let impl_generics = if input.generics.lifetimes().count() == 0 {
+        let mut generics = input.generics.clone();
+        generics.params.insert(
+            0,
+            syn::GenericParam::Lifetime(syn::LifetimeParam::new(syn::Lifetime::new(
+                "'a",
+                Span::call_site(),
+            ))),
+        );
+        generics.split_for_impl().0.to_token_stream()
+    } else {
+        input.generics.split_for_impl().0.to_token_stream()
+    };
 
     let skipped_field_exists = fields.fields.iter().any(|f| f.attrs.skip());
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {

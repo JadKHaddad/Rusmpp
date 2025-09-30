@@ -1,13 +1,13 @@
-crate::create! {
-    @[repr = u8]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct CallbackNumPresInd {
-        pub presentation: Presentation,
-        pub screening: Screening,
-    }
+use rusmpp_macros::Rusmpp;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[rusmpp(repr = "u8")]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct CallbackNumPresInd {
+    pub presentation: Presentation,
+    pub screening: Screening,
 }
 
 impl CallbackNumPresInd {
@@ -34,19 +34,17 @@ impl From<CallbackNumPresInd> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum Presentation {
-        #[default]
-        PresentationAllowed = 0b00000000,
-        PresentationRestricted = 0b00000001,
-        NumberNotAvailable = 0b00000010,
-        Other(u8),
-    }
+pub enum Presentation {
+    #[default]
+    PresentationAllowed = 0b00000000,
+    PresentationRestricted = 0b00000001,
+    NumberNotAvailable = 0b00000010,
+    Other(u8),
 }
 
 impl From<u8> for Presentation {
@@ -71,20 +69,18 @@ impl From<Presentation> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum Screening {
-        #[default]
-        NotScreened = 0b00000000,
-        VerifiedAndPassed = 0b00000100,
-        VerifiedAndFailed = 0b00001000,
-        NetworkProvided = 0b00001100,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum Screening {
+    #[default]
+    NotScreened = 0b00000000,
+    VerifiedAndPassed = 0b00000100,
+    VerifiedAndFailed = 0b00001000,
+    NetworkProvided = 0b00001100,
+    Other(u8),
 }
 
 impl From<u8> for Screening {
@@ -140,8 +136,11 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<CallbackNumPresInd>();
-        crate::tests::encode_decode_test_instances::<Presentation>();
-        crate::tests::encode_decode_test_instances::<Screening>();
+        crate::tests::owned::encode_decode_test_instances::<CallbackNumPresInd>();
+        crate::tests::borrowed::encode_decode_test_instances::<CallbackNumPresInd>();
+        crate::tests::owned::encode_decode_test_instances::<Presentation>();
+        crate::tests::borrowed::encode_decode_test_instances::<Presentation>();
+        crate::tests::owned::encode_decode_test_instances::<Screening>();
+        crate::tests::borrowed::encode_decode_test_instances::<Screening>();
     }
 }

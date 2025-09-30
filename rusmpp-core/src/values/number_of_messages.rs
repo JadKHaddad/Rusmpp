@@ -1,13 +1,13 @@
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum NumberOfMessages {
-        Allowed(u8),
-        Other(u8),
-    }
+use rusmpp_macros::Rusmpp;
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum NumberOfMessages {
+    Allowed(u8),
+    Other(u8),
 }
 
 impl Default for NumberOfMessages {
@@ -49,6 +49,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<NumberOfMessages>();
+        crate::tests::owned::encode_decode_test_instances::<NumberOfMessages>();
+        crate::tests::borrowed::encode_decode_test_instances::<NumberOfMessages>();
     }
 }

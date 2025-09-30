@@ -1,18 +1,21 @@
-use crate::types::AnyOctetString;
+use rusmpp_macros::Rusmpp;
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+pub mod borrowed;
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+pub mod owned;
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum BroadcastAreaFormat {
-        #[default]
-        AliasName = 0x00,
-        EllipsoidArc = 0x01,
-        Polygon = 0x02,
-        Other(u8),
-    }
+pub enum BroadcastAreaFormat {
+    #[default]
+    AliasName = 0x00,
+    EllipsoidArc = 0x01,
+    Polygon = 0x02,
+    Other(u8),
 }
 
 impl From<u8> for BroadcastAreaFormat {
@@ -37,32 +40,13 @@ impl From<BroadcastAreaFormat> for u8 {
     }
 }
 
-crate::create! {
-    /// The broadcast_area_identifier defines the Broadcast Area in terms of a geographical descriptor.
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct BroadcastAreaIdentifier {
-        pub format: BroadcastAreaFormat,
-        @[length = unchecked]
-        pub area: AnyOctetString,
-    }
-}
-
-impl BroadcastAreaIdentifier {
-    pub fn new(format: BroadcastAreaFormat, area: AnyOctetString) -> Self {
-        Self { format, area }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<BroadcastAreaFormat>();
-        crate::tests::encode_decode_with_length_test_instances::<BroadcastAreaIdentifier>();
+        crate::tests::owned::encode_decode_test_instances::<BroadcastAreaFormat>();
+        crate::tests::borrowed::encode_decode_test_instances::<BroadcastAreaFormat>();
     }
 }

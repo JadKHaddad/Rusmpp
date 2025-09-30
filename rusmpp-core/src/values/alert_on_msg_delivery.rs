@@ -1,17 +1,17 @@
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+use rusmpp_macros::Rusmpp;
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum AlertOnMessageDelivery {
-        #[default]
-        UseMobileDefaultAlert = 0,
-        UseLowPriorityAlert = 1,
-        UseMediumPriorityAlert = 2,
-        UseHighPriorityAlert = 3,
-        Other(u8),
-    }
+pub enum AlertOnMessageDelivery {
+    #[default]
+    UseMobileDefaultAlert = 0,
+    UseLowPriorityAlert = 1,
+    UseMediumPriorityAlert = 2,
+    UseHighPriorityAlert = 3,
+    Other(u8),
 }
 
 impl From<u8> for AlertOnMessageDelivery {
@@ -44,6 +44,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<AlertOnMessageDelivery>();
+        crate::tests::owned::encode_decode_test_instances::<AlertOnMessageDelivery>();
+        crate::tests::borrowed::encode_decode_test_instances::<AlertOnMessageDelivery>();
     }
 }

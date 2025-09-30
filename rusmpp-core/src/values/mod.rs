@@ -21,53 +21,41 @@
 //     pub use super::user_message_reference::UserMessageReferenceParts;
 // }
 
-// mod addr_subunit;
-// pub use addr_subunit::AddrSubunit;
+pub mod addr_subunit;
 
-// mod alert_on_msg_delivery;
-// pub use alert_on_msg_delivery::AlertOnMessageDelivery;
+pub mod alert_on_msg_delivery;
 
 pub mod bearer_type;
 
-// mod broadcast_area_identifier;
-// pub use broadcast_area_identifier::{BroadcastAreaFormat, BroadcastAreaIdentifier};
+pub mod broadcast_area_identifier;
 
-// mod broadcast_area_success;
-// pub use broadcast_area_success::BroadcastAreaSuccess;
+pub mod broadcast_area_success;
 
-// mod broadcast_channel_indicator;
-// pub use broadcast_channel_indicator::BroadcastChannelIndicator;
+pub mod broadcast_channel_indicator;
 
-// mod broadcast_content_type;
-// pub use broadcast_content_type::{BroadcastContentType, EncodingContentType, TypeOfNetwork};
+pub mod broadcast_content_type;
 
-// mod broadcast_frequency_interval;
-// pub use broadcast_frequency_interval::{BroadcastFrequencyInterval, UnitOfTime};
+pub mod broadcast_frequency_interval;
 
-// mod broadcast_message_class;
-// pub use broadcast_message_class::BroadcastMessageClass;
+pub mod broadcast_message_class;
 
-// mod callback_num_pres_ind;
-// pub use callback_num_pres_ind::{CallbackNumPresInd, Presentation, Screening};
+pub mod broadcast_rep_num;
 
-// mod congestion_state;
-// pub use congestion_state::CongestionState;
+pub mod callback_num_pres_ind;
+
+pub mod congestion_state;
 
 pub mod data_coding;
 
-// mod delivery_failure_reason;
-// pub use delivery_failure_reason::DeliveryFailureReason;
+pub mod delivery_failure_reason;
 
-// mod dest_addr_np_resolution;
-// pub use dest_addr_np_resolution::DestAddrNpResolution;
+pub mod dest_addr_np_resolution;
 
 pub mod dest_address;
 
-// mod display_time;
-// pub use display_time::DisplayTime;
+pub mod display_time;
 
-// mod dpf_result;
-// pub use dpf_result::DpfResult;
+pub mod dpf_result;
 
 pub mod esm_class;
 
@@ -105,16 +93,13 @@ pub mod interface_version;
 
 pub mod npi;
 
-// mod number_of_messages;
-// pub use number_of_messages::NumberOfMessages;
+pub mod number_of_messages;
 
-// mod payload_type;
-// pub use payload_type::PayloadType;
+pub mod payload_type;
 
 pub mod priority_flag;
 
-// mod privacy_indicator;
-// pub use privacy_indicator::PrivacyIndicator;
+pub mod privacy_indicator;
 
 pub mod registered_delivery;
 
@@ -122,23 +107,16 @@ pub mod replace_if_present_flag;
 
 pub mod service_type;
 
-// mod set_dpf;
-// pub use set_dpf::SetDpf;
+pub mod set_dpf;
 
 pub mod sub_address;
 
 pub mod ton;
 
-// mod unsuccess_sme;
-// pub use unsuccess_sme::UnsuccessSme;
+// pub mod unsuccess_sme;
 
-// mod ussd_service_op;
-// pub use ussd_service_op::UssdServiceOp;
+pub mod ussd_service_op;
 
-// mod user_message_reference;
-// pub use user_message_reference::UserMessageReference;
-
-// mod broadcast_rep_num;
-// pub use broadcast_rep_num::BroadcastRepNum;
+pub mod user_message_reference;
 
 pub mod message_payload;

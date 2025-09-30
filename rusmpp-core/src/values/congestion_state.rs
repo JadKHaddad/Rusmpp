@@ -1,20 +1,20 @@
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum CongestionState {
-        #[default]
-        Idle,
-        LowLoad(u8),
-        MediumLoad(u8),
-        HighLoad(u8),
-        OptimumLoad(u8),
-        NearingCongestion(u8),
-        Congested,
-        Other(u8),
-    }
+use rusmpp_macros::Rusmpp;
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum CongestionState {
+    #[default]
+    Idle,
+    LowLoad(u8),
+    MediumLoad(u8),
+    HighLoad(u8),
+    OptimumLoad(u8),
+    NearingCongestion(u8),
+    Congested,
+    Other(u8),
 }
 
 impl From<u8> for CongestionState {
@@ -53,6 +53,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<CongestionState>();
+        crate::tests::owned::encode_decode_test_instances::<CongestionState>();
+        crate::tests::borrowed::encode_decode_test_instances::<CongestionState>();
     }
 }

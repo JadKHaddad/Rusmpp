@@ -1,18 +1,18 @@
-crate::create! {
-    /// A reference assigned by the originating SME to the short message. Depending on the
-    /// destination network technology, this field may be passed directly to the mobile device.
-    ///
-    /// The user_message_reference TLV is also applicable in ancillary broadcast operations as a
-    /// means of identifying a previously submitted message. In such cases, the
-    /// user_message_reference can be used to substitute an actual message_id or may be used in
-    /// conjunction with a message_id.
-    #[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct UserMessageReference {
-        pub value: u16,
-    }
+use rusmpp_macros::Rusmpp;
+
+/// A reference assigned by the originating SME to the short message. Depending on the
+/// destination network technology, this field may be passed directly to the mobile device.
+///
+/// The user_message_reference TLV is also applicable in ancillary broadcast operations as a
+/// means of identifying a previously submitted message. In such cases, the
+/// user_message_reference can be used to substitute an actual message_id or may be used in
+/// conjunction with a message_id.
+#[derive(Default, Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct UserMessageReference {
+    pub value: u16,
 }
 
 impl UserMessageReference {

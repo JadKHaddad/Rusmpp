@@ -1,19 +1,19 @@
-crate::create! {
-    #[repr(u8)]
-    /// The success rate indicator, defined as the ratio of the
-    /// number of BTSs that accepted the message and the total
-    /// number of BTSs that should have accepted the message, for
-    /// a particular broadcast_area_identifier.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum BroadcastAreaSuccess {
-        #[default]
-        InformationNotAvailable,
-        ZeroToHundred(u8),
-        Other(u8),
-    }
+use rusmpp_macros::Rusmpp;
+
+/// The success rate indicator, defined as the ratio of the
+/// number of BTSs that accepted the message and the total
+/// number of BTSs that should have accepted the message, for
+/// a particular broadcast_area_identifier.
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum BroadcastAreaSuccess {
+    #[default]
+    InformationNotAvailable,
+    ZeroToHundred(u8),
+    Other(u8),
 }
 
 impl From<BroadcastAreaSuccess> for u8 {
@@ -42,6 +42,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<BroadcastAreaSuccess>();
+        crate::tests::owned::encode_decode_test_instances::<BroadcastAreaSuccess>();
+        crate::tests::borrowed::encode_decode_test_instances::<BroadcastAreaSuccess>();
     }
 }

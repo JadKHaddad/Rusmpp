@@ -1,15 +1,15 @@
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum BroadcastChannelIndicator {
-        #[default]
-        Basic = 0,
-        Extended = 1,
-        Other(u8),
-    }
+use rusmpp_macros::Rusmpp;
+
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum BroadcastChannelIndicator {
+    #[default]
+    Basic = 0,
+    Extended = 1,
+    Other(u8),
 }
 
 impl From<u8> for BroadcastChannelIndicator {
@@ -38,6 +38,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<BroadcastChannelIndicator>();
+        crate::tests::owned::encode_decode_test_instances::<BroadcastChannelIndicator>();
+        crate::tests::borrowed::encode_decode_test_instances::<BroadcastChannelIndicator>();
     }
 }

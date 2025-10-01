@@ -256,7 +256,23 @@ fn quote_owned_decode(input: &DeriveInput, fields: &ValidFields) -> TokenStream 
 // XXX: Skipped fields are not used here
 fn quote_borrowed_decode_with_length(input: &DeriveInput, fields: &ValidFields) -> TokenStream {
     let name = &input.ident;
-    let (impl_generics, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+    let (_, ty_generics, where_clause) = &input.generics.split_for_impl();
+
+    // If there are no lifetimes, add <'a> to align with Decode<'a>
+    let impl_generics = if input.generics.lifetimes().count() == 0 {
+        let mut generics = input.generics.clone();
+        generics.params.insert(
+            0,
+            syn::GenericParam::Lifetime(syn::LifetimeParam::new(syn::Lifetime::new(
+                "'a",
+                Span::call_site(),
+            ))),
+        );
+        generics.split_for_impl().0.to_token_stream()
+    } else {
+        input.generics.split_for_impl().0.to_token_stream()
+    };
 
     let fields_names = fields.fields.iter().filter(|f| !f.attrs.skip()).map(|f| {
         f.field

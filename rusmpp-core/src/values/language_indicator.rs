@@ -1,20 +1,20 @@
-crate::create! {
-    #[repr(u8)]
-    /// Refer to [CMT-136] for other values.
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum LanguageIndicator {
-        #[default]
-        Unspecified = 0,
-        English = 1,
-        French = 2,
-        Spanish = 3,
-        German = 4,
-        Portuguese = 5,
-        Other(u8),
-    }
+use rusmpp_macros::Rusmpp;
+
+/// Refer to [CMT-136] for other values.
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum LanguageIndicator {
+    #[default]
+    Unspecified = 0,
+    English = 1,
+    French = 2,
+    Spanish = 3,
+    German = 4,
+    Portuguese = 5,
+    Other(u8),
 }
 
 impl From<u8> for LanguageIndicator {
@@ -51,6 +51,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<LanguageIndicator>();
+        crate::tests::owned::encode_decode_test_instances::<LanguageIndicator>();
+        crate::tests::borrowed::encode_decode_test_instances::<LanguageIndicator>();
     }
 }

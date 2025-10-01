@@ -61,35 +61,25 @@ pub mod esm_class;
 
 pub mod interface_version;
 
-// mod its_reply_type;
-// pub use its_reply_type::ItsReplyType;
+pub mod its_reply_type;
 
-// mod its_session_info;
-// pub use its_session_info::ItsSessionInfo;
+pub mod its_session_info;
 
-// mod language_indicator;
-// pub use language_indicator::LanguageIndicator;
+pub mod language_indicator;
 
-// mod message_state;
-// pub use message_state::MessageState;
+pub mod message_state;
 
-// mod more_messages_to_send;
-// pub use more_messages_to_send::MoreMessagesToSend;
+pub mod more_messages_to_send;
 
-// mod ms_availability_status;
-// pub use ms_availability_status::MsAvailabilityStatus;
+pub mod ms_availability_status;
 
-// mod ms_msg_wait_facilities;
-// pub use ms_msg_wait_facilities::{Indicator, MsMsgWaitFacilities, TypeOfMessage};
+pub mod ms_msg_wait_facilities;
 
-// mod ms_validity;
-// pub use ms_validity::{MsValidity, MsValidityBehavior, MsValidityInformation, UnitsOfTime};
+pub mod ms_validity;
 
-// mod network_error_code;
-// pub use network_error_code::{ErrorCodeNetworkType, NetworkErrorCode};
+pub mod network_error_code;
 
-// mod network_type;
-// pub use network_type::NetworkType;
+pub mod network_type;
 
 pub mod npi;
 
@@ -113,7 +103,7 @@ pub mod sub_address;
 
 pub mod ton;
 
-// pub mod unsuccess_sme;
+pub mod unsuccess_sme;
 
 pub mod ussd_service_op;
 

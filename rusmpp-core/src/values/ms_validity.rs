@@ -1,13 +1,13 @@
-crate::create! {
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct MsValidity {
-        pub validity_behavior: MsValidityBehavior,
-        @[length = checked]
-        pub validity_information: Option<MsValidityInformation>,
-    }
+use rusmpp_macros::Rusmpp;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct MsValidity {
+    pub validity_behavior: MsValidityBehavior,
+    #[rusmpp(length = "checked")]
+    pub validity_information: Option<MsValidityInformation>,
 }
 
 impl MsValidity {
@@ -22,15 +22,13 @@ impl MsValidity {
     }
 }
 
-crate::create! {
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct MsValidityInformation {
-        pub units_of_time: UnitsOfTime,
-        pub number_of_time_units: u16,
-    }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct MsValidityInformation {
+    pub units_of_time: UnitsOfTime,
+    pub number_of_time_units: u16,
 }
 
 impl MsValidityInformation {
@@ -42,21 +40,19 @@ impl MsValidityInformation {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum MsValidityBehavior {
-        #[default]
-        StoreIndefinitely = 0,
-        PowerDown = 1,
-        ValidUntilRegistrationAreaChanges = 2,
-        DisplayOnly = 3,
-        RelativeTimePeriod = 4,
-        Other(u8),
-    }
+pub enum MsValidityBehavior {
+    #[default]
+    StoreIndefinitely = 0,
+    PowerDown = 1,
+    ValidUntilRegistrationAreaChanges = 2,
+    DisplayOnly = 3,
+    RelativeTimePeriod = 4,
+    Other(u8),
 }
 
 impl From<u8> for MsValidityBehavior {
@@ -85,23 +81,21 @@ impl From<MsValidityBehavior> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum UnitsOfTime {
-        #[default]
-        Seconds = 0b00000000,
-        Minutes = 0b00000001,
-        Hours = 0b00000010,
-        Days = 0b00000011,
-        Weeks = 0b00000100,
-        Months = 0b00000101,
-        Years = 0b00000110,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum UnitsOfTime {
+    #[default]
+    Seconds = 0b00000000,
+    Minutes = 0b00000001,
+    Hours = 0b00000010,
+    Days = 0b00000011,
+    Weeks = 0b00000100,
+    Months = 0b00000101,
+    Years = 0b00000110,
+    Other(u8),
 }
 
 impl From<u8> for UnitsOfTime {
@@ -140,9 +134,13 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<MsValidity>();
-        crate::tests::encode_decode_test_instances::<MsValidityInformation>();
-        crate::tests::encode_decode_test_instances::<MsValidityBehavior>();
-        crate::tests::encode_decode_test_instances::<UnitsOfTime>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<MsValidity>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<MsValidity>();
+        crate::tests::owned::encode_decode_test_instances::<MsValidityInformation>();
+        crate::tests::borrowed::encode_decode_test_instances::<MsValidityInformation>();
+        crate::tests::owned::encode_decode_test_instances::<MsValidityBehavior>();
+        crate::tests::borrowed::encode_decode_test_instances::<MsValidityBehavior>();
+        crate::tests::owned::encode_decode_test_instances::<UnitsOfTime>();
+        crate::tests::borrowed::encode_decode_test_instances::<UnitsOfTime>();
     }
 }

@@ -1,13 +1,13 @@
-crate::create! {
-    @[repr = u8]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct MsMsgWaitFacilities {
-        pub indicator: Indicator,
-        pub type_of_message: TypeOfMessage,
-    }
+use rusmpp_macros::Rusmpp;
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[rusmpp(repr = "u8")]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct MsMsgWaitFacilities {
+    pub indicator: Indicator,
+    pub type_of_message: TypeOfMessage,
 }
 
 impl MsMsgWaitFacilities {
@@ -34,18 +34,16 @@ impl From<MsMsgWaitFacilities> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum Indicator {
-        #[default]
-        Inactive = 0b00000000,
-        Active = 0b10000000,
-        Other(u8),
-    }
+pub enum Indicator {
+    #[default]
+    Inactive = 0b00000000,
+    Active = 0b10000000,
+    Other(u8),
 }
 
 impl From<u8> for Indicator {
@@ -68,20 +66,18 @@ impl From<Indicator> for u8 {
     }
 }
 
-crate::create! {
-    #[repr(u8)]
-    #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub enum TypeOfMessage {
-        #[default]
-        VoicemailMessageWaiting = 0b00000000,
-        FaxMessageWaiting = 0b00000001,
-        ElectronicMailMessageWaiting = 0b00000010,
-        OtherMessageWaiting = 0b00000011,
-        Other(u8),
-    }
+#[repr(u8)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub enum TypeOfMessage {
+    #[default]
+    VoicemailMessageWaiting = 0b00000000,
+    FaxMessageWaiting = 0b00000001,
+    ElectronicMailMessageWaiting = 0b00000010,
+    OtherMessageWaiting = 0b00000011,
+    Other(u8),
 }
 
 impl From<u8> for TypeOfMessage {
@@ -135,8 +131,11 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<MsMsgWaitFacilities>();
-        crate::tests::encode_decode_test_instances::<Indicator>();
-        crate::tests::encode_decode_test_instances::<TypeOfMessage>();
+        crate::tests::owned::encode_decode_test_instances::<MsMsgWaitFacilities>();
+        crate::tests::borrowed::encode_decode_test_instances::<MsMsgWaitFacilities>();
+        crate::tests::owned::encode_decode_test_instances::<Indicator>();
+        crate::tests::borrowed::encode_decode_test_instances::<Indicator>();
+        crate::tests::owned::encode_decode_test_instances::<TypeOfMessage>();
+        crate::tests::borrowed::encode_decode_test_instances::<TypeOfMessage>();
     }
 }

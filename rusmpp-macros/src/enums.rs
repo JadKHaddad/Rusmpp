@@ -3,7 +3,7 @@ use quote::quote;
 use syn::{DataEnum, DeriveInput, Fields, Ident, parse};
 
 use crate::{
-    container_attributes::{DecodeAttributes, TestAttributes},
+    container_attributes::{DecodeAttributes, FromIntoAttributes, TestAttributes},
     repr::{Repr, ReprType},
 };
 
@@ -11,7 +11,8 @@ pub fn derive_rusmpp_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
     let enum_attrs = EnumAttributes::extract(input)?;
 
     Ok(enum_attrs.repr.quote_rusmpp(
-        &input.ident,
+        input,
+        enum_attrs.from_into_attrs,
         &enum_attrs.decode_attrs,
         &enum_attrs.test_attrs,
     ))
@@ -20,6 +21,7 @@ pub fn derive_rusmpp_for_enum(input: &DeriveInput) -> syn::Result<TokenStream> {
 struct EnumAttributes {
     /// #[repr(u8)]
     repr: Repr,
+    from_into_attrs: FromIntoAttributes,
     decode_attrs: DecodeAttributes,
     test_attrs: TestAttributes,
 }
@@ -27,6 +29,7 @@ struct EnumAttributes {
 impl EnumAttributes {
     fn extract(input: &DeriveInput) -> syn::Result<Self> {
         let mut repr: Option<Repr> = None;
+        let mut from_into_attrs = FromIntoAttributes::default();
         let mut decode_attrs = DecodeAttributes::default();
         let mut test_attrs = TestAttributes::default();
 
@@ -58,6 +61,8 @@ impl EnumAttributes {
                         decode_attrs = DecodeAttributes::extract(meta)?;
                     } else if meta.path.is_ident("test") {
                         test_attrs = TestAttributes::extract(meta)?;
+                    } else if meta.path.is_ident("from_into") {
+                        from_into_attrs = FromIntoAttributes::extract(meta)?;
                     }
 
                     Ok(())
@@ -74,6 +79,7 @@ impl EnumAttributes {
 
         Ok(Self {
             repr,
+            from_into_attrs,
             decode_attrs,
             test_attrs,
         })

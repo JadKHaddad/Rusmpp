@@ -18,28 +18,6 @@ pub enum MsAvailabilityStatus {
     Other(u8),
 }
 
-impl From<u8> for MsAvailabilityStatus {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => MsAvailabilityStatus::Available,
-            1 => MsAvailabilityStatus::Denied,
-            2 => MsAvailabilityStatus::Unavailable,
-            other => MsAvailabilityStatus::Other(other),
-        }
-    }
-}
-
-impl From<MsAvailabilityStatus> for u8 {
-    fn from(value: MsAvailabilityStatus) -> Self {
-        match value {
-            MsAvailabilityStatus::Available => 0,
-            MsAvailabilityStatus::Denied => 1,
-            MsAvailabilityStatus::Unavailable => 2,
-            MsAvailabilityStatus::Other(other) => other,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

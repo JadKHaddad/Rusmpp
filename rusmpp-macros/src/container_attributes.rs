@@ -56,3 +56,29 @@ impl TestAttributes {
         }
     }
 }
+
+/// `#[rusmpp(from_into = skip)]`
+#[derive(Default)]
+pub enum FromIntoAttributes {
+    Skip,
+    #[default]
+    Implement,
+}
+
+impl FromIntoAttributes {
+    pub fn extract(meta: syn::meta::ParseNestedMeta<'_>) -> syn::Result<Self> {
+        let ident: Ident = meta.value()?.parse()?;
+
+        match ident.to_string().as_str() {
+            "skip" => Ok(Self::Skip),
+            other => Err(meta.error(format!(
+                "unknown decode attribute: {}, expected skip",
+                other
+            ))),
+        }
+    }
+
+    pub const fn is_implement(&self) -> bool {
+        matches!(self, Self::Implement)
+    }
+}

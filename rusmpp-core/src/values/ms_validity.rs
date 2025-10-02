@@ -55,32 +55,6 @@ pub enum MsValidityBehavior {
     Other(u8),
 }
 
-impl From<u8> for MsValidityBehavior {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => MsValidityBehavior::StoreIndefinitely,
-            1 => MsValidityBehavior::PowerDown,
-            2 => MsValidityBehavior::ValidUntilRegistrationAreaChanges,
-            3 => MsValidityBehavior::DisplayOnly,
-            4 => MsValidityBehavior::RelativeTimePeriod,
-            value => MsValidityBehavior::Other(value),
-        }
-    }
-}
-
-impl From<MsValidityBehavior> for u8 {
-    fn from(value: MsValidityBehavior) -> Self {
-        match value {
-            MsValidityBehavior::StoreIndefinitely => 0,
-            MsValidityBehavior::PowerDown => 1,
-            MsValidityBehavior::ValidUntilRegistrationAreaChanges => 2,
-            MsValidityBehavior::DisplayOnly => 3,
-            MsValidityBehavior::RelativeTimePeriod => 4,
-            MsValidityBehavior::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -96,36 +70,6 @@ pub enum UnitsOfTime {
     Months = 0b00000101,
     Years = 0b00000110,
     Other(u8),
-}
-
-impl From<u8> for UnitsOfTime {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => UnitsOfTime::Seconds,
-            0b00000001 => UnitsOfTime::Minutes,
-            0b00000010 => UnitsOfTime::Hours,
-            0b00000011 => UnitsOfTime::Days,
-            0b00000100 => UnitsOfTime::Weeks,
-            0b00000101 => UnitsOfTime::Months,
-            0b00000110 => UnitsOfTime::Years,
-            value => UnitsOfTime::Other(value),
-        }
-    }
-}
-
-impl From<UnitsOfTime> for u8 {
-    fn from(value: UnitsOfTime) -> Self {
-        match value {
-            UnitsOfTime::Seconds => 0b00000000,
-            UnitsOfTime::Minutes => 0b00000001,
-            UnitsOfTime::Hours => 0b00000010,
-            UnitsOfTime::Days => 0b00000011,
-            UnitsOfTime::Weeks => 0b00000100,
-            UnitsOfTime::Months => 0b00000101,
-            UnitsOfTime::Years => 0b00000110,
-            UnitsOfTime::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

@@ -96,30 +96,6 @@ pub enum MCDeliveryReceipt {
     Other(u8),
 }
 
-impl From<u8> for MCDeliveryReceipt {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => MCDeliveryReceipt::NoMcDeliveryReceiptRequested,
-            0b00000001 => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
-            0b00000010 => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure,
-            0b00000011 => MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess,
-            value => MCDeliveryReceipt::Other(value),
-        }
-    }
-}
-
-impl From<MCDeliveryReceipt> for u8 {
-    fn from(value: MCDeliveryReceipt) -> Self {
-        match value {
-            MCDeliveryReceipt::NoMcDeliveryReceiptRequested => 0b00000000,
-            MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure => 0b00000001,
-            MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure => 0b00000010,
-            MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess => 0b00000011,
-            MCDeliveryReceipt::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -134,30 +110,6 @@ pub enum SmeOriginatedAcknowledgement {
     Other(u8),
 }
 
-impl From<u8> for SmeOriginatedAcknowledgement {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => SmeOriginatedAcknowledgement::NoReceiptSmeAcknowledgementRequested,
-            0b00000100 => SmeOriginatedAcknowledgement::SmeDeliveryAcknowledgementRequested,
-            0b00001000 => SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested,
-            0b00001100 => SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested,
-            value => SmeOriginatedAcknowledgement::Other(value),
-        }
-    }
-}
-
-impl From<SmeOriginatedAcknowledgement> for u8 {
-    fn from(value: SmeOriginatedAcknowledgement) -> Self {
-        match value {
-            SmeOriginatedAcknowledgement::NoReceiptSmeAcknowledgementRequested => 0b00000000,
-            SmeOriginatedAcknowledgement::SmeDeliveryAcknowledgementRequested => 0b00000100,
-            SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested => 0b00001000,
-            SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested => 0b00001100,
-            SmeOriginatedAcknowledgement::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -168,26 +120,6 @@ pub enum IntermediateNotification {
     NoIntermediaryNotificationRequested = 0b00000000,
     IntermediateNotificationRequested = 0b00010000,
     Other(u8),
-}
-
-impl From<u8> for IntermediateNotification {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => IntermediateNotification::NoIntermediaryNotificationRequested,
-            0b00010000 => IntermediateNotification::IntermediateNotificationRequested,
-            value => IntermediateNotification::Other(value),
-        }
-    }
-}
-
-impl From<IntermediateNotification> for u8 {
-    fn from(value: IntermediateNotification) -> Self {
-        match value {
-            IntermediateNotification::NoIntermediaryNotificationRequested => 0b00000000,
-            IntermediateNotification::IntermediateNotificationRequested => 0b00010000,
-            IntermediateNotification::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

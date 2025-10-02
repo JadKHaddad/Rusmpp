@@ -3,7 +3,9 @@ use quote::{ToTokens, quote};
 use syn::{DeriveInput, Field, FieldsNamed, Ident, Lit};
 
 use crate::{
-    container_attributes::{DecodeAttributes, DecodeImplementation, TestAttributes},
+    container_attributes::{
+        DecodeAttributes, DecodeImplementation, FromIntoAttributes, TestAttributes,
+    },
     parts,
     repr::{Repr, ReprType},
 };
@@ -18,7 +20,8 @@ pub fn derive_rusmpp_for_struct(
 
     if let Some(repr) = struct_attrs.repr {
         let repr_expanded = repr.quote_rusmpp(
-            &input.ident,
+            input,
+            FromIntoAttributes::Skip,
             &struct_attrs.decode_attrs,
             &struct_attrs.test_attrs,
         );

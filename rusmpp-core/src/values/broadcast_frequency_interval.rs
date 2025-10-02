@@ -18,38 +18,6 @@ pub enum UnitOfTime {
     Other(u8),
 }
 
-impl From<u8> for UnitOfTime {
-    fn from(value: u8) -> Self {
-        match value {
-            0x00 => UnitOfTime::AsFrequentlyAsPossible,
-            0x08 => UnitOfTime::Seconds,
-            0x09 => UnitOfTime::Minutes,
-            0x0A => UnitOfTime::Hours,
-            0x0B => UnitOfTime::Days,
-            0x0C => UnitOfTime::Weeks,
-            0x0D => UnitOfTime::Months,
-            0x0E => UnitOfTime::Years,
-            value => UnitOfTime::Other(value),
-        }
-    }
-}
-
-impl From<UnitOfTime> for u8 {
-    fn from(value: UnitOfTime) -> Self {
-        match value {
-            UnitOfTime::AsFrequentlyAsPossible => 0x00,
-            UnitOfTime::Seconds => 0x08,
-            UnitOfTime::Minutes => 0x09,
-            UnitOfTime::Hours => 0x0A,
-            UnitOfTime::Days => 0x0B,
-            UnitOfTime::Weeks => 0x0C,
-            UnitOfTime::Months => 0x0D,
-            UnitOfTime::Years => 0x0E,
-            UnitOfTime::Other(value) => value,
-        }
-    }
-}
-
 /// This field indicates the frequency interval at which
 /// the broadcasts of a message should be repeated.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]

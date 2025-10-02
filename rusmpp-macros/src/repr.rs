@@ -1,8 +1,10 @@
 use proc_macro2::TokenStream;
 use quote::quote;
-use syn::Ident;
+use syn::{DeriveInput, Ident};
 
-use crate::container_attributes::{DecodeAttributes, DecodeImplementation, TestAttributes};
+use crate::container_attributes::{
+    DecodeAttributes, DecodeImplementation, FromIntoAttributes, TestAttributes,
+};
 
 pub struct Repr {
     ident: Ident,
@@ -116,22 +118,87 @@ impl Repr {
         }
     }
 
+    fn quote_from_into_impl(&self, input: &DeriveInput) -> TokenStream {
+        let name = &input.ident;
+        let repr_ident = &self.ident; // u8, u16, u32
+
+        let variants = if let syn::Data::Enum(ref data_enum) = input.data {
+            data_enum
+                .variants
+                .iter()
+                .map(|v| {
+                    let ident = &v.ident;
+                    v.discriminant
+                        .as_ref()
+                        .map(|(_, expr)| (ident.clone(), expr.clone()))
+                })
+                .collect::<Vec<_>>()
+        } else {
+            return quote! {};
+        };
+
+        // From<repr> for Enum
+        let from_matches = variants.iter().filter_map(|opt| {
+            opt.as_ref().map(|(ident, expr)| {
+                quote! { #expr => #name::#ident, }
+            })
+        });
+
+        // From<Enum> for repr
+        let into_matches = variants.iter().filter_map(|opt| {
+            opt.as_ref().map(|(ident, expr)| {
+                quote! { #name::#ident => #expr, }
+            })
+        });
+
+        quote! {
+            impl From<#repr_ident> for #name {
+                fn from(value: #repr_ident) -> Self {
+                    match value {
+                        #(#from_matches)*
+                        other => #name::Other(other),
+                    }
+                }
+            }
+
+            impl From<#name> for #repr_ident {
+                fn from(value: #name) -> Self {
+                    match value {
+                        #(#into_matches)*
+                        #name::Other(other) => other,
+                    }
+                }
+            }
+        }
+    }
+
     pub fn quote_rusmpp(
         &self,
-        name: &Ident,
+        input: &DeriveInput,
+        from_into_attrs: FromIntoAttributes,
         decode_attrs: &DecodeAttributes,
         test_attrs: &TestAttributes,
     ) -> TokenStream {
+        let _ = from_into_attrs;
+        let name = &input.ident;
+
         let length_impl = self.quote_length_impl(name);
         let encode_impl = self.quote_encode_impl(name);
         let decode_impl = self.quote_decode_impl(name, decode_attrs);
         let test_impl = self.quote_test_impl(name, test_attrs);
+
+        let from_into_impl = if from_into_attrs.is_implement() {
+            self.quote_from_into_impl(input)
+        } else {
+            quote! {}
+        };
 
         quote! {
             #length_impl
             #encode_impl
             #decode_impl
             #test_impl
+            #from_into_impl
         }
     }
 }

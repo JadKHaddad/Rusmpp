@@ -12,26 +12,6 @@ pub enum BroadcastChannelIndicator {
     Other(u8),
 }
 
-impl From<u8> for BroadcastChannelIndicator {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => BroadcastChannelIndicator::Basic,
-            1 => BroadcastChannelIndicator::Extended,
-            value => BroadcastChannelIndicator::Other(value),
-        }
-    }
-}
-
-impl From<BroadcastChannelIndicator> for u8 {
-    fn from(value: BroadcastChannelIndicator) -> Self {
-        match value {
-            BroadcastChannelIndicator::Basic => 0,
-            BroadcastChannelIndicator::Extended => 1,
-            BroadcastChannelIndicator::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

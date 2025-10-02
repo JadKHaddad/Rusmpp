@@ -12,26 +12,6 @@ pub enum PayloadType {
     Other(u8),
 }
 
-impl From<u8> for PayloadType {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => PayloadType::Default,
-            1 => PayloadType::WcmpMessage,
-            value => PayloadType::Other(value),
-        }
-    }
-}
-
-impl From<PayloadType> for u8 {
-    fn from(value: PayloadType) -> Self {
-        match value {
-            PayloadType::Default => 0,
-            PayloadType::WcmpMessage => 1,
-            PayloadType::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

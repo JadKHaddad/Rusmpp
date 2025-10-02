@@ -15,32 +15,6 @@ pub enum AddrSubunit {
     Other(u8),
 }
 
-impl From<u8> for AddrSubunit {
-    fn from(value: u8) -> Self {
-        match value {
-            0x00 => AddrSubunit::Unknown,
-            0x01 => AddrSubunit::MSDisplay,
-            0x02 => AddrSubunit::MobileEquipment,
-            0x03 => AddrSubunit::SmartCard,
-            0x04 => AddrSubunit::ExternalUnit,
-            value => AddrSubunit::Other(value),
-        }
-    }
-}
-
-impl From<AddrSubunit> for u8 {
-    fn from(value: AddrSubunit) -> Self {
-        match value {
-            AddrSubunit::Unknown => 0x00,
-            AddrSubunit::MSDisplay => 0x01,
-            AddrSubunit::MobileEquipment => 0x02,
-            AddrSubunit::SmartCard => 0x03,
-            AddrSubunit::ExternalUnit => 0x04,
-            AddrSubunit::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

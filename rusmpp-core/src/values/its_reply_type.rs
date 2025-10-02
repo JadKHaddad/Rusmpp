@@ -19,40 +19,6 @@ pub enum ItsReplyType {
     Other(u8),
 }
 
-impl From<u8> for ItsReplyType {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => ItsReplyType::Digit,
-            1 => ItsReplyType::Number,
-            2 => ItsReplyType::TelephoneNo,
-            3 => ItsReplyType::Password,
-            4 => ItsReplyType::CharacterLine,
-            5 => ItsReplyType::Menu,
-            6 => ItsReplyType::Date,
-            7 => ItsReplyType::Time,
-            8 => ItsReplyType::Continue,
-            value => ItsReplyType::Other(value),
-        }
-    }
-}
-
-impl From<ItsReplyType> for u8 {
-    fn from(value: ItsReplyType) -> Self {
-        match value {
-            ItsReplyType::Digit => 0,
-            ItsReplyType::Number => 1,
-            ItsReplyType::TelephoneNo => 2,
-            ItsReplyType::Password => 3,
-            ItsReplyType::CharacterLine => 4,
-            ItsReplyType::Menu => 5,
-            ItsReplyType::Date => 6,
-            ItsReplyType::Time => 7,
-            ItsReplyType::Continue => 8,
-            ItsReplyType::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

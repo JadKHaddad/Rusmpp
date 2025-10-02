@@ -18,28 +18,6 @@ pub enum BroadcastAreaFormat {
     Other(u8),
 }
 
-impl From<u8> for BroadcastAreaFormat {
-    fn from(value: u8) -> Self {
-        match value {
-            0x00 => BroadcastAreaFormat::AliasName,
-            0x01 => BroadcastAreaFormat::EllipsoidArc,
-            0x02 => BroadcastAreaFormat::Polygon,
-            value => BroadcastAreaFormat::Other(value),
-        }
-    }
-}
-
-impl From<BroadcastAreaFormat> for u8 {
-    fn from(value: BroadcastAreaFormat) -> Self {
-        match value {
-            BroadcastAreaFormat::AliasName => 0x00,
-            BroadcastAreaFormat::EllipsoidArc => 0x01,
-            BroadcastAreaFormat::Polygon => 0x02,
-            BroadcastAreaFormat::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

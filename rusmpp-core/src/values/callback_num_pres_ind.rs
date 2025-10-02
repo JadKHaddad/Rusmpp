@@ -47,28 +47,6 @@ pub enum Presentation {
     Other(u8),
 }
 
-impl From<u8> for Presentation {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => Presentation::PresentationAllowed,
-            0b00000001 => Presentation::PresentationRestricted,
-            0b00000010 => Presentation::NumberNotAvailable,
-            value => Presentation::Other(value),
-        }
-    }
-}
-
-impl From<Presentation> for u8 {
-    fn from(value: Presentation) -> Self {
-        match value {
-            Presentation::PresentationAllowed => 0b00000000,
-            Presentation::PresentationRestricted => 0b00000001,
-            Presentation::NumberNotAvailable => 0b00000010,
-            Presentation::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -81,30 +59,6 @@ pub enum Screening {
     VerifiedAndFailed = 0b00001000,
     NetworkProvided = 0b00001100,
     Other(u8),
-}
-
-impl From<u8> for Screening {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => Screening::NotScreened,
-            0b00000100 => Screening::VerifiedAndPassed,
-            0b00001000 => Screening::VerifiedAndFailed,
-            0b00001100 => Screening::NetworkProvided,
-            value => Screening::Other(value),
-        }
-    }
-}
-
-impl From<Screening> for u8 {
-    fn from(value: Screening) -> Self {
-        match value {
-            Screening::NotScreened => 0b00000000,
-            Screening::VerifiedAndPassed => 0b00000100,
-            Screening::VerifiedAndFailed => 0b00001000,
-            Screening::NetworkProvided => 0b00001100,
-            Screening::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

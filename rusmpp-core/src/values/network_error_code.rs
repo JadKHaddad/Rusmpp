@@ -36,38 +36,6 @@ pub enum ErrorCodeNetworkType {
     Other(u8),
 }
 
-impl From<u8> for ErrorCodeNetworkType {
-    fn from(value: u8) -> Self {
-        match value {
-            1 => ErrorCodeNetworkType::Ansi136AccessDeniedReason,
-            2 => ErrorCodeNetworkType::Is95AccessDeniedReason,
-            3 => ErrorCodeNetworkType::Gsm,
-            4 => ErrorCodeNetworkType::Ansi136CauseCode,
-            5 => ErrorCodeNetworkType::Is95CauseCode,
-            6 => ErrorCodeNetworkType::Ansi41Error,
-            7 => ErrorCodeNetworkType::SmppError,
-            8 => ErrorCodeNetworkType::MessageCenterSpecific,
-            value => ErrorCodeNetworkType::Other(value),
-        }
-    }
-}
-
-impl From<ErrorCodeNetworkType> for u8 {
-    fn from(value: ErrorCodeNetworkType) -> Self {
-        match value {
-            ErrorCodeNetworkType::Ansi136AccessDeniedReason => 1,
-            ErrorCodeNetworkType::Is95AccessDeniedReason => 2,
-            ErrorCodeNetworkType::Gsm => 3,
-            ErrorCodeNetworkType::Ansi136CauseCode => 4,
-            ErrorCodeNetworkType::Is95CauseCode => 5,
-            ErrorCodeNetworkType::Ansi41Error => 6,
-            ErrorCodeNetworkType::SmppError => 7,
-            ErrorCodeNetworkType::MessageCenterSpecific => 8,
-            ErrorCodeNetworkType::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

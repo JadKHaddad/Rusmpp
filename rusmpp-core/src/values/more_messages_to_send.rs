@@ -12,26 +12,6 @@ pub enum MoreMessagesToSend {
     Other(u8),
 }
 
-impl From<u8> for MoreMessagesToSend {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => MoreMessagesToSend::NoMoreMessagesToFollow,
-            1 => MoreMessagesToSend::MoreMessagesToFollow,
-            value => MoreMessagesToSend::Other(value),
-        }
-    }
-}
-
-impl From<MoreMessagesToSend> for u8 {
-    fn from(value: MoreMessagesToSend) -> Self {
-        match value {
-            MoreMessagesToSend::NoMoreMessagesToFollow => 0,
-            MoreMessagesToSend::MoreMessagesToFollow => 1,
-            MoreMessagesToSend::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

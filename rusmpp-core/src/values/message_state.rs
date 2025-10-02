@@ -1,8 +1,9 @@
 use rusmpp_macros::Rusmpp;
 
 /// This field indicates the current status of the broadcast message.
-#[repr(u8)]
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[repr(u8)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
@@ -97,42 +98,6 @@ pub enum MessageState {
     /// attempts will be made.
     Skipped = 9,
     Other(u8),
-}
-
-impl From<u8> for MessageState {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => MessageState::Scheduled,
-            1 => MessageState::Enroute,
-            2 => MessageState::Delivered,
-            3 => MessageState::Expired,
-            4 => MessageState::Deleted,
-            5 => MessageState::Undeliverable,
-            6 => MessageState::Accepted,
-            7 => MessageState::Unknown,
-            8 => MessageState::Rejected,
-            9 => MessageState::Skipped,
-            value => MessageState::Other(value),
-        }
-    }
-}
-
-impl From<MessageState> for u8 {
-    fn from(value: MessageState) -> Self {
-        match value {
-            MessageState::Scheduled => 0,
-            MessageState::Enroute => 1,
-            MessageState::Delivered => 2,
-            MessageState::Expired => 3,
-            MessageState::Deleted => 4,
-            MessageState::Undeliverable => 5,
-            MessageState::Accepted => 6,
-            MessageState::Unknown => 7,
-            MessageState::Rejected => 8,
-            MessageState::Skipped => 9,
-            MessageState::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

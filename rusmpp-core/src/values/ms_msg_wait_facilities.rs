@@ -46,26 +46,6 @@ pub enum Indicator {
     Other(u8),
 }
 
-impl From<u8> for Indicator {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => Indicator::Inactive,
-            0b10000000 => Indicator::Active,
-            value => Indicator::Other(value),
-        }
-    }
-}
-
-impl From<Indicator> for u8 {
-    fn from(value: Indicator) -> Self {
-        match value {
-            Indicator::Inactive => 0b00000000,
-            Indicator::Active => 0b10000000,
-            Indicator::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -78,30 +58,6 @@ pub enum TypeOfMessage {
     ElectronicMailMessageWaiting = 0b00000010,
     OtherMessageWaiting = 0b00000011,
     Other(u8),
-}
-
-impl From<u8> for TypeOfMessage {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00000000 => TypeOfMessage::VoicemailMessageWaiting,
-            0b00000001 => TypeOfMessage::FaxMessageWaiting,
-            0b00000010 => TypeOfMessage::ElectronicMailMessageWaiting,
-            0b00000011 => TypeOfMessage::OtherMessageWaiting,
-            value => TypeOfMessage::Other(value),
-        }
-    }
-}
-
-impl From<TypeOfMessage> for u8 {
-    fn from(value: TypeOfMessage) -> Self {
-        match value {
-            TypeOfMessage::VoicemailMessageWaiting => 0b00000000,
-            TypeOfMessage::FaxMessageWaiting => 0b00000001,
-            TypeOfMessage::ElectronicMailMessageWaiting => 0b00000010,
-            TypeOfMessage::OtherMessageWaiting => 0b00000011,
-            TypeOfMessage::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

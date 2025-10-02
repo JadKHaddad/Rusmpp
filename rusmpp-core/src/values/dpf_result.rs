@@ -12,26 +12,6 @@ pub enum DpfResult {
     Other(u8),
 }
 
-impl From<u8> for DpfResult {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => DpfResult::NotSet,
-            1 => DpfResult::Set,
-            value => DpfResult::Other(value),
-        }
-    }
-}
-
-impl From<DpfResult> for u8 {
-    fn from(value: DpfResult) -> Self {
-        match value {
-            DpfResult::NotSet => 0,
-            DpfResult::Set => 1,
-            DpfResult::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

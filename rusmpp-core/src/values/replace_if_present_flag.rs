@@ -12,26 +12,6 @@ pub enum ReplaceIfPresentFlag {
     Other(u8),
 }
 
-impl From<u8> for ReplaceIfPresentFlag {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => ReplaceIfPresentFlag::DoNotReplace,
-            1 => ReplaceIfPresentFlag::Replace,
-            value => ReplaceIfPresentFlag::Other(value),
-        }
-    }
-}
-
-impl From<ReplaceIfPresentFlag> for u8 {
-    fn from(value: ReplaceIfPresentFlag) -> Self {
-        match value {
-            ReplaceIfPresentFlag::DoNotReplace => 0,
-            ReplaceIfPresentFlag::Replace => 1,
-            ReplaceIfPresentFlag::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

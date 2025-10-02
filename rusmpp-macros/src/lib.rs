@@ -15,9 +15,10 @@ mod structs;
 ///
 /// ## Container attributes
 ///
-/// - `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`, and implement the appropriate `Into`/`From` conversions.
+/// - `#[repr(u8)]`, `#[repr(u16)]`, or `#[repr(u32)]`: Use the `From<u8>`, `From<u16>`, or `From<u32>`/`Into<u8>`, `Into<u16>`, or `Into<u32>` representation for decoding.
 /// - `#[rusmpp(decode = skip|owned|borrowed|all)]`: Control which `Decode` implementations to generate. Default is `all`.
 /// - `#[rusmpp(test = skip)]`: Skip impl `TestInstance` for the enum.
+/// - `#[rusmpp(from_into = skip)]`: Skip implementing `From<repr>` and `From<Enum>` for the enum.
 ///
 /// # Structs
 ///

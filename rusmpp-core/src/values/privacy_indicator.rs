@@ -14,30 +14,6 @@ pub enum PrivacyIndicator {
     Other(u8),
 }
 
-impl From<u8> for PrivacyIndicator {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => PrivacyIndicator::NotRestricted,
-            1 => PrivacyIndicator::Restricted,
-            2 => PrivacyIndicator::Confidential,
-            3 => PrivacyIndicator::Secret,
-            value => PrivacyIndicator::Other(value),
-        }
-    }
-}
-
-impl From<PrivacyIndicator> for u8 {
-    fn from(value: PrivacyIndicator) -> Self {
-        match value {
-            PrivacyIndicator::NotRestricted => 0,
-            PrivacyIndicator::Restricted => 1,
-            PrivacyIndicator::Confidential => 2,
-            PrivacyIndicator::Secret => 3,
-            PrivacyIndicator::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

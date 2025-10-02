@@ -17,26 +17,6 @@ pub enum DestFlag {
     Other(u8),
 }
 
-impl From<u8> for DestFlag {
-    fn from(value: u8) -> Self {
-        match value {
-            0x01 => DestFlag::SmeAddress,
-            0x02 => DestFlag::DistributionListName,
-            value => DestFlag::Other(value),
-        }
-    }
-}
-
-impl From<DestFlag> for u8 {
-    fn from(value: DestFlag) -> Self {
-        match value {
-            DestFlag::SmeAddress => 0x01,
-            DestFlag::DistributionListName => 0x02,
-            DestFlag::Other(value) => value,
-        }
-    }
-}
-
 impl From<DestFlag> for u32 {
     fn from(value: DestFlag) -> Self {
         u8::from(value).into()

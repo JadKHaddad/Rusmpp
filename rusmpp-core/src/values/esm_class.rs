@@ -62,30 +62,6 @@ pub enum MessagingMode {
     Other(u8),
 }
 
-impl From<u8> for MessagingMode {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00_00_00_00 => MessagingMode::Default,
-            0b00_00_00_01 => MessagingMode::Datagram,
-            0b00_00_00_10 => MessagingMode::Forward,
-            0b00_00_00_11 => MessagingMode::StoreAndForward,
-            _ => MessagingMode::Other(value),
-        }
-    }
-}
-
-impl From<MessagingMode> for u8 {
-    fn from(value: MessagingMode) -> Self {
-        match value {
-            MessagingMode::Default => 0b00_00_00_00,
-            MessagingMode::Datagram => 0b00_00_00_01,
-            MessagingMode::Forward => 0b00_00_00_10,
-            MessagingMode::StoreAndForward => 0b00_00_00_11,
-            MessagingMode::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -97,28 +73,6 @@ pub enum MessageType {
     ShortMessageContainsMCDeliveryReceipt = 0b00_00_01_00,
     ShortMessageContainsIntermediateDeliveryNotification = 0b00_10_00_00,
     Other(u8),
-}
-
-impl From<u8> for MessageType {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00_00_00_00 => MessageType::Default,
-            0b00_00_01_00 => MessageType::ShortMessageContainsMCDeliveryReceipt,
-            0b00_10_00_00 => MessageType::ShortMessageContainsIntermediateDeliveryNotification,
-            _ => MessageType::Other(value),
-        }
-    }
-}
-
-impl From<MessageType> for u8 {
-    fn from(value: MessageType) -> Self {
-        match value {
-            MessageType::Default => 0b00_00_00_00,
-            MessageType::ShortMessageContainsMCDeliveryReceipt => 0b00_00_01_00,
-            MessageType::ShortMessageContainsIntermediateDeliveryNotification => 0b00_10_00_00,
-            MessageType::Other(value) => value,
-        }
-    }
 }
 
 #[repr(u8)]
@@ -134,28 +88,6 @@ pub enum Ansi41Specific {
     Other(u8),
 }
 
-impl From<u8> for Ansi41Specific {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00_00_10_00 => Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement,
-            0b00_01_00_00 => Ansi41Specific::ShortMessageContainsUserAcknowledgment,
-            0b00_01_10_00 => Ansi41Specific::ShortMessageContainsConversationAbort,
-            _ => Ansi41Specific::Other(value),
-        }
-    }
-}
-
-impl From<Ansi41Specific> for u8 {
-    fn from(value: Ansi41Specific) -> Self {
-        match value {
-            Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement => 0b00_00_10_00,
-            Ansi41Specific::ShortMessageContainsUserAcknowledgment => 0b00_01_00_00,
-            Ansi41Specific::ShortMessageContainsConversationAbort => 0b00_01_10_00,
-            Ansi41Specific::Other(value) => value,
-        }
-    }
-}
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -168,30 +100,6 @@ pub enum GsmFeatures {
     SetReplyPath = 0b10_00_00_00,
     SetUdhiAndReplyPath = 0b11_00_00_00,
     Other(u8),
-}
-
-impl From<u8> for GsmFeatures {
-    fn from(value: u8) -> Self {
-        match value {
-            0b00_00_00_00 => GsmFeatures::NotSelected,
-            0b01_00_00_00 => GsmFeatures::UdhiIndicator,
-            0b10_00_00_00 => GsmFeatures::SetReplyPath,
-            0b11_00_00_00 => GsmFeatures::SetUdhiAndReplyPath,
-            _ => GsmFeatures::Other(value),
-        }
-    }
-}
-
-impl From<GsmFeatures> for u8 {
-    fn from(value: GsmFeatures) -> Self {
-        match value {
-            GsmFeatures::NotSelected => 0b00_00_00_00,
-            GsmFeatures::UdhiIndicator => 0b01_00_00_00,
-            GsmFeatures::SetReplyPath => 0b10_00_00_00,
-            GsmFeatures::SetUdhiAndReplyPath => 0b11_00_00_00,
-            GsmFeatures::Other(value) => value,
-        }
-    }
 }
 
 #[cfg(test)]

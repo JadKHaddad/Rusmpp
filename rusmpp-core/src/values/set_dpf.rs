@@ -12,26 +12,6 @@ pub enum SetDpf {
     Other(u8),
 }
 
-impl From<u8> for SetDpf {
-    fn from(value: u8) -> Self {
-        match value {
-            0 => SetDpf::NotRequested,
-            1 => SetDpf::Requested,
-            value => SetDpf::Other(value),
-        }
-    }
-}
-
-impl From<SetDpf> for u8 {
-    fn from(value: SetDpf) -> Self {
-        match value {
-            SetDpf::NotRequested => 0,
-            SetDpf::Requested => 1,
-            SetDpf::Other(value) => value,
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

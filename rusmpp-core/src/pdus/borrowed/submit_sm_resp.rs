@@ -112,7 +112,6 @@ impl<'a, const N: usize> SubmitSmRespBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-
     use crate::{tests::TestInstance, values::delivery_failure_reason::DeliveryFailureReason};
 
     use super::*;

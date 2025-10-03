@@ -349,7 +349,6 @@ impl<'a, const N: usize> SubmitSmBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-
     use crate::{
         tests::TestInstance,
         types::borrowed::AnyOctetString,

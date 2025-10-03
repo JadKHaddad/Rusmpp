@@ -1,32 +1,32 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
-    pdus::borrowed::Pdu,
-    tlvs::borrowed::{Tlv, TlvValue},
-    types::borrowed::COctetString,
+    pdus::owned::Pdu,
+    tlvs::owned::{Tlv, TlvValue},
+    types::owned::COctetString,
     values::interface_version::InterfaceVersion,
 };
 
 macro_rules! bind_resp {
     ($name:ident) => {
         #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
-        #[rusmpp(decode = borrowed, test = skip)]
+        #[rusmpp(decode = owned, test = skip)]
         #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
         #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
         #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-        pub struct $name<'a> {
+        pub struct $name {
             /// MC identifier.
             ///
             /// Identifies the MC to the ESME.
-            pub system_id: COctetString<'a, 1, 16>,
+            pub system_id: COctetString<1, 16>,
             /// `SMPP` version supported by MC. [`ScInterfaceVersion`].
             #[rusmpp(length = "checked")]
-            sc_interface_version: Option<Tlv<'a>>,
+            sc_interface_version: Option<Tlv>,
         }
 
-        impl<'a> $name<'a> {
+        impl $name {
             pub fn new(
-                system_id: COctetString<'a, 1, 16>,
+                system_id: COctetString<1, 16>,
                 sc_interface_version: Option<InterfaceVersion>,
             ) -> Self {
                 Self {
@@ -37,7 +37,7 @@ macro_rules! bind_resp {
                 }
             }
 
-            pub const fn sc_interface_version_tlv(&'_ self) -> Option<&'_ Tlv<'_>> {
+            pub const fn sc_interface_version_tlv(&self) -> Option<&Tlv> {
                 self.sc_interface_version.as_ref()
             }
 
@@ -60,7 +60,7 @@ macro_rules! bind_resp {
             }
 
             ::pastey::paste! {
-                pub fn builder() -> [<$name Builder>]<'a> {
+                pub fn builder() -> [<$name Builder>] {
                     [<$name Builder>]::new()
                 }
             }
@@ -68,16 +68,16 @@ macro_rules! bind_resp {
 
         ::pastey::paste! {
             #[derive(Debug, Default)]
-            pub struct [<$name Builder>]<'a> {
-               inner: $name<'a>,
+            pub struct [<$name Builder>] {
+               inner: $name,
             }
 
-            impl<'a> [<$name Builder>]<'a> {
+            impl [<$name Builder>] {
                 pub fn new() -> Self {
                     Self::default()
                 }
 
-                pub fn system_id(mut self, system_id: COctetString<'a, 1, 16>) -> Self {
+                pub fn system_id(mut self, system_id: COctetString<1, 16>) -> Self {
                     self.inner.system_id = system_id;
                     self
                 }
@@ -90,7 +90,7 @@ macro_rules! bind_resp {
                     self
                 }
 
-                pub fn build(self) -> $name<'a> {
+                pub fn build(self) -> $name {
                     self.inner
                 }
             }
@@ -102,20 +102,72 @@ bind_resp!(BindTransmitterResp);
 bind_resp!(BindReceiverResp);
 bind_resp!(BindTransceiverResp);
 
-impl<'a, const N: usize> From<BindTransmitterResp<'a>> for Pdu<'a, N> {
-    fn from(value: BindTransmitterResp<'a>) -> Self {
+impl From<BindTransmitterResp> for Pdu {
+    fn from(value: BindTransmitterResp) -> Self {
         Self::BindTransmitterResp(value)
     }
 }
 
-impl<'a, const N: usize> From<BindReceiverResp<'a>> for Pdu<'a, N> {
-    fn from(value: BindReceiverResp<'a>) -> Self {
+impl From<BindReceiverResp> for Pdu {
+    fn from(value: BindReceiverResp) -> Self {
         Self::BindReceiverResp(value)
     }
 }
 
-impl<'a, const N: usize> From<BindTransceiverResp<'a>> for Pdu<'a, N> {
-    fn from(value: BindTransceiverResp<'a>) -> Self {
+impl From<BindTransceiverResp> for Pdu {
+    fn from(value: BindTransceiverResp) -> Self {
         Self::BindTransceiverResp(value)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::str::FromStr;
+
+    use crate::tests::TestInstance;
+
+    use super::*;
+
+    impl TestInstance for BindTransmitterResp {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp5_0))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindReceiverResp {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_4))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindTransceiverResp {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::from_str("system_id").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_3OrEarlier(1)))
+                    .build(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::owned::encode_decode_with_length_test_instances::<BindTransmitterResp>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<BindReceiverResp>();
+        crate::tests::owned::encode_decode_with_length_test_instances::<BindTransceiverResp>();
     }
 }

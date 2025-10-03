@@ -5,7 +5,6 @@ use crate::{
         borrowed::{Decode, DecodeWithKeyOptional, DecodeWithLength},
     },
     encode::{Encode, Length},
-    pdus::borrowed::submit_sm::SubmitSm,
     types::borrowed::AnyOctetString,
 };
 

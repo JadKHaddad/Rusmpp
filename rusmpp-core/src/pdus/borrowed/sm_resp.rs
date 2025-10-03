@@ -114,7 +114,6 @@ impl<'a, const N: usize> From<DataSmResp<'a, N>> for Pdu<'a, N> {
 
 #[cfg(test)]
 mod tests {
-
     use crate::{
         tests::TestInstance,
         values::{

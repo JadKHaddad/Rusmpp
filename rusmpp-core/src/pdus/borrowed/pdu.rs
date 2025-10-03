@@ -45,13 +45,13 @@ pub enum Pdu<'a, const N: usize> {
     /// PDU indicates the success or failure of the ESME’s attempt
     /// to bind as a transceiver.
     BindTransceiverResp(BindTransceiverResp<'a>),
-    // /// Authentication PDU used by a Message Centre to Outbind to
-    // /// an ESME to inform it that messages are present in the MC.
-    // /// The PDU contains identification, and access password for the
-    // /// ESME. If the ESME authenticates the request, it will respond
-    // /// with a bind_receiver or bind_transceiver to begin the process
-    // /// of binding into the MC.
-    // Outbind(Outbind),
+    /// Authentication PDU used by a Message Centre to Outbind to
+    /// an ESME to inform it that messages are present in the MC.
+    /// The PDU contains identification, and access password for the
+    /// ESME. If the ESME authenticates the request, it will respond
+    /// with a bind_receiver or bind_transceiver to begin the process
+    /// of binding into the MC.
+    Outbind(Outbind<'a>),
     /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
     /// session. It is sent when the MC has detected that a particular mobile subscriber has become
     /// available and a delivery pending flag had been previously set for that subscriber by means of
@@ -62,8 +62,8 @@ pub enum Pdu<'a, const N: usize> {
     ///
     /// Note: There is no associated alert_notification_resp PDU.
     AlertNotification(AlertNotification<'a>),
-    // /// This operation is used by an ESME to submit a short message to the MC for onward
-    // /// transmission to a specified short message entity (SME).
+    /// This operation is used by an ESME to submit a short message to the MC for onward
+    /// transmission to a specified short message entity (SME).
     SubmitSm(SubmitSm<'a, N>),
     // SubmitSmResp(SubmitSmResp),
     // /// This command is issued by the ESME to query the status of a previously submitted short
@@ -73,15 +73,15 @@ pub enum Pdu<'a, const N: usize> {
     // /// NULL, then the source address in the query_sm command should also be set to NULL.
     // QuerySm(QuerySm),
     // QuerySmResp(QuerySmResp),
-    // /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
-    // /// the MC may route a short message to the ESME for delivery.
-    // DeliverSm(DeliverSm),
+    /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
+    /// the MC may route a short message to the ESME for delivery.
+    DeliverSm(DeliverSm<'a, N>),
     // DeliverSmResp(DeliverSmResp),
-    // /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
-    // /// mobile-terminated message. However, data_sm is intended for packet-based applications
-    // /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
-    // /// packet-based applications.
-    // DataSm(DataSm),
+    /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
+    /// mobile-terminated message. However, data_sm is intended for packet-based applications
+    /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
+    /// packet-based applications.
+    DataSm(DataSm<'a, N>),
     // DataSmResp(DataSmResp),
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
@@ -193,15 +193,15 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::BindReceiverResp(_) => CommandId::BindReceiverResp,
             Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
-            // Pdu::Outbind(_) => CommandId::Outbind,
+            Pdu::Outbind(_) => CommandId::Outbind,
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
             Pdu::SubmitSm(_) => CommandId::SubmitSm,
             // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
             // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
-            // Pdu::DeliverSm(_) => CommandId::DeliverSm,
+            Pdu::DeliverSm(_) => CommandId::DeliverSm,
             // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
-            // Pdu::DataSm(_) => CommandId::DataSm,
+            Pdu::DataSm(_) => CommandId::DataSm,
             // Pdu::DataSmResp(_) => CommandId::DataSmResp,
             Pdu::CancelSm(_) => CommandId::CancelSm,
             // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
@@ -236,15 +236,15 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::BindReceiverResp(body) => body.length(),
             Pdu::BindTransceiver(body) => body.length(),
             Pdu::BindTransceiverResp(body) => body.length(),
-            // Pdu::Outbind(body) => body.length(),
+            Pdu::Outbind(body) => body.length(),
             Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
             // Pdu::SubmitSmResp(body) => body.length(),
             // Pdu::QuerySm(body) => body.length(),
             // Pdu::QuerySmResp(body) => body.length(),
-            // Pdu::DeliverSm(body) => body.length(),
+            Pdu::DeliverSm(body) => body.length(),
             // Pdu::DeliverSmResp(body) => body.length(),
-            // Pdu::DataSm(body) => body.length(),
+            Pdu::DataSm(body) => body.length(),
             // Pdu::DataSmResp(body) => body.length(),
             Pdu::CancelSm(body) => body.length(),
             // Pdu::ReplaceSm(body) => body.length(),
@@ -277,15 +277,15 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::BindReceiverResp(body) => body.encode(dst),
             Pdu::BindTransceiver(body) => body.encode(dst),
             Pdu::BindTransceiverResp(body) => body.encode(dst),
-            // Pdu::Outbind(body) => body.encode(dst),
+            Pdu::Outbind(body) => body.encode(dst),
             Pdu::AlertNotification(body) => body.encode(dst),
             Pdu::SubmitSm(body) => body.encode(dst),
             // Pdu::SubmitSmResp(body) => body.encode(dst),
             // Pdu::QuerySm(body) => body.encode(dst),
             // Pdu::QuerySmResp(body) => body.encode(dst),
-            // Pdu::DeliverSm(body) => body.encode(dst),
+            Pdu::DeliverSm(body) => body.encode(dst),
             // Pdu::DeliverSmResp(body) => body.encode(dst),
-            // Pdu::DataSm(body) => body.encode(dst),
+            Pdu::DataSm(body) => body.encode(dst),
             // Pdu::DataSmResp(body) => body.encode(dst),
             Pdu::CancelSm(body) => body.encode(dst),
             // Pdu::ReplaceSm(body) => body.encode(dst),
@@ -346,23 +346,23 @@ impl<'a, const N: usize> DecodeWithKeyOptional<'a> for Pdu<'a, N> {
             CommandId::BindTransceiverResp => {
                 DecodeWithLength::decode(src, length).map_decoded(Self::BindTransceiverResp)?
             }
-            // CommandId::Outbind => Decode::decode(src).map_decoded(Self::Outbind)?,
-            // CommandId::AlertNotification => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
-            // }
+            CommandId::Outbind => Decode::decode(src).map_decoded(Self::Outbind)?,
+            CommandId::AlertNotification => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
+            }
             CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
             // CommandId::SubmitSmResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
             // }
             // CommandId::QuerySm => Decode::decode(src).map_decoded(Self::QuerySm)?,
             // CommandId::QuerySmResp => Decode::decode(src).map_decoded(Self::QuerySmResp)?,
-            // CommandId::DeliverSm => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSm)?
-            // }
+            CommandId::DeliverSm => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSm)?
+            }
             // CommandId::DeliverSmResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSmResp)?
             // }
-            // CommandId::DataSm => DecodeWithLength::decode(src, length).map_decoded(Self::DataSm)?,
+            CommandId::DataSm => DecodeWithLength::decode(src, length).map_decoded(Self::DataSm)?,
             // CommandId::DataSmResp => {
             //     DecodeWithLength::decode(src, length).map_decoded(Self::DataSmResp)?
             // }

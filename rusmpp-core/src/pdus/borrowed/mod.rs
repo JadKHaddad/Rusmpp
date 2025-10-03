@@ -69,14 +69,14 @@ pub use bind_resp::{BindReceiverResp, BindTransceiverResp, BindTransmitterResp};
 mod cancel_sm;
 pub use cancel_sm::CancelSm;
 
-// mod data_sm;
-// pub use data_sm::DataSm;
+mod data_sm;
+pub use data_sm::DataSm;
 
-// mod deliver_sm;
-// pub use deliver_sm::DeliverSm;
+mod deliver_sm;
+pub use deliver_sm::DeliverSm;
 
-// mod outbind;
-// pub use outbind::Outbind;
+mod outbind;
+pub use outbind::Outbind;
 
 // mod query_sm;
 // pub use query_sm::QuerySm;

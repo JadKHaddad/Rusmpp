@@ -48,3 +48,21 @@ impl<'a> crate::decode::borrowed::Decode<'a> for DestFlag {
         u8::decode(src).map(|(this, size)| (Self::from(this), size))
     }
 }
+impl From<u8> for DestFlag {
+    fn from(value: u8) -> Self {
+        match value {
+            0x01 => DestFlag::SmeAddress,
+            0x02 => DestFlag::DistributionListName,
+            other => DestFlag::Other(other),
+        }
+    }
+}
+impl From<DestFlag> for u8 {
+    fn from(value: DestFlag) -> Self {
+        match value {
+            DestFlag::SmeAddress => 0x01,
+            DestFlag::DistributionListName => 0x02,
+            DestFlag::Other(other) => other,
+        }
+    }
+}

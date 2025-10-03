@@ -52,16 +52,16 @@ pub enum Pdu<'a, const N: usize> {
     // /// with a bind_receiver or bind_transceiver to begin the process
     // /// of binding into the MC.
     // Outbind(Outbind),
-    // /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
-    // /// session. It is sent when the MC has detected that a particular mobile subscriber has become
-    // /// available and a delivery pending flag had been previously set for that subscriber by means of
-    // /// the set_dpf TLV.
-    // ///
-    // /// A typical use of this operation is to trigger a data content ‘Push’ to the subscriber from a WAP
-    // /// Proxy Server.
-    // ///
-    // /// Note: There is no associated alert_notification_resp PDU.
-    // AlertNotification(AlertNotification),
+    /// The alert_notification PDU is sent by the MC to the ESME across a Receiver or Transceiver
+    /// session. It is sent when the MC has detected that a particular mobile subscriber has become
+    /// available and a delivery pending flag had been previously set for that subscriber by means of
+    /// the set_dpf TLV.
+    ///
+    /// A typical use of this operation is to trigger a data content ‘Push’ to the subscriber from a WAP
+    /// Proxy Server.
+    ///
+    /// Note: There is no associated alert_notification_resp PDU.
+    AlertNotification(AlertNotification<'a>),
     // /// This operation is used by an ESME to submit a short message to the MC for onward
     // /// transmission to a specified short message entity (SME).
     SubmitSm(SubmitSm<'a, N>),
@@ -83,19 +83,19 @@ pub enum Pdu<'a, const N: usize> {
     // /// packet-based applications.
     // DataSm(DataSm),
     // DataSmResp(DataSmResp),
-    // /// This command is issued by the ESME to cancel one or more previously submitted short
-    // /// messages that are pending delivery. The command may specify a particular message to
-    // /// cancel, or all messages matching a particular source, destination and service_type.
-    // ///
-    // /// If the message_id is set to the ID of a previously submitted message, then provided the
-    // /// source address supplied by the ESME matches that of the stored message, that message
-    // /// will be cancelled.
-    // ///
-    // /// If the message_id is NULL, all outstanding undelivered messages with matching source and
-    // /// destination addresses (and service_type if specified) are cancelled.
-    // /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
-    // /// NULL, then the source address in the cancel_sm command should also be NULL.
-    // CancelSm(CancelSm),
+    /// This command is issued by the ESME to cancel one or more previously submitted short
+    /// messages that are pending delivery. The command may specify a particular message to
+    /// cancel, or all messages matching a particular source, destination and service_type.
+    ///
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
+    ///
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.
+    /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
+    /// NULL, then the source address in the cancel_sm command should also be NULL.
+    CancelSm(CancelSm<'a>),
     // /// This command is issued by the ESME to replace a previously submitted short message that
     // /// is pending delivery. The matching mechanism is based on the message_id and source
     // /// address of the original message.
@@ -108,10 +108,10 @@ pub enum Pdu<'a, const N: usize> {
     // /// means of sending the same message to several different subscribers at the same time.
     // SubmitMulti(SubmitMulti),
     // SubmitMultiResp(SubmitMultiResp),
-    // /// This operation is issued by the ESME to submit a message to the Message Centre for
-    // /// broadcast to a specified geographical area or set of geographical areas.
-    // BroadcastSm(BroadcastSm),
-    // BroadcastSmResp(BroadcastSmResp),
+    /// This operation is issued by the ESME to submit a message to the Message Centre for
+    /// broadcast to a specified geographical area or set of geographical areas.
+    BroadcastSm(BroadcastSm<'a, N>),
+    BroadcastSmResp(BroadcastSmResp<'a, N>),
     // /// This command is issued by the ESME to query the status of a previously submitted
     // /// broadcast message. The message can be queried either on the basis of the Message Center
     // /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
@@ -144,7 +144,7 @@ pub enum Pdu<'a, const N: usize> {
     // ///
     // /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
     // /// address in the cancel_broadcast_sm command should also be NULL.
-    // CancelBroadcastSm(CancelBroadcastSm),
+    // CancelBroadcastSm(CancelBroadcastSm<'a, N>),
     /// This PDU can be sent by the ESME or MC as a means of
     /// initiating the termination of a `SMPP` session.
     Unbind,
@@ -194,7 +194,7 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::BindTransceiver(_) => CommandId::BindTransceiver,
             Pdu::BindTransceiverResp(_) => CommandId::BindTransceiverResp,
             // Pdu::Outbind(_) => CommandId::Outbind,
-            // Pdu::AlertNotification(_) => CommandId::AlertNotification,
+            Pdu::AlertNotification(_) => CommandId::AlertNotification,
             Pdu::SubmitSm(_) => CommandId::SubmitSm,
             // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             // Pdu::QuerySm(_) => CommandId::QuerySm,
@@ -203,12 +203,12 @@ impl<'a, const N: usize> Pdu<'a, N> {
             // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             // Pdu::DataSm(_) => CommandId::DataSm,
             // Pdu::DataSmResp(_) => CommandId::DataSmResp,
-            // Pdu::CancelSm(_) => CommandId::CancelSm,
+            Pdu::CancelSm(_) => CommandId::CancelSm,
             // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
             // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
-            // Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
-            // Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
+            Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
+            Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
             // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
             // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
@@ -237,7 +237,7 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::BindTransceiver(body) => body.length(),
             Pdu::BindTransceiverResp(body) => body.length(),
             // Pdu::Outbind(body) => body.length(),
-            // Pdu::AlertNotification(body) => body.length(),
+            Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
             // Pdu::SubmitSmResp(body) => body.length(),
             // Pdu::QuerySm(body) => body.length(),
@@ -246,12 +246,12 @@ impl<const N: usize> Length for Pdu<'_, N> {
             // Pdu::DeliverSmResp(body) => body.length(),
             // Pdu::DataSm(body) => body.length(),
             // Pdu::DataSmResp(body) => body.length(),
-            // Pdu::CancelSm(body) => body.length(),
+            Pdu::CancelSm(body) => body.length(),
             // Pdu::ReplaceSm(body) => body.length(),
             // Pdu::SubmitMulti(body) => body.length(),
             // Pdu::SubmitMultiResp(body) => body.length(),
-            // Pdu::BroadcastSm(body) => body.length(),
-            // Pdu::BroadcastSmResp(body) => body.length(),
+            Pdu::BroadcastSm(body) => body.length(),
+            Pdu::BroadcastSmResp(body) => body.length(),
             // Pdu::QueryBroadcastSm(body) => body.length(),
             // Pdu::QueryBroadcastSmResp(body) => body.length(),
             // Pdu::CancelBroadcastSm(body) => body.length(),
@@ -278,7 +278,7 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::BindTransceiver(body) => body.encode(dst),
             Pdu::BindTransceiverResp(body) => body.encode(dst),
             // Pdu::Outbind(body) => body.encode(dst),
-            // Pdu::AlertNotification(body) => body.encode(dst),
+            Pdu::AlertNotification(body) => body.encode(dst),
             Pdu::SubmitSm(body) => body.encode(dst),
             // Pdu::SubmitSmResp(body) => body.encode(dst),
             // Pdu::QuerySm(body) => body.encode(dst),
@@ -287,12 +287,12 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             // Pdu::DeliverSmResp(body) => body.encode(dst),
             // Pdu::DataSm(body) => body.encode(dst),
             // Pdu::DataSmResp(body) => body.encode(dst),
-            // Pdu::CancelSm(body) => body.encode(dst),
+            Pdu::CancelSm(body) => body.encode(dst),
             // Pdu::ReplaceSm(body) => body.encode(dst),
             // Pdu::SubmitMulti(body) => body.encode(dst),
             // Pdu::SubmitMultiResp(body) => body.encode(dst),
-            // Pdu::BroadcastSm(body) => body.encode(dst),
-            // Pdu::BroadcastSmResp(body) => body.encode(dst),
+            Pdu::BroadcastSm(body) => body.encode(dst),
+            Pdu::BroadcastSmResp(body) => body.encode(dst),
             // Pdu::QueryBroadcastSm(body) => body.encode(dst),
             // Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
             // Pdu::CancelBroadcastSm(body) => body.encode(dst),

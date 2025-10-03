@@ -1,124 +1,129 @@
+use rusmpp_macros::Rusmpp;
+
 use crate::{
-    Pdu,
     encode::Length,
-    tlvs::{MessageSubmissionRequestTlvValue, Tlv, TlvTag},
-    types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    pdus::borrowed::Pdu,
+    tlvs::{
+        TlvTag,
+        borrowed::{MessageSubmissionRequestTlvValue, Tlv},
+    },
+    types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
     values::{
-        DataCoding, DestAddress, EsmClass, Npi, PriorityFlag, RegisteredDelivery,
-        ReplaceIfPresentFlag, ServiceType, Ton,
+        data_coding::DataCoding, dest_address::borrowed::DestAddress, esm_class::EsmClass,
+        npi::Npi, priority_flag::PriorityFlag, registered_delivery::RegisteredDelivery,
+        replace_if_present_flag::ReplaceIfPresentFlag, service_type::borrowed::ServiceType,
+        ton::Ton,
     },
 };
 
-crate::create! {
-    @[skip_test]
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct SubmitMulti {
-        /// The service_type parameter can be used to indicate the
-        /// SMS Application service associated with the message.
-        /// Specifying the service_type allows the ESME to avail of
-        /// enhanced messaging services such as “replace by
-        /// service_type” or control the teleservice used on the air
-        /// interface.
-        ///
-        /// Set to NULL for default MC settings.
-        pub service_type: ServiceType,
-        /// Type of Number for source address.
-        ///
-        /// If not known, set to NULL (Unknown).
-        pub source_addr_ton: Ton,
-        /// Numbering Plan Indicator for source address.
-        ///
-        /// If not known, set to NULL (Unknown).
-        pub source_addr_npi: Npi,
-        /// Address of SME which originated this message.
-        ///
-        /// If not known, set to NULL (Unknown).
-        pub source_addr: COctetString<1, 21>,
-        /// Number of destination addresses – indicates the
-        /// number of destinations that are to follow.
-        ///
-        /// A maximum of 255 destination addresses are allowed.
-        ///
-        /// Note: Set to 1 when submitting to one SME Address or when
-        /// submitting to one Distribution List.
-        number_of_dests: u8,
-        /// Composite field.
-        @[count = number_of_dests]
-        dest_address: alloc::vec::Vec<DestAddress>,
-        /// Indicates Message Mode and Message Type.
-        pub esm_class: EsmClass,
-        /// Protocol Identifier.
-        ///
-        /// Network specific field.
-        pub protocol_id: u8,
-        /// Designates the priority level of the message.
-        pub priority_flag: PriorityFlag,
-        /// The short message is to be scheduled by the MC for delivery.
-        ///
-        /// Set to NULL for immediate message delivery.
-        pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
-        /// The validity period of this message.
-        ///
-        /// Set to NULL to request the SMSC default validity period.
-        ///
-        /// Note: this is superseded by the qos_time_to_live TLV if specified.
-        pub validity_period: EmptyOrFullCOctetString<17>,
-        /// Indicator to signify if a MC delivery receipt or an SME
-        /// acknowledgement is required.
-        pub registered_delivery: RegisteredDelivery,
-        // Flag indicating if submitted message should replace an
-        // existing message.
-        pub replace_if_present_flag: ReplaceIfPresentFlag,
-        /// Defines the encoding scheme of the short message user data.
-        pub data_coding: DataCoding,
-        /// Indicates the short message to send from a list of pre- defined
-        /// (‘canned’) short messages stored on the MC.
-        ///
-        /// If not using a MC canned message, set to NULL.
-        pub sm_default_msg_id: u8,
-        /// Length in octets of the short_message user data.
-        sm_length: u8,
-        /// Up to 255 octets of short message user data.
-        ///
-        /// The exact physical limit for short_message size may
-        /// vary according to the underlying network
-        ///
-        /// Note: this field is superceded by the message_payload TLV if
-        /// specified.
-        ///
-        /// Applications which need to send messages longer than
-        /// 255 octets should use the message_payload TLV. In
-        /// this case the sm_length field should be set to zero.
-        @[length = sm_length]
-        short_message: OctetString<0, 255>,
-        /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
-        @[length = unchecked]
-        tlvs: alloc::vec::Vec<Tlv>,
-    }
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[rusmpp(decode = borrowed, test = skip)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct SubmitMulti<'a, const N: usize> {
+    /// The service_type parameter can be used to indicate the
+    /// SMS Application service associated with the message.
+    /// Specifying the service_type allows the ESME to avail of
+    /// enhanced messaging services such as “replace by
+    /// service_type” or control the teleservice used on the air
+    /// interface.
+    ///
+    /// Set to NULL for default MC settings.
+    pub service_type: ServiceType<'a>,
+    /// Type of Number for source address.
+    ///
+    /// If not known, set to NULL (Unknown).
+    pub source_addr_ton: Ton,
+    /// Numbering Plan Indicator for source address.
+    ///
+    /// If not known, set to NULL (Unknown).
+    pub source_addr_npi: Npi,
+    /// Address of SME which originated this message.
+    ///
+    /// If not known, set to NULL (Unknown).
+    pub source_addr: COctetString<'a, 1, 21>,
+    /// Number of destination addresses – indicates the
+    /// number of destinations that are to follow.
+    ///
+    /// A maximum of 255 destination addresses are allowed.
+    ///
+    /// Note: Set to 1 when submitting to one SME Address or when
+    /// submitting to one Distribution List.
+    number_of_dests: u8,
+    /// Composite field.
+    #[rusmpp(count = number_of_dests)]
+    dest_address: heapless::vec::Vec<DestAddress<'a>, N>,
+    /// Indicates Message Mode and Message Type.
+    pub esm_class: EsmClass,
+    /// Protocol Identifier.
+    ///
+    /// Network specific field.
+    pub protocol_id: u8,
+    /// Designates the priority level of the message.
+    pub priority_flag: PriorityFlag,
+    /// The short message is to be scheduled by the MC for delivery.
+    ///
+    /// Set to NULL for immediate message delivery.
+    pub schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
+    /// The validity period of this message.
+    ///
+    /// Set to NULL to request the SMSC default validity period.
+    ///
+    /// Note: this is superseded by the qos_time_to_live TLV if specified.
+    pub validity_period: EmptyOrFullCOctetString<'a, 17>,
+    /// Indicator to signify if a MC delivery receipt or an SME
+    /// acknowledgement is required.
+    pub registered_delivery: RegisteredDelivery,
+    // Flag indicating if submitted message should replace an
+    // existing message.
+    pub replace_if_present_flag: ReplaceIfPresentFlag,
+    /// Defines the encoding scheme of the short message user data.
+    pub data_coding: DataCoding,
+    /// Indicates the short message to send from a list of pre- defined
+    /// (‘canned’) short messages stored on the MC.
+    ///
+    /// If not using a MC canned message, set to NULL.
+    pub sm_default_msg_id: u8,
+    /// Length in octets of the short_message user data.
+    sm_length: u8,
+    /// Up to 255 octets of short message user data.
+    ///
+    /// The exact physical limit for short_message size may
+    /// vary according to the underlying network
+    ///
+    /// Note: this field is superceded by the message_payload TLV if
+    /// specified.
+    ///
+    /// Applications which need to send messages longer than
+    /// 255 octets should use the message_payload TLV. In
+    /// this case the sm_length field should be set to zero.
+    #[rusmpp(length = sm_length)]
+    short_message: OctetString<'a, 0, 255>,
+    /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
+    #[rusmpp(length = "unchecked")]
+    tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 
-impl SubmitMulti {
+impl<'a, const N: usize> SubmitMulti<'a, N> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        service_type: ServiceType,
+        service_type: ServiceType<'a>,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
-        source_addr: COctetString<1, 21>,
-        dest_address: alloc::vec::Vec<DestAddress>,
+        source_addr: COctetString<'a, 1, 21>,
+        dest_address: heapless::vec::Vec<DestAddress<'a>, N>,
         esm_class: EsmClass,
         protocol_id: u8,
         priority_flag: PriorityFlag,
-        schedule_delivery_time: EmptyOrFullCOctetString<17>,
-        validity_period: EmptyOrFullCOctetString<17>,
+        schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
+        validity_period: EmptyOrFullCOctetString<'a, 17>,
         registered_delivery: RegisteredDelivery,
         replace_if_present_flag: ReplaceIfPresentFlag,
         data_coding: DataCoding,
         sm_default_msg_id: u8,
-        short_message: OctetString<0, 255>,
-        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+        short_message: OctetString<'a, 0, 255>,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionRequestTlvValue<'a>>, N>,
     ) -> Self {
         let sm_length = short_message.length() as u8;
         let number_of_dests = dest_address.len() as u8;
@@ -155,18 +160,23 @@ impl SubmitMulti {
         self.number_of_dests
     }
 
-    pub fn dest_address(&self) -> &[DestAddress] {
+    pub fn dest_address(&'_ self) -> &'_ [DestAddress<'_>] {
         &self.dest_address
     }
 
-    pub fn set_dest_address(&mut self, dest_address: alloc::vec::Vec<DestAddress>) {
+    pub fn set_dest_address(&mut self, dest_address: heapless::vec::Vec<DestAddress<'a>, N>) {
         self.dest_address = dest_address;
         self.number_of_dests = self.dest_address.len() as u8;
     }
 
-    pub fn push_dest_address(&mut self, dest_address: DestAddress) {
-        self.dest_address.push(dest_address);
+    pub fn push_dest_address(
+        &mut self,
+        dest_address: DestAddress<'a>,
+    ) -> Result<(), DestAddress<'a>> {
+        self.dest_address.push(dest_address)?;
         self.number_of_dests = self.dest_address.len() as u8;
+
+        Ok(())
     }
 
     pub fn clear_dest_address(&mut self) {
@@ -178,7 +188,7 @@ impl SubmitMulti {
         self.sm_length
     }
 
-    pub const fn short_message(&self) -> &OctetString<0, 255> {
+    pub const fn short_message(&self) -> &OctetString<'a, 0, 255> {
         &self.short_message
     }
 
@@ -186,18 +196,21 @@ impl SubmitMulti {
     /// Updates the short message and short message length accordingly.
     /// Has no effect if the message payload is set.
     /// Returns true if the short message and short message length were set.
-    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
+    pub fn set_short_message(&mut self, short_message: OctetString<'a, 0, 255>) -> bool {
         self.short_message = short_message;
         self.sm_length = self.short_message.length() as u8;
 
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&'_ self) -> &'_ [Tlv<'_>] {
         &self.tlvs
     }
 
-    pub fn set_tlvs(&mut self, tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>) {
+    pub fn set_tlvs(
+        &mut self,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionRequestTlvValue<'a>>, N>,
+    ) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
         self.clear_short_message_if_message_payload_exists();
@@ -207,10 +220,15 @@ impl SubmitMulti {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionRequestTlvValue>) {
-        self.tlvs.push(Tlv::from(tlv.into()));
+    pub fn push_tlv(
+        &mut self,
+        tlv: impl Into<MessageSubmissionRequestTlvValue<'a>>,
+    ) -> Result<(), Tlv<'a>> {
+        self.tlvs.push(Tlv::from(tlv.into()))?;
 
         self.clear_short_message_if_message_payload_exists();
+
+        Ok(())
     }
 
     /// Clears the short message and short message length if the message payload is set.
@@ -231,28 +249,28 @@ impl SubmitMulti {
         false
     }
 
-    pub fn builder() -> SubmitMultiBuilder {
+    pub fn builder() -> SubmitMultiBuilder<'a, N> {
         SubmitMultiBuilder::new()
     }
 }
 
-impl From<SubmitMulti> for Pdu {
-    fn from(value: SubmitMulti) -> Self {
+impl<'a, const N: usize> From<SubmitMulti<'a, N>> for Pdu<'a, N> {
+    fn from(value: SubmitMulti<'a, N>) -> Self {
         Self::SubmitMulti(value)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct SubmitMultiBuilder {
-    inner: SubmitMulti,
+pub struct SubmitMultiBuilder<'a, const N: usize> {
+    inner: SubmitMulti<'a, N>,
 }
 
-impl SubmitMultiBuilder {
+impl<'a, const N: usize> SubmitMultiBuilder<'a, N> {
     pub fn new() -> Self {
         Default::default()
     }
 
-    pub fn service_type(mut self, service_type: ServiceType) -> Self {
+    pub fn service_type(mut self, service_type: ServiceType<'a>) -> Self {
         self.inner.service_type = service_type;
         self
     }
@@ -267,19 +285,22 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+    pub fn source_addr(mut self, source_addr: COctetString<'a, 1, 21>) -> Self {
         self.inner.source_addr = source_addr;
         self
     }
 
-    pub fn dest_address(mut self, dest_address: alloc::vec::Vec<DestAddress>) -> Self {
+    pub fn dest_address(mut self, dest_address: heapless::vec::Vec<DestAddress<'a>, N>) -> Self {
         self.inner.set_dest_address(dest_address);
         self
     }
 
-    pub fn push_dest_address(mut self, dest_address: DestAddress) -> Self {
-        self.inner.push_dest_address(dest_address);
-        self
+    pub fn push_dest_address(
+        mut self,
+        dest_address: DestAddress<'a>,
+    ) -> Result<Self, DestAddress<'a>> {
+        self.inner.push_dest_address(dest_address)?;
+        Ok(self)
     }
 
     pub fn clear_dest_address(mut self) -> Self {
@@ -304,13 +325,13 @@ impl SubmitMultiBuilder {
 
     pub fn schedule_delivery_time(
         mut self,
-        schedule_delivery_time: EmptyOrFullCOctetString<17>,
+        schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
     ) -> Self {
         self.inner.schedule_delivery_time = schedule_delivery_time;
         self
     }
 
-    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<17>) -> Self {
+    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<'a, 17>) -> Self {
         self.inner.validity_period = validity_period;
         self
     }
@@ -338,14 +359,14 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+    pub fn short_message(mut self, short_message: OctetString<'a, 0, 255>) -> Self {
         self.inner.set_short_message(short_message);
         self
     }
 
     pub fn tlvs(
         mut self,
-        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionRequestTlvValue>>,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionRequestTlvValue<'a>>, N>,
     ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
@@ -356,30 +377,33 @@ impl SubmitMultiBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionRequestTlvValue>) -> Self {
-        self.inner.push_tlv(tlv);
-        self
+    pub fn push_tlv(
+        mut self,
+        tlv: impl Into<MessageSubmissionRequestTlvValue<'a>>,
+    ) -> Result<Self, Tlv<'a>> {
+        self.inner.push_tlv(tlv)?;
+        Ok(self)
     }
 
-    pub fn build(self) -> SubmitMulti {
+    pub fn build(self) -> SubmitMulti<'a, N> {
         self.inner
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use crate::{
         tests::TestInstance,
-        tlvs::MessageSubmissionRequestTlvValue,
-        types::AnyOctetString,
-        values::{DistributionListName, MessagePayload, SmeAddress},
+        types::borrowed::AnyOctetString,
+        values::{
+            dest_address::borrowed::{DistributionListName, SmeAddress},
+            message_payload::borrowed::MessagePayload,
+        },
     };
 
     use super::*;
 
-    impl TestInstance for SubmitMulti {
+    impl<const N: usize> TestInstance for SubmitMulti<'static, N> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
@@ -387,7 +411,7 @@ mod tests {
                     .service_type(ServiceType::default())
                     .source_addr_ton(Ton::International)
                     .source_addr_npi(Npi::Isdn)
-                    .source_addr(COctetString::from_str("Source Address").unwrap())
+                    .source_addr(COctetString::new(b"Source Address\0").unwrap())
                     .esm_class(EsmClass::default())
                     .protocol_id(0)
                     .priority_flag(PriorityFlag::default())
@@ -404,6 +428,7 @@ mod tests {
                     .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                         MessagePayload::new(AnyOctetString::new(b"Message Payload")),
                     ))
+                    .unwrap()
                     .build(),
                 Self::builder()
                     .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
@@ -411,16 +436,20 @@ mod tests {
                         Npi::Isdn,
                         COctetString::new(b"1234567890123456789\0").unwrap(),
                     )))
+                    .unwrap()
                     .push_dest_address(DestAddress::DistributionListName(
                         DistributionListName::new(
                             COctetString::new(b"1234567890123456789\0").unwrap(),
                         ),
                     ))
+                    .unwrap()
                     .short_message(OctetString::new(b"Short Message").unwrap())
                     .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                         MessagePayload::new(AnyOctetString::new(b"Message Payload")),
                     ))
+                    .unwrap()
                     .push_tlv(MessageSubmissionRequestTlvValue::DestTelematicsId(16))
+                    .unwrap()
                     .build(),
             ]
         }
@@ -428,14 +457,15 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<SubmitMulti>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<SubmitMulti<'static, 16>>(
+        );
     }
 
     #[test]
     fn short_message_length() {
         let short_message = OctetString::new(b"Short Message").unwrap();
 
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message.clone())
             .build();
 
@@ -448,7 +478,7 @@ mod tests {
         let short_message_1 = OctetString::new(b"Short Message 101").unwrap();
         let short_message_2 = OctetString::new(b"Short Message 2").unwrap();
 
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message_1)
             .short_message(short_message_2.clone())
             .build();
@@ -463,22 +493,26 @@ mod tests {
         let message_payload = MessagePayload::new(AnyOctetString::new(b"Message Payload"));
 
         // Using push_tlv
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message.clone())
             .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             ))
+            .unwrap()
             .build();
 
         assert_eq!(submit_sm.short_message(), &OctetString::empty());
         assert_eq!(submit_sm.sm_length(), 0);
 
         // Using tlvs
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message.clone())
-            .tlvs(alloc::vec![
-                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
-            ])
+            .tlvs(
+                [MessageSubmissionRequestTlvValue::MessagePayload(
+                    message_payload.clone(),
+                )]
+                .into(),
+            )
             .build();
 
         assert_eq!(submit_sm.short_message(), &OctetString::empty());
@@ -486,11 +520,12 @@ mod tests {
 
         // Even setting the short message after the message payload should not set the short message
         // Using push_tlv
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message.clone())
             .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             ))
+            .unwrap()
             .short_message(short_message.clone())
             .build();
 
@@ -498,11 +533,14 @@ mod tests {
         assert_eq!(submit_sm.sm_length(), 0);
 
         // Using tlvs
-        let submit_multi = SubmitMulti::builder()
+        let submit_multi = SubmitMulti::<'static, 16>::builder()
             .short_message(short_message.clone())
-            .tlvs(alloc::vec![
-                MessageSubmissionRequestTlvValue::MessagePayload(message_payload.clone(),)
-            ])
+            .tlvs(
+                [MessageSubmissionRequestTlvValue::MessagePayload(
+                    message_payload.clone(),
+                )]
+                .into(),
+            )
             .short_message(short_message.clone())
             .build();
 
@@ -510,10 +548,11 @@ mod tests {
         assert_eq!(submit_multi.sm_length(), 0);
 
         // Removing the message payload and then setting the short message should set the short message
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
                 message_payload.clone(),
             ))
+            .unwrap()
             .clear_tlvs()
             .short_message(short_message.clone())
             .build();
@@ -524,50 +563,57 @@ mod tests {
 
     #[test]
     fn count() {
-        let submit_multi = SubmitMulti::default();
+        let submit_multi = SubmitMulti::<'static, 16>::default();
 
         assert_eq!(submit_multi.number_of_dests(), 0);
         assert!(submit_multi.dest_address().is_empty());
 
-        let submit_sm = SubmitMulti::builder()
-            .dest_address(alloc::vec![
-                DestAddress::SmeAddress(SmeAddress::new(
-                    Ton::International,
-                    Npi::Isdn,
-                    COctetString::new(b"1234567890123456789\0").unwrap(),
-                )),
-                DestAddress::DistributionListName(DistributionListName::new(
-                    COctetString::new(b"1234567890123456789\0").unwrap(),
-                )),
-            ])
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
+            .dest_address(
+                [
+                    DestAddress::SmeAddress(SmeAddress::new(
+                        Ton::International,
+                        Npi::Isdn,
+                        COctetString::new(b"1234567890123456789\0").unwrap(),
+                    )),
+                    DestAddress::DistributionListName(DistributionListName::new(
+                        COctetString::new(b"1234567890123456789\0").unwrap(),
+                    )),
+                ]
+                .into(),
+            )
             .build();
 
         assert_eq!(submit_sm.number_of_dests(), 2);
         assert_eq!(submit_sm.dest_address().len(), 2);
 
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
                 Ton::International,
                 Npi::Isdn,
                 COctetString::new(b"1234567890123456789\0").unwrap(),
             )))
+            .unwrap()
             .push_dest_address(DestAddress::DistributionListName(
                 DistributionListName::new(COctetString::new(b"1234567890123456789\0").unwrap()),
             ))
+            .unwrap()
             .build();
 
         assert_eq!(submit_sm.number_of_dests(), 2);
         assert_eq!(submit_sm.dest_address().len(), 2);
 
-        let submit_sm = SubmitMulti::builder()
+        let submit_sm = SubmitMulti::<'static, 16>::builder()
             .push_dest_address(DestAddress::SmeAddress(SmeAddress::new(
                 Ton::International,
                 Npi::Isdn,
                 COctetString::new(b"1234567890123456789\0").unwrap(),
             )))
+            .unwrap()
             .push_dest_address(DestAddress::DistributionListName(
                 DistributionListName::new(COctetString::new(b"1234567890123456789\0").unwrap()),
             ))
+            .unwrap()
             .clear_dest_address()
             .build();
 

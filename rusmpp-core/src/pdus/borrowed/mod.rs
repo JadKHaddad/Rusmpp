@@ -96,8 +96,8 @@ pub use submit_sm::SubmitSm;
 mod submit_sm_resp;
 pub use submit_sm_resp::SubmitSmResp;
 
-// mod submit_multi;
-// pub use submit_multi::SubmitMulti;
+mod submit_multi;
+pub use submit_multi::SubmitMulti;
 
 // mod submit_multi_resp;
 // pub use submit_multi_resp::SubmitMultiResp;

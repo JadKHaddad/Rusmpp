@@ -103,10 +103,10 @@ pub enum Pdu<'a, const N: usize> {
     /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
     /// address in the replace_sm command should also be NULL.
     ReplaceSm(ReplaceSm<'a>),
-    // /// The submit_multi operation is an enhanced variation of submit_sm designed to support up to
-    // /// 255 different destinations instead of the default single destination. It provides an efficient
-    // /// means of sending the same message to several different subscribers at the same time.
-    // SubmitMulti(SubmitMulti),
+    /// The submit_multi operation is an enhanced variation of submit_sm designed to support up to
+    /// 255 different destinations instead of the default single destination. It provides an efficient
+    /// means of sending the same message to several different subscribers at the same time.
+    SubmitMulti(SubmitMulti<'a, N>),
     // SubmitMultiResp(SubmitMultiResp),
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
@@ -205,7 +205,7 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::DataSmResp(_) => CommandId::DataSmResp,
             Pdu::CancelSm(_) => CommandId::CancelSm,
             Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
-            // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
+            Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
             // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
@@ -248,7 +248,7 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::DataSmResp(body) => body.length(),
             Pdu::CancelSm(body) => body.length(),
             Pdu::ReplaceSm(body) => body.length(),
-            // Pdu::SubmitMulti(body) => body.length(),
+            Pdu::SubmitMulti(body) => body.length(),
             // Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
@@ -289,7 +289,7 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::DataSmResp(body) => body.encode(dst),
             Pdu::CancelSm(body) => body.encode(dst),
             Pdu::ReplaceSm(body) => body.encode(dst),
-            // Pdu::SubmitMulti(body) => body.encode(dst),
+            Pdu::SubmitMulti(body) => body.encode(dst),
             // Pdu::SubmitMultiResp(body) => body.encode(dst),
             Pdu::BroadcastSm(body) => body.encode(dst),
             Pdu::BroadcastSmResp(body) => body.encode(dst),

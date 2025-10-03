@@ -76,13 +76,13 @@ pub enum Pdu<'a, const N: usize> {
     /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
     /// the MC may route a short message to the ESME for delivery.
     DeliverSm(DeliverSm<'a, N>),
-    // DeliverSmResp(DeliverSmResp),
+    DeliverSmResp(DeliverSmResp<'a, N>),
     /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
     /// mobile-terminated message. However, data_sm is intended for packet-based applications
     /// such as WAP in that it features a reduced PDU body containing fields relevant to WAP or
     /// packet-based applications.
     DataSm(DataSm<'a, N>),
-    // DataSmResp(DataSmResp),
+    DataSmResp(DataSmResp<'a, N>),
     /// This command is issued by the ESME to cancel one or more previously submitted short
     /// messages that are pending delivery. The command may specify a particular message to
     /// cancel, or all messages matching a particular source, destination and service_type.
@@ -200,9 +200,9 @@ impl<'a, const N: usize> Pdu<'a, N> {
             // Pdu::QuerySm(_) => CommandId::QuerySm,
             // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
             Pdu::DeliverSm(_) => CommandId::DeliverSm,
-            // Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
+            Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             Pdu::DataSm(_) => CommandId::DataSm,
-            // Pdu::DataSmResp(_) => CommandId::DataSmResp,
+            Pdu::DataSmResp(_) => CommandId::DataSmResp,
             Pdu::CancelSm(_) => CommandId::CancelSm,
             // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
@@ -243,9 +243,9 @@ impl<const N: usize> Length for Pdu<'_, N> {
             // Pdu::QuerySm(body) => body.length(),
             // Pdu::QuerySmResp(body) => body.length(),
             Pdu::DeliverSm(body) => body.length(),
-            // Pdu::DeliverSmResp(body) => body.length(),
+            Pdu::DeliverSmResp(body) => body.length(),
             Pdu::DataSm(body) => body.length(),
-            // Pdu::DataSmResp(body) => body.length(),
+            Pdu::DataSmResp(body) => body.length(),
             Pdu::CancelSm(body) => body.length(),
             // Pdu::ReplaceSm(body) => body.length(),
             // Pdu::SubmitMulti(body) => body.length(),
@@ -284,9 +284,9 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             // Pdu::QuerySm(body) => body.encode(dst),
             // Pdu::QuerySmResp(body) => body.encode(dst),
             Pdu::DeliverSm(body) => body.encode(dst),
-            // Pdu::DeliverSmResp(body) => body.encode(dst),
+            Pdu::DeliverSmResp(body) => body.encode(dst),
             Pdu::DataSm(body) => body.encode(dst),
-            // Pdu::DataSmResp(body) => body.encode(dst),
+            Pdu::DataSmResp(body) => body.encode(dst),
             Pdu::CancelSm(body) => body.encode(dst),
             // Pdu::ReplaceSm(body) => body.encode(dst),
             // Pdu::SubmitMulti(body) => body.encode(dst),

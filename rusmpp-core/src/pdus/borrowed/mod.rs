@@ -87,8 +87,8 @@ pub use outbind::Outbind;
 // mod replace_sm;
 // pub use replace_sm::ReplaceSm;
 
-// mod sm_resp;
-// pub use sm_resp::{DataSmResp, DeliverSmResp};
+mod sm_resp;
+pub use sm_resp::{DataSmResp, DeliverSmResp};
 
 mod submit_sm;
 pub use submit_sm::SubmitSm;

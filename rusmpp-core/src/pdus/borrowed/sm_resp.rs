@@ -1,164 +1,175 @@
+use rusmpp_macros::Rusmpp;
+
 use crate::{
-    Pdu,
-    tlvs::{MessageDeliveryResponseTlvValue, Tlv},
-    types::COctetString,
+    pdus::borrowed::Pdu,
+    tlvs::borrowed::{MessageDeliveryResponseTlvValue, Tlv},
+    types::borrowed::COctetString,
 };
 
-macro_rules! declare_sm_resp {
-    ($name:ident, $builder_name:ident) => {
-        crate::create! {
-            @[skip_test]
-            #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-            #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-            #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-            #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-            pub struct $name {
-                /// This field contains the MC message ID of the submitted message.
-                /// It may be used at a later stage to query the status of a message,
-                /// cancel or replace the message.
-                message_id: COctetString<1, 65>,
-                /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
-                @[length = unchecked]
-                tlvs: alloc::vec::Vec<Tlv>,
-            }
+macro_rules! sm_resp {
+    ($name:ident) => {
+        #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+        #[rusmpp(decode = borrowed, test = skip)]
+        #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+        #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+        #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+        pub struct $name<'a, const N: usize> {
+            /// This field contains the MC message ID of the submitted message.
+            /// It may be used at a later stage to query the status of a message,
+            /// cancel or replace the message.
+            message_id: COctetString<'a, 1, 65>,
+            /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
+            #[rusmpp(length = "unchecked")]
+            tlvs: heapless::vec::Vec<Tlv<'a>, N>,
         }
 
-        impl $name {
+        impl<'a, const N: usize> $name<'a, N> {
             pub fn new(
-                message_id: COctetString<1, 65>,
-                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
+                message_id: COctetString<'a, 1, 65>,
+                tlvs: heapless::vec::Vec<impl Into<MessageDeliveryResponseTlvValue<'a>>, N>,
             ) -> Self {
                 let tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
 
                 Self { message_id, tlvs }
             }
 
-            pub fn message_id(&self) -> &COctetString<1, 65> {
+            pub fn message_id(&'_ self) -> &'_ COctetString<'a, 1, 65> {
                 &self.message_id
             }
 
-            pub fn tlvs(&self) -> &[Tlv] {
+            pub fn tlvs(&'_ self) -> &'_ [Tlv<'_>] {
                 &self.tlvs
             }
 
             pub fn set_tlvs(
                 &mut self,
-                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
+                tlvs: heapless::vec::Vec<impl Into<MessageDeliveryResponseTlvValue<'a>>, N>,
             ) {
                 self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
             }
 
-            pub fn push_tlv(&mut self, tlv: impl Into<MessageDeliveryResponseTlvValue>) {
-                self.tlvs.push(Tlv::from(tlv.into()));
+            pub fn push_tlv(&mut self, tlv: impl Into<MessageDeliveryResponseTlvValue<'a>>) -> Result<(), Tlv<'a>> {
+                self.tlvs.push(Tlv::from(tlv.into()))?;
+                Ok(())
             }
 
-            pub fn builder() -> $builder_name {
-                $builder_name::new()
+            ::pastey::paste! {
+                pub fn builder() -> [<$name Builder>]<'a, N> {
+                    [<$name Builder>]::new()
+                }
             }
         }
 
-        #[derive(Debug, Default)]
-        pub struct $builder_name {
-            inner: $name,
-        }
-
-        impl $builder_name {
-            pub fn new() -> Self {
-                Self::default()
+        ::pastey::paste! {
+            #[derive(Debug, Default)]
+            pub struct [<$name Builder>]<'a, const N: usize> {
+               inner: $name<'a, N>,
             }
 
-            pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
-                self.inner.message_id = message_id;
-                self
-            }
+            impl<'a, const N: usize> [<$name Builder>]<'a, N> {
+                pub fn new() -> Self {
+                    Self::default()
+                }
 
-            pub fn tlvs(
-                mut self,
-                tlvs: alloc::vec::Vec<impl Into<MessageDeliveryResponseTlvValue>>,
-            ) -> Self {
-                self.inner.set_tlvs(tlvs);
-                self
-            }
+                pub fn message_id(mut self, message_id: COctetString<'a, 1, 65>) -> Self {
+                    self.inner.message_id = message_id;
+                    self
+                }
 
-            pub fn push_tlv(mut self, tlv: impl Into<MessageDeliveryResponseTlvValue>) -> Self {
-                self.inner.push_tlv(tlv);
-                self
-            }
+                pub fn tlvs(
+                    mut self,
+                    tlvs: heapless::vec::Vec<impl Into<MessageDeliveryResponseTlvValue<'a>>, N>,
+                ) -> Self {
+                    self.inner.set_tlvs(tlvs);
+                    self
+                }
 
-            pub fn build(self) -> $name {
-                self.inner
+                pub fn push_tlv(mut self, tlv: impl Into<MessageDeliveryResponseTlvValue<'a>>) -> Result<Self, Tlv<'a>> {
+                    self.inner.push_tlv(tlv)?;
+                    Ok(self)
+                }
+
+                pub fn build(self) -> $name<'a, N> {
+                    self.inner
+                }
             }
         }
     };
 }
 
-declare_sm_resp!(DeliverSmResp, DeliverSmRespBuilder);
-declare_sm_resp!(DataSmResp, DataSmRespBuilder);
+sm_resp!(DeliverSmResp);
+sm_resp!(DataSmResp);
 
-impl From<DeliverSmResp> for Pdu {
-    fn from(value: DeliverSmResp) -> Self {
+impl<'a, const N: usize> From<DeliverSmResp<'a, N>> for Pdu<'a, N> {
+    fn from(value: DeliverSmResp<'a, N>) -> Self {
         Self::DeliverSmResp(value)
     }
 }
 
-impl From<DataSmResp> for Pdu {
-    fn from(value: DataSmResp) -> Self {
+impl<'a, const N: usize> From<DataSmResp<'a, N>> for Pdu<'a, N> {
+    fn from(value: DataSmResp<'a, N>) -> Self {
         Self::DataSmResp(value)
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
 
     use crate::{
         tests::TestInstance,
-        tlvs::MessageDeliveryResponseTlvValue,
-        values::{DeliveryFailureReason, ErrorCodeNetworkType, NetworkErrorCode},
+        values::{
+            delivery_failure_reason::DeliveryFailureReason,
+            network_error_code::{ErrorCodeNetworkType, NetworkErrorCode},
+        },
     };
 
     use super::*;
 
-    impl TestInstance for DeliverSmResp {
+    impl<const N: usize> TestInstance for DeliverSmResp<'static, N> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .message_id(COctetString::new(b"123456789012345678\0").unwrap())
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678").unwrap())
-                    .tlvs(alloc::vec![
-                        MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
-                            COctetString::from_str("Octets").unwrap(),
-                        ),
-                        MessageDeliveryResponseTlvValue::DeliveryFailureReason(
-                            DeliveryFailureReason::TemporaryNetworkError,
-                        ),
-                    ])
+                    .message_id(COctetString::new(b"123456789012345678\0").unwrap())
+                    .tlvs(
+                        [
+                            MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
+                                COctetString::new(b"Octets\0").unwrap(),
+                            ),
+                            MessageDeliveryResponseTlvValue::DeliveryFailureReason(
+                                DeliveryFailureReason::TemporaryNetworkError,
+                            ),
+                        ]
+                        .into()
+                    )
                     .build(),
             ]
         }
     }
 
-    impl TestInstance for DataSmResp {
+    impl<const N: usize> TestInstance for DataSmResp<'static, N> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678").unwrap())
+                    .message_id(COctetString::new(b"123456789012345678\0").unwrap())
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678").unwrap())
-                    .tlvs(alloc::vec![
-                        MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
-                            COctetString::from_str("Octets on steroids").unwrap(),
-                        ),
-                        MessageDeliveryResponseTlvValue::NetworkErrorCode(NetworkErrorCode::new(
-                            ErrorCodeNetworkType::SmppError,
-                            1,
-                        )),
-                    ])
+                    .message_id(COctetString::new(b"123456789012345678\0").unwrap())
+                    .tlvs(
+                        [
+                            MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(
+                                COctetString::new(b"Octets on steroids\0").unwrap(),
+                            ),
+                            MessageDeliveryResponseTlvValue::NetworkErrorCode(
+                                NetworkErrorCode::new(ErrorCodeNetworkType::SmppError, 1,)
+                            ),
+                        ]
+                        .into()
+                    )
                     .build(),
             ]
         }
@@ -166,7 +177,10 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<DeliverSmResp>();
-        crate::tests::encode_decode_with_length_test_instances::<DataSmResp>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<
+            DeliverSmResp<'static, 16>,
+        >();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<DataSmResp<'static, 16>>(
+        );
     }
 }

@@ -61,11 +61,9 @@
 //! means by which we set the values to NULL.
 
 mod tag;
-// mod tlv;
+pub use tag::*;
 
 pub mod borrowed;
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 pub mod owned;
-
-pub use tag::*;

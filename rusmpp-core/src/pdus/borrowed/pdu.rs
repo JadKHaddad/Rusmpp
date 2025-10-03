@@ -35,11 +35,11 @@ pub enum Pdu<'a, const N: usize> {
     /// indicates the success or failure of the ESME’s attempt to bind
     /// as a receiver.
     BindReceiverResp(BindReceiverResp<'a>),
-    // /// Authentication PDU used by a transceiver ESME to bind to
-    // /// the Message Centre. The PDU contains identification
-    // /// information, an access password for the ESME and may also
-    // /// contain routing information specifying the range of addresses
-    // /// serviced by the ESME.
+    /// Authentication PDU used by a transceiver ESME to bind to
+    /// the Message Centre. The PDU contains identification
+    /// information, an access password for the ESME and may also
+    /// contain routing information specifying the range of addresses
+    /// serviced by the ESME.
     BindTransceiver(BindTransceiver<'a>),
     /// Message Centre response to a bind_transceiver PDU. This
     /// PDU indicates the success or failure of the ESME’s attempt
@@ -107,7 +107,7 @@ pub enum Pdu<'a, const N: usize> {
     /// 255 different destinations instead of the default single destination. It provides an efficient
     /// means of sending the same message to several different subscribers at the same time.
     SubmitMulti(SubmitMulti<'a, N>),
-    // SubmitMultiResp(SubmitMultiResp),
+    SubmitMultiResp(SubmitMultiResp<'a, N>),
     /// This operation is issued by the ESME to submit a message to the Message Centre for
     /// broadcast to a specified geographical area or set of geographical areas.
     BroadcastSm(BroadcastSm<'a, N>),
@@ -206,7 +206,7 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::CancelSm(_) => CommandId::CancelSm,
             Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
-            // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
+            Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
             Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
@@ -249,7 +249,7 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::CancelSm(body) => body.length(),
             Pdu::ReplaceSm(body) => body.length(),
             Pdu::SubmitMulti(body) => body.length(),
-            // Pdu::SubmitMultiResp(body) => body.length(),
+            Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
             Pdu::QueryBroadcastSm(body) => body.length(),
@@ -290,7 +290,7 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::CancelSm(body) => body.encode(dst),
             Pdu::ReplaceSm(body) => body.encode(dst),
             Pdu::SubmitMulti(body) => body.encode(dst),
-            // Pdu::SubmitMultiResp(body) => body.encode(dst),
+            Pdu::SubmitMultiResp(body) => body.encode(dst),
             Pdu::BroadcastSm(body) => body.encode(dst),
             Pdu::BroadcastSmResp(body) => body.encode(dst),
             Pdu::QueryBroadcastSm(body) => body.encode(dst),
@@ -351,46 +351,46 @@ impl<'a, const N: usize> DecodeWithKeyOptional<'a> for Pdu<'a, N> {
                 DecodeWithLength::decode(src, length).map_decoded(Self::AlertNotification)?
             }
             CommandId::SubmitSm => SubmitSm::decode(src, length).map_decoded(Self::SubmitSm)?,
-            // CommandId::SubmitSmResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
-            // }
-            // CommandId::QuerySm => Decode::decode(src).map_decoded(Self::QuerySm)?,
-            // CommandId::QuerySmResp => Decode::decode(src).map_decoded(Self::QuerySmResp)?,
+            CommandId::SubmitSmResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::SubmitSmResp)?
+            }
+            CommandId::QuerySm => Decode::decode(src).map_decoded(Self::QuerySm)?,
+            CommandId::QuerySmResp => Decode::decode(src).map_decoded(Self::QuerySmResp)?,
             CommandId::DeliverSm => {
                 DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSm)?
             }
-            // CommandId::DeliverSmResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSmResp)?
-            // }
+            CommandId::DeliverSmResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::DeliverSmResp)?
+            }
             CommandId::DataSm => DecodeWithLength::decode(src, length).map_decoded(Self::DataSm)?,
-            // CommandId::DataSmResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::DataSmResp)?
-            // }
-            // CommandId::CancelSm => Decode::decode(src).map_decoded(Self::CancelSm)?,
-            // CommandId::ReplaceSm => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::ReplaceSm)?
-            // }
-            // CommandId::SubmitMulti => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMulti)?
-            // }
-            // CommandId::SubmitMultiResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMultiResp)?
-            // }
-            // CommandId::BroadcastSm => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSm)?
-            // }
-            // CommandId::BroadcastSmResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSmResp)?
-            // }
-            // CommandId::QueryBroadcastSm => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSm)?
-            // }
-            // CommandId::QueryBroadcastSmResp => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSmResp)?
-            // }
-            // CommandId::CancelBroadcastSm => {
-            //     DecodeWithLength::decode(src, length).map_decoded(Self::CancelBroadcastSm)?
-            // }
+            CommandId::DataSmResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::DataSmResp)?
+            }
+            CommandId::CancelSm => Decode::decode(src).map_decoded(Self::CancelSm)?,
+            CommandId::ReplaceSm => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::ReplaceSm)?
+            }
+            CommandId::SubmitMulti => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMulti)?
+            }
+            CommandId::SubmitMultiResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::SubmitMultiResp)?
+            }
+            CommandId::BroadcastSm => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSm)?
+            }
+            CommandId::BroadcastSmResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::BroadcastSmResp)?
+            }
+            CommandId::QueryBroadcastSm => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSm)?
+            }
+            CommandId::QueryBroadcastSmResp => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::QueryBroadcastSmResp)?
+            }
+            CommandId::CancelBroadcastSm => {
+                DecodeWithLength::decode(src, length).map_decoded(Self::CancelBroadcastSm)?
+            }
             CommandId::Other(_) => {
                 DecodeWithLength::decode(src, length).map_decoded(|body| Pdu::Other {
                     command_id: key,
@@ -406,8 +406,6 @@ impl<'a, const N: usize> DecodeWithKeyOptional<'a> for Pdu<'a, N> {
             | CommandId::CancelSmResp
             | CommandId::ReplaceSmResp
             | CommandId::CancelBroadcastSmResp => return Ok(None),
-            // TODO: remove after implementing all pdus.
-            _ => todo!(),
         };
 
         Ok(Some((body, size)))

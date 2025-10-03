@@ -99,8 +99,8 @@ pub use submit_sm_resp::SubmitSmResp;
 mod submit_multi;
 pub use submit_multi::SubmitMulti;
 
-// mod submit_multi_resp;
-// pub use submit_multi_resp::SubmitMultiResp;
+mod submit_multi_resp;
+pub use submit_multi_resp::SubmitMultiResp;
 
 mod broadcast_sm;
 pub use broadcast_sm::BroadcastSm;

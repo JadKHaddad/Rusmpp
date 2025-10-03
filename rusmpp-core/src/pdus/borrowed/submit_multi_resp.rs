@@ -1,42 +1,42 @@
+use rusmpp_macros::Rusmpp;
+
 use crate::{
-    Pdu,
-    tlvs::{MessageSubmissionResponseTlvValue, Tlv},
-    types::COctetString,
-    values::UnsuccessSme,
+    pdus::borrowed::Pdu,
+    tlvs::borrowed::{MessageSubmissionResponseTlvValue, Tlv},
+    types::borrowed::COctetString,
+    values::unsuccess_sme::borrowed::UnsuccessSme,
 };
 
-crate::create! {
-    @[skip_test]
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct SubmitMultiResp {
-        /// This field contains the MC message ID of the submitted
-        /// message. It may be used at a later stage to query the status
-        /// of a message, cancel or replace the message.
-        pub message_id: COctetString<1, 65>,
-        /// The number of messages to destination SME addresses that
-        /// were unsuccessfully submitted to the MC. This is followed by
-        /// the specified number of unsuccessful SMEs, each
-        /// specified in a unsuccess_sme field.
-        no_unsuccess: u8,
-        /// Unsuccessful SME.
-        ///
-        /// (Composite Field).
-        @[count = no_unsuccess]
-        unsuccess_sme: alloc::vec::Vec<UnsuccessSme>,
-        /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
-        @[length = unchecked]
-        tlvs: alloc::vec::Vec<Tlv>,
-    }
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[rusmpp(decode = borrowed, test = skip)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct SubmitMultiResp<'a, const N: usize> {
+    /// This field contains the MC message ID of the submitted
+    /// message. It may be used at a later stage to query the status
+    /// of a message, cancel or replace the message.
+    pub message_id: COctetString<'a, 1, 65>,
+    /// The number of messages to destination SME addresses that
+    /// were unsuccessfully submitted to the MC. This is followed by
+    /// the specified number of unsuccessful SMEs, each
+    /// specified in a unsuccess_sme field.
+    no_unsuccess: u8,
+    /// Unsuccessful SME.
+    ///
+    /// (Composite Field).
+    #[rusmpp(count = no_unsuccess)]
+    unsuccess_sme: heapless::vec::Vec<UnsuccessSme<'a>, N>,
+    /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
+    #[rusmpp(length = "unchecked")]
+    tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 
-impl SubmitMultiResp {
+impl<'a, const N: usize> SubmitMultiResp<'a, N> {
     pub fn new(
-        message_id: COctetString<1, 65>,
-        unsuccess_sme: alloc::vec::Vec<UnsuccessSme>,
-        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+        message_id: COctetString<'a, 1, 65>,
+        unsuccess_sme: heapless::vec::Vec<UnsuccessSme<'a>, N>,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionResponseTlvValue<'a>>, N>,
     ) -> Self {
         let no_unsuccess = unsuccess_sme.len() as u8;
 
@@ -54,18 +54,22 @@ impl SubmitMultiResp {
         self.no_unsuccess
     }
 
-    pub fn unsuccess_sme(&self) -> &[UnsuccessSme] {
+    pub fn unsuccess_sme(&'_ self) -> &'_ [UnsuccessSme<'_>] {
         &self.unsuccess_sme
     }
 
-    pub fn set_unsuccess_sme(&mut self, unsuccess_sme: alloc::vec::Vec<UnsuccessSme>) {
+    pub fn set_unsuccess_sme(&mut self, unsuccess_sme: heapless::vec::Vec<UnsuccessSme<'a>, N>) {
         self.unsuccess_sme = unsuccess_sme;
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
 
-    pub fn push_unsuccess_sme(&mut self, unsuccess_sme: UnsuccessSme) {
-        self.unsuccess_sme.push(unsuccess_sme);
+    pub fn push_unsuccess_sme(
+        &mut self,
+        unsuccess_sme: UnsuccessSme<'a>,
+    ) -> Result<(), UnsuccessSme<'a>> {
+        self.unsuccess_sme.push(unsuccess_sme)?;
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
+        Ok(())
     }
 
     pub fn clear_unsuccess_sme(&mut self) {
@@ -73,13 +77,13 @@ impl SubmitMultiResp {
         self.no_unsuccess = self.unsuccess_sme.len() as u8;
     }
 
-    pub fn tlvs(&self) -> &[Tlv] {
+    pub fn tlvs(&'_ self) -> &'_ [Tlv<'_>] {
         &self.tlvs
     }
 
     pub fn set_tlvs(
         &mut self,
-        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionResponseTlvValue<'a>>, N>,
     ) {
         self.tlvs = tlvs.into_iter().map(Into::into).map(From::from).collect();
     }
@@ -88,44 +92,51 @@ impl SubmitMultiResp {
         self.tlvs.clear();
     }
 
-    pub fn push_tlv(&mut self, tlv: impl Into<MessageSubmissionResponseTlvValue>) {
-        self.tlvs.push(Tlv::from(tlv.into()));
+    pub fn push_tlv(
+        &mut self,
+        tlv: impl Into<MessageSubmissionResponseTlvValue<'a>>,
+    ) -> Result<(), Tlv<'a>> {
+        self.tlvs.push(Tlv::from(tlv.into()))?;
+        Ok(())
     }
 
-    pub fn builder() -> SubmitMultiRespBuilder {
+    pub fn builder() -> SubmitMultiRespBuilder<'a, N> {
         SubmitMultiRespBuilder::new()
     }
 }
 
-impl From<SubmitMultiResp> for Pdu {
-    fn from(value: SubmitMultiResp) -> Self {
+impl<'a, const N: usize> From<SubmitMultiResp<'a, N>> for Pdu<'a, N> {
+    fn from(value: SubmitMultiResp<'a, N>) -> Self {
         Self::SubmitMultiResp(value)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct SubmitMultiRespBuilder {
-    inner: SubmitMultiResp,
+pub struct SubmitMultiRespBuilder<'a, const N: usize> {
+    inner: SubmitMultiResp<'a, N>,
 }
 
-impl SubmitMultiRespBuilder {
+impl<'a, const N: usize> SubmitMultiRespBuilder<'a, N> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+    pub fn message_id(mut self, message_id: COctetString<'a, 1, 65>) -> Self {
         self.inner.message_id = message_id;
         self
     }
 
-    pub fn unsuccess_sme(mut self, unsuccess_sme: alloc::vec::Vec<UnsuccessSme>) -> Self {
+    pub fn unsuccess_sme(mut self, unsuccess_sme: heapless::vec::Vec<UnsuccessSme<'a>, N>) -> Self {
         self.inner.set_unsuccess_sme(unsuccess_sme);
         self
     }
 
-    pub fn push_unsuccess_sme(mut self, unsuccess_sme: UnsuccessSme) -> Self {
-        self.inner.push_unsuccess_sme(unsuccess_sme);
-        self
+    pub fn push_unsuccess_sme(
+        mut self,
+        unsuccess_sme: UnsuccessSme<'a>,
+    ) -> Result<Self, UnsuccessSme<'a>> {
+        self.inner.push_unsuccess_sme(unsuccess_sme)?;
+        Ok(self)
     }
 
     pub fn clear_unsuccess_sme(mut self) -> Self {
@@ -135,7 +146,7 @@ impl SubmitMultiRespBuilder {
 
     pub fn tlvs(
         mut self,
-        tlvs: alloc::vec::Vec<impl Into<MessageSubmissionResponseTlvValue>>,
+        tlvs: heapless::vec::Vec<impl Into<MessageSubmissionResponseTlvValue<'a>>, N>,
     ) -> Self {
         self.inner.set_tlvs(tlvs);
         self
@@ -146,54 +157,63 @@ impl SubmitMultiRespBuilder {
         self
     }
 
-    pub fn push_tlv(mut self, tlv: impl Into<MessageSubmissionResponseTlvValue>) -> Self {
-        self.inner.push_tlv(tlv);
-        self
+    pub fn push_tlv(
+        mut self,
+        tlv: impl Into<MessageSubmissionResponseTlvValue<'a>>,
+    ) -> Result<Self, Tlv<'a>> {
+        self.inner.push_tlv(tlv)?;
+        Ok(self)
     }
 
-    pub fn build(self) -> SubmitMultiResp {
+    pub fn build(self) -> SubmitMultiResp<'a, N> {
         self.inner
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use crate::{
         CommandStatus,
         tests::TestInstance,
-        tlvs::MessageSubmissionResponseTlvValue,
-        values::{DpfResult, ErrorCodeNetworkType, NetworkErrorCode, Npi, Ton},
+        values::{
+            dpf_result::DpfResult,
+            network_error_code::{ErrorCodeNetworkType, NetworkErrorCode},
+            npi::Npi,
+            ton::Ton,
+        },
     };
 
     use super::*;
 
-    impl TestInstance for SubmitMultiResp {
+    impl<const N: usize> TestInstance for SubmitMultiResp<'static, N> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .message_id(COctetString::new(b"1234567890\0").unwrap())
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .message_id(COctetString::new(b"1234567890\0").unwrap())
                     .push_unsuccess_sme(UnsuccessSme::default())
+                    .unwrap()
                     .push_unsuccess_sme(UnsuccessSme::new(
                         Ton::International,
                         Npi::Data,
-                        COctetString::from_str("1234567890").unwrap(),
+                        COctetString::new(b"1234567890\0").unwrap(),
                         CommandStatus::EsmeRunknownerr,
                     ))
+                    .unwrap()
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("1234567890").unwrap())
+                    .message_id(COctetString::new(b"1234567890\0").unwrap())
                     .push_tlv(MessageSubmissionResponseTlvValue::DpfResult(
                         DpfResult::NotSet,
                     ))
+                    .unwrap()
                     .push_tlv(MessageSubmissionResponseTlvValue::NetworkErrorCode(
                         NetworkErrorCode::new(ErrorCodeNetworkType::Is95AccessDeniedReason, 0x01),
                     ))
+                    .unwrap()
                     .build(),
             ]
         }
@@ -201,52 +221,61 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<SubmitMultiResp>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<
+            SubmitMultiResp<'static, 16>,
+        >();
     }
 
     #[test]
     fn count() {
-        let submit_multi = SubmitMultiResp::default();
+        let submit_multi = SubmitMultiResp::<'static, 16>::default();
 
         assert_eq!(submit_multi.no_unsuccess(), 0);
         assert!(submit_multi.unsuccess_sme().is_empty());
 
-        let submit_multi = SubmitMultiResp::builder()
-            .unsuccess_sme(alloc::vec![
-                UnsuccessSme::default(),
-                UnsuccessSme::new(
-                    Ton::International,
-                    Npi::Data,
-                    COctetString::from_str("1234567890").unwrap(),
-                    CommandStatus::EsmeRunknownerr,
-                ),
-            ])
+        let submit_multi = SubmitMultiResp::<'static, 16>::builder()
+            .unsuccess_sme(
+                [
+                    UnsuccessSme::default(),
+                    UnsuccessSme::new(
+                        Ton::International,
+                        Npi::Data,
+                        COctetString::new(b"1234567890\0").unwrap(),
+                        CommandStatus::EsmeRunknownerr,
+                    ),
+                ]
+                .into(),
+            )
             .build();
 
         assert_eq!(submit_multi.no_unsuccess(), 2);
         assert_eq!(submit_multi.unsuccess_sme().len(), 2);
 
-        let submit_multi = SubmitMultiResp::builder()
+        let submit_multi = SubmitMultiResp::<'static, 16>::builder()
             .push_unsuccess_sme(UnsuccessSme::default())
+            .unwrap()
             .push_unsuccess_sme(UnsuccessSme::new(
                 Ton::International,
                 Npi::Data,
-                COctetString::from_str("1234567890").unwrap(),
+                COctetString::new(b"1234567890\0").unwrap(),
                 CommandStatus::EsmeRunknownerr,
             ))
+            .unwrap()
             .build();
 
         assert_eq!(submit_multi.no_unsuccess(), 2);
         assert_eq!(submit_multi.unsuccess_sme().len(), 2);
 
-        let submit_multi = SubmitMultiResp::builder()
+        let submit_multi = SubmitMultiResp::<'static, 16>::builder()
             .push_unsuccess_sme(UnsuccessSme::default())
+            .unwrap()
             .push_unsuccess_sme(UnsuccessSme::new(
                 Ton::International,
                 Npi::Data,
-                COctetString::from_str("1234567890").unwrap(),
+                COctetString::new(b"1234567890\0").unwrap(),
                 CommandStatus::EsmeRunknownerr,
             ))
+            .unwrap()
             .clear_unsuccess_sme()
             .build();
 

@@ -78,11 +78,11 @@ pub use deliver_sm::DeliverSm;
 mod outbind;
 pub use outbind::Outbind;
 
-// mod query_sm;
-// pub use query_sm::QuerySm;
+mod query_sm;
+pub use query_sm::QuerySm;
 
-// mod query_sm_resp;
-// pub use query_sm_resp::QuerySmResp;
+mod query_sm_resp;
+pub use query_sm_resp::QuerySmResp;
 
 // mod replace_sm;
 // pub use replace_sm::ReplaceSm;

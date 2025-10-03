@@ -66,13 +66,13 @@ pub enum Pdu<'a, const N: usize> {
     /// transmission to a specified short message entity (SME).
     SubmitSm(SubmitSm<'a, N>),
     // SubmitSmResp(SubmitSmResp),
-    // /// This command is issued by the ESME to query the status of a previously submitted short
-    // /// message.
-    // /// The matching mechanism is based on the MC assigned message_id and source address.
-    // /// Where the original submit_sm, data_sm or submit_multi ‘source address’ was defaulted to
-    // /// NULL, then the source address in the query_sm command should also be set to NULL.
-    // QuerySm(QuerySm),
-    // QuerySmResp(QuerySmResp),
+    /// This command is issued by the ESME to query the status of a previously submitted short
+    /// message.
+    /// The matching mechanism is based on the MC assigned message_id and source address.
+    /// Where the original submit_sm, data_sm or submit_multi ‘source address’ was defaulted to
+    /// NULL, then the source address in the query_sm command should also be set to NULL.
+    QuerySm(QuerySm<'a>),
+    QuerySmResp(QuerySmResp<'a>),
     /// The deliver_sm is issued by the MC to send a message to an ESME. Using this command,
     /// the MC may route a short message to the ESME for delivery.
     DeliverSm(DeliverSm<'a, N>),
@@ -197,8 +197,8 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
             Pdu::SubmitSm(_) => CommandId::SubmitSm,
             // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
-            // Pdu::QuerySm(_) => CommandId::QuerySm,
-            // Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
+            Pdu::QuerySm(_) => CommandId::QuerySm,
+            Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
             Pdu::DeliverSm(_) => CommandId::DeliverSm,
             Pdu::DeliverSmResp(_) => CommandId::DeliverSmResp,
             Pdu::DataSm(_) => CommandId::DataSm,
@@ -240,8 +240,8 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
             // Pdu::SubmitSmResp(body) => body.length(),
-            // Pdu::QuerySm(body) => body.length(),
-            // Pdu::QuerySmResp(body) => body.length(),
+            Pdu::QuerySm(body) => body.length(),
+            Pdu::QuerySmResp(body) => body.length(),
             Pdu::DeliverSm(body) => body.length(),
             Pdu::DeliverSmResp(body) => body.length(),
             Pdu::DataSm(body) => body.length(),
@@ -281,8 +281,8 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::AlertNotification(body) => body.encode(dst),
             Pdu::SubmitSm(body) => body.encode(dst),
             // Pdu::SubmitSmResp(body) => body.encode(dst),
-            // Pdu::QuerySm(body) => body.encode(dst),
-            // Pdu::QuerySmResp(body) => body.encode(dst),
+            Pdu::QuerySm(body) => body.encode(dst),
+            Pdu::QuerySmResp(body) => body.encode(dst),
             Pdu::DeliverSm(body) => body.encode(dst),
             Pdu::DeliverSmResp(body) => body.encode(dst),
             Pdu::DataSm(body) => body.encode(dst),

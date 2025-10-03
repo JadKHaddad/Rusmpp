@@ -1,43 +1,43 @@
+use rusmpp_macros::Rusmpp;
+
 use crate::{
-    Pdu,
-    types::{COctetString, EmptyOrFullCOctetString},
-    values::MessageState,
+    pdus::borrowed::Pdu,
+    types::borrowed::{COctetString, EmptyOrFullCOctetString},
+    values::message_state::MessageState,
 };
 
-crate::create! {
-    @[skip_test]
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct QuerySmResp {
-        /// MC Message ID of the message whose
-        /// state is being queried.
-        pub message_id: COctetString<1, 65>,
-        /// Date and time when the queried
-        /// message reached a final state. For
-        /// messages, which have not yet reached
-        /// a final state, this field will contain a
-        /// single NULL octet.
-        pub final_date: EmptyOrFullCOctetString<17>,
-        /// Specifies the status of the queried short
-        /// message.
-        pub message_state: MessageState,
-        /// Where appropriate this holds a network
-        /// error code defining the reason for failure
-        /// of message delivery.
-        ///
-        /// The range of values returned depends
-        /// on the underlying telecommunications
-        /// network.
-        pub error_code: u8,
-    }
+#[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
+#[rusmpp(decode = borrowed, test = skip)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct QuerySmResp<'a> {
+    /// MC Message ID of the message whose
+    /// state is being queried.
+    pub message_id: COctetString<'a, 1, 65>,
+    /// Date and time when the queried
+    /// message reached a final state. For
+    /// messages, which have not yet reached
+    /// a final state, this field will contain a
+    /// single NULL octet.
+    pub final_date: EmptyOrFullCOctetString<'a, 17>,
+    /// Specifies the status of the queried short
+    /// message.
+    pub message_state: MessageState,
+    /// Where appropriate this holds a network
+    /// error code defining the reason for failure
+    /// of message delivery.
+    ///
+    /// The range of values returned depends
+    /// on the underlying telecommunications
+    /// network.
+    pub error_code: u8,
 }
 
-impl QuerySmResp {
+impl<'a> QuerySmResp<'a> {
     pub fn new(
-        message_id: COctetString<1, 65>,
-        final_date: EmptyOrFullCOctetString<17>,
+        message_id: COctetString<'a, 1, 65>,
+        final_date: EmptyOrFullCOctetString<'a, 17>,
         message_state: MessageState,
         error_code: u8,
     ) -> Self {
@@ -49,33 +49,33 @@ impl QuerySmResp {
         }
     }
 
-    pub fn builder() -> QuerySmRespBuilder {
+    pub fn builder() -> QuerySmRespBuilder<'a> {
         QuerySmRespBuilder::new()
     }
 }
 
-impl From<QuerySmResp> for Pdu {
-    fn from(value: QuerySmResp) -> Self {
+impl<'a, const N: usize> From<QuerySmResp<'a>> for Pdu<'a, N> {
+    fn from(value: QuerySmResp<'a>) -> Self {
         Self::QuerySmResp(value)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct QuerySmRespBuilder {
-    inner: QuerySmResp,
+pub struct QuerySmRespBuilder<'a> {
+    inner: QuerySmResp<'a>,
 }
 
-impl QuerySmRespBuilder {
+impl<'a> QuerySmRespBuilder<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+    pub fn message_id(mut self, message_id: COctetString<'a, 1, 65>) -> Self {
         self.inner.message_id = message_id;
         self
     }
 
-    pub fn final_date(mut self, final_date: EmptyOrFullCOctetString<17>) -> Self {
+    pub fn final_date(mut self, final_date: EmptyOrFullCOctetString<'a, 17>) -> Self {
         self.inner.final_date = final_date;
         self
     }
@@ -90,25 +90,23 @@ impl QuerySmRespBuilder {
         self
     }
 
-    pub fn build(self) -> QuerySmResp {
+    pub fn build(self) -> QuerySmResp<'a> {
         self.inner
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
     use crate::tests::TestInstance;
 
     use super::*;
 
-    impl TestInstance for QuerySmResp {
+    impl TestInstance for QuerySmResp<'_> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .message_id(COctetString::new(b"123456789012345678901234\0").unwrap())
                     .final_date(EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap())
                     .message_state(MessageState::Delivered)
                     .error_code(0)
@@ -119,6 +117,6 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_test_instances::<QuerySmResp>();
+        crate::tests::borrowed::encode_decode_test_instances::<QuerySmResp>();
     }
 }

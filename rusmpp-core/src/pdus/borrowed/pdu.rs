@@ -112,39 +112,39 @@ pub enum Pdu<'a, const N: usize> {
     /// broadcast to a specified geographical area or set of geographical areas.
     BroadcastSm(BroadcastSm<'a, N>),
     BroadcastSmResp(BroadcastSmResp<'a, N>),
-    // /// This command is issued by the ESME to query the status of a previously submitted
-    // /// broadcast message. The message can be queried either on the basis of the Message Center
-    // /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
-    // /// assigned message reference number user_message_reference as indicated in the
-    // /// broadcast_sm operation associated with that message.
-    // ///
-    // /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
-    // /// reference user_message_reference this should be qualified within the service by the
-    // /// system_id and/or the system_type associated with the query_broadcast_sm operation
-    // /// (specified in the bind operation). If more than one message with the same
-    // /// user_message_reference value is present in the Message Center, the details of the most
-    // /// recently submitted message with the specified user_message_reference value will be
-    // /// returned in the query_broadcast_sm_resp.
-    // QueryBroadcastSm(QueryBroadcastSm),
-    // QueryBroadcastSmResp(QueryBroadcastSmResp),
-    // /// This command is issued by the ESME to cancel a broadcast message which has been
-    // /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
-    // /// pending delivery.
-    // ///
-    // /// If the message_id is set to the ID of a previously submitted message, then provided the
-    // /// source address supplied by the ESME matches that of the stored message, that message
-    // /// will be cancelled.
-    // ///
-    // /// If the message_id is NULL, all outstanding undelivered messages with matching source and
-    // /// destination addresses (and service_type if specified) are cancelled.
-    // ///
-    // /// If the user_message_reference is set to the ESME-assigned reference of a previously
-    // /// submitted message, then provided the source address supplied by the ESME matches that of
-    // /// the stored message, that message will be cancelled.
-    // ///
-    // /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
-    // /// address in the cancel_broadcast_sm command should also be NULL.
-    // CancelBroadcastSm(CancelBroadcastSm<'a, N>),
+    /// This command is issued by the ESME to query the status of a previously submitted
+    /// broadcast message. The message can be queried either on the basis of the Message Center
+    /// assigned reference message_id returned in the broadcast_sm_resp or by the ESME
+    /// assigned message reference number user_message_reference as indicated in the
+    /// broadcast_sm operation associated with that message.
+    ///
+    /// Note:  Where the broadcast is queried on the basis of the ESME assigned message
+    /// reference user_message_reference this should be qualified within the service by the
+    /// system_id and/or the system_type associated with the query_broadcast_sm operation
+    /// (specified in the bind operation). If more than one message with the same
+    /// user_message_reference value is present in the Message Center, the details of the most
+    /// recently submitted message with the specified user_message_reference value will be
+    /// returned in the query_broadcast_sm_resp.
+    QueryBroadcastSm(QueryBroadcastSm<'a>),
+    QueryBroadcastSmResp(QueryBroadcastSmResp<'a, N>),
+    /// This command is issued by the ESME to cancel a broadcast message which has been
+    /// previously submitted to the Message Centre for broadcast via broadcast_sm and which is still
+    /// pending delivery.
+    ///
+    /// If the message_id is set to the ID of a previously submitted message, then provided the
+    /// source address supplied by the ESME matches that of the stored message, that message
+    /// will be cancelled.
+    ///
+    /// If the message_id is NULL, all outstanding undelivered messages with matching source and
+    /// destination addresses (and service_type if specified) are cancelled.
+    ///
+    /// If the user_message_reference is set to the ESME-assigned reference of a previously
+    /// submitted message, then provided the source address supplied by the ESME matches that of
+    /// the stored message, that message will be cancelled.
+    ///
+    /// Where the original broadcast_sm ‘source address’ was defaulted to NULL, then the source
+    /// address in the cancel_broadcast_sm command should also be NULL.
+    CancelBroadcastSm(CancelBroadcastSm<'a, N>),
     /// This PDU can be sent by the ESME or MC as a means of
     /// initiating the termination of a `SMPP` session.
     Unbind,
@@ -209,9 +209,9 @@ impl<'a, const N: usize> Pdu<'a, N> {
             // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
             Pdu::BroadcastSmResp(_) => CommandId::BroadcastSmResp,
-            // Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
-            // Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
-            // Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
+            Pdu::QueryBroadcastSm(_) => CommandId::QueryBroadcastSm,
+            Pdu::QueryBroadcastSmResp(_) => CommandId::QueryBroadcastSmResp,
+            Pdu::CancelBroadcastSm(_) => CommandId::CancelBroadcastSm,
             Pdu::Other { command_id, .. } => *command_id,
             // These are empty pdus.
             // The reason they exist is to force the creation of a command with the correct command_id using a pdu.
@@ -252,9 +252,9 @@ impl<const N: usize> Length for Pdu<'_, N> {
             // Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
             Pdu::BroadcastSmResp(body) => body.length(),
-            // Pdu::QueryBroadcastSm(body) => body.length(),
-            // Pdu::QueryBroadcastSmResp(body) => body.length(),
-            // Pdu::CancelBroadcastSm(body) => body.length(),
+            Pdu::QueryBroadcastSm(body) => body.length(),
+            Pdu::QueryBroadcastSmResp(body) => body.length(),
+            Pdu::CancelBroadcastSm(body) => body.length(),
             Pdu::Unbind => 0,
             Pdu::UnbindResp => 0,
             Pdu::EnquireLink => 0,
@@ -293,9 +293,9 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             // Pdu::SubmitMultiResp(body) => body.encode(dst),
             Pdu::BroadcastSm(body) => body.encode(dst),
             Pdu::BroadcastSmResp(body) => body.encode(dst),
-            // Pdu::QueryBroadcastSm(body) => body.encode(dst),
-            // Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
-            // Pdu::CancelBroadcastSm(body) => body.encode(dst),
+            Pdu::QueryBroadcastSm(body) => body.encode(dst),
+            Pdu::QueryBroadcastSmResp(body) => body.encode(dst),
+            Pdu::CancelBroadcastSm(body) => body.encode(dst),
             Pdu::Unbind
             | Pdu::UnbindResp
             | Pdu::EnquireLink

@@ -108,11 +108,11 @@ pub use broadcast_sm::BroadcastSm;
 mod broadcast_sm_resp;
 pub use broadcast_sm_resp::BroadcastSmResp;
 
-// mod query_broadcast_sm;
-// pub use query_broadcast_sm::QueryBroadcastSm;
+mod query_broadcast_sm;
+pub use query_broadcast_sm::QueryBroadcastSm;
 
-// mod query_broadcast_sm_resp;
-// pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
+mod query_broadcast_sm_resp;
+pub use query_broadcast_sm_resp::QueryBroadcastSmResp;
 
-// mod cancel_broadcast_sm;
-// pub use cancel_broadcast_sm::CancelBroadcastSm;
+mod cancel_broadcast_sm;
+pub use cancel_broadcast_sm::CancelBroadcastSm;

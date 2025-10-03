@@ -65,7 +65,7 @@ pub enum Pdu<'a, const N: usize> {
     /// This operation is used by an ESME to submit a short message to the MC for onward
     /// transmission to a specified short message entity (SME).
     SubmitSm(SubmitSm<'a, N>),
-    // SubmitSmResp(SubmitSmResp),
+    SubmitSmResp(SubmitSmResp<'a, N>),
     /// This command is issued by the ESME to query the status of a previously submitted short
     /// message.
     /// The matching mechanism is based on the MC assigned message_id and source address.
@@ -96,13 +96,13 @@ pub enum Pdu<'a, const N: usize> {
     /// Where the original submit_sm, data_sm or submit_multi ‘source address’ is defaulted to
     /// NULL, then the source address in the cancel_sm command should also be NULL.
     CancelSm(CancelSm<'a>),
-    // /// This command is issued by the ESME to replace a previously submitted short message that
-    // /// is pending delivery. The matching mechanism is based on the message_id and source
-    // /// address of the original message.
-    // ///
-    // /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
-    // /// address in the replace_sm command should also be NULL.
-    // ReplaceSm(ReplaceSm),
+    /// This command is issued by the ESME to replace a previously submitted short message that
+    /// is pending delivery. The matching mechanism is based on the message_id and source
+    /// address of the original message.
+    ///
+    /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
+    /// address in the replace_sm command should also be NULL.
+    ReplaceSm(ReplaceSm<'a>),
     // /// The submit_multi operation is an enhanced variation of submit_sm designed to support up to
     // /// 255 different destinations instead of the default single destination. It provides an efficient
     // /// means of sending the same message to several different subscribers at the same time.
@@ -196,7 +196,7 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::Outbind(_) => CommandId::Outbind,
             Pdu::AlertNotification(_) => CommandId::AlertNotification,
             Pdu::SubmitSm(_) => CommandId::SubmitSm,
-            // Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
+            Pdu::SubmitSmResp(_) => CommandId::SubmitSmResp,
             Pdu::QuerySm(_) => CommandId::QuerySm,
             Pdu::QuerySmResp(_) => CommandId::QuerySmResp,
             Pdu::DeliverSm(_) => CommandId::DeliverSm,
@@ -204,7 +204,7 @@ impl<'a, const N: usize> Pdu<'a, N> {
             Pdu::DataSm(_) => CommandId::DataSm,
             Pdu::DataSmResp(_) => CommandId::DataSmResp,
             Pdu::CancelSm(_) => CommandId::CancelSm,
-            // Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
+            Pdu::ReplaceSm(_) => CommandId::ReplaceSm,
             // Pdu::SubmitMulti(_) => CommandId::SubmitMulti,
             // Pdu::SubmitMultiResp(_) => CommandId::SubmitMultiResp,
             Pdu::BroadcastSm(_) => CommandId::BroadcastSm,
@@ -239,7 +239,7 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::Outbind(body) => body.length(),
             Pdu::AlertNotification(body) => body.length(),
             Pdu::SubmitSm(body) => body.length(),
-            // Pdu::SubmitSmResp(body) => body.length(),
+            Pdu::SubmitSmResp(body) => body.length(),
             Pdu::QuerySm(body) => body.length(),
             Pdu::QuerySmResp(body) => body.length(),
             Pdu::DeliverSm(body) => body.length(),
@@ -247,7 +247,7 @@ impl<const N: usize> Length for Pdu<'_, N> {
             Pdu::DataSm(body) => body.length(),
             Pdu::DataSmResp(body) => body.length(),
             Pdu::CancelSm(body) => body.length(),
-            // Pdu::ReplaceSm(body) => body.length(),
+            Pdu::ReplaceSm(body) => body.length(),
             // Pdu::SubmitMulti(body) => body.length(),
             // Pdu::SubmitMultiResp(body) => body.length(),
             Pdu::BroadcastSm(body) => body.length(),
@@ -280,7 +280,7 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::Outbind(body) => body.encode(dst),
             Pdu::AlertNotification(body) => body.encode(dst),
             Pdu::SubmitSm(body) => body.encode(dst),
-            // Pdu::SubmitSmResp(body) => body.encode(dst),
+            Pdu::SubmitSmResp(body) => body.encode(dst),
             Pdu::QuerySm(body) => body.encode(dst),
             Pdu::QuerySmResp(body) => body.encode(dst),
             Pdu::DeliverSm(body) => body.encode(dst),
@@ -288,7 +288,7 @@ impl<const N: usize> Encode for Pdu<'_, N> {
             Pdu::DataSm(body) => body.encode(dst),
             Pdu::DataSmResp(body) => body.encode(dst),
             Pdu::CancelSm(body) => body.encode(dst),
-            // Pdu::ReplaceSm(body) => body.encode(dst),
+            Pdu::ReplaceSm(body) => body.encode(dst),
             // Pdu::SubmitMulti(body) => body.encode(dst),
             // Pdu::SubmitMultiResp(body) => body.encode(dst),
             Pdu::BroadcastSm(body) => body.encode(dst),

@@ -1,97 +1,100 @@
+use rusmpp_macros::Rusmpp;
+
 use crate::{
-    Pdu,
     encode::Length,
-    tlvs::{Tlv, TlvValue},
-    types::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{MessagePayload, Npi, RegisteredDelivery, Ton},
+    pdus::borrowed::Pdu,
+    tlvs::borrowed::{Tlv, TlvValue},
+    types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
+    values::{
+        message_payload::borrowed::MessagePayload, npi::Npi,
+        registered_delivery::RegisteredDelivery, ton::Ton,
+    },
 };
 
-crate::create! {
-    @[skip_test]
-    /// This command is issued by the ESME to replace a previously submitted short message that
-    /// is pending delivery. The matching mechanism is based on the message_id and source
-    /// address of the original message.
+/// This command is issued by the ESME to replace a previously submitted short message that
+/// is pending delivery. The matching mechanism is based on the message_id and source
+/// address of the original message.
+///
+/// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
+/// address in the replace_sm command should also be NULL.
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+#[rusmpp(decode = borrowed, test = skip)]
+#[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+pub struct ReplaceSm<'a> {
+    /// Message ID of the message to be replaced.
+    /// This must be the MC assigned Message ID
+    /// allocated to the original short message when
+    /// submitted to the MC by the submit_sm, data_sm or
+    /// submit_multi command, and returned in the
+    /// response PDU by the MC.
+    pub message_id: COctetString<'a, 1, 65>,
+    /// Type of Number of message originator. This is used for
+    /// verification purposes, and must match that supplied in
+    /// the original request PDU (e.g. submit_sm).
     ///
-    /// Where the original submit_sm ‘source address’ was defaulted to NULL, then the source
-    /// address in the replace_sm command should also be NULL.
-    #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
-    #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
-    #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-    #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
-    pub struct ReplaceSm {
-        /// Message ID of the message to be replaced.
-        /// This must be the MC assigned Message ID
-        /// allocated to the original short message when
-        /// submitted to the MC by the submit_sm, data_sm or
-        /// submit_multi command, and returned in the
-        /// response PDU by the MC.
-        pub message_id: COctetString<1, 65>,
-        /// Type of Number of message originator. This is used for
-        /// verification purposes, and must match that supplied in
-        /// the original request PDU (e.g. submit_sm).
-        ///
-        /// If not known, set to NULL.
-        pub source_addr_ton: Ton,
-        /// Numbering Plan Indicator for source address of
-        /// original message.
-        ///
-        /// If not known, set to NULL (Unknown).
-        pub source_addr_npi: Npi,
-        /// Address of SME, which originated this message.
-        /// If not known, set to NULL (Unknown).
-        pub source_addr: COctetString<1, 21>,
-        /// New scheduled delivery time for the short message.
-        // Set to NULL to preserve the original scheduled
-        // delivery time.
-        pub schedule_delivery_time: EmptyOrFullCOctetString<17>,
-        /// New expiry time for the short message.
-        ///
-        /// Set to NULL to preserve
-        /// the original validity period
-        /// setting.
-        pub validity_period: EmptyOrFullCOctetString<17>,
-        /// Indicator to signify if a MC delivery receipt,
-        /// user/manual or delivery ACK or intermediate
-        /// notification is required.
-        pub registered_delivery: RegisteredDelivery,
-        /// Indicates the short message to send from a list
-        /// of predefined (‘canned’) short messages stored on
-        /// the MC.
-        ///
-        /// If not using a MC canned message, set to NULL.
-        pub sm_default_msg_id: u8,
-        /// Length in octets of the short_message user data.
-        sm_length: u8,
-        /// Up to 255 octets of short message user data.
-        /// The exact physical limit for short_message size may
-        /// vary according to the underlying network
-        ///
-        /// Note: this field is superceded by the message_payload TLV if specified.
-        ///
-        /// Applications which need to send messages longer than
-        /// 255 octets should use the message_payload TLV. In
-        /// this case the sm_length field should be set to zero.
-        @[length = sm_length]
-        short_message: OctetString<0, 255>,
-        /// Message replacement request TLVs. [`MessagePayload`].
-        @[length = checked]
-        message_payload: Option<Tlv>,
-    }
+    /// If not known, set to NULL.
+    pub source_addr_ton: Ton,
+    /// Numbering Plan Indicator for source address of
+    /// original message.
+    ///
+    /// If not known, set to NULL (Unknown).
+    pub source_addr_npi: Npi,
+    /// Address of SME, which originated this message.
+    /// If not known, set to NULL (Unknown).
+    pub source_addr: COctetString<'a, 1, 21>,
+    /// New scheduled delivery time for the short message.
+    // Set to NULL to preserve the original scheduled
+    // delivery time.
+    pub schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
+    /// New expiry time for the short message.
+    ///
+    /// Set to NULL to preserve
+    /// the original validity period
+    /// setting.
+    pub validity_period: EmptyOrFullCOctetString<'a, 17>,
+    /// Indicator to signify if a MC delivery receipt,
+    /// user/manual or delivery ACK or intermediate
+    /// notification is required.
+    pub registered_delivery: RegisteredDelivery,
+    /// Indicates the short message to send from a list
+    /// of predefined (‘canned’) short messages stored on
+    /// the MC.
+    ///
+    /// If not using a MC canned message, set to NULL.
+    pub sm_default_msg_id: u8,
+    /// Length in octets of the short_message user data.
+    sm_length: u8,
+    /// Up to 255 octets of short message user data.
+    /// The exact physical limit for short_message size may
+    /// vary according to the underlying network
+    ///
+    /// Note: this field is superceded by the message_payload TLV if specified.
+    ///
+    /// Applications which need to send messages longer than
+    /// 255 octets should use the message_payload TLV. In
+    /// this case the sm_length field should be set to zero.
+    #[rusmpp(length = sm_length)]
+    short_message: OctetString<'a, 0, 255>,
+    /// Message replacement request TLVs. [`MessagePayload`].
+    #[rusmpp(length = "checked")]
+    message_payload: Option<Tlv<'a>>,
 }
 
-impl ReplaceSm {
+impl<'a> ReplaceSm<'a> {
     #[allow(clippy::too_many_arguments)]
     pub fn new(
-        message_id: COctetString<1, 65>,
+        message_id: COctetString<'a, 1, 65>,
         source_addr_ton: Ton,
         source_addr_npi: Npi,
-        source_addr: COctetString<1, 21>,
-        schedule_delivery_time: EmptyOrFullCOctetString<17>,
-        validity_period: EmptyOrFullCOctetString<17>,
+        source_addr: COctetString<'a, 1, 21>,
+        schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
+        validity_period: EmptyOrFullCOctetString<'a, 17>,
         registered_delivery: RegisteredDelivery,
         sm_default_msg_id: u8,
-        short_message: OctetString<0, 255>,
-        message_payload: Option<MessagePayload>,
+        short_message: OctetString<'a, 0, 255>,
+        message_payload: Option<MessagePayload<'a>>,
     ) -> Self {
         let message_payload = message_payload
             .map(TlvValue::MessagePayload)
@@ -122,7 +125,7 @@ impl ReplaceSm {
         self.sm_length
     }
 
-    pub fn short_message(&self) -> &OctetString<0, 255> {
+    pub fn short_message(&'_ self) -> &'_ OctetString<'_, 0, 255> {
         &self.short_message
     }
 
@@ -130,18 +133,18 @@ impl ReplaceSm {
     /// Updates the short message and short message length accordingly.
     /// Has no effect if the message payload is set.
     /// Returns true if the short message and short message length were set.
-    pub fn set_short_message(&mut self, short_message: OctetString<0, 255>) -> bool {
+    pub fn set_short_message(&mut self, short_message: OctetString<'a, 0, 255>) -> bool {
         self.sm_length = short_message.length() as u8;
         self.short_message = short_message;
 
         !self.clear_short_message_if_message_payload_exists()
     }
 
-    pub const fn message_payload_tlv(&self) -> Option<&Tlv> {
+    pub const fn message_payload_tlv(&'_ self) -> Option<&'_ Tlv<'_>> {
         self.message_payload.as_ref()
     }
 
-    pub fn message_payload(&self) -> Option<&MessagePayload> {
+    pub fn message_payload(&'_ self) -> Option<&'_ MessagePayload<'_>> {
         self.message_payload_tlv()
             .and_then(|tlv| match tlv.value() {
                 Some(TlvValue::MessagePayload(value)) => Some(value),
@@ -151,7 +154,7 @@ impl ReplaceSm {
 
     /// Sets the message payload.
     /// Updates the short message and short message length accordingly.
-    pub fn set_message_payload(&mut self, message_payload: Option<MessagePayload>) {
+    pub fn set_message_payload(&mut self, message_payload: Option<MessagePayload<'a>>) {
         self.message_payload = message_payload
             .map(TlvValue::MessagePayload)
             .map(From::from);
@@ -172,28 +175,28 @@ impl ReplaceSm {
         false
     }
 
-    pub fn builder() -> ReplaceSmBuilder {
+    pub fn builder() -> ReplaceSmBuilder<'a> {
         ReplaceSmBuilder::new()
     }
 }
 
-impl From<ReplaceSm> for Pdu {
-    fn from(value: ReplaceSm) -> Self {
+impl<'a, const N: usize> From<ReplaceSm<'a>> for Pdu<'a, N> {
+    fn from(value: ReplaceSm<'a>) -> Self {
         Self::ReplaceSm(value)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct ReplaceSmBuilder {
-    inner: ReplaceSm,
+pub struct ReplaceSmBuilder<'a> {
+    inner: ReplaceSm<'a>,
 }
 
-impl ReplaceSmBuilder {
+impl<'a> ReplaceSmBuilder<'a> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn message_id(mut self, message_id: COctetString<1, 65>) -> Self {
+    pub fn message_id(mut self, message_id: COctetString<'a, 1, 65>) -> Self {
         self.inner.message_id = message_id;
         self
     }
@@ -208,20 +211,20 @@ impl ReplaceSmBuilder {
         self
     }
 
-    pub fn source_addr(mut self, source_addr: COctetString<1, 21>) -> Self {
+    pub fn source_addr(mut self, source_addr: COctetString<'a, 1, 21>) -> Self {
         self.inner.source_addr = source_addr;
         self
     }
 
     pub fn schedule_delivery_time(
         mut self,
-        schedule_delivery_time: EmptyOrFullCOctetString<17>,
+        schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
     ) -> Self {
         self.inner.schedule_delivery_time = schedule_delivery_time;
         self
     }
 
-    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<17>) -> Self {
+    pub fn validity_period(mut self, validity_period: EmptyOrFullCOctetString<'a, 17>) -> Self {
         self.inner.validity_period = validity_period;
         self
     }
@@ -236,38 +239,36 @@ impl ReplaceSmBuilder {
         self
     }
 
-    pub fn short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+    pub fn short_message(mut self, short_message: OctetString<'a, 0, 255>) -> Self {
         self.inner.set_short_message(short_message);
         self
     }
 
-    pub fn message_payload(mut self, message_payload: Option<MessagePayload>) -> Self {
+    pub fn message_payload(mut self, message_payload: Option<MessagePayload<'a>>) -> Self {
         self.inner.set_message_payload(message_payload);
         self
     }
 
-    pub fn build(self) -> ReplaceSm {
+    pub fn build(self) -> ReplaceSm<'a> {
         self.inner
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
-
-    use crate::{tests::TestInstance, types::AnyOctetString, values::MessagePayload};
+    use crate::{tests::TestInstance, types::borrowed::AnyOctetString};
 
     use super::*;
 
-    impl TestInstance for ReplaceSm {
+    impl TestInstance for ReplaceSm<'_> {
         fn instances() -> alloc::vec::Vec<Self> {
             alloc::vec![
                 Self::default(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .message_id(COctetString::new(b"123456789012345678901234\0").unwrap())
                     .source_addr_ton(Ton::International)
                     .source_addr_npi(Npi::Isdn)
-                    .source_addr(COctetString::from_str("Source Addr").unwrap())
+                    .source_addr(COctetString::new(b"Source Addr\0").unwrap())
                     .schedule_delivery_time(
                         EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap(),
                     )
@@ -277,10 +278,10 @@ mod tests {
                     .short_message(OctetString::new(b"Short Message").unwrap())
                     .build(),
                 Self::builder()
-                    .message_id(COctetString::from_str("123456789012345678901234").unwrap())
+                    .message_id(COctetString::new(b"123456789012345678901234\0").unwrap())
                     .source_addr_ton(Ton::International)
                     .source_addr_npi(Npi::Isdn)
-                    .source_addr(COctetString::from_str("Source Addr").unwrap())
+                    .source_addr(COctetString::new(b"Source Addr\0").unwrap())
                     .schedule_delivery_time(
                         EmptyOrFullCOctetString::new(b"2023-10-01T12:00\0").unwrap(),
                     )
@@ -304,7 +305,7 @@ mod tests {
 
     #[test]
     fn encode_decode() {
-        crate::tests::encode_decode_with_length_test_instances::<ReplaceSm>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<ReplaceSm>();
     }
 
     #[test]

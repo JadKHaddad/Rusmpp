@@ -84,8 +84,8 @@ pub use query_sm::QuerySm;
 mod query_sm_resp;
 pub use query_sm_resp::QuerySmResp;
 
-// mod replace_sm;
-// pub use replace_sm::ReplaceSm;
+mod replace_sm;
+pub use replace_sm::ReplaceSm;
 
 mod sm_resp;
 pub use sm_resp::{DataSmResp, DeliverSmResp};
@@ -93,8 +93,8 @@ pub use sm_resp::{DataSmResp, DeliverSmResp};
 mod submit_sm;
 pub use submit_sm::SubmitSm;
 
-// mod submit_sm_resp;
-// pub use submit_sm_resp::SubmitSmResp;
+mod submit_sm_resp;
+pub use submit_sm_resp::SubmitSmResp;
 
 // mod submit_multi;
 // pub use submit_multi::SubmitMulti;

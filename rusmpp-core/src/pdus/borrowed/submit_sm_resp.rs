@@ -18,6 +18,7 @@ pub struct SubmitSmResp<'a, const N: usize> {
     message_id: COctetString<'a, 1, 65>,
     /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

@@ -53,6 +53,7 @@ pub struct SubmitMulti<'a, const N: usize> {
     number_of_dests: u8,
     /// Composite field.
     #[rusmpp(count = number_of_dests)]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     dest_address: heapless::vec::Vec<DestAddress<'a>, N>,
     /// Indicates Message Mode and Message Type.
     pub esm_class: EsmClass,
@@ -102,6 +103,7 @@ pub struct SubmitMulti<'a, const N: usize> {
     short_message: OctetString<'a, 0, 255>,
     /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

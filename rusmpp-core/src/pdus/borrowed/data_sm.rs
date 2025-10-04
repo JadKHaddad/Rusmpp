@@ -67,6 +67,7 @@ pub struct DataSm<'a, const N: usize> {
     pub data_coding: DataCoding,
     /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`])
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

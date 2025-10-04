@@ -20,6 +20,7 @@ macro_rules! sm_resp {
             message_id: COctetString<'a, 1, 65>,
             /// Message delivery response TLVs ([`MessageDeliveryResponseTlvValue`])
             #[rusmpp(length = "unchecked")]
+            #[cfg_attr(feature = "arbitrary", arbitrary(default))]
             tlvs: heapless::vec::Vec<Tlv<'a>, N>,
         }
 

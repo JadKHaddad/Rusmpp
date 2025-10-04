@@ -92,6 +92,7 @@ pub struct DeliverSm<'a, const N: usize> {
     short_message: OctetString<'a, 0, 255>,
     /// Message delivery request TLVs ([`MessageDeliveryRequestTlvValue`])
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

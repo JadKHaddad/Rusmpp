@@ -19,6 +19,7 @@ pub struct QueryBroadcastSmResp<'a, const N: usize> {
     pub message_id: COctetString<'a, 1, 65>,
     /// Query broadcast response TLVs ([`QueryBroadcastResponseTlvValue`]).
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

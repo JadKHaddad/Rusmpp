@@ -87,6 +87,7 @@ pub struct BroadcastSm<'a, const N: usize> {
     pub sm_default_msg_id: u8,
     /// Broadcast request TLVs ([`BroadcastRequestTlvValue`]).
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

@@ -88,6 +88,7 @@ pub struct SubmitSm<'a, const N: usize> {
     short_message: OctetString<'a, 0, 255>,
     /// Message submission request TLVs ([`MessageSubmissionRequestTlvValue`]).
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

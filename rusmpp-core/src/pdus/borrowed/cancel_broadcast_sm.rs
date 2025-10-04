@@ -63,6 +63,7 @@ pub struct CancelBroadcastSm<'a, const N: usize> {
     pub source_addr: COctetString<'a, 1, 21>,
     /// Cancel broadcast  TLVs ([`CancelBroadcastTlvValue`]).
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

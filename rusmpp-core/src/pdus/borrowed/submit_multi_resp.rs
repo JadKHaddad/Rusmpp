@@ -26,9 +26,11 @@ pub struct SubmitMultiResp<'a, const N: usize> {
     ///
     /// (Composite Field).
     #[rusmpp(count = no_unsuccess)]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     unsuccess_sme: heapless::vec::Vec<UnsuccessSme<'a>, N>,
     /// Message submission response TLVs ([`MessageSubmissionResponseTlvValue`])
     #[rusmpp(length = "unchecked")]
+    #[cfg_attr(feature = "arbitrary", arbitrary(default))]
     tlvs: heapless::vec::Vec<Tlv<'a>, N>,
 }
 

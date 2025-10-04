@@ -6,7 +6,7 @@
 #[cfg(any(test, feature = "alloc"))]
 extern crate alloc;
 
-#[cfg(any(test, feature = "arbitrary"))]
+#[cfg(any(test, feature = "arbitrary", feature = "tokio-codec"))]
 extern crate std;
 
 pub mod pdus;

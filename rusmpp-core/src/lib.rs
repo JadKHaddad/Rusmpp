@@ -3,7 +3,7 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_debug_implementations)]
 
-#[cfg(any(test, feature = "alloc", feature = "verbose"))]
+#[cfg(any(test, feature = "alloc"))]
 extern crate alloc;
 
 #[cfg(any(test, feature = "arbitrary"))]

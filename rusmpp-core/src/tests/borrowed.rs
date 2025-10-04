@@ -4,7 +4,7 @@ use crate::{
     CommandId,
     command::borrowed::Command,
     decode::borrowed::{Decode, DecodeWithLength},
-    encode::Encode,
+    encode::{Encode, Length},
     pdus::borrowed::*,
     tests::TestInstance,
     types::borrowed::AnyOctetString,
@@ -136,4 +136,29 @@ pub fn test_commands() -> alloc::vec::Vec<Command<'static, 16>> {
             body: AnyOctetString::new(b"SMPP"),
         })
         .collect()
+}
+
+#[test]
+#[ignore = "observation test"]
+fn print_decode_errors() {
+    let mut buf = [0u8; 1024];
+
+    for command in test_commands() {
+        if command.length() > buf.len() {
+            panic!("Buffer is too small to hold the encoded data");
+        }
+
+        let size = command.encode(&mut buf);
+        // Destroy random bytes in the buffer
+        buf[8] = 0xFF;
+        buf[16] = 0xFF;
+        buf[32] = 0xFF;
+        buf[64] = 0xFF;
+
+        let buf = buf[..size].to_vec().leak();
+
+        let result = Command::<'static, 16>::decode(&buf[..size], size);
+
+        let _ = std::dbg!(result);
+    }
 }

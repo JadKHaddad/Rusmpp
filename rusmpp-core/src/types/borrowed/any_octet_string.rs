@@ -6,6 +6,12 @@ use crate::{
 /// No fixed size [`OctetString`](struct@crate::types::borrowed::octet_string::OctetString).
 #[derive(Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
+#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
+#[cfg_attr(
+    any(feature = "serde", feature = "serde-deserialize-unchecked"),
+    serde(transparent)
+)]
 pub struct AnyOctetString<'a> {
     bytes: &'a [u8],
 }

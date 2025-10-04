@@ -23,15 +23,15 @@ default = []
 # Enables the `alloc` crate.
 alloc = ["serde/alloc"]
 # Enables verbose DecodeError with DecodeErrorSource.
-verbose = []
+verbose = ["alloc"]
 # Implements arbitrary's Arbitrary trait for fuzz testing.
 arbitrary = ["dep:arbitrary"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
 # Derives serde Serialize for all SMPP types.
-serde = ["dep:serde"]
+serde = ["dep:serde", "heapless/serde"]
 # Derives serde Deserialize for all SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
-serde-deserialize-unchecked = ["dep:serde"]
+serde-deserialize-unchecked = ["dep:serde", "heapless/serde"]
 
 [package.metadata.docs.rs]
 all-features = true

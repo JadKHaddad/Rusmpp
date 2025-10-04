@@ -1,4 +1,4 @@
-TODO: rusmppz: re-exports just like rusmpp (tlvs module), re-use the codec from the core
+TODO: rusmppz: re-exports just like rusmpp (tlvs module), re-use the codec from the core, esp32 example
 TODO: rusmpp-core: framez codec like the tokio codec
 TODO: fuzz: rusmpp-core owned and borrowed types and rusmppz codec like the rusmpp (rusmpp types must be removed after migrating to rusmpp-core)
 TODO: rusmpp-macros: macro expand tests for all cases like the rusmpp (macro tests must be removed from rusmpp after migrating to rusmpp-core) 

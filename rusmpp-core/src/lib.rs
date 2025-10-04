@@ -24,6 +24,7 @@ pub mod command;
 pub mod fields;
 
 pub mod decode;
+
 pub mod encode;
 
 pub mod types;
@@ -35,7 +36,7 @@ pub(crate) mod tests;
 
 pub(crate) mod formatter;
 
-#[cfg(any(feature = "log", feature = "defmt", feature = "tracing"))]
+#[cfg(feature = "tracing")]
 pub(crate) mod logging;
 
 #[cfg(feature = "framez")]

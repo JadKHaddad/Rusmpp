@@ -17,9 +17,8 @@ framez = { version = "0.3.0", default-features = false, optional = true }
 tokio-util = { version = "0.7.16", default-features = false, features = [
     "codec",
 ], optional = true }
-log = { version = "0.4.22", default-features = false, optional = true }
+
 tracing = { version = "0.1.41", default-features = false, optional = true }
-defmt = { version = "1.0.1", default-features = false, optional = true }
 
 [dev-dependencies]
 strum = "0.27.2"
@@ -29,15 +28,7 @@ futures = "0.3.31"
 testcontainers = "0.25.0"
 
 [features]
-default = [
-    "alloc",
-    "arbitrary",
-    "serde-deserialize-unchecked",
-    "serde",
-    "framez",
-    "tokio-codec",
-    "tracing",
-]
+default = []
 # Enables the `alloc` crate.
 alloc = ["serde/alloc"]
 # Enables verbose DecodeError with DecodeErrorSource.
@@ -56,12 +47,8 @@ serde-deserialize-unchecked = ["dep:serde", "heapless/serde"]
 tokio-codec = ["alloc", "dep:tokio-util"]
 # Implements framez' Encoder/Decoder traits for the CommandCodec.
 framez = ["dep:framez"]
-# Enables logging via the `log` crate.
-log = ["dep:log"]
 # Enables logging via the `tracing` crate.
 tracing = ["dep:tracing"]
-# Enables logging via the `defmt` crate.
-defmt = ["dep:defmt"]
 
 [package.metadata.docs.rs]
 all-features = true

@@ -2105,11 +2105,9 @@ name = "rusmpp-core"
 version = "0.1.0"
 dependencies = [
  "arbitrary",
- "defmt",
  "framez",
  "futures",
  "heapless",
- "log",
  "pastey",
  "rusmpp-macros",
  "serde",

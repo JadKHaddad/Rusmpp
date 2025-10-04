@@ -37,3 +37,11 @@ pub(crate) mod formatter;
 
 #[cfg(any(feature = "log", feature = "defmt", feature = "tracing"))]
 pub(crate) mod logging;
+
+#[cfg(feature = "framez")]
+#[cfg_attr(docsrs, doc(cfg(feature = "framez")))]
+pub mod framez;
+
+#[cfg(feature = "tokio-codec")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
+pub mod tokio_codec;

@@ -2107,6 +2107,7 @@ dependencies = [
  "arbitrary",
  "defmt",
  "framez",
+ "futures",
  "heapless",
  "log",
  "pastey",
@@ -2114,6 +2115,9 @@ dependencies = [
  "serde",
  "strum",
  "strum_macros",
+ "testcontainers",
+ "tokio",
+ "tokio-util",
  "tracing",
 ]
 

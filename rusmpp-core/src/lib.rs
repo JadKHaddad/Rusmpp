@@ -30,7 +30,10 @@ pub mod types;
 
 pub mod tlvs;
 
-pub(crate) mod utils;
-
 #[cfg(test)]
 pub(crate) mod tests;
+
+pub(crate) mod formatter;
+
+#[cfg(any(feature = "log", feature = "defmt", feature = "tracing"))]
+pub(crate) mod logging;

@@ -13,13 +13,23 @@ serde = { version = "1.0.219", default-features = false, features = [
     "derive",
 ], optional = true }
 pastey = "0.1.0"
+framez = { version = "0.3.0", default-features = false, optional = true }
+log = { version = "0.4.22", default-features = false, optional = true }
+tracing = { version = "0.1.41", default-features = false, optional = true }
+defmt = { version = "1.0.1", default-features = false, optional = true }
 
 [dev-dependencies]
 strum = "0.27.2"
 strum_macros = "0.27.2"
 
 [features]
-default = ["alloc", "arbitrary", "serde-deserialize-unchecked", "serde"]
+default = [
+    "alloc",
+    "arbitrary",
+    "serde-deserialize-unchecked",
+    "serde",
+    "framez",
+]
 # Enables the `alloc` crate.
 alloc = ["serde/alloc"]
 # Enables verbose DecodeError with DecodeErrorSource.
@@ -28,10 +38,16 @@ verbose = ["alloc"]
 arbitrary = ["dep:arbitrary"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = []
+char-fmt = []
 # Derives serde Serialize for all SMPP types.
 serde = ["dep:serde", "heapless/serde"]
 # Derives serde Deserialize for all SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
 serde-deserialize-unchecked = ["dep:serde", "heapless/serde"]
+
+framez = ["dep:framez"]
+log = ["dep:log"]
+tracing = ["dep:tracing"]
+defmt = ["dep:defmt"]
 
 [package.metadata.docs.rs]
 all-features = true

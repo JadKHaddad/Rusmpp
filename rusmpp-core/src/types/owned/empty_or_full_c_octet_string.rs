@@ -147,7 +147,7 @@ impl<const N: usize> From<EmptyOrFullCOctetString<N>> for Vec<u8> {
 impl<const N: usize> core::fmt::Debug for EmptyOrFullCOctetString<N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("EmptyOrFullCOctetString")
-            .field("bytes", &crate::utils::HexFormatter(&self.bytes))
+            .field("bytes", &crate::formatter::Formatter(&self.bytes))
             .field("string", &self.to_string())
             .finish()
     }

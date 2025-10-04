@@ -122,7 +122,7 @@ impl<'a, const N: usize> EmptyOrFullCOctetString<'a, N> {
 impl<const N: usize> core::fmt::Debug for EmptyOrFullCOctetString<'_, N> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         f.debug_struct("EmptyOrFullCOctetString")
-            .field("bytes", &crate::utils::HexFormatter(self.bytes))
+            .field("bytes", &crate::formatter::Formatter(self.bytes))
             .field("string", &self.as_str())
             .finish()
     }

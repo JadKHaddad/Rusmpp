@@ -119,3 +119,53 @@ impl<'a, const N: usize> From<BindTransceiverResp<'a>> for Pdu<'a, N> {
         Self::BindTransceiverResp(value)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::tests::TestInstance;
+
+    use super::*;
+
+    impl TestInstance for BindTransmitterResp<'_> {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp5_0))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindReceiverResp<'_> {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_4))
+                    .build(),
+            ]
+        }
+    }
+
+    impl TestInstance for BindTransceiverResp<'_> {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                Self::default(),
+                Self::builder()
+                    .system_id(COctetString::new(b"system_id\0").unwrap())
+                    .sc_interface_version(Some(InterfaceVersion::Smpp3_3OrEarlier(1)))
+                    .build(),
+            ]
+        }
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<BindTransmitterResp>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<BindReceiverResp>();
+        crate::tests::borrowed::encode_decode_with_length_test_instances::<BindTransceiverResp>();
+    }
+}

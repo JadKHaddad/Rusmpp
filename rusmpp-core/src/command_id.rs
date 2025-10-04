@@ -14,8 +14,9 @@ use rusmpp_macros::Rusmpp;
 /// PDU is that bit 31 is cleared for the request and set for the response. For example,
 /// replace_sm has a [`CommandId`] = 0x00000007 and its’ response PDU replace_sm_resp has
 /// a [`CommandId`] = 0x80000007.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
 #[repr(u32)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
+/// XXX: test impl is skipped because we have no default impl for CommandId
 #[rusmpp(test = skip)]
 #[cfg_attr(test, derive(strum_macros::EnumIter))]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
@@ -91,7 +92,20 @@ impl CommandId {
 
 #[cfg(test)]
 mod tests {
+    use crate::tests::TestInstance;
+
     use super::*;
+
+    impl TestInstance for CommandId {
+        fn instances() -> alloc::vec::Vec<Self> {
+            alloc::vec![
+                CommandId::BindReceiver,
+                CommandId::BindTransmitter,
+                CommandId::DataSmResp,
+                CommandId::Other(0x00000010),
+            ]
+        }
+    }
 
     #[test]
     fn into() {
@@ -143,5 +157,11 @@ mod tests {
             CommandId::Outbind.matching_response(),
             CommandId::Other(0x8000000B)
         );
+    }
+
+    #[test]
+    fn encode_decode() {
+        crate::tests::owned::encode_decode_test_instances::<CommandId>();
+        crate::tests::borrowed::encode_decode_test_instances::<CommandId>();
     }
 }

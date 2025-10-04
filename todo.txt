@@ -3,3 +3,4 @@ TODO: rusmppz: tests for the codec. just like rusmpp
 TODO: rusmpp-core: all tests from rusmpp for the owned version and a copy of them for the borrowed version
 TODO: fuzz: rusmpp-core owned and borrowed types and rusmppz codec like the rusmpp (rusmpp types must be removed after migrating to rusmpp-core)
 TODO: rusmpp-macros: macro expand tests for all cases like the rusmpp (macro tests must be removed from rusmpp after migrating to rusmpp-core) 
+TODO: rusmpp-core: remove "serde-deserialize-unchecked" attrs for borrowed types 

@@ -69,16 +69,7 @@ impl Default for Command {
 
 impl Command {
     pub fn new(status: CommandStatus, sequence_number: u32, pdu: impl Into<Pdu>) -> Self {
-        let pdu = pdu.into();
-
-        let id = pdu.command_id();
-
-        Self {
-            id,
-            status,
-            sequence_number,
-            pdu: Some(pdu),
-        }
+        Self::new_const(status, sequence_number, pdu.into())
     }
 
     pub const fn new_const(status: CommandStatus, sequence_number: u32, pdu: Pdu) -> Self {

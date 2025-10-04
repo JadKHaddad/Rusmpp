@@ -36,7 +36,7 @@ pub(crate) mod tests;
 
 pub(crate) mod formatter;
 
-#[cfg(feature = "tracing")]
+#[cfg(any(feature = "framez", feature = "tokio-codec"))]
 pub(crate) mod logging;
 
 #[cfg(feature = "framez")]

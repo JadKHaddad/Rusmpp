@@ -54,7 +54,6 @@ impl<'a> From<GenericServiceType> for ServiceType<'a> {
 #[rusmpp(decode = borrowed)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct ServiceType<'a> {
     value: COctetString<'a, 1, 6>,
 }

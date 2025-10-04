@@ -19,6 +19,6 @@ pub enum QueryBroadcastResponseTlvValue {
     MessageState(MessageState),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
     BroadcastAreaSuccess(BroadcastAreaSuccess),
-    BroadcastEndTime(OctetString< 0, 17>),
+    BroadcastEndTime(OctetString<0, 17>),
     UserMessageReference(UserMessageReference),
 }

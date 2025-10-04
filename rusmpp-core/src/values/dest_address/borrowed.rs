@@ -13,7 +13,6 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub enum DestAddress<'a> {
     /// SME Format Destination Address.
     SmeAddress(SmeAddress<'a>),
@@ -62,7 +61,6 @@ impl<'a> Decode<'a> for DestAddress<'a> {
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct SmeAddress<'a> {
     /// 0x01 (SME Address).
     ///
@@ -103,7 +101,6 @@ impl<'a> SmeAddress<'a> {
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct DistributionListName<'a> {
     /// 0x02 (Distribution List).
     ///

@@ -15,7 +15,6 @@ use crate::{
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct QuerySm<'a> {
     /// Message ID of the message whose state
     /// is to be queried. This must be the MC

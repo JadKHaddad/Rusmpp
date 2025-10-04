@@ -7,7 +7,6 @@ use crate::{types::borrowed::OctetString, values::sub_address::SubaddressTag};
 #[rusmpp(decode = borrowed)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct Subaddress<'a> {
     pub tag: SubaddressTag,
     // addr can not be empty, because the whole source_subaddress tlv value is between 2 and 23 bytes long, and the tag is 1 byte long

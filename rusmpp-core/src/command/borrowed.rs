@@ -39,7 +39,6 @@ use crate::{CommandId, CommandStatus, pdus::borrowed::Pdu};
 #[rusmpp(decode = borrowed)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct Command<'a, const N: usize> {
     /// See [`CommandId`]
     id: CommandId,

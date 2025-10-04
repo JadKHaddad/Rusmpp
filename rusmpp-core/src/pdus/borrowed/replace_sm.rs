@@ -21,7 +21,6 @@ use crate::{
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct ReplaceSm<'a> {
     /// Message ID of the message to be replaced.
     /// This must be the MC assigned Message ID

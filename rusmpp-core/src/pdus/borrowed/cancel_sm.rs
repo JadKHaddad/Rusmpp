@@ -22,7 +22,6 @@ use crate::{
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct CancelSm<'a> {
     /// Set to indicate SMS Application service,
     /// if cancellation of a group of application

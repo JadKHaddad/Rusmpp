@@ -15,7 +15,7 @@ use crate::{
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, TlvValue)]
 pub enum MessageSubmissionResponseTlvValue {
-    AdditionalStatusInfoText(COctetString< 1, 256>),
+    AdditionalStatusInfoText(COctetString<1, 256>),
     DeliveryFailureReason(DeliveryFailureReason),
     DpfResult(DpfResult),
     NetworkErrorCode(NetworkErrorCode),

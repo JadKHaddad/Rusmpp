@@ -19,7 +19,7 @@ strum = "0.27.2"
 strum_macros = "0.27.2"
 
 [features]
-default = []
+default = ["alloc", "arbitrary", "serde-deserialize-unchecked", "serde"]
 # Enables the `alloc` crate.
 alloc = ["serde/alloc"]
 # Enables verbose DecodeError with DecodeErrorSource.

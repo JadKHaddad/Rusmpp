@@ -10,7 +10,6 @@ use crate::{
 #[rusmpp(decode = borrowed)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
-#[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub struct UnsuccessSme<'a> {
     /// Type of number for destination.
     pub dest_addr_ton: Ton,

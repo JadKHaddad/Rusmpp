@@ -17,7 +17,6 @@ framez = { version = "0.3.0", default-features = false, optional = true }
 tokio-util = { version = "0.7.16", default-features = false, features = [
     "codec",
 ], optional = true }
-
 tracing = { version = "0.1.41", default-features = false, optional = true }
 
 [dev-dependencies]
@@ -26,6 +25,9 @@ strum_macros = "0.27.2"
 tokio = { version = "1.47.1", features = ["full"] }
 futures = "0.3.31"
 testcontainers = "0.25.0"
+embedded-io-adapters = { version = "0.6.2", default-features = false, features = [
+    "tokio-1",
+] }
 
 [features]
 default = []

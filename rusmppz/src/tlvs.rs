@@ -59,3 +59,5 @@
 //! If the TLV itself is not required, then it is not encoded at
 //! all. The very absence of the TLV from the PDU is the
 //! means by which we set the values to NULL.
+
+pub use rusmpp_core::tlvs::{TlvTag, borrowed::*};

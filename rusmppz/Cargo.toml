@@ -10,15 +10,9 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
-rusmpp-core = { path = "../rusmpp-core", default-features = false }
-framez = { version = "0.3.0", default-features = false, optional = true }
-heapless = { version = "0.9.1", default-features = false }
-arbitrary = { version = "1.4.2", default-features = false, features = [
-    "derive_arbitrary",
-], optional = true }
-log = { version = "0.4.22", default-features = false, optional = true }
-tracing = { version = "0.1.41", default-features = false, optional = true }
-defmt = { version = "1.0.1", default-features = false, optional = true }
+rusmpp-core = { path = "../rusmpp-core", default-features = false, features = [
+    "framez",
+] }
 
 [dev-dependencies]
 embedded-io-adapters = { version = "0.6.2", default-features = false, features = [
@@ -30,19 +24,18 @@ tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 framez = { version = "0.3.0", default-features = false, features = ["tracing"] }
 
 [features]
-default = ["framez", "char-fmt", "tracing"]
-# Implements framez' Encoder/Decoder traits for the CommandCodec.
-framez = ["dep:framez"]
-log = ["dep:log"]
-tracing = ["dep:tracing"]
-defmt = ["dep:defmt"]
-pretty-hex-fmt = []
-char-fmt = []
+default = []
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = ["rusmpp-core/pretty-hex-fmt"]
+# Prints byte slices as characters.
+char-fmt = ["rusmpp-core/char-fmt"]
+# Enables logging via the `tracing` crate.
+tracing = ["rusmpp-core/tracing"]
 
 [[example]]
 name = "rusmppz_client_server"
 path = "examples/rusmppz_client_server.rs"
-required-features = ["framez", "tracing"]
+required-features = ["tracing"]
 
 [package.metadata.docs.rs]
 all-features = true

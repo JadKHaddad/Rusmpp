@@ -3,8 +3,11 @@
 #![cfg_attr(docsrs, feature(doc_cfg))]
 #![deny(missing_debug_implementations)]
 
-#[cfg(any(test, feature = "arbitrary"))]
-extern crate std;
+//! ## Features
+//!
+//! - `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
+//! - `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
+//! - `char-fmt`: Logs byte slices as characters, if `tracing` feature is enabled.
 
 pub mod codec;
 
@@ -22,9 +25,3 @@ pub mod values;
 pub mod tlvs;
 
 pub mod pdus;
-
-#[cfg(all(
-    feature = "framez",
-    any(feature = "log", feature = "defmt", feature = "tracing")
-))]
-pub(crate) mod logging;

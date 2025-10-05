@@ -14,7 +14,7 @@ use crate::{
 #[cfg(test)]
 mod tests;
 
-/// Codec for encoding and decoding `SMPP` PDUs.
+/// Codec for encoding and decoding `SMPP` PDUs using [`Encoder`] and [`Decoder`] traits.
 #[derive(Debug)]
 #[non_exhaustive]
 pub struct CommandCodec<const N: usize> {}
@@ -42,7 +42,7 @@ pub enum EncodeError {
 impl core::fmt::Display for EncodeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Self::BufferTooSmall => write!(f, "buffer too small"),
+            Self::BufferTooSmall => write!(f, "Buffer too small"),
         }
     }
 }

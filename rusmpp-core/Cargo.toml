@@ -37,20 +37,24 @@ alloc = ["serde/alloc"]
 verbose = ["alloc"]
 # Implements arbitrary's Arbitrary trait for fuzz testing.
 arbitrary = ["dep:arbitrary"]
-# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
-pretty-hex-fmt = []
-# Prints byte slices as characters.
-char-fmt = []
+
 # Derives serde Serialize for all SMPP types.
 serde = ["dep:serde", "heapless/serde"]
 # Derives serde Deserialize for owned SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
 serde-deserialize-unchecked = ["dep:serde", "heapless/serde"]
+
 # Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
 tokio-codec = ["alloc", "dep:tokio-util"]
 # Implements framez' Encoder/Decoder traits for the CommandCodec.
 framez = ["dep:framez"]
+
 # Enables logging via the `tracing` crate.
 tracing = ["dep:tracing"]
+
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = []
+# Prints byte slices as characters.
+char-fmt = []
 
 [package.metadata.docs.rs]
 all-features = true

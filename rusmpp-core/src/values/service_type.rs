@@ -7,7 +7,7 @@ pub mod owned;
 ///
 /// # Example
 /// ```rust
-/// # use rusmpp_core::values::service_type::{GenericServiceType, borrowed::ServiceType};
+/// # use rusmpp_core::values::{GenericServiceType, borrowed::ServiceType};
 /// let service_type = ServiceType::new(GenericServiceType::CellularMessaging.into());
 /// assert_eq!(service_type.value().bytes(), b"CMT\0");
 /// assert_eq!(service_type.value().as_str(), "CMT");

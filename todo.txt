@@ -1,2 +1,1 @@
 TODO: fuzz: rusmpp-core owned and borrowed types and rusmppz codec like the rusmpp (rusmpp types must be removed after migrating to rusmpp-core)
-TODO: rusmpp-macros: macro expand tests for all cases like the rusmpp (macro tests must be removed from rusmpp after migrating to rusmpp-core) 

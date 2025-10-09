@@ -8,11 +8,7 @@ use crate::{
         borrowed::{MessageDeliveryRequestTlvValue, Tlv},
     },
     types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::borrowed::ServiceType, ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 /// This operation is used by an ESME to submit a short message to the MC for onward
@@ -353,14 +349,7 @@ impl<'a, const N: usize> DeliverSmBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance,
-        types::borrowed::AnyOctetString,
-        values::{
-            callback_num_pres_ind::{CallbackNumPresInd, Presentation, Screening},
-            message_payload::borrowed::MessagePayload,
-        },
-    };
+    use crate::{tests::TestInstance, types::borrowed::AnyOctetString};
 
     use super::*;
 

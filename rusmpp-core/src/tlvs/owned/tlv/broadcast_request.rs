@@ -6,18 +6,7 @@ use crate::{
         owned::{Tlv, TlvValue},
     },
     types::owned::OctetString,
-    values::{
-        addr_subunit::AddrSubunit, alert_on_msg_delivery::AlertOnMessageDelivery,
-        broadcast_area_identifier::owned::BroadcastAreaIdentifier,
-        broadcast_channel_indicator::BroadcastChannelIndicator,
-        broadcast_content_type::BroadcastContentType,
-        broadcast_frequency_interval::BroadcastFrequencyInterval,
-        broadcast_message_class::BroadcastMessageClass, broadcast_rep_num::BroadcastRepNum,
-        callback_num_pres_ind::CallbackNumPresInd, display_time::DisplayTime,
-        language_indicator::LanguageIndicator, message_payload::owned::MessagePayload,
-        ms_validity::MsValidity, payload_type::PayloadType, privacy_indicator::PrivacyIndicator,
-        sub_address::owned::Subaddress, user_message_reference::UserMessageReference,
-    },
+    values::{owned::*, *},
 };
 
 #[non_exhaustive]

@@ -1,10 +1,6 @@
 use rusmpp_macros::Rusmpp;
 
-use crate::{
-    pdus::borrowed::Pdu,
-    types::borrowed::COctetString,
-    values::{npi::Npi, ton::Ton},
-};
+use crate::{pdus::borrowed::Pdu, types::borrowed::COctetString, values::*};
 
 /// This command is issued by the ESME to query the status of a previously submitted short
 /// message.

@@ -1,3 +1,5 @@
+//! Owned `SMPP` PDUs.
+
 mod pdu;
 pub use pdu::Pdu;
 

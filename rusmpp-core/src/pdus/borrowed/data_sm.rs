@@ -4,10 +4,7 @@ use crate::{
     pdus::borrowed::Pdu,
     tlvs::borrowed::{MessageSubmissionRequestTlvValue, Tlv},
     types::borrowed::COctetString,
-    values::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi,
-        registered_delivery::RegisteredDelivery, service_type::borrowed::ServiceType, ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 /// The data_sm operation is similar to the submit_sm in that it provides a means to submit a
@@ -224,16 +221,7 @@ impl<'a, const N: usize> DataSmBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance,
-        values::{
-            addr_subunit::AddrSubunit,
-            registered_delivery::{
-                IntermediateNotification, MCDeliveryReceipt, SmeOriginatedAcknowledgement,
-            },
-            ussd_service_op::UssdServiceOp,
-        },
-    };
+    use crate::tests::TestInstance;
 
     use super::*;
 

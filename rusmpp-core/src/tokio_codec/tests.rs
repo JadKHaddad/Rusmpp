@@ -18,21 +18,7 @@ use crate::{
     tlvs::owned::{BroadcastRequestTlvValue, MessageSubmissionRequestTlvValue},
     tokio_codec::{CommandCodec, DecodeError},
     types::owned::{AnyOctetString, COctetString, OctetString},
-    values::{
-        alert_on_msg_delivery::AlertOnMessageDelivery,
-        broadcast_area_identifier::{BroadcastAreaFormat, owned::BroadcastAreaIdentifier},
-        broadcast_message_class::BroadcastMessageClass,
-        data_coding::DataCoding,
-        esm_class::EsmClass,
-        interface_version::InterfaceVersion,
-        message_payload::owned::MessagePayload,
-        ms_availability_status::MsAvailabilityStatus,
-        npi::Npi,
-        registered_delivery::RegisteredDelivery,
-        replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::owned::ServiceType,
-        ton::Ton,
-    },
+    values::{owned::*, *},
 };
 
 /// Encode and decode every possible test command created using [`TestInstance`](crate::tests::TestInstance).

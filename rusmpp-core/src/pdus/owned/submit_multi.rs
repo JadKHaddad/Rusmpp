@@ -8,11 +8,7 @@ use crate::{
         owned::{MessageSubmissionRequestTlvValue, Tlv},
     },
     types::owned::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        data_coding::DataCoding, dest_address::owned::DestAddress, esm_class::EsmClass, npi::Npi,
-        priority_flag::PriorityFlag, registered_delivery::RegisteredDelivery,
-        replace_if_present_flag::ReplaceIfPresentFlag, service_type::owned::ServiceType, ton::Ton,
-    },
+    values::{owned::*, *},
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
@@ -374,14 +370,7 @@ impl SubmitMultiBuilder {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{
-        tests::TestInstance,
-        types::owned::AnyOctetString,
-        values::{
-            dest_address::owned::{DistributionListName, SmeAddress},
-            message_payload::owned::MessagePayload,
-        },
-    };
+    use crate::{tests::TestInstance, types::owned::AnyOctetString};
 
     use super::*;
 

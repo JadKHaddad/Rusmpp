@@ -109,10 +109,7 @@ impl<'a, const N: usize> QueryBroadcastSmRespBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance, types::borrowed::OctetString,
-        values::user_message_reference::UserMessageReference,
-    };
+    use crate::{tests::TestInstance, types::borrowed::OctetString, values::*};
 
     use super::*;
 

@@ -4,7 +4,7 @@ use crate::{
     pdus::owned::Pdu,
     tlvs::owned::{Tlv, TlvValue},
     types::owned::COctetString,
-    values::interface_version::InterfaceVersion,
+    values::*,
 };
 
 macro_rules! bind_resp {

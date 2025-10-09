@@ -8,11 +8,7 @@ use crate::{
         owned::{MessageSubmissionRequestTlvValue, Tlv},
     },
     types::owned::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::owned::ServiceType, ton::Ton,
-    },
+    values::{owned::*, *},
 };
 
 /// This operation is used by an ESME to submit a short message to the MC for onward
@@ -342,18 +338,7 @@ impl SubmitSmBuilder {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{
-        tests::TestInstance,
-        types::owned::AnyOctetString,
-        values::{
-            bearer_type::BearerType,
-            esm_class::{Ansi41Specific, GsmFeatures, MessageType, MessagingMode},
-            message_payload::owned::MessagePayload,
-            priority_flag::{Ansi136, PriorityFlagType},
-            service_type::GenericServiceType,
-            sub_address::{SubaddressTag, owned::Subaddress},
-        },
-    };
+    use crate::{tests::TestInstance, types::owned::AnyOctetString};
 
     use super::*;
 

@@ -8,12 +8,7 @@ use crate::{
         borrowed::{MessageSubmissionRequestTlvValue, Tlv},
     },
     types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        data_coding::DataCoding, dest_address::borrowed::DestAddress, esm_class::EsmClass,
-        npi::Npi, priority_flag::PriorityFlag, registered_delivery::RegisteredDelivery,
-        replace_if_present_flag::ReplaceIfPresentFlag, service_type::borrowed::ServiceType,
-        ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
@@ -393,14 +388,7 @@ impl<'a, const N: usize> SubmitMultiBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance,
-        types::borrowed::AnyOctetString,
-        values::{
-            dest_address::borrowed::{DistributionListName, SmeAddress},
-            message_payload::borrowed::MessagePayload,
-        },
-    };
+    use crate::{tests::TestInstance, types::borrowed::AnyOctetString};
 
     use super::*;
 

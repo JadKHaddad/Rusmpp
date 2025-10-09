@@ -101,7 +101,7 @@ mod tests {
         CommandStatus,
         tests::TestInstance,
         types::owned::AnyOctetString,
-        values::broadcast_area_identifier::{BroadcastAreaFormat, owned::BroadcastAreaIdentifier},
+        values::{owned::*, *},
     };
 
     use super::*;

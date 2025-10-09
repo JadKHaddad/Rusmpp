@@ -101,10 +101,7 @@ impl QueryBroadcastSmRespBuilder {
 mod tests {
     use std::str::FromStr;
 
-    use crate::{
-        tests::TestInstance, types::owned::OctetString,
-        values::user_message_reference::UserMessageReference,
-    };
+    use crate::{tests::TestInstance, types::owned::OctetString, values::*};
 
     use super::*;
 

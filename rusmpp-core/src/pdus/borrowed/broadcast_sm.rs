@@ -4,11 +4,7 @@ use crate::{
     pdus::borrowed::Pdu,
     tlvs::borrowed::{BroadcastRequestTlvValue, Tlv},
     types::borrowed::{COctetString, EmptyOrFullCOctetString},
-    values::{
-        data_coding::DataCoding, npi::Npi, priority_flag::PriorityFlag,
-        replace_if_present_flag::ReplaceIfPresentFlag, service_type::borrowed::ServiceType,
-        ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 /// This operation is issued by the ESME to submit a message to the Message Centre for
@@ -257,15 +253,7 @@ impl<'a, const N: usize> BroadcastSmBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance,
-        types::borrowed::OctetString,
-        values::{
-            language_indicator::LanguageIndicator,
-            priority_flag::{Ansi136, GsmSms, PriorityFlagType},
-            service_type::GenericServiceType,
-        },
-    };
+    use crate::{tests::TestInstance, types::borrowed::OctetString};
 
     use super::*;
 

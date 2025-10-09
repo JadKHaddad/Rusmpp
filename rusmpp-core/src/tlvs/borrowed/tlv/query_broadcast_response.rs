@@ -6,11 +6,7 @@ use crate::{
         borrowed::{Tlv, TlvValue},
     },
     types::borrowed::OctetString,
-    values::{
-        broadcast_area_identifier::borrowed::BroadcastAreaIdentifier,
-        broadcast_area_success::BroadcastAreaSuccess, message_state::MessageState,
-        user_message_reference::UserMessageReference,
-    },
+    values::{borrowed::*, *},
 };
 
 #[non_exhaustive]

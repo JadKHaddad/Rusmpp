@@ -1,10 +1,6 @@
 use rusmpp_macros::Rusmpp;
 
-use crate::{
-    pdus::owned::Pdu,
-    types::owned::COctetString,
-    values::{interface_version::InterfaceVersion, npi::Npi, ton::Ton},
-};
+use crate::{pdus::owned::Pdu, types::owned::COctetString, values::*};
 
 macro_rules! bind {
     ($name:ident) => {

@@ -5,10 +5,7 @@ use crate::{
     pdus::borrowed::Pdu,
     tlvs::borrowed::{Tlv, TlvValue},
     types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        message_payload::borrowed::MessagePayload, npi::Npi,
-        registered_delivery::RegisteredDelivery, ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 /// This command is issued by the ESME to replace a previously submitted short message that

@@ -6,10 +6,7 @@ use crate::{
         owned::{Tlv, TlvValue},
     },
     types::owned::COctetString,
-    values::{
-        delivery_failure_reason::DeliveryFailureReason, dpf_result::DpfResult,
-        network_error_code::NetworkErrorCode,
-    },
+    values::*,
 };
 
 #[non_exhaustive]

@@ -8,11 +8,7 @@ use crate::{
         borrowed::{MessageSubmissionRequestTlvValue, Tlv},
     },
     types::borrowed::{COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{
-        data_coding::DataCoding, esm_class::EsmClass, npi::Npi, priority_flag::PriorityFlag,
-        registered_delivery::RegisteredDelivery, replace_if_present_flag::ReplaceIfPresentFlag,
-        service_type::borrowed::ServiceType, ton::Ton,
-    },
+    values::{borrowed::*, *},
 };
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
@@ -349,18 +345,7 @@ impl<'a, const N: usize> SubmitSmBuilder<'a, N> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        tests::TestInstance,
-        types::borrowed::AnyOctetString,
-        values::{
-            bearer_type::BearerType,
-            esm_class::{Ansi41Specific, GsmFeatures, MessageType, MessagingMode},
-            message_payload::borrowed::MessagePayload,
-            priority_flag::{Ansi136, PriorityFlagType},
-            service_type::GenericServiceType,
-            sub_address::{SubaddressTag, borrowed::Subaddress},
-        },
-    };
+    use crate::{tests::TestInstance, types::borrowed::AnyOctetString};
 
     use super::*;
 

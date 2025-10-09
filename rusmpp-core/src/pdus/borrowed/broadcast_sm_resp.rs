@@ -112,9 +112,7 @@ mod tests {
         CommandStatus,
         tests::TestInstance,
         types::borrowed::AnyOctetString,
-        values::broadcast_area_identifier::{
-            BroadcastAreaFormat, borrowed::BroadcastAreaIdentifier,
-        },
+        values::{borrowed::*, *},
     };
 
     use super::*;

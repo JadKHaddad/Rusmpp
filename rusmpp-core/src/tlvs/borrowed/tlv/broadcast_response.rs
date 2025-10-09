@@ -6,7 +6,7 @@ use crate::{
         TlvTag,
         borrowed::{Tlv, TlvValue},
     },
-    values::broadcast_area_identifier::borrowed::BroadcastAreaIdentifier,
+    values::borrowed::*,
 };
 
 #[non_exhaustive]

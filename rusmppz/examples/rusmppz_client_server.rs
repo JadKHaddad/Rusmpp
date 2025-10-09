@@ -3,7 +3,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run -p rusmppz --example rusmppz_client_server --features="framez tracing"
+//! cargo run -p rusmppz --example rusmppz_client_server --features="tracing"
 //! ```
 //!
 

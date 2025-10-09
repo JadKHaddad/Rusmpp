@@ -11,6 +11,8 @@ use crate::{
     values::{borrowed::*, *},
 };
 
+/// This operation is used by an ESME to submit a short message to the MC for onward
+/// transmission to a specified short message entity (SME).
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Rusmpp)]
 #[rusmpp(decode = borrowed, test = skip)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]

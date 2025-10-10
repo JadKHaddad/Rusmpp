@@ -1,6 +1,8 @@
 from collections.abc import Awaitable
 from .rusmppyc import Event
 
+__all__ = ["Events"]
+
 class Events:
     r"""
     An async stream of Events.

@@ -33,6 +33,9 @@ pin-project-lite = "0.2.16"
 [dev-dependencies]
 tokio = { version = "1.47.1", features = ["full"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+rustls = "0.23.32"
+tokio-rustls = "0.26.3"
+argh = "0.1.13"
 
 [package.metadata.docs.rs]
 all-features = true
@@ -46,4 +49,9 @@ required-features = []
 [[example]]
 name = "rusmppc_submit_sm"
 path = "examples/rusmppc_submit_sm.rs"
+required-features = []
+
+[[example]]
+name = "tls"
+path = "examples/tls.rs"
 required-features = []

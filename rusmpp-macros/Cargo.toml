@@ -3,6 +3,12 @@ name = "rusmpp-macros"
 description = "Procedural macros for Rusmpp-Core"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.85.1"
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+readme = "../Readme.md"
+keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
 syn = "2.0"

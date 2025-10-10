@@ -413,16 +413,16 @@ impl FieldAttributes {
                 } else if meta.path.is_ident("length") {
                     let value = meta.value()?;
 
-                    if let Ok(lit) = value.parse()
-                        && let Lit::Str(s) = lit
-                    {
-                        match s.value().as_str() {
-                            "unchecked" => length = Some(Length::Unchecked),
-                            "checked" => length = Some(Length::Checked),
-                            _ => {
-                                return Err(meta.error(
+                    if let Ok(lit) = value.parse() {
+                        if let Lit::Str(s) = lit {
+                            match s.value().as_str() {
+                                "unchecked" => length = Some(Length::Unchecked),
+                                "checked" => length = Some(Length::Checked),
+                                _ => {
+                                    return Err(meta.error(
                                     "length must be \"unchecked\", \"checked\", or an identifier",
                                 ));
+                                }
                             }
                         }
                     }

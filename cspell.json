@@ -158,6 +158,7 @@
         "thiserror",
         "tlvs",
         "Udhi",
+        "usize",
         "Ussd",
         "Ussn",
         "venv",

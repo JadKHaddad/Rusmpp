@@ -27,6 +27,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
         domain: &str,
         config: Option<rustls::ClientConfig>,
     ) -> Result<Self, crate::error::Error> {
+        // Code section inspired by `tokio-tungstenite`.
         let config = match config {
             Some(config) => std::sync::Arc::new(config),
             None => {
@@ -34,11 +35,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
                 let mut root_store = rustls::RootCertStore::empty();
                 #[cfg(feature = "rustls-tls-native-roots")]
                 {
+                    tracing::debug!(target: "rusmppc::connection::tls", "Loading native root CA certificates");
+
                     let rustls_native_certs::CertificateResult { certs, errors, .. } =
                         rustls_native_certs::load_native_certs();
 
                     if !errors.is_empty() {
-                        tracing::warn!(?errors, "Native root CA certificate loading errors");
+                        tracing::warn!(target: "rusmppc::connection::tls",?errors, "Native root CA certificate loading errors");
                     }
 
                     // Not finding any native root CA certificates is not fatal if the
@@ -53,10 +56,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
 
                     let total = certs.len();
                     let (added, ignored) = root_store.add_parsable_certificates(certs);
-                    tracing::debug!(total, added, ignored, "Added native root certificates");
+
+                    tracing::debug!(target: "rusmppc::connection::tls", total, added, ignored, "Added native root certificates");
                 }
                 #[cfg(feature = "rustls-tls-webpki-roots")]
                 {
+                    tracing::debug!(target: "rusmppc::connection::tls", "Loading webpki root CA certificates");
+
                     root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
                 }
 
@@ -78,6 +84,9 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
             .to_owned();
 
         let connector = tokio_rustls::TlsConnector::from(config);
+
+        tracing::debug!(target: "rusmppc::connection::tls", "Establishing TLS connection");
+
         let stream = connector
             .connect(domain, stream)
             .await

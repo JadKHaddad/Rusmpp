@@ -162,6 +162,7 @@
         "textwrap",
         "thiserror",
         "tlvs",
+        "tungstenite",
         "Udhi",
         "usize",
         "Ussd",

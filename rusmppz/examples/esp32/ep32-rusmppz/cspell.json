@@ -19,6 +19,9 @@
         "Tlinkall",
         "Trng",
         "uninit",
+        "xtensa",
+        "espflash",
+        "nostartfiles"
     ],
     "ignorePaths": [
         "target",

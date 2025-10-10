@@ -4,7 +4,7 @@ use futures::{FutureExt, Stream};
 
 use tokio::{
     io::{AsyncRead, AsyncWrite},
-    net::{TcpStream, ToSocketAddrs},
+    net::TcpStream,
 };
 
 use crate::{Client, Connection, Event, error::Error};
@@ -54,7 +54,7 @@ impl ConnectionBuilder {
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
     pub async fn connect(
         self,
-        host: impl ToSocketAddrs,
+        host: impl AsRef<str>,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
         let (client, events, connection) = self.no_spawn().connect(host).await?;
 
@@ -145,7 +145,7 @@ impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
     pub async fn connect(
         self,
-        host: impl ToSocketAddrs,
+        host: impl AsRef<str>,
     ) -> Result<
         (
             Client,
@@ -156,7 +156,7 @@ impl NoSpawnConnectionBuilder {
     > {
         tracing::debug!(target: "rusmppc::connection", "DNS resolution");
 
-        let socket_addr = tokio::net::lookup_host(host)
+        let socket_addr = tokio::net::lookup_host(host.as_ref())
             .await
             .map_err(Error::Dns)?
             .next()

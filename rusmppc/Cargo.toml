@@ -29,6 +29,10 @@ tracing = "0.1.41"
 futures = "0.3.31"
 thiserror = "2.0.12"
 pin-project-lite = "0.2.16"
+rustls = { version = "0.23.32", optional = true }
+tokio-rustls = { version = "0.26.3", optional = true }
+rustls-native-certs = { version = "0.8.1", optional = true }
+webpki-roots = { version = "1.0.3", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.47.1", features = ["full"] }
@@ -36,6 +40,12 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 rustls = "0.23.32"
 tokio-rustls = "0.26.3"
 argh = "0.1.13"
+
+[features]
+default = ["rustls", "rustls-tls-native-roots", "rustls-tls-webpki-roots"]
+rustls = ["dep:rustls", "dep:tokio-rustls"]
+rustls-tls-native-roots = ["rustls", "dep:rustls-native-certs"]
+rustls-tls-webpki-roots = ["rustls", "dep:webpki-roots"]
 
 [package.metadata.docs.rs]
 all-features = true

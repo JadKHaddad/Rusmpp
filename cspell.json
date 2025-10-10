@@ -169,6 +169,7 @@
         "venv",
         "vname",
         "Wcmp",
+        "webpki",
         "wireshark",
         "zerocopy"
     ],

@@ -2247,6 +2247,7 @@ dependencies = [
  "rusmpp",
  "rustls",
  "rustls-native-certs",
+ "rustls-pki-types",
  "thiserror 2.0.12",
  "tokio",
  "tokio-rustls",

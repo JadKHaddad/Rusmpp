@@ -121,5 +121,8 @@ pub(crate) use futures::RequestFutureGuard;
 mod response;
 pub(crate) use response::PendingResponses;
 
+mod tcp_stream;
+pub(crate) use tcp_stream::MaybeTlsStream;
+
 #[cfg(test)]
 mod tests;

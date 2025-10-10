@@ -15,7 +15,7 @@ use rusmpp::{
 pub enum Error {
     /// DNS resolution failed.
     #[error("DNS resolution failed: {0}")]
-    Dns(#[source] std::io::Error),
+    Dns(#[source] std::io::Error), // TODO: merge with Connect?
     /// Connection to `SMPP` server failed.
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),

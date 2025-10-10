@@ -54,9 +54,9 @@ impl ConnectionBuilder {
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
     pub async fn connect(
         self,
-        host: impl AsRef<str>,
+        url: impl AsRef<str>,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
-        let (client, events, connection) = self.no_spawn().connect(host).await?;
+        let (client, events, connection) = self.no_spawn().connect(url).await?;
 
         tokio::spawn(connection);
 
@@ -145,7 +145,7 @@ impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
     pub async fn connect(
         self,
-        host: impl AsRef<str>,
+        url: impl AsRef<str>,
     ) -> Result<
         (
             Client,
@@ -156,7 +156,7 @@ impl NoSpawnConnectionBuilder {
     > {
         tracing::debug!(target: "rusmppc::connection", "DNS resolution");
 
-        let socket_addr = tokio::net::lookup_host(host.as_ref())
+        let socket_addr = tokio::net::lookup_host(url.as_ref())
             .await
             .map_err(Error::Dns)?
             .next()

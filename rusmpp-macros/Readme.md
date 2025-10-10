@@ -7,13 +7,13 @@
 [![Crates.io (Downloads)](https://img.shields.io/crates/d/rusmpp-macros)](https://crates.io/crates/rusmpp-macros)
 [![Crates.io (License)](https://img.shields.io/crates/l/rusmpp-macros)](https://crates.io/crates/rusmpp-macros)
 
-Procedural macros for `rusmpp-core`. Used to derive traits defined in `rusmpp-core` and implement boilerplate code for `SMPP` types.
+Procedural macros for [`rusmpp-core`](https://crates.io/crates/rusmpp-core). Used to derive traits defined in [`rusmpp-core`](https://crates.io/crates/rusmpp-core) and implement boilerplate code for `SMPP` types.
 
 ## Note
 
 This crate assumes that the traits are defined in the crate itself under the modules `decode`, `encode` and `tests`.
 
-You should not depend on this crate directly as it is strongly coupled with `rusmpp-core`.
+You should not depend on this crate directly as it is strongly coupled with [`rusmpp-core`](https://crates.io/crates/rusmpp-core).
 
 ## Example
 

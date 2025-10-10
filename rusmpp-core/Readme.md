@@ -9,7 +9,7 @@
 
 Rust implementation of the [SMPP v5](https://smpp.org/SMPP_v5.pdf) protocol.
 
-You may not want to depend on this crate directly as it may be hard to choose the right features. A set of pre defined features are made available for `std` and `no_std` environments in the `rusmpp` and `rusmpp-core` crates respectively.
+You may not want to depend on this crate directly as it may be hard to choose the right features. A set of pre defined features are made available for `std` and `no_std` environments in the [`rusmpp`](https://crates.io/crates/rusmpp) and [`rusmppz`](https://crates.io/crates/rusmppz)crates respectively.
 
 ## Features
 

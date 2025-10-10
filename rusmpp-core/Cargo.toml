@@ -11,7 +11,7 @@ readme = "../Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
-rusmpp-macros = { path = "../rusmpp-macros" }
+rusmpp-macros = { path = "../rusmpp-macros", version = "0.1.0" }
 heapless = { version = "0.9.1", default-features = false }
 arbitrary = { version = "1.4.2", default-features = false, features = [
     "derive_arbitrary",

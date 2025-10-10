@@ -64,6 +64,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
                     tracing::debug!(target: "rusmppc::connection::tls", "Loading webpki root CA certificates");
 
                     root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
+
+                    tracing::debug!(target: "rusmppc::connection::tls", added = webpki_roots::TLS_SERVER_ROOTS.len(), "Added webpki root certificates");
                 }
 
                 std::sync::Arc::new(

@@ -1,0 +1,31 @@
+{
+    "version": "0.2",
+    "language": "en",
+    "words": [
+        "codegen",
+        "defmt",
+        "dhcpv",
+        "Esme",
+        "framez",
+        "linkall",
+        "pdus",
+        "println",
+        "rusmppz",
+        "rustc",
+        "rustflags",
+        "smoltcp",
+        "SMPP",
+        "timg",
+        "Tlinkall",
+        "Trng",
+        "uninit",
+        "xtensa",
+        "espflash",
+        "nostartfiles"
+    ],
+    "ignorePaths": [
+        "target",
+        ".gitignore",
+        ".vscode"
+    ]
+}

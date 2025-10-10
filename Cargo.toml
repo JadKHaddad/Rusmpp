@@ -7,10 +7,13 @@ members = [
     "rusmppy/rusmppyo3-reflection",
     "rusmppy/rusmppyc",
     "rusmppz",
+    "rusmpp-core",
+    "rusmpp-macros",
 ]
 default-members = ["rusmpp"]
 
 [patch.crates-io]
+# TODO: must be removed after migrating rusmpp to rusmpp-core
 # TODO: remove the path after issue is resolved. PR https://github.com/eupn/macrotest/pull/124
 # macrotest generates a bin project for every test and uses the dependencies and the dev-dependencies
 # of this project. Since `tracing` is defined here twice, as an optional dependency and

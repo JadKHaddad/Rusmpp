@@ -14,8 +14,10 @@ bytes = "1.10.1"
 tokio-util = { version = "0.7.16", default-features = false, features = [
     "codec",
 ] }
-rusmpp = { path = "../rusmpp", features = [
+framez = { version = "0.3.0", default-features = false }
+rusmpp-core = { path = "../rusmpp-core", features = [
     "arbitrary",
+    "framez",
     "tokio-codec",
 ], default-features = false }
 
@@ -26,7 +28,13 @@ members = ["."]
 debug = 1
 
 [[bin]]
-name = "decode"
-path = "fuzz_targets/decode.rs"
+name = "decode_owned"
+path = "fuzz_targets/decode_owned.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "decode_borrowed"
+path = "fuzz_targets/decode_borrowed.rs"
 test = false
 doc = false

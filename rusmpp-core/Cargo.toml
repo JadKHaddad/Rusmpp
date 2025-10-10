@@ -1,0 +1,68 @@
+[package]
+name = "rusmpp-core"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.86.0"
+description = "A Rust SMPP library."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/JadKHaddad/Rusmpp"
+readme = "../Readme.md"
+keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
+
+[dependencies]
+rusmpp-macros = { path = "../rusmpp-macros" }
+heapless = { version = "0.9.1", default-features = false }
+arbitrary = { version = "1.4.2", default-features = false, features = [
+    "derive_arbitrary",
+], optional = true }
+serde = { version = "1.0.219", default-features = false, features = [
+    "derive",
+], optional = true }
+pastey = "0.1.0"
+framez = { version = "0.3.0", default-features = false, optional = true }
+tokio-util = { version = "0.7.16", default-features = false, features = [
+    "codec",
+], optional = true }
+tracing = { version = "0.1.41", default-features = false, optional = true }
+
+[dev-dependencies]
+strum = "0.27.2"
+strum_macros = "0.27.2"
+tokio = { version = "1.47.1", features = ["full"] }
+futures = "0.3.31"
+testcontainers = "0.25.0"
+embedded-io-adapters = { version = "0.6.2", default-features = false, features = [
+    "tokio-1",
+] }
+
+[features]
+default = []
+# Enables the `alloc` crate.
+alloc = ["serde/alloc"]
+# Enables verbose DecodeError with DecodeErrorSource.
+verbose = ["alloc"]
+# Implements arbitrary's Arbitrary trait for fuzz testing.
+arbitrary = ["dep:arbitrary"]
+
+# Derives serde Serialize for all SMPP types.
+serde = ["dep:serde", "heapless/serde"]
+# Derives serde Deserialize for owned SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
+serde-deserialize-unchecked = ["dep:serde", "heapless/serde"]
+
+# Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
+tokio-codec = ["alloc", "dep:tokio-util"]
+# Implements framez' Encoder/Decoder traits for the CommandCodec.
+framez = ["dep:framez"]
+
+# Enables logging via the `tracing` crate.
+tracing = ["dep:tracing"]
+
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = []
+# Prints byte slices as characters.
+char-fmt = []
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

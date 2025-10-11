@@ -194,7 +194,9 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
         sequence_number
     }
 }
-
+// TODO: we must call flush and shutdown before dropping or we must give the S back to call flush and shutdown
+// Error: while using tls and connecting a sever, the server is showing this error:
+// err=Io(Custom { kind: UnexpectedEof, error: "peer closed connection without sending TLS close_notify: https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof" })
 impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
     type Output = ();
 

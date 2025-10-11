@@ -45,8 +45,11 @@ argh = "0.1.13"
 
 [features]
 default = ["rustls", "rustls-tls-native-roots", "rustls-tls-webpki-roots"]
+# Enables TLS support via Rustls. Enabled by default.
 rustls = ["dep:rustls", "dep:tokio-rustls", "dep:rustls-pki-types"]
+# Enables Rustls to use the platform's native root certificates while using default configuration. Enables the `rustls` feature and enabled by default.
 rustls-tls-native-roots = ["rustls", "dep:rustls-native-certs"]
+# Enables Rustls to use the webpki-roots crate's root certificates while using default configuration. Enables the `rustls` feature and enabled by default.
 rustls-tls-webpki-roots = ["rustls", "dep:webpki-roots"]
 
 [package.metadata.docs.rs]

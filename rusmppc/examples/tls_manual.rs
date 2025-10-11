@@ -14,7 +14,7 @@
 //! Run with
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls -- --cert cert.pem --key key.pem
+//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem
 //! ```
 //!
 

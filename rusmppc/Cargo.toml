@@ -67,6 +67,11 @@ path = "examples/rusmppc_submit_sm.rs"
 required-features = []
 
 [[example]]
-name = "tls"
-path = "examples/tls.rs"
+name = "tls_manual"
+path = "examples/tls_manual.rs"
+required-features = []
+
+[[example]]
+name = "tls_self_signed_certificate"
+path = "examples/tls_self_signed_certificate.rs"
 required-features = []

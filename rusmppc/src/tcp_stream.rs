@@ -11,7 +11,7 @@ use tokio::io::{AsyncRead, AsyncWrite, ReadBuf};
 pub enum MaybeTlsStream<S> {
     Plain(S),
     #[cfg(feature = "rustls")]
-    Rustls(tokio_rustls::client::TlsStream<S>),
+    Rustls(Box<tokio_rustls::client::TlsStream<S>>),
 }
 
 impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
@@ -94,7 +94,7 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
             .await
             .map_err(crate::error::Error::Connect)?;
 
-        Ok(Self::Rustls(stream))
+        Ok(Self::Rustls(Box::new(stream)))
     }
 }
 

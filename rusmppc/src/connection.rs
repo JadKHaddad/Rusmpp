@@ -12,7 +12,7 @@ use futures::Stream;
 use pin_project_lite::pin_project;
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
+    io::{AsyncRead, AsyncWrite, ReadBuf},
     sync::{
         mpsc::{self, UnboundedSender},
         oneshot, watch,
@@ -21,8 +21,8 @@ use tokio::{
 use tokio_stream::wrappers::UnboundedReceiverStream;
 use tokio_util::codec::Framed;
 
-const CONN: &str = "rusmppc::connection";
-const TIMER: &str = "rusmppc::connection::timer";
+const CONN: &str = "rusmppc::connection::smpp";
+const TIMER: &str = "rusmppc::connection::smpp::timer";
 
 #[derive(Debug)]
 enum State {
@@ -63,9 +63,8 @@ pin_project! {
     }
 }
 
-impl<S: AsyncRead + AsyncWrite> Connection<S> {
+impl Connection<NoneStream> {
     pub fn new(
-        stream: S,
         max_command_length: usize,
         enquire_link_interval: Duration,
         enquire_link_response_timeout: Duration,
@@ -94,7 +93,7 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
                 _watch: watch_rx,
                 events: events_tx,
                 framed: Framed::new(
-                    stream,
+                    NoneStream,
                     CommandCodec::new().with_max_length(max_command_length),
                 ),
                 actions: UnboundedReceiverStream::new(actions_rx),
@@ -105,6 +104,30 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
         )
     }
 
+    pub fn with_stream<S>(self, stream: S) -> Connection<S>
+    where
+        S: AsyncRead + AsyncWrite,
+    {
+        Connection {
+            state: self.state,
+            sequence_number: self.sequence_number,
+            requests: self.requests,
+            pending_request: self.pending_request,
+            responses: self.responses,
+            enquire_link_interval: self.enquire_link_interval,
+            last_enquire_link_sequence_number: self.last_enquire_link_sequence_number,
+            enquire_link_response_timeout: self.enquire_link_response_timeout,
+            events: self.events,
+            _watch: self._watch,
+            enquire_link_timer: self.enquire_link_timer,
+            enquire_link_response_timer: self.enquire_link_response_timer,
+            framed: Framed::new(stream, self.framed.into_parts().codec),
+            actions: self.actions,
+        }
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite> Connection<S> {
     fn insert_response(
         self: Pin<&mut Self>,
         sequence_number: u32,
@@ -194,9 +217,7 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
         sequence_number
     }
 }
-// TODO: we must call flush and shutdown before dropping or we must give the S back to call flush and shutdown
-// Error: while using tls and connecting a sever, the server is showing this error:
-// err=Io(Custom { kind: UnexpectedEof, error: "peer closed connection without sending TLS close_notify: https://docs.rs/rustls/latest/rustls/manual/_03_howto/index.html#unexpected-eof" })
+
 impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
     type Output = ();
 
@@ -589,5 +610,38 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                 }
             }
         }
+    }
+}
+
+pub struct NoneStream;
+
+impl AsyncRead for NoneStream {
+    fn poll_read(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        _buf: &mut ReadBuf<'_>,
+    ) -> Poll<std::io::Result<()>> {
+        unreachable!("NoneStream must not be polled (poll_read)")
+    }
+}
+
+impl AsyncWrite for NoneStream {
+    fn poll_write(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+        _buf: &[u8],
+    ) -> Poll<Result<usize, std::io::Error>> {
+        unreachable!("NoneStream must not be polled (poll_write)")
+    }
+
+    fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), std::io::Error>> {
+        unreachable!("NoneStream must not be polled (poll_flush)")
+    }
+
+    fn poll_shutdown(
+        self: Pin<&mut Self>,
+        _cx: &mut Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        unreachable!("NoneStream must not be polled (poll_shutdown)")
     }
 }

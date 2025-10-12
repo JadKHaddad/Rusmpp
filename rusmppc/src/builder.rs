@@ -3,7 +3,7 @@ use std::time::Duration;
 use futures::{FutureExt, Stream};
 
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
+    io::{AsyncRead, AsyncWrite, AsyncWriteExt},
     net::TcpStream,
 };
 
@@ -258,7 +258,6 @@ impl NoSpawnConnectionBuilder {
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
         let (connection, watch, actions, events) = Connection::new(
-            stream,
             self.builder.max_command_length,
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
@@ -271,7 +270,19 @@ impl NoSpawnConnectionBuilder {
             watch,
         );
 
-        // See comments on Connection struct to understand why we fuse the connection future.
-        (client, events, connection.fuse())
+        (client, events, async move {
+            let mut stream = std::pin::pin!(stream);
+
+            let connection = connection.with_stream(&mut stream);
+
+            // See comments on Connection struct to understand why we fuse the connection future.
+            connection.fuse().await;
+
+            tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
+
+            if let Err(err) = stream.shutdown().await {
+                tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
+            }
+        })
     }
 }

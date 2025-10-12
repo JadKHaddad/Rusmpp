@@ -3,13 +3,13 @@
 //! Run the `tls_manual` example to run the tls server.
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem
+//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem --host localhost:2775 --server
 //! ```
 //!
 //! In another terminal, run this example to connect to the server using the self-signed certificate.
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_self_signed_certificate -- --cert cert.pem
+//! cargo run -p rusmppc --example tls_self_signed_certificate -- --cert cert.pem --host localhost:2775
 //! ```
 //!
 
@@ -31,6 +31,10 @@ struct Options {
     /// path to the certificate file in PEM format
     #[argh(option, default = "String::from(\"cert.pem\")")]
     cert: String,
+
+    /// host to connect to or bind to
+    #[argh(option, default = "String::from(\"localhost:2775\")")]
+    host: String,
 }
 
 #[tokio::main]
@@ -40,6 +44,8 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .init();
 
     let options: Options = argh::from_env();
+
+    let url = format!("ssmpp://{}", options.host);
 
     let mut root_cert_store = RootCertStore::empty();
 
@@ -58,7 +64,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         Here we provide a custom configuration that uses only the self-signed certificate.
         */
         .rustls_config(config)
-        .connect("ssmpp://localhost:2775")
+        .connect(url)
         .await?;
 
     client

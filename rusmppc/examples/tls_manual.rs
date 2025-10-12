@@ -11,10 +11,16 @@
 //!   -addext "subjectAltName=DNS:localhost"
 //! ```
 //!
-//! Run with
+//! Run the server with:
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem
+//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem --host localhost:2775 --server
+//! ```
+//!
+//! In another terminal, run the client with:
+//!
+//! ```not_rust
+//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --host localhost:2775 --client
 //! ```
 //!
 
@@ -47,6 +53,18 @@ struct Options {
     /// path to the private key file in PEM format
     #[argh(option, default = "String::from(\"key.pem\")")]
     key: String,
+
+    /// host to connect to or bind to
+    #[argh(option, default = "String::from(\"localhost:2775\")")]
+    host: String,
+
+    /// run the server only
+    #[argh(switch)]
+    server: bool,
+
+    /// run the client only
+    #[argh(switch)]
+    client: bool,
 }
 
 #[tokio::main]
@@ -57,22 +75,25 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("client=info,server=info,rusmpp=off,rusmppc=debug")
         .init();
 
-    let cert = options.cert.clone();
-
-    tokio::spawn(async move {
-        if let Err(err) = server(&cert, &options.key).await {
-            tracing::error!(target: "server", %err, "Server error");
+    match (options.server, options.client) {
+        (true, true) | (false, false) => {
+            tracing::error!("You must specify either --server or --client");
+            std::process::exit(1);
         }
-    });
-
-    tokio::time::sleep(Duration::from_secs(1)).await;
-
-    client(&options.cert).await?;
+        (true, false) => {
+            tracing::info!("Running in server mode");
+            server(&options.cert, &options.key, &options.host).await?;
+        }
+        (false, true) => {
+            tracing::info!("Running in client mode");
+            client(&options.cert, &options.host).await?;
+        }
+    }
 
     Ok(())
 }
 
-async fn client(cert: &str) -> Result<(), Box<dyn core::error::Error>> {
+async fn client(cert: &str, host: &str) -> Result<(), Box<dyn core::error::Error>> {
     let mut root_cert_store = RootCertStore::empty();
 
     for cert in CertificateDer::pem_file_iter(cert)? {
@@ -85,9 +106,9 @@ async fn client(cert: &str) -> Result<(), Box<dyn core::error::Error>> {
 
     let connector = TlsConnector::from(Arc::new(config));
 
-    tracing::info!(target: "client", "Connecting to server at 127.0.0.1:2775");
+    tracing::info!(target: "client", "Connecting to server at {}", host);
 
-    let stream = TcpStream::connect("127.0.0.1:2775").await?;
+    let stream = TcpStream::connect(host).await?;
 
     tracing::info!(target: "client", "Connected to server");
 
@@ -120,7 +141,7 @@ async fn client(cert: &str) -> Result<(), Box<dyn core::error::Error>> {
     Ok(())
 }
 
-async fn server(cert: &str, key: &str) -> Result<(), Box<dyn core::error::Error>> {
+async fn server(cert: &str, key: &str, host: &str) -> Result<(), Box<dyn core::error::Error>> {
     let certs: Vec<CertificateDer> =
         CertificateDer::pem_file_iter(cert)?.collect::<Result<Vec<_>, _>>()?;
 
@@ -132,9 +153,9 @@ async fn server(cert: &str, key: &str) -> Result<(), Box<dyn core::error::Error>
 
     let acceptor = TlsAcceptor::from(Arc::new(config));
 
-    let listener = TcpListener::bind("127.0.0.1:2775").await?;
+    let listener = TcpListener::bind(host).await?;
 
-    tracing::info!(target: "server", "Listening on 127.0.0.1:2775");
+    tracing::info!(target: "server", "Listening on {}", host);
 
     loop {
         let (stream, addr) = listener.accept().await?;
@@ -227,6 +248,8 @@ async fn server(cert: &str, key: &str) -> Result<(), Box<dyn core::error::Error>
                             },
 
                             Ok(None) => {
+                                tracing::info!(target: "server", %addr, "Connection closed by peer");
+
                                 break;
                             },
 

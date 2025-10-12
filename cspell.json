@@ -147,6 +147,7 @@
         "Seqnum",
         "serde",
         "SMPP",
+        "smpps",
         "SMSC",
         "splitn",
         "Ssmpp",

@@ -19,6 +19,7 @@ pub struct ConnectionBuilder {
     /// Timeout for waiting for a response from the server.
     pub(crate) response_timeout: Option<Duration>,
     pub(crate) check_interface_version: bool,
+    /// TLS configurations provided by the user. If None, default configurations will be used.
     #[cfg(feature = "rustls")]
     rustls_config: Option<rustls::ClientConfig>,
 }
@@ -56,6 +57,40 @@ impl ConnectionBuilder {
     ///
     /// - The client is used as a handle to communicate with the server through the managed connection.
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
+    ///
+    /// # Example
+    ///
+    /// Connect to an `SMPP` server running on localhost at port 2775.
+    ///
+    /// ```
+    /// # use rusmppc::ConnectionBuilder;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let (client, events) = ConnectionBuilder::new()
+    ///     .connect("smpp://localhost:2775")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Connect to an `SMPP` server running on localhost at port 2775 using TLS.
+    ///
+    /// ```
+    /// # use rusmppc::ConnectionBuilder;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let (client, events) = ConnectionBuilder::new()
+    ///     .connect("smpps://localhost:2775")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Supported URL schemes
+    /// - `smpp`: Connect using plain TCP.
+    /// - `ssmpp` or `smpps`: Connect using TLS. Requires the `rustls` feature to be enabled.
+    ///
+    /// # Notes
+    /// - If no port is specified in the URL, the default port `2775` will be used.
+    /// - Path and query parameters in the URL are ignored silently.
     pub async fn connect(
         self,
         url: impl AsRef<str>,
@@ -138,10 +173,12 @@ impl ConnectionBuilder {
         self
     }
 
-    #[cfg(feature = "rustls")]
     /// Sets a custom `rustls` client configuration.
     ///
     /// If not set, a default configuration will be used.
+    ///  - If the `rustls-tls-native-roots` feature is enabled, native root certificates are used.
+    ///  - If the `rustls-tls-webpki-roots` feature is enabled, webpki root certificates are used.
+    #[cfg(feature = "rustls")]
     pub fn rustls_config(mut self, config: rustls::ClientConfig) -> Self {
         self.rustls_config = Some(config);
         self
@@ -181,12 +218,12 @@ impl NoSpawnConnectionBuilder {
 
         let scheme = match url.scheme() {
             "smpp" => Scheme::Smpp,
-            "ssmpp" => Scheme::Ssmpp,
+            "ssmpp" | "smpps" => Scheme::Ssmpp,
             scheme => {
                 return Err(Error::Connect(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
                     format!(
-                        "Unsupported URL scheme: {scheme}, supported schemes are smpp and ssmpp"
+                        "Unsupported URL scheme: {scheme}, supported schemes are smpp and ssmpp/smpps"
                     ),
                 )));
             }
@@ -236,7 +273,7 @@ impl NoSpawnConnectionBuilder {
                 {
                     return Err(Error::Connect(std::io::Error::new(
                         std::io::ErrorKind::InvalidInput,
-                        "TLS support is not enabled, enable the `rustls` feature to use ssmpp",
+                        "TLS support is not enabled, enable the `rustls` feature to use ssmpp/smpps",
                     )));
                 }
             }

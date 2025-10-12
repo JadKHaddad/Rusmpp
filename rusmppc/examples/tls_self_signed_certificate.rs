@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
     let options: Options = argh::from_env();
 
-    let url = format!("ssmpp://{}", options.host);
+    let url = format!("smpps://{}", options.host);
 
     let mut root_cert_store = RootCertStore::empty();
 

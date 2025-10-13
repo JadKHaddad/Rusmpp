@@ -32,7 +32,7 @@ struct Options {
     #[argh(option, default = "String::from(\"cert.pem\")")]
     cert: String,
 
-    /// host to connect to or bind to
+    /// host to connect to
     #[argh(option, default = "String::from(\"localhost:2775\")")]
     host: String,
 }

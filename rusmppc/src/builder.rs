@@ -193,6 +193,7 @@ pub struct NoSpawnConnectionBuilder {
 
 impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
+    #[allow(unused_mut)]
     pub async fn connect(
         mut self,
         url: impl AsRef<str>,

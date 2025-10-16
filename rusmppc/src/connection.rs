@@ -46,7 +46,7 @@ pin_project! {
         // This is a request that has been written to the sink using start_send, but not yet flushed.
         pending_request: Option<Request>,
         responses: BTreeMap<u32, oneshot::Sender<Command>>,
-        enquire_link_interval: Duration,
+        enquire_link_interval: Option<Duration>,
         last_enquire_link_sequence_number: Option<u32>,
         enquire_link_response_timeout: Duration,
         events: UnboundedSender<Event>,
@@ -66,7 +66,7 @@ pin_project! {
 impl Connection<NoneStream> {
     pub fn new(
         max_command_length: usize,
-        enquire_link_interval: Duration,
+        enquire_link_interval: Option<Duration>,
         enquire_link_response_timeout: Duration,
     ) -> (
         Self,
@@ -88,7 +88,7 @@ impl Connection<NoneStream> {
                 enquire_link_interval,
                 last_enquire_link_sequence_number: None,
                 enquire_link_response_timeout,
-                enquire_link_timer: Timer::active(enquire_link_interval),
+                enquire_link_timer: enquire_link_interval.map(Timer::active).unwrap_or_default(),
                 enquire_link_response_timer: Timer::inactive(),
                 _watch: watch_rx,
                 events: events_tx,
@@ -174,11 +174,11 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
     }
 
     fn activate_enquire_link_timer(self: Pin<&mut Self>) {
-        let delay = self.as_ref().enquire_link_interval;
+        if let Some(delay) = self.as_ref().enquire_link_interval {
+            self.project().enquire_link_timer.activate(delay);
 
-        self.project().enquire_link_timer.activate(delay);
-
-        tracing::trace!(target: TIMER, ?delay, "Activated enquire_link_timer");
+            tracing::trace!(target: TIMER, ?delay, "Activated enquire_link_timer");
+        }
     }
 
     fn set_last_enquire_link_sequence_number(self: Pin<&mut Self>, sequence_number: u32) {

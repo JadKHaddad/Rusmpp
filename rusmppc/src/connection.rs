@@ -596,10 +596,14 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             return Poll::Ready(());
                         }
                         Poll::Ready(None) => {
-                            // TODO: send event TCP Connection closed by server error
                             tracing::debug!(target: CONN, "Connection closed by the server");
 
                             self.as_mut().set_state(State::Errored);
+
+                            let _ = self
+                                .as_mut()
+                                .events
+                                .send(Event::error(Error::ConnectionClosedByPeer));
 
                             return Poll::Ready(());
                         }

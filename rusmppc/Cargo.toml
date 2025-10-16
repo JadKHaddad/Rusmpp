@@ -1,6 +1,6 @@
 [package]
 name = "rusmppc"
-version = "0.2.3"
+version = "0.3.0-alpha.0"
 edition = "2024"
 rust-version = "1.85.1"
 description = "A Rust SMPP client."

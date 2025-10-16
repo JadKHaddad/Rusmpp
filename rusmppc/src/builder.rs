@@ -13,7 +13,7 @@ use crate::{Client, Connection, Event, MaybeTlsStream, error::Error};
 #[derive(Debug)]
 pub struct ConnectionBuilder {
     pub(crate) max_command_length: usize,
-    pub(crate) enquire_link_interval: Duration,
+    pub(crate) enquire_link_interval: Option<Duration>,
     /// Timeout for waiting for a an enquire link response from the server.
     pub(crate) enquire_link_response_timeout: Duration,
     /// Timeout for waiting for a response from the server.
@@ -31,11 +31,19 @@ impl Default for ConnectionBuilder {
 }
 
 impl ConnectionBuilder {
-    /// Creates a new [`ConnectionBuilder`].
+    /// Creates a new [`ConnectionBuilder`] with default configurations.
+    ///
+    /// # Defaults
+    /// - `max_command_length`: 4096 bytes
+    /// - `enquire_link_interval`: 30 seconds
+    /// - `enquire_link_response_timeout`: 5 seconds
+    /// - `response_timeout`: 5 seconds
+    /// - `check_interface_version`: true
+    /// - `rustls_config`: default configuration will be used if TLS is enabled. See [`rustls_config`](Self::rustls_config) for more details.
     pub fn new() -> Self {
         Self {
             max_command_length: 4096,
-            enquire_link_interval: Duration::from_secs(30),
+            enquire_link_interval: Some(Duration::from_secs(30)),
             enquire_link_response_timeout: Duration::from_secs(5),
             response_timeout: Some(Duration::from_secs(5)),
             check_interface_version: true,
@@ -91,6 +99,18 @@ impl ConnectionBuilder {
     /// # Notes
     /// - If no port is specified in the URL, the default port `2775` will be used.
     /// - Path and query parameters in the URL are ignored silently.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error in the following cases:
+    ///
+    /// - If the URL is invalid. See [`url::Url::parse`] for more details.
+    /// - If the URL scheme is not supported. Supported schemes are `smpp`, `ssmpp`, and `smpps`.
+    /// - If the URL does not have a host.
+    /// - If DNS resolution fails.
+    /// - If the connection to the server fails.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS handshake fails.
     pub async fn connect(
         self,
         url: impl AsRef<str>,
@@ -131,6 +151,22 @@ impl ConnectionBuilder {
     ///
     /// Used to determine how often an enquire link command should be sent to the server.
     pub fn enquire_link_interval(mut self, enquire_link_interval: Duration) -> Self {
+        self.enquire_link_interval = Some(enquire_link_interval);
+        self
+    }
+
+    /// Disables the enquire link interval.
+    ///
+    /// When disabled, no enquire link commands will be sent to the server.
+    pub fn no_enquire_link_interval(mut self) -> Self {
+        self.enquire_link_interval = None;
+        self
+    }
+
+    /// Sets the enquire link interval.
+    ///
+    /// If set to `None`, no enquire link commands will be sent to the server.
+    pub fn with_enquire_link_interval(mut self, enquire_link_interval: Option<Duration>) -> Self {
         self.enquire_link_interval = enquire_link_interval;
         self
     }
@@ -159,6 +195,14 @@ impl ConnectionBuilder {
     /// Disables the response timeout.
     pub fn no_response_timeout(mut self) -> Self {
         self.response_timeout = None;
+        self
+    }
+
+    /// Sets the response timeout.
+    ///
+    /// If set to `None`, no timeout will be used and the client will wait indefinitely for a response from the server.
+    pub fn with_response_timeout(mut self, response_timeout: Option<Duration>) -> Self {
+        self.response_timeout = response_timeout;
         self
     }
 
@@ -193,6 +237,18 @@ pub struct NoSpawnConnectionBuilder {
 
 impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error in the following cases:
+    ///
+    /// - If the URL is invalid. See [`url::Url::parse`] for more details.
+    /// - If the URL scheme is not supported. Supported schemes are `smpp`, `ssmpp`, and `smpps`.
+    /// - If the URL does not have a host.
+    /// - If DNS resolution fails.
+    /// - If the connection to the server fails.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS handshake fails.
     #[allow(unused_mut)]
     pub async fn connect(
         mut self,
@@ -245,10 +301,10 @@ impl NoSpawnConnectionBuilder {
 
         let socket_addr = tokio::net::lookup_host(host)
             .await
-            .map_err(Error::Dns)?
+            .map_err(Error::Connect)?
             .next()
             .ok_or_else(|| {
-                Error::Dns(std::io::Error::new(
+                Error::Connect(std::io::Error::new(
                     std::io::ErrorKind::NotFound,
                     "No addresses found for the given host",
                 ))

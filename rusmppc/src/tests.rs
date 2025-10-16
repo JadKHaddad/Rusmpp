@@ -699,3 +699,31 @@ async fn server_ddos_client_should_still_send_requests_and_connection_should_sti
     // After the enquire link timeout, the connection should close
     let _ = events.count().await;
 }
+
+/// This test relies on [`enquire_link_timeout_idle_should_close_connection`] to be correct.
+///
+/// This function uses the same setup as the previous test, but disables the enquire link interval.
+#[tokio::test]
+async fn enquire_link_interval_none_should_not_send_enquire_link_commands() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new()
+            .enquire_link_delay(Duration::from_secs(3))
+            .run(server)
+            .await;
+    });
+
+    let (client, _events) = ConnectionBuilder::new()
+        .enquire_link_interval(Duration::from_secs(1))
+        .enquire_link_response_timeout(Duration::from_secs(1))
+        .no_enquire_link_interval()
+        .connected(client);
+
+    tokio::time::sleep(Duration::from_secs(3)).await;
+
+    // after 3 seconds the connection should still be active since no enquire link commands were sent
+    assert!(client.is_active(), "Connection was closed unexpectedly");
+}

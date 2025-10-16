@@ -23,8 +23,8 @@ bytes = "1.10.1"
 humantime = "2.2.0"
 pyo3-log = "0.12.4"
 tracing = { version = "0.1.41", features = ["log-always"] }
-rusmpp = { path = "../../rusmpp", default-features = false }
-rusmppc = { path = "../../rusmppc" }
+rusmpp = { version = "0.2.3", default-features = false } # path = "../../rusmpp"
+rusmppc = { version = "0.2.3" } # path = "../../rusmppc"
 
 [[bin]]
 name = "stub-gen"

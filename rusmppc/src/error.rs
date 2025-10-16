@@ -13,10 +13,9 @@ use rusmpp::{
 #[derive(Debug, thiserror::Error)]
 // TODO: add TCP Connection closed by server error
 pub enum Error {
-    /// DNS resolution failed.
-    #[error("DNS resolution failed: {0}")]
-    Dns(#[source] std::io::Error), // TODO: merge with Connect?
     /// Connection to `SMPP` server failed.
+    ///
+    /// See [`ConnectionBuilder::connect`](crate::builder::ConnectionBuilder::connect) for more details.
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),
     /// IO error occurred.

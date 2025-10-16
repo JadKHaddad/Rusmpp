@@ -99,6 +99,18 @@ impl ConnectionBuilder {
     /// # Notes
     /// - If no port is specified in the URL, the default port `2775` will be used.
     /// - Path and query parameters in the URL are ignored silently.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error in the following cases:
+    ///
+    /// - If the URL is invalid. See [`url::Url::parse`] for more details.
+    /// - If the URL scheme is not supported. Supported schemes are `smpp`, `ssmpp`, and `smpps`.
+    /// - If the URL does not have a host.
+    /// - If DNS resolution fails.
+    /// - If the connection to the server fails.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS handshake fails.
     pub async fn connect(
         self,
         url: impl AsRef<str>,
@@ -225,6 +237,18 @@ pub struct NoSpawnConnectionBuilder {
 
 impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error in the following cases:
+    ///
+    /// - If the URL is invalid. See [`url::Url::parse`] for more details.
+    /// - If the URL scheme is not supported. Supported schemes are `smpp`, `ssmpp`, and `smpps`.
+    /// - If the URL does not have a host.
+    /// - If DNS resolution fails.
+    /// - If the connection to the server fails.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS handshake fails.
     #[allow(unused_mut)]
     pub async fn connect(
         mut self,
@@ -277,10 +301,10 @@ impl NoSpawnConnectionBuilder {
 
         let socket_addr = tokio::net::lookup_host(host)
             .await
-            .map_err(Error::Dns)?
+            .map_err(Error::Connect)?
             .next()
             .ok_or_else(|| {
-                Error::Dns(std::io::Error::new(
+                Error::Connect(std::io::Error::new(
                     std::io::ErrorKind::NotFound,
                     "No addresses found for the given host",
                 ))

@@ -2208,6 +2208,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rusmpp"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ff7b892b075257d6772391c5c32c4ec5f42b9eb8b0159a7956f3ade7c6b01095"
+dependencies = [
+ "pastey",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
 name = "rusmpp-core"
 version = "0.1.2"
 dependencies = [
@@ -2239,12 +2250,28 @@ dependencies = [
 
 [[package]]
 name = "rusmppc"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b0f2eba9727168c0f057eefda199f479a76c45c57a1c5c780830d93b861543f0"
+dependencies = [
+ "futures",
+ "pin-project-lite",
+ "rusmpp 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "thiserror 2.0.12",
+ "tokio",
+ "tokio-stream",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "rusmppc"
 version = "0.3.0-alpha.0"
 dependencies = [
  "argh",
  "futures",
  "pin-project-lite",
- "rusmpp",
+ "rusmpp 0.2.3",
  "rustls",
  "rustls-native-certs",
  "rustls-pki-types",
@@ -2269,7 +2296,7 @@ dependencies = [
  "futures",
  "humantime-serde",
  "pin-project-lite",
- "rusmpp",
+ "rusmpp 0.2.3",
  "serde",
  "serde_yaml",
  "thiserror 2.0.12",
@@ -2292,8 +2319,8 @@ dependencies = [
  "pyo3-log",
  "pyo3-stub-gen",
  "pyo3-stub-gen-derive",
- "rusmpp",
- "rusmppc",
+ "rusmpp 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rusmppc 0.2.3",
  "tokio",
  "tokio-util",
  "tracing",
@@ -2303,7 +2330,7 @@ dependencies = [
 name = "rusmppyo3-reflection"
 version = "0.1.0"
 dependencies = [
- "rusmpp",
+ "rusmpp 0.2.3",
  "serde-generate",
  "serde-reflection",
  "textwrap 0.16.2",

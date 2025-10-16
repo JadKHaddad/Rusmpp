@@ -58,6 +58,8 @@ impl Client {
     }
 
     /// Creates a new `SMPP` connection builder.
+    ///
+    /// See [`ConnectionBuilder::new`] for more details.
     pub fn builder() -> ConnectionBuilder {
         ConnectionBuilder::new()
     }

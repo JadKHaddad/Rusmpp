@@ -59,7 +59,7 @@ impl Factory {
                 let (client, mut events) = match ConnectionBuilder::new()
                     .enquire_link_interval(Duration::from_secs(5))
                     .response_timeout(Duration::from_secs(2))
-                    .connect("127.0.0.1:2775")
+                    .connect("smpp://127.0.0.1:2775")
                     .await
                 {
                     Ok(ok) => ok,

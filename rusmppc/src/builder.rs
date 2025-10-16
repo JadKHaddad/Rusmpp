@@ -3,11 +3,11 @@ use std::time::Duration;
 use futures::{FutureExt, Stream};
 
 use tokio::{
-    io::{AsyncRead, AsyncWrite},
-    net::{TcpStream, ToSocketAddrs},
+    io::{AsyncRead, AsyncWrite, AsyncWriteExt},
+    net::TcpStream,
 };
 
-use crate::{Client, Connection, Event, error::Error};
+use crate::{Client, Connection, Event, MaybeTlsStream, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -19,6 +19,9 @@ pub struct ConnectionBuilder {
     /// Timeout for waiting for a response from the server.
     pub(crate) response_timeout: Option<Duration>,
     pub(crate) check_interface_version: bool,
+    /// TLS configurations provided by the user. If None, default configurations will be used.
+    #[cfg(feature = "rustls")]
+    rustls_config: Option<rustls::ClientConfig>,
 }
 
 impl Default for ConnectionBuilder {
@@ -36,6 +39,8 @@ impl ConnectionBuilder {
             enquire_link_response_timeout: Duration::from_secs(5),
             response_timeout: Some(Duration::from_secs(5)),
             check_interface_version: true,
+            #[cfg(feature = "rustls")]
+            rustls_config: None,
         }
     }
 
@@ -52,11 +57,45 @@ impl ConnectionBuilder {
     ///
     /// - The client is used as a handle to communicate with the server through the managed connection.
     /// - The event stream is used to receive events from the server, such as incoming messages or errors.
+    ///
+    /// # Example
+    ///
+    /// Connect to an `SMPP` server running on localhost at port 2775.
+    ///
+    /// ```
+    /// # use rusmppc::ConnectionBuilder;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let (client, events) = ConnectionBuilder::new()
+    ///     .connect("smpp://localhost:2775")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// Connect to an `SMPP` server running on localhost at port 2775 using TLS.
+    ///
+    /// ```
+    /// # use rusmppc::ConnectionBuilder;
+    /// # async fn example() -> Result<(), Box<dyn std::error::Error>> {
+    /// let (client, events) = ConnectionBuilder::new()
+    ///     .connect("smpps://localhost:2775")
+    ///     .await?;
+    /// # Ok(())
+    /// # }
+    /// ```
+    ///
+    /// # Supported URL schemes
+    /// - `smpp`: Connect using plain TCP.
+    /// - `ssmpp` or `smpps`: Connect using TLS. Requires the `rustls` feature to be enabled.
+    ///
+    /// # Notes
+    /// - If no port is specified in the URL, the default port `2775` will be used.
+    /// - Path and query parameters in the URL are ignored silently.
     pub async fn connect(
         self,
-        host: impl ToSocketAddrs,
+        url: impl AsRef<str>,
     ) -> Result<(Client, impl Stream<Item = Event> + Unpin + 'static), Error> {
-        let (client, events, connection) = self.no_spawn().connect(host).await?;
+        let (client, events, connection) = self.no_spawn().connect(url).await?;
 
         tokio::spawn(connection);
 
@@ -133,6 +172,17 @@ impl ConnectionBuilder {
         self.check_interface_version = false;
         self
     }
+
+    /// Sets a custom `rustls` client configuration.
+    ///
+    /// If not set, a default configuration will be used.
+    ///  - If the `rustls-tls-native-roots` feature is enabled, native root certificates are used.
+    ///  - If the `rustls-tls-webpki-roots` feature is enabled, webpki root certificates are used.
+    #[cfg(feature = "rustls")]
+    pub fn rustls_config(mut self, config: rustls::ClientConfig) -> Self {
+        self.rustls_config = Some(config);
+        self
+    }
 }
 
 /// Builder for creating a new `SMPP` connection without spawning it in the background.
@@ -143,9 +193,10 @@ pub struct NoSpawnConnectionBuilder {
 
 impl NoSpawnConnectionBuilder {
     /// Connects to the `SMPP` server without spawning the connection in the background.
+    #[allow(unused_mut)]
     pub async fn connect(
-        self,
-        host: impl ToSocketAddrs,
+        mut self,
+        url: impl AsRef<str>,
     ) -> Result<
         (
             Client,
@@ -154,7 +205,43 @@ impl NoSpawnConnectionBuilder {
         ),
         Error,
     > {
-        tracing::debug!(target: "rusmppc::connection", "DNS resolution");
+        enum Scheme {
+            Smpp,
+            Ssmpp,
+        }
+
+        let url = url::Url::parse(url.as_ref()).map_err(|err| {
+            Error::Connect(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                format!("Invalid URL: {err}"),
+            ))
+        })?;
+
+        let scheme = match url.scheme() {
+            "smpp" => Scheme::Smpp,
+            "ssmpp" | "smpps" => Scheme::Ssmpp,
+            scheme => {
+                return Err(Error::Connect(std::io::Error::new(
+                    std::io::ErrorKind::InvalidInput,
+                    format!(
+                        "Unsupported URL scheme: {scheme}, supported schemes are smpp and ssmpp/smpps"
+                    ),
+                )));
+            }
+        };
+
+        let domain = url.host_str().ok_or_else(|| {
+            Error::Connect(std::io::Error::new(
+                std::io::ErrorKind::InvalidInput,
+                "URL must have a host",
+            ))
+        })?;
+
+        let port = url.port().unwrap_or(2775);
+
+        let host = format!("{domain}:{port}");
+
+        tracing::debug!(target: "rusmppc::connection::dns", host, "Resolving host");
 
         let socket_addr = tokio::net::lookup_host(host)
             .await
@@ -167,13 +254,31 @@ impl NoSpawnConnectionBuilder {
                 ))
             })?;
 
-        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connecting");
+        tracing::debug!(target: "rusmppc::connection::tcp", %socket_addr, "Connecting");
 
         let stream = TcpStream::connect(socket_addr)
             .await
             .map_err(Error::Connect)?;
 
-        tracing::debug!(target: "rusmppc::connection", %socket_addr, "Connected");
+        tracing::debug!(target: "rusmppc::connection::tcp", %socket_addr, "Connected");
+
+        let stream = match scheme {
+            Scheme::Smpp => MaybeTlsStream::plain(stream),
+            Scheme::Ssmpp => {
+                #[cfg(feature = "rustls")]
+                {
+                    MaybeTlsStream::rustls(stream, domain, self.builder.rustls_config.take())
+                        .await?
+                }
+                #[cfg(not(feature = "rustls"))]
+                {
+                    return Err(Error::Connect(std::io::Error::new(
+                        std::io::ErrorKind::InvalidInput,
+                        "TLS support is not enabled, enable the `rustls` feature to use ssmpp/smpps",
+                    )));
+                }
+            }
+        };
 
         Ok(self.connected(stream))
     }
@@ -191,7 +296,6 @@ impl NoSpawnConnectionBuilder {
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
         let (connection, watch, actions, events) = Connection::new(
-            stream,
             self.builder.max_command_length,
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
@@ -204,7 +308,19 @@ impl NoSpawnConnectionBuilder {
             watch,
         );
 
-        // See comments on Connection struct to understand why we fuse the connection future.
-        (client, events, connection.fuse())
+        (client, events, async move {
+            let mut stream = std::pin::pin!(stream);
+
+            let connection = connection.with_stream(&mut stream);
+
+            // See comments on Connection struct to understand why we fuse the connection future.
+            connection.fuse().await;
+
+            tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
+
+            if let Err(err) = stream.shutdown().await {
+                tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
+            }
+        })
     }
 }

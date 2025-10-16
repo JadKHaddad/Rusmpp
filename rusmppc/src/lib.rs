@@ -2,6 +2,14 @@
 //!
 //! A [`tokio`](https://docs.rs/tokio/latest/tokio/) based [SMPP v5](https://smpp.org/SMPP_v5.pdf) client.
 //!
+//! ## Features
+//!
+//! - `rustls`:  Enables TLS support via [`rustls`](https://docs.rs/rustls/latest/rustls/). Enabled by default.
+//! - `rustls-tls-native-roots`: Enables [`rustls`](https://docs.rs/rustls/latest/rustls/) to use the platform's native root certificates through [`rustls-native-certs`](https://docs.rs/rustls-native-certs/latest/rustls_native_certs/) while using default configuration. Enables the `rustls` feature and is enabled by default.
+//! - `rustls-tls-webpki-roots`: Enables [`rustls`](https://docs.rs/rustls/latest/rustls/) to use the [`webpki-roots`](https://docs.rs/webpki-roots/latest/webpki_roots/) crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
+//!
+//! # Example
+//!
 //!```rust, no_run
 //! use std::{str::FromStr, time::Duration};
 //!
@@ -26,7 +34,7 @@
 //!         // If the server does not respond within 2 seconds, consider it a timeout.
 //!         // The operation is assumed to have failed.
 //!         .response_timeout(Duration::from_secs(2))
-//!         .connect("127.0.0.1:2775")
+//!         .connect("smpp://127.0.0.1:2775")
 //!         .await?;
 //!     
 //!     // Bind the client as a transceiver.
@@ -120,6 +128,9 @@ pub(crate) use futures::RequestFutureGuard;
 
 mod response;
 pub(crate) use response::PendingResponses;
+
+mod tcp_stream;
+pub(crate) use tcp_stream::MaybeTlsStream;
 
 #[cfg(test)]
 mod tests;

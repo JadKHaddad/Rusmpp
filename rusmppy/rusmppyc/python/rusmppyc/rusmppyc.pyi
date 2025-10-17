@@ -2013,6 +2013,28 @@ class Error:
     This error is sent through the event stream.
     """
     def __repr__(self) -> builtins.str: ...
+    class Io(Error):
+        r"""
+        IO error occurred.
+        """
+
+        __match_args__ = ("_0",)
+        @property
+        def _0(self) -> builtins.str: ...
+        def __new__(cls, _0: builtins.str) -> Error.Io: ...
+        def __len__(self) -> builtins.int: ...
+        def __getitem__(self, key: builtins.int) -> typing.Any: ...
+
+    class ConnectionClosedByPeer(Error):
+        r"""
+        The connection to the `SMPP` server was closed by the peer.
+        """
+
+        __match_args__ = ((),)
+        def __new__(cls) -> Error.ConnectionClosedByPeer: ...
+        def __len__(self) -> builtins.int: ...
+        def __getitem__(self, key: builtins.int) -> typing.Any: ...
+
     class Encode(Error):
         r"""
         Protocol encode error.

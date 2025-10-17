@@ -1,7 +1,7 @@
-//! Run with
+//! Run in the crate's dir with
 //!
 //! ```bash
-//! cargo run -p rusmppyc --bin stub-gen
+//! cargo run --bin stub-gen
 //! ```
 
 use std::{env::current_dir, error::Error};

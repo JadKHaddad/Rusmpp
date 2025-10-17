@@ -13,6 +13,7 @@
         "asref",
         "asyncio",
         "Atag",
+        "bindgen",
         "CDMA",
         "Cdpd",
         "cdylib",
@@ -175,7 +176,8 @@
         "Wcmp",
         "webpki",
         "wireshark",
-        "zerocopy"
+        "zerocopy",
+        "bindgen"
     ],
     "ignorePaths": [
         "target",

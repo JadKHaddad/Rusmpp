@@ -9,12 +9,16 @@ use pyo3_stub_gen_derive::{gen_stub_pyclass_complex_enum, gen_stub_pymethods};
 #[gen_stub_pyclass_complex_enum]
 #[derive(Debug, Clone)]
 pub enum Error {
+    Io(String),
+    ConnectionClosedByPeer(),
     /// Protocol encode error.
     Encode(String),
     /// Protocol decode error.
     Decode(String),
     /// The `SMPP` server did not respond to the EnquireLink request within the specified timeout.
-    EnquireLinkTimeout { timeout: String },
+    EnquireLinkTimeout {
+        timeout: String,
+    },
     /// Other error type.
     ///
     /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the events stream.
@@ -25,6 +29,8 @@ pub enum Error {
 impl From<rusmppc::error::Error> for Error {
     fn from(error: rusmppc::error::Error) -> Self {
         match error {
+            rusmppc::error::Error::Io(error) => Error::Io(error.to_string()),
+            rusmppc::error::Error::ConnectionClosedByPeer => Error::ConnectionClosedByPeer(),
             rusmppc::error::Error::Encode(error) => Error::Encode(error.to_string()),
             rusmppc::error::Error::Decode(error) => Error::Decode(error.to_string()),
             rusmppc::error::Error::EnquireLinkTimeout { timeout } => Error::EnquireLinkTimeout {

@@ -26,8 +26,8 @@ class Client:
     @classmethod
     async def connect(
         cls,
-        host: builtins.str,
-        enquire_link_interval: builtins.int = 5000,
+        url: builtins.str,
+        enquire_link_interval: Optional[builtins.int] = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
@@ -47,7 +47,7 @@ class Client:
         cls,
         read: asyncio.StreamReader,
         write: asyncio.StreamWriter,
-        enquire_link_interval: builtins.int = 5000,
+        enquire_link_interval: Optional[builtins.int] = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,

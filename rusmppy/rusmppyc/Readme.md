@@ -122,6 +122,11 @@ if __name__ == "__main__":
 
 - Install [`maturin`](https://www.maturin.rs/installation.html)
 
+    ```bash
+    pip install maturin
+    pip install maturin[patchelf]
+    ```
+
 - Create a virtual environment:
 
   ```bash

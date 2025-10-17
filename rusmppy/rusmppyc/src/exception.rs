@@ -10,13 +10,6 @@ create_exception!(
 
 create_exception!(
     exceptions,
-    DnsException,
-    RusmppycException,
-    "DNS resolution failed"
-);
-
-create_exception!(
-    exceptions,
     ConnectException,
     RusmppycException,
     "Connection to `SMPP` server failed"
@@ -34,6 +27,20 @@ create_exception!(
     IoException,
     RusmppycException,
     "IO error occurred"
+);
+
+create_exception!(
+    exceptions,
+    EncodeException,
+    RusmppycException,
+    "Encoding error occurred"
+);
+
+create_exception!(
+    exceptions,
+    DecodeException,
+    RusmppycException,
+    "Decoding error occurred"
 );
 
 create_exception!(
@@ -69,14 +76,14 @@ create_exception!(
 /// These errors are not send through the events stream, but are raised directly when calling the functions.
 #[derive(Debug, Clone)]
 pub enum Exception {
-    /// DNS resolution failed.
-    Dns(String),
     /// Connection to `SMPP` server failed.
     Connect(String),
     /// IO error occurred.
     Io(String),
     /// The connection to the `SMPP` server is closed.
     ConnectionClosed(),
+    Encode(String),
+    Decode(String),
     /// The `SMPP` operation timed out.
     ///
     /// The server did not respond to the request within the specified timeout.
@@ -89,14 +96,19 @@ pub enum Exception {
     /// The `SMPP` operation failed with an error response from the server.
     ///
     /// Error responses are responses with the status code other than EsmeRok.
-    UnexpectedResponse { response: String },
+    UnexpectedResponse {
+        response: String,
+    },
     /// The client used an interface version that is not supported by the library.
     UnsupportedInterfaceVersion {
         version: crate::generated::InterfaceVersion,
         supported_version: crate::generated::InterfaceVersion,
     },
     /// The user created a invalid `SMPP` PDU.
-    Pdu { field: String, error: String },
+    Pdu {
+        field: String,
+        error: String,
+    },
     /// Other error type.
     ///
     /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones returned by the events stream.
@@ -107,10 +119,11 @@ pub enum Exception {
 impl From<rusmppc::error::Error> for Exception {
     fn from(error: rusmppc::error::Error) -> Self {
         match error {
-            rusmppc::error::Error::Dns(error) => Exception::Dns(error.to_string()),
             rusmppc::error::Error::Connect(error) => Exception::Connect(error.to_string()),
             rusmppc::error::Error::Io(error) => Exception::Io(error.to_string()),
             rusmppc::error::Error::ConnectionClosed => Exception::ConnectionClosed(),
+            rusmppc::error::Error::Encode(error) => Exception::Encode(error.to_string()),
+            rusmppc::error::Error::Decode(error) => Exception::Decode(error.to_string()),
             rusmppc::error::Error::ResponseTimeout {
                 sequence_number,
                 timeout,
@@ -138,12 +151,13 @@ impl From<rusmppc::error::Error> for Exception {
 impl From<Exception> for PyErr {
     fn from(error: Exception) -> Self {
         match error {
-            Exception::Dns(error) => DnsException::new_err(error),
             Exception::Connect(error) => ConnectException::new_err(error),
             Exception::Io(error) => IoException::new_err(error),
             Exception::ConnectionClosed() => {
                 ConnectionClosedException::new_err("Connection closed")
             }
+            Exception::Encode(error) => EncodeException::new_err(error),
+            Exception::Decode(error) => DecodeException::new_err(error),
             Exception::ResponseTimeout {
                 sequence_number,
                 timeout,

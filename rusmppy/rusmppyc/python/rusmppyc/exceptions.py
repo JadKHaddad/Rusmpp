@@ -3,10 +3,11 @@
 
 from .rusmppyc import (
     RusmppycException,
-    DnsException,
     ConnectException,
     ConnectionClosedException,
     IoException,
+    EncodeException,
+    DecodeException,
     ResponseTimeoutException,
     UnexpectedResponseException,
     UnsupportedInterfaceVersionException,
@@ -15,10 +16,11 @@ from .rusmppyc import (
 
 __all__ = [
     "RusmppycException",
-    "DnsException",
     "ConnectException",
     "ConnectionClosedException",
     "IoException",
+    "EncodeException",
+    "DecodeException",
     "ResponseTimeoutException",
     "UnexpectedResponseException",
     "UnsupportedInterfaceVersionException",

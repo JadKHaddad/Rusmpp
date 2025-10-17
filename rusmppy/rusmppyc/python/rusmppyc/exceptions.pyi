@@ -57,6 +57,6 @@ class UnsupportedInterfaceVersionException(RusmppycException):
     ...
 
 class PduException(RusmppycException):
-    "The user created an invalid `SMPP` PDU."
+    "The client created an invalid `SMPP` PDU."
 
     ...

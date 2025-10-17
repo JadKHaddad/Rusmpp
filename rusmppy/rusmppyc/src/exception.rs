@@ -5,101 +5,91 @@ create_exception!(
     exceptions,
     RusmppycException,
     PyException,
-    "Base exception for Rusmppyc errors"
+    "Base class for all exceptions in the Rusmppyc library."
 );
 
 create_exception!(
     exceptions,
     ConnectException,
     RusmppycException,
-    "Connection to `SMPP` server failed"
+    "Connection to `SMPP` server failed."
 );
 
 create_exception!(
     exceptions,
     ConnectionClosedException,
     RusmppycException,
-    "The connection to the `SMPP` server is closed"
+    "Connection to the `SMPP` server is closed."
 );
 
 create_exception!(
     exceptions,
     IoException,
     RusmppycException,
-    "IO error occurred"
+    "IO error occurred."
 );
 
 create_exception!(
     exceptions,
     EncodeException,
     RusmppycException,
-    "Encoding error occurred"
+    "Failed to encode `SMPP` PDU."
 );
 
 create_exception!(
     exceptions,
     DecodeException,
     RusmppycException,
-    "Decoding error occurred"
+    "Failed to decode `SMPP` PDU."
 );
 
 create_exception!(
     exceptions,
     ResponseTimeoutException,
     RusmppycException,
-    "The `SMPP` operation timed out"
+    "The `SMPP` operation timed out."
 );
 
 create_exception!(
     exceptions,
     UnexpectedResponseException,
     RusmppycException,
-    "The `SMPP` operation failed with an error response from the server"
+    "The `SMPP` operation failed with an error response from the server."
 );
 
 create_exception!(
     exceptions,
     UnsupportedInterfaceVersionException,
     RusmppycException,
-    "The client used an interface version that is not supported by the library"
+    "The client used an interface version that is not supported by the library."
 );
 
 create_exception!(
     exceptions,
     PduException,
     RusmppycException,
-    "The user created a invalid `SMPP` PDU."
+    "The client created an invalid `SMPP` PDU."
 );
 
 /// Errors that can occur while calling Rusmppyc functions.
 ///
 /// These errors are not send through the events stream, but are raised directly when calling the functions.
+///
+/// See [`Error`](rusmppc::error::Error).
 #[derive(Debug, Clone)]
 pub enum Exception {
-    /// Connection to `SMPP` server failed.
     Connect(String),
-    /// IO error occurred.
     Io(String),
-    /// The connection to the `SMPP` server is closed.
     ConnectionClosed(),
     Encode(String),
     Decode(String),
-    /// The `SMPP` operation timed out.
-    ///
-    /// The server did not respond to the request within the specified timeout.
-    // This happen when the response timer expires.
-    // e.g. We send a bind request and the server doesn't respond.
     ResponseTimeout {
         sequence_number: u32,
         timeout: String,
     },
-    /// The `SMPP` operation failed with an error response from the server.
-    ///
-    /// Error responses are responses with the status code other than EsmeRok.
     UnexpectedResponse {
         response: String,
     },
-    /// The client used an interface version that is not supported by the library.
     UnsupportedInterfaceVersion {
         version: crate::generated::InterfaceVersion,
         supported_version: crate::generated::InterfaceVersion,
@@ -162,7 +152,7 @@ impl From<Exception> for PyErr {
                 sequence_number,
                 timeout,
             } => ResponseTimeoutException::new_err(format!(
-                "Response timeout. Sequence number: {sequence_number}, Timeout: {timeout}",
+                "Response timeout: sequence number: {sequence_number}, timeout: {timeout}",
             )),
             Exception::UnexpectedResponse { response } => {
                 UnexpectedResponseException::new_err(response)
@@ -171,10 +161,10 @@ impl From<Exception> for PyErr {
                 version,
                 supported_version,
             } => UnsupportedInterfaceVersionException::new_err(format!(
-                "Unsupported interface version. Version: {version:?}, Supported version: {supported_version:?}",
+                "Unsupported interface version: {version:?}, supported version: {supported_version:?}",
             )),
             Exception::Pdu { field, error } => {
-                PduException::new_err(format!("Invalid PDU. Field: {field}, Error: {error}"))
+                PduException::new_err(format!("Invalid PDU: field: {field}, error: {error}"))
             }
             Exception::Other(error) => RusmppycException::new_err(error),
         }

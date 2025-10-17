@@ -55,7 +55,7 @@ async def handle_events(events: Events, client: Client):
 async def main():
     try:
         client, events = await Client.connect(
-            host="127.0.0.1:2775",
+            url="smpp://127.0.0.1:2775",
             enquire_link_interval=5000,
             enquire_link_response_timeout=2000,
             response_timeout=2000,

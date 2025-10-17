@@ -35,61 +35,66 @@ class Client:
         disable_interface_version_check: bool = False,
     ) -> tuple["Client", Events]:
         """
-        Connects to an SMPP server and manages the connection in the background.
+        Connect to an SMPP server.
 
-        This method opens a connection to the server, returning a client to send
-        commands and an event stream to receive messages or errors. The connection
-        will manage timeouts, enquire links, and other protocol details automatically.
+        This method establishes a connection to the given SMPP server and returns
+        a client for sending SMPP commands and an event stream for receiving messages or errors.
+        The connection automatically manages timeouts, enquire links, and other protocol details.
 
-        Parameters:
-            url (str): The URL of the SMPP server to connect to. Supports schemes:
-                - `smpp` for plain TCP
-                - `ssmpp` or `smpps` for TLS connections
-                If no port is specified, the default port 2775 is used.
-            enquire_link_interval (Optional[int], default=5000): Interval in milliseconds at which
-                EnquireLink commands are sent to the server. Set to `None` to disable EnquireLink.
-            enquire_link_response_timeout (int, default=2000): Time in milliseconds to wait
-                for a response to an EnquireLink command before considering it failed.
-            response_timeout (Optional[int], default=2000): Time in milliseconds to wait
-                for a response to any command sent to the server. Set to `None` to wait indefinitely.
-            max_command_length (int, default=4096): Maximum length in bytes of incoming SMPP commands.
-            disable_interface_version_check (bool, default=False): If `True`, disables
-                checking the SMPP interface version. Useful when connecting to servers
-                with a different SMPP version than v5.
+        Parameters
+        ----------
+        url : str
+            The URL of the SMPP server to connect to. Supported schemes:
+            - ``smpp`` for plain TCP
+            - ``ssmpp`` or ``smpps`` for TLS connections
+            If no port is specified, the default port 2775 is used.
+        enquire_link_interval : Optional[int], default=5000
+            Interval in milliseconds between automatic EnquireLink commands.
+            Set to ``None`` to disable EnquireLink.
+        enquire_link_response_timeout : int, default=2000
+            Time in milliseconds to wait for an EnquireLink response before
+            considering it failed.
+        response_timeout : Optional[int], default=2000
+            Time in milliseconds to wait for any command response. Set to
+            ``None`` to wait indefinitely.
+        max_command_length : int, default=4096
+            Maximum length in bytes of incoming SMPP commands.
+        disable_interface_version_check : bool, default=False
+            If ``True``, disables interface version validation, which can be
+            useful when connecting to servers running a non-standard SMPP version.
 
-        Examples:
-            Connect to an SMPP server running on localhost at port 2775:
+        Returns
+        -------
+        tuple[Client, Events]
+            A tuple containing the connected client object and the event stream.
 
-            ```python
-            from rusmppyc import Client
+        Raises
+        ------
+        ConnectException
+            If any of the following occur:
+            - The URL is invalid.
+            - The URL scheme is unsupported.
+            - The host is missing or cannot be resolved.
+            - The connection fails.
+            - The TLS handshake fails.
 
-            async def example():
-                client, events = await Client.connect("smpp://localhost:2775")
-            ```
+        Notes
+        -----
+        Path and query parameters in the URL are ignored silently.
 
-            Connect to an SMPP server running on localhost at port 2775 using TLS:
+        Examples
+        --------
+        Connect to a local SMPP server:
 
-            ```python
-            from rusmppyc import Client
+        >>> from rusmppyc import Client
+        >>> async def example():
+        ...     client, events = await Client.connect("smpp://localhost:2775")
 
-            async def example():
-                client, events = await Client.connect("smpps://localhost:2775")
-            ```
+        Connect using TLS:
 
-        Returns:
-            tuple[Client, Events]: A tuple containing the client object and an event stream.
-
-        Notes:
-            - Path and query parameters in the URL are ignored silently.
-
-        Raises:
-            ConnectException: If any of the following occur:
-                - The URL is invalid.
-                - The URL scheme is not supported.
-                - The URL does not contain a host.
-                - DNS resolution fails.
-                - The connection to the server fails.
-                - TLS handshake fails.
+        >>> from rusmppyc import Client
+        >>> async def example():
+        ...     client, events = await Client.connect("smpps://localhost:2775")
         """
         ...
     @classmethod
@@ -104,29 +109,39 @@ class Client:
         disable_interface_version_check: bool = False,
     ) -> tuple["Client", Events]:
         """
-        Creates a client from an existing asyncio connection.
+        Create a client from an existing asyncio connection.
 
-        This method manages an already established connection (`read` and `write` streams), returning a client to send
-        commands and an event stream to receive messages or errors. The connection
-        will manage timeouts, enquire links, and other protocol details automatically.
+        This method wraps an already established connection using the provided
+        ``StreamReader`` and ``StreamWriter`` objects. It returns a client for sending
+        SMPP commands and an event stream for receiving messages or errors. The
+        connection automatically manages timeouts, enquire links, and other protocol
+        details.
 
-        Parameters:
-            enquire_link_interval (Optional[int], default=5000): Interval in milliseconds at which
-                EnquireLink commands are sent to the server. Set to `None` to disable EnquireLink.
-            enquire_link_response_timeout (int, default=2000): Time in milliseconds to wait
-                for a response to an EnquireLink command before considering it failed.
-            response_timeout (Optional[int], default=2000): Time in milliseconds to wait
-                for a response to any command sent to the server. Set to `None` to wait indefinitely.
-            max_command_length (int, default=4096): Maximum length in bytes of incoming SMPP commands.
-            disable_interface_version_check (bool, default=False): If `True`, disables
-                checking the SMPP interface version. Useful when connecting to servers
-                with a different SMPP version than v5.
+        Parameters
+        ----------
+        read : asyncio.StreamReader
+            The asyncio stream reader associated with the existing connection.
+        write : asyncio.StreamWriter
+            The asyncio stream writer associated with the existing connection.
+        enquire_link_interval : Optional[int], default=5000
+            Interval in milliseconds between automatic EnquireLink commands.
+            Set to ``None`` to disable EnquireLink.
+        enquire_link_response_timeout : int, default=2000
+            Time in milliseconds to wait for an EnquireLink response before
+            considering it failed.
+        response_timeout : Optional[int], default=2000
+            Time in milliseconds to wait for any command response. Set to
+            ``None`` to wait indefinitely.
+        max_command_length : int, default=4096
+            Maximum length in bytes of incoming SMPP commands.
+        disable_interface_version_check : bool, default=False
+            If ``True``, disables interface version validation, which can be
+            useful when connecting to servers running a non-standard SMPP version.
 
-        Returns:
-            tuple[Client, Events]: A tuple containing the client object and an event stream.
-
-        Notes:
-            - This method does not establish a new TCP/TLS connection; it wraps an existing one.
+        Returns
+        -------
+        tuple[Client, Events]
+            A tuple containing the connected client object and the event stream.
         """
         ...
     async def bind_transmitter(
@@ -141,30 +156,38 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> BindTransmitterResp:
         """
-        Sends a BindTransmitter command to the server and waits for a successful BindTransmitterResp.
+        Sends a ``BindTransmitter`` command to the server and waits for a successful ``BindTransmitterResp``.
 
-        This operation binds the client as a transmitter (ESME) to the SMSC, enabling the client
-        to submit short messages but not receive them.
 
-        Parameters:
-            system_id (str, optional): The system ID used to identify the ESME to the SMSC.
-            password (str, optional): The password used to authenticate the bind request.
-            system_type (str, optional): The system type to identify the kind of ESME system.
-            interface_version (InterfaceVersion, optional): The SMPP protocol version to use. Defaults to Smpp5_0.
-            addr_ton (Ton, optional): The Type of Number for the address range. Defaults to Ton.Unknown().
-            addr_npi (Npi, optional): The Numbering Plan Indicator for the address range. Defaults to Npi.Unknown().
-            address_range (str, optional): The address range associated with the bind. Defaults to an empty string.
-            status (CommandStatus, optional): The command status value to include in the BindTransmitter
-                request. Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        system_id : str, default=""
+            The system ID used to identify the ESME to the SMSC.
+        password : str, default=""
+            The password used to authenticate the bind request.
+        system_type : str, default=""
+            The system type identifying the nature of the ESME system.
+        interface_version : InterfaceVersion, default=InterfaceVersion.Smpp5_0()
+            The SMPP protocol version to use for the bind request.
+        addr_ton : Ton, default=Ton.Unknown()
+            The Type of Number (TON) for the address range.
+        addr_npi : Npi, default=Npi.Unknown()
+            The Numbering Plan Indicator (NPI) for the address range.
+        address_range : str, default=""
+            The address range associated with the bind request.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the bind request.
 
-        Returns:
-            BindTransmitterResp: The response returned by the server upon a successful bind.
+        Returns
+        -------
+        BindTransmitterResp
+            The response returned by the server upon a successful bind.
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
-
     async def bind_receiver(
         self,
         system_id: builtins.str = "",
@@ -177,27 +200,36 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> BindReceiverResp:
         """
-        Sends a BindReceiver command to the server and waits for a successful BindReceiverResp.
+        Sends a ``BindReceiver`` command to the server and waits for a successful ``BindReceiverResp``.
 
-        This operation binds the client as a receiver (ESME) to the SMSC, enabling the client
-        to receive short messages but not submit them.
 
-        Parameters:
-            system_id (str, optional): The system ID used to identify the ESME to the SMSC.
-            password (str, optional): The password used to authenticate the bind request.
-            system_type (str, optional): The system type to identify the kind of ESME system.
-            interface_version (InterfaceVersion, optional): The SMPP protocol version to use. Defaults to Smpp5_0.
-            addr_ton (Ton, optional): The Type of Number for the address range. Defaults to Ton.Unknown().
-            addr_npi (Npi, optional): The Numbering Plan Indicator for the address range. Defaults to Npi.Unknown().
-            address_range (str, optional): The address range associated with the bind. Defaults to an empty string.
-            status (CommandStatus, optional): The command status value to include in the BindReceiver
-                request. Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        system_id : str, default=""
+            The system ID used to identify the ESME to the SMSC.
+        password : str, default=""
+            The password used to authenticate the bind request.
+        system_type : str, default=""
+            The system type identifying the nature of the ESME system.
+        interface_version : InterfaceVersion, default=InterfaceVersion.Smpp5_0()
+            The SMPP protocol version to use for the bind request.
+        addr_ton : Ton, default=Ton.Unknown()
+            The Type of Number (TON) for the address range.
+        addr_npi : Npi, default=Npi.Unknown()
+            The Numbering Plan Indicator (NPI) for the address range.
+        address_range : str, default=""
+            The address range associated with the bind request.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the bind request.
 
-        Returns:
-            BindReceiverResp: The response returned by the server upon a successful bind.
+        Returns
+        -------
+        BindReceiverResp
+            The response returned by the server upon a successful bind.
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def bind_transceiver(
@@ -212,27 +244,36 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> BindTransceiverResp:
         """
-        Sends a BindTransceiver command to the server and waits for a successful BindTransceiverResp.
+        Sends a ``BindTransceiver`` command to the server and waits for a successful ``BindTransceiverResp``.
 
-        This operation binds the client as a transceiver (ESME) to the SMSC, enabling the client
-        to submit and receive short messages.
 
-        Parameters:
-            system_id (str, optional): The system ID used to identify the ESME to the SMSC.
-            password (str, optional): The password used to authenticate the bind request.
-            system_type (str, optional): The system type to identify the kind of ESME system.
-            interface_version (InterfaceVersion, optional): The SMPP protocol version to use. Defaults to Smpp5_0.
-            addr_ton (Ton, optional): The Type of Number for the address range. Defaults to Ton.Unknown().
-            addr_npi (Npi, optional): The Numbering Plan Indicator for the address range. Defaults to Npi.Unknown().
-            address_range (str, optional): The address range associated with the bind. Defaults to an empty string.
-            status (CommandStatus, optional): The command status value to include in the BindTransceiver
-                request. Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        system_id : str, default=""
+            The system ID used to identify the ESME to the SMSC.
+        password : str, default=""
+            The password used to authenticate the bind request.
+        system_type : str, default=""
+            The system type identifying the nature of the ESME system.
+        interface_version : InterfaceVersion, default=InterfaceVersion.Smpp5_0()
+            The SMPP protocol version to use for the bind request.
+        addr_ton : Ton, default=Ton.Unknown()
+            The Type of Number (TON) for the address range.
+        addr_npi : Npi, default=Npi.Unknown()
+            The Numbering Plan Indicator (NPI) for the address range.
+        address_range : str, default=""
+            The address range associated with the bind request.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the bind request.
 
-        Returns:
-            BindTransceiverResp: The response returned by the server upon a successful bind.
+        Returns
+        -------
+        BindTransceiverResp
+            The response returned by the server upon a successful bind.
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def submit_sm(
@@ -258,35 +299,57 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> SubmitSmResp:
         """
-        Sends a SubmitSm command to the server and waits for a successful SubmitSmResp.
+        Sends a ``SubmitSm`` command to the server and waits for a successful ``SubmitSmResp``.
 
-        Parameters:
-            service_type (str, optional): The service type (e.g., "CMT", "WAP", or vendor-defined).
-            source_addr_ton (Ton, optional): The Type of Number for the source address. Defaults to Ton.Unknown().
-            source_addr_npi (Npi, optional): The Numbering Plan Indicator for the source address. Defaults to Npi.Unknown().
-            source_addr (str, optional): The source address (e.g., sender ID). Defaults to an empty string.
-            dest_addr_ton (Ton, optional): The Type of Number for the destination address. Defaults to Ton.Unknown().
-            dest_addr_npi (Npi, optional): The Numbering Plan Indicator for the destination address. Defaults to Npi.Unknown().
-            destination_addr (str, optional): The destination address (recipient phone number).
-            esm_class (int, optional): The message mode and type (e.g., delivery receipt requests, datagram mode). Defaults to 0.
-            protocol_id (int, optional): The protocol identifier. Defaults to 0.
-            priority_flag (int, optional): The message priority level. Defaults to 0.
-            schedule_delivery_time (str, optional): The scheduled delivery time in SMPP absolute or relative format. Defaults to empty.
-            validity_period (str, optional): The validity period for the message in SMPP absolute or relative format. Defaults to empty.
-            registered_delivery (int, optional): Controls delivery receipt and intermediate notifications. Defaults to 0.
-            replace_if_present_flag (int, optional): Indicates whether to replace an existing message with the same ID. Defaults to 0.
-            data_coding (DataCoding, optional): The data coding scheme to use for the message. Defaults to DataCoding.McSpecific().
-            sm_default_msg_id (int, optional): The default short message ID. Defaults to 0.
-            short_message (bytes, optional): The message payload (up to 254 bytes). Ignored if `message_payload` is set.
-            message_payload (bytes, optional): An optional TLV parameter carrying the full message body if longer than 254 bytes.
-            status (CommandStatus, optional): The command status value to include in the SubmitSm
-                request. Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        service_type : str, default=""
+            The service type (e.g., ``"CMT"``, ``"WAP"``, or vendor-defined).
+        source_addr_ton : Ton, default=Ton.Unknown()
+            The Type of Number (TON) for the source address.
+        source_addr_npi : Npi, default=Npi.Unknown()
+            The Numbering Plan Indicator (NPI) for the source address.
+        source_addr : str, default=""
+            The source address (e.g., sender ID).
+        dest_addr_ton : Ton, default=Ton.Unknown()
+            The Type of Number (TON) for the destination address.
+        dest_addr_npi : Npi, default=Npi.Unknown()
+            The Numbering Plan Indicator (NPI) for the destination address.
+        destination_addr : str
+            The destination address (recipient phone number).
+        esm_class : int, default=0
+            The message mode and type (e.g., delivery receipt request, datagram mode).
+        protocol_id : int, default=0
+            The protocol identifier.
+        priority_flag : int, default=0
+            The priority level of the message.
+        schedule_delivery_time : str, default=""
+            The scheduled delivery time in SMPP absolute or relative format.
+        validity_period : str, default=""
+            The validity period for the message in SMPP absolute or relative format.
+        registered_delivery : int, default=0
+            Controls whether delivery receipts or intermediate notifications are requested.
+        replace_if_present_flag : int, default=0
+            Indicates whether to replace an existing message with the same ID.
+        data_coding : DataCoding, default=DataCoding.McSpecific()
+            The data coding scheme to use for the message.
+        sm_default_msg_id : int, default=0
+            The default short message ID.
+        short_message : bytes, optional
+            The message payload (up to 254 bytes). Ignored if ``message_payload`` is provided.
+        message_payload : bytes, optional
+            An optional TLV parameter carrying the message body if longer than 254 bytes.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the ``SubmitSm`` request.
 
-        Returns:
-            SubmitSmResp: The response returned by the server upon a successful SubmitSm request.
+        Returns
+        -------
+        SubmitSmResp
+            The response returned by the server upon a successful ``SubmitSm`` request.
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def deliver_sm_resp(
@@ -296,32 +359,39 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> None:
         """
-        Sends a DeliverSmResp command to the server.
+        Sends a ``DeliverSmResp`` command to the server.
 
-        Parameters:
-            sequence_number (int): The sequence number of the corresponding DeliverSm request.
-                This value must match the sequence number of the original deliver_sm PDU.
-            message_id (str, optional): The message ID associated with the received message.
-                Typically used when responding to delivery receipts. Defaults to an empty string.
-            status (CommandStatus, optional): The command status value to include in the DeliverSmResp.
-                Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        sequence_number : int
+            The sequence number of the corresponding ``DeliverSm`` request.
+            This value must match the sequence number of the original ``deliver_sm`` PDU.
+        message_id : str, default=""
+            The message ID associated with the received message. Typically used when
+            responding to delivery receipts.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the ``DeliverSmResp`` response.
 
-        Returns:
-            None
+        Returns
+        -------
+        None
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def unbind(self) -> None:
         """
-        Sends an Unbind command to the server and waits for a successful UnbindResp.
+        Sends an ``Unbind`` command to the server and wait for a successful ``UnbindResp``.
 
-        Returns:
-            None
+        Returns
+        -------
+        None
 
-        Raises:
-            RusmppycException
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def unbind_resp(
@@ -330,19 +400,23 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> None:
         """
-        Sends an UnbindResp command to the server.
+        Sends an ``UnbindResp`` command to the server.
 
-        Parameters:
-            sequence_number (int): The sequence number of the corresponding Unbind request.
-                This value must match the sequence number of the original Unbind PDU.
-            status (CommandStatus, optional): The command status value to include in the UnbindResp.
-                Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        sequence_number : int
+            The sequence number of the corresponding ``Unbind`` request.
+            This value must match the sequence number of the original ``Unbind`` PDU.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the ``UnbindResp`` response.
 
-        Returns:
-            None
+        Returns
+        -------
+        None
 
-        Raises:
-            RusmppycException.
+        Raises
+        ------
+        RusmppycException
         """
         ...
     async def generic_nack(
@@ -351,75 +425,91 @@ class Client:
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> None:
         """
-        Sends a GenericNack command to the server.
+        Sends a ``GenericNack`` command to the server.
 
-        Parameters:
-            sequence_number (int): The sequence number of the PDU being negatively acknowledged.
-            status (CommandStatus, optional): The command status value to include in the GenericNack.
-                Defaults to CommandStatus.EsmeRok().
+        Parameters
+        ----------
+        sequence_number : int
+            The sequence number of the PDU being negatively acknowledged.
+        status : CommandStatus, default=CommandStatus.EsmeRok()
+            The command status to include in the ``GenericNack`` response.
 
-        Returns:
-            None
+        Returns
+        -------
+        None
 
-        Raises:
-            RusmppycException.
+        Raises
+        ------
+        RusmppycException
         """
         ...
+
     async def close(self) -> None:
         """
         Closes the connection to the SMPP server.
 
-        This method completes when the connection has registered the close request.
-        It stops reading from the server, halts internal timers, closes the requests channel,
-        flushes any pending requests, and terminates the connection.
+        This coroutine initiates a graceful shutdown of the connection. It stops reading
+        from the server, halts internal timers, closes the requests channel, flushes any
+        pending requests, and terminates the underlying connection.
 
-        After calling this method, clients can no longer send requests to the server.
+        After calling this method, the client can no longer send requests to the server.
 
-        Raises:
-            RusmppycException.
+        Raises
+        ------
+        RusmppycException
+            If an error occurs while closing the connection.
         """
         ...
     async def closed(self) -> None:
         """
         Waits until the connection to the SMPP server is fully closed.
 
-        This coroutine completes when the connection has been fully terminated,
-        including stopping all reads, flushing pending requests, and releasing resources.
+        This coroutine completes once the connection has been completely terminated,
+        including stopping all reads, flushing pending requests, and releasing all
+        associated resources.
         """
         ...
     def is_closed(self) -> bool:
         """
         Checks whether the connection to the SMPP server is closed.
 
-        Note:
-            If this returns `False`, the connection is not necessarily active.
-            The connection may be in the process of closing.
+        Returns
+        -------
+        bool
+            ``True`` if the connection is fully closed, ``False`` otherwise.
 
-        Returns:
-            bool: `True` if the connection is fully closed, `False` otherwise.
+        Notes
+        -----
+        If this method returns ``False``, the connection may still be in the process
+        of closing and is not necessarily active.
 
-        See Also:
-            is_active: Use this to check if the connection is currently active.
+        See Also
+        --------
+        is_active : Check if the connection is currently active.
         """
         ...
-
     def is_active(self) -> bool:
         """
         Checks whether the connection to the SMPP server is active.
 
         The connection is considered active if all of the following are true:
-            - `close` was never called.
-            - The connection did not encounter an error.
-            - The connection can receive requests from the client.
 
-        Note:
-            If this returns `False`, it does not necessarily mean the connection is closed.
-            The connection may be in the process of closing.
+        - ``close()`` has not been called.
+        - The connection has not encountered an error.
+        - The connection can still receive requests from the client.
 
-        Returns:
-            bool: `True` if the connection is active, `False` otherwise.
+        Returns
+        -------
+        bool
+            ``True`` if the connection is active, ``False`` otherwise.
 
-        See Also:
-            is_closed: Use this to check if the connection is fully closed.
+        Notes
+        -----
+        If this method returns ``False``, it does not necessarily mean the connection
+        is closed; it may be in the process of shutting down.
+
+        See Also
+        --------
+        is_closed : Check if the connection is fully closed.
         """
         ...

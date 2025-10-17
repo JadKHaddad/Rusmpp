@@ -37,8 +37,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install bindgen (for ARM builds)
-        if: matrix.platform.target == 'armv7'
+      - name: Install bindgen
         run: cargo install --force --locked bindgen-cli
       - name: Build wheels
         uses: PyO3/maturin-action@v1
@@ -71,8 +70,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install bindgen (for ARM builds)
-        if: matrix.platform.target == 'armv7'
+      - name: Install bindgen
         run: cargo install --force --locked bindgen-cli
       - name: Build wheels
         uses: PyO3/maturin-action@v1

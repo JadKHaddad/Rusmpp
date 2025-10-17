@@ -12,7 +12,7 @@ use crate::error::Error;
 
 /// `SMPP` event.
 ///
-/// Events are sent from the open connection through the events stream.
+/// Events are sent from the open connection through the event stream.
 #[pyclass]
 #[gen_stub_pyclass_complex_enum]
 #[allow(clippy::large_enum_variant)]

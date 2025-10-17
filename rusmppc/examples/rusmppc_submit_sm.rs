@@ -108,7 +108,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing::info!(?response, "Got SubmitSmResp");
 
     // Send a command without waiting for a response.
-    // The response, if any, will be passed to the events stream.
+    // The response, if any, will be passed to the event stream.
 
     tracing::info!("Sending SubmitSm without waiting for a response");
 

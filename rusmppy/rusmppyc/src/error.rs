@@ -4,7 +4,7 @@ use pyo3_stub_gen_derive::{gen_stub_pyclass_complex_enum, gen_stub_pymethods};
 
 /// An error that can occur in the background connection.
 ///
-/// This error is sent through the events stream.
+/// This error is sent through the event stream.
 #[pyclass]
 #[gen_stub_pyclass_complex_enum]
 #[derive(Debug, Clone)]
@@ -21,7 +21,7 @@ pub enum Error {
     EnquireLinkTimeout { timeout: String },
     /// Other error type.
     ///
-    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the events stream.
+    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the event stream.
     /// This error should not be returned by this library and if so it should be considered a bug.
     Other(String),
 }

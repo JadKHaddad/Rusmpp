@@ -73,7 +73,7 @@ create_exception!(
 
 /// Errors that can occur while calling Rusmppyc functions.
 ///
-/// These errors are not send through the events stream, but are raised directly when calling the functions.
+/// These errors are not send through the event stream, but are raised directly when calling the functions.
 ///
 /// See [`Error`](rusmppc::error::Error).
 #[derive(Debug, Clone)]
@@ -101,7 +101,7 @@ pub enum Exception {
     },
     /// Other error type.
     ///
-    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones returned by the events stream.
+    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones returned by the event stream.
     /// This error should not be returned by this library and if so it should be considered a bug.
     Other(String),
 }

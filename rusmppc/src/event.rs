@@ -4,7 +4,7 @@ use crate::error::Error;
 
 /// `SMPP` event.
 ///
-/// Events are sent from the open connection through the events stream.
+/// Events are sent from the open connection through the event stream.
 #[derive(Debug)]
 pub enum Event {
     /// A command was received from the server.

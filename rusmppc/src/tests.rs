@@ -210,7 +210,7 @@ async fn cancel_request_future_should_remove_pending_response() {
         "Pending response was not removed"
     );
 
-    // The submit sm response should be sent to the events stream
+    // The submit sm response should be sent to the event stream
 
     let Some(Event::Incoming(command)) = events.next().await else {
         panic!("Expected command event");
@@ -261,7 +261,7 @@ async fn request_timeout_should_remove_pending_response() {
         "Pending response was not removed"
     );
 
-    // The submit sm response should be sent to the events stream
+    // The submit sm response should be sent to the event stream
 
     let Some(Event::Incoming(command)) = events.next().await else {
         panic!("Expected command event");
@@ -297,7 +297,7 @@ async fn no_wait_request_should_pipe_response_through_events() {
         .await
         .expect("Failed to submit SM");
 
-    // The submit sm response should be sent to the events stream
+    // The submit sm response should be sent to the event stream
 
     let Some(Event::Incoming(command)) = events.next().await else {
         panic!("Expected command event");

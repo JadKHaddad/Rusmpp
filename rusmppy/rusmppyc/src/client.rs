@@ -35,7 +35,7 @@ pub struct Client {
 #[pymethods]
 impl Client {
     #[classmethod]
-    #[pyo3(signature=(host,
+    #[pyo3(signature=(url,
         enquire_link_interval=5000,
         enquire_link_response_timeout=2000,
         response_timeout=2000,
@@ -44,8 +44,8 @@ impl Client {
     fn connect<'p>(
         _cls: &'p Bound<'p, PyType>,
         py: Python<'p>,
-        host: String,
-        enquire_link_interval: u64,
+        url: String,
+        enquire_link_interval: Option<u64>,
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
         max_command_length: usize,
@@ -54,22 +54,16 @@ impl Client {
         future_into_py(py, async move {
             let mut builder = ConnectionBuilder::new()
                 .max_command_length(max_command_length)
-                .enquire_link_interval(Duration::from_millis(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_millis(
-                    enquire_link_response_timeout,
-                ));
-
-            builder = match response_timeout {
-                Some(timeout) => builder.response_timeout(Duration::from_millis(timeout)),
-                None => builder.no_response_timeout(),
-            };
+                .with_enquire_link_interval(enquire_link_interval.map(Duration::from_millis))
+                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
+                .with_response_timeout(response_timeout.map(Duration::from_millis));
 
             builder = match disable_interface_version_check {
                 true => builder.disable_interface_version_check(),
                 false => builder,
             };
 
-            let (client, events) = builder.connect(host).await.map_err(Exception::from)?;
+            let (client, events) = builder.connect(url).await.map_err(Exception::from)?;
 
             let events = Box::pin(events.map(Event::from));
 
@@ -90,7 +84,7 @@ impl Client {
         py: Python<'p>,
         read: PyObject,
         write: PyObject,
-        enquire_link_interval: u64,
+        enquire_link_interval: Option<u64>,
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
         max_command_length: usize,
@@ -101,15 +95,9 @@ impl Client {
 
             let mut builder = ConnectionBuilder::new()
                 .max_command_length(max_command_length)
-                .enquire_link_interval(Duration::from_millis(enquire_link_interval))
-                .enquire_link_response_timeout(Duration::from_millis(
-                    enquire_link_response_timeout,
-                ));
-
-            builder = match response_timeout {
-                Some(timeout) => builder.response_timeout(Duration::from_millis(timeout)),
-                None => builder.no_response_timeout(),
-            };
+                .with_enquire_link_interval(enquire_link_interval.map(Duration::from_millis))
+                .enquire_link_response_timeout(Duration::from_millis(enquire_link_response_timeout))
+                .with_response_timeout(response_timeout.map(Duration::from_millis));
 
             builder = match disable_interface_version_check {
                 true => builder.disable_interface_version_check(),

@@ -12,7 +12,7 @@ use crate::error::Error;
 
 /// `SMPP` event.
 ///
-/// Events are sent from the open connection through the events stream.
+/// Events are sent from the open connection through the event stream.
 #[pyclass]
 #[gen_stub_pyclass_complex_enum]
 #[allow(clippy::large_enum_variant)]
@@ -34,7 +34,7 @@ impl From<rusmppc::Event> for Event {
     }
 }
 
-/// An async stream of [`Event`]s.
+/// An async stream of `Event`s.
 ///
 /// This class represents a stream of events that can be iterated over asynchronously using `async for`.
 #[pyclass]
@@ -43,7 +43,7 @@ pub struct Events {
 }
 
 impl Events {
-    /// Creates a new `Events` instance from a stream of events.
+    /// Creates a new [`Events`] instance from a stream of events.
     pub fn new(stream: Pin<Box<dyn Stream<Item = Event> + Send + Sync + Unpin + 'static>>) -> Self {
         Self {
             inner: Arc::new(RwLock::new(stream)),

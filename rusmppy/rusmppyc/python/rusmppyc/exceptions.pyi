@@ -1,9 +1,10 @@
 __all__ = [
     "RusmppycException",
-    "DnsException",
     "ConnectException",
     "ConnectionClosedException",
     "IoException",
+    "EncodeException",
+    "DecodeException",
     "ResponseTimeoutException",
     "UnexpectedResponseException",
     "UnsupportedInterfaceVersionException",
@@ -12,11 +13,6 @@ __all__ = [
 
 class RusmppycException(Exception):
     "Base class for all exceptions in the Rusmppyc library."
-
-    ...
-
-class DnsException(RusmppycException):
-    "DNS resolution failed."
 
     ...
 
@@ -32,6 +28,16 @@ class ConnectionClosedException(RusmppycException):
 
 class IoException(RusmppycException):
     "IO error occurred."
+
+    ...
+
+class EncodeException(RusmppycException):
+    "Failed to encode `SMPP` PDU."
+
+    ...
+
+class DecodeException(RusmppycException):
+    "Failed to decode `SMPP` PDU."
 
     ...
 
@@ -51,6 +57,6 @@ class UnsupportedInterfaceVersionException(RusmppycException):
     ...
 
 class PduException(RusmppycException):
-    "The user created a invalid `SMPP` PDU."
+    "The client created an invalid `SMPP` PDU."
 
     ...

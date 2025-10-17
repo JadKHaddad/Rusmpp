@@ -5,7 +5,7 @@ use pyo3::{
 };
 use pyo3_stub_gen::define_stub_info_gatherer;
 
-use crate::generated::{add_classes, Command, CommandId, CommandStatus};
+use crate::generated::add_classes;
 
 mod client;
 mod error;
@@ -26,21 +26,19 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<event::Events>()?;
     m.add_class::<error::Error>()?;
 
-    m.add_class::<Command>()?;
-    m.add_class::<CommandId>()?;
-    m.add_class::<CommandStatus>()?;
     // add all auto generated structs and enums
     add_classes(m)?;
 
     use exception::*;
     m.add("RusmppycException", py.get_type::<RusmppycException>())?;
-    m.add("DnsException", py.get_type::<DnsException>())?;
     m.add("ConnectException", py.get_type::<ConnectException>())?;
     m.add(
         "ConnectionClosedException",
         py.get_type::<ConnectionClosedException>(),
     )?;
     m.add("IoException", py.get_type::<IoException>())?;
+    m.add("EncodeException", py.get_type::<EncodeException>())?;
+    m.add("DecodeException", py.get_type::<DecodeException>())?;
     m.add(
         "ResponseTimeoutException",
         py.get_type::<ResponseTimeoutException>(),

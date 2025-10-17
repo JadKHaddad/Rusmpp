@@ -4,11 +4,15 @@ use pyo3_stub_gen_derive::{gen_stub_pyclass_complex_enum, gen_stub_pymethods};
 
 /// An error that can occur in the background connection.
 ///
-/// This error is sent through the events stream.
+/// This error is sent through the event stream.
 #[pyclass]
 #[gen_stub_pyclass_complex_enum]
 #[derive(Debug, Clone)]
 pub enum Error {
+    /// IO error occurred.
+    Io(String),
+    /// The connection to the `SMPP` server was closed by the peer.
+    ConnectionClosedByPeer(),
     /// Protocol encode error.
     Encode(String),
     /// Protocol decode error.
@@ -17,7 +21,7 @@ pub enum Error {
     EnquireLinkTimeout { timeout: String },
     /// Other error type.
     ///
-    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the events stream.
+    /// Rusmppc error type is non-exhaustive and contains all errors returned by the library including the ones not returned by the event stream.
     /// This error should not be returned by this library and if so it should be considered a bug.
     Other(String),
 }
@@ -25,6 +29,8 @@ pub enum Error {
 impl From<rusmppc::error::Error> for Error {
     fn from(error: rusmppc::error::Error) -> Self {
         match error {
+            rusmppc::error::Error::Io(error) => Error::Io(error.to_string()),
+            rusmppc::error::Error::ConnectionClosedByPeer => Error::ConnectionClosedByPeer(),
             rusmppc::error::Error::Encode(error) => Error::Encode(error.to_string()),
             rusmppc::error::Error::Decode(error) => Error::Decode(error.to_string()),
             rusmppc::error::Error::EnquireLinkTimeout { timeout } => Error::EnquireLinkTimeout {

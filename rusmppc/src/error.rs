@@ -21,7 +21,7 @@ pub enum Error {
     ///
     /// This error can occur during reading from or writing to the network stream.
     ///
-    /// This error can be returned by various methods, such as sending commands or during background operations through the events stream as an [`Event::Error`](crate::event::Event::Error).
+    /// This error can be returned by various methods, such as sending commands or during background operations through the event stream as an [`Event::Error`](crate::event::Event::Error).
     #[error("Io error: {0}")]
     Io(#[source] std::io::Error),
     /// The connection to the `SMPP` server is closed.
@@ -42,7 +42,7 @@ pub enum Error {
     ///
     /// This can happen if the server closes the connection unexpectedly.
     ///
-    /// This error goes through the events stream as an [`Event::Error`](crate::event::Event::Error).
+    /// This error goes through the event stream as an [`Event::Error`](crate::event::Event::Error).
     ///
     /// # Note
     ///
@@ -54,17 +54,17 @@ pub enum Error {
     ConnectionClosedByPeer,
     /// Protocol encode error.
     ///
-    /// This error can be returned by various methods, such as sending commands or during background operations through the events stream as an [`Event::Error`](crate::event::Event::Error).
+    /// This error can be returned by various methods, such as sending commands or during background operations through the event stream as an [`Event::Error`](crate::event::Event::Error).
     #[error("Protocol encode error: {0}")]
     Encode(#[source] EncodeError),
     /// Protocol decode error.
     ///
-    /// This error can be returned by various methods, such as sending commands or during background operations through the events stream as an [`Event::Error`](crate::event::Event::Error).
+    /// This error can be returned by various methods, such as sending commands or during background operations through the event stream as an [`Event::Error`](crate::event::Event::Error).
     #[error("Protocol decode error: {0}")]
     Decode(#[source] DecodeError),
     /// The `SMPP` server did not respond to the [`EnquireLink`](rusmpp::Pdu::EnquireLink) request within the specified timeout.
     ///
-    /// This error goes through the events stream as an [`Event::Error`](crate::event::Event::Error).
+    /// This error goes through the event stream as an [`Event::Error`](crate::event::Event::Error).
     #[error("Server did not respond to enquire link: timeout: {timeout:?}")]
     EnquireLinkTimeout {
         /// The timeout duration.

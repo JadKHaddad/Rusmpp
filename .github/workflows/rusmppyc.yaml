@@ -3,7 +3,7 @@
 #
 #    maturin generate-ci -m rusmppy/rusmppyc/Cargo.toml -o .github/workflows/maturin.yaml github
 #
-name: maturin 
+name: rusmppyc-maturin 
 
 on:
   push:

@@ -10,6 +10,9 @@ env:
   CARGO_TERM_COLOR: always
   RUST_LOG: rusmppc=off
 
+permissions:
+  contents: read
+
 jobs:
   tests:
     name: Tests

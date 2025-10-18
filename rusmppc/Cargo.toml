@@ -75,3 +75,19 @@ required-features = []
 name = "tls_self_signed_certificate"
 path = "examples/tls_self_signed_certificate.rs"
 required-features = []
+
+[target.'cfg(any(target_arch = "x86", target_arch = "aarch64", target_arch = "arm", target_arch = "s390x", target_arch = "powerpc64"))'.dependencies]
+aws-lc-rs = { version = "1", features = ["bindgen"] }
+
+# cross build --target x86_64-unknown-linux-gnu
+# cross build --target i686-unknown-linux-gnu
+# cross build --target armv7-unknown-linux-gnueabihf
+# cross build --target armv7-unknown-linux-musleabihf
+# cross build --target aarch64-unknown-linux-gnu
+# cross build --target aarch64-unknown-linux-musl
+# cross build --target s390x-unknown-linux-gnu
+# cross build --target ppc64le-unknown-linux-gnu
+# cross build --target x86_64-unknown-linux-musl
+# cross build --target i686-unknown-linux-musl
+# cross build --target aarch64-unknown-linux-musl
+# cross build --target armv7-unknown-linux-musleabihf

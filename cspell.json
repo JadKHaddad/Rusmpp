@@ -32,6 +32,7 @@
         "Ermes",
         "ESME",
         "framez",
+        "gnueabihf",
         "Haddad",
         "heapless",
         "Hellö",
@@ -51,6 +52,7 @@
         "maturin",
         "monomorphization",
         "MSRV",
+        "musleabihf",
         "musllinux",
         "nanos",
         "newkey",
@@ -176,8 +178,7 @@
         "Wcmp",
         "webpki",
         "wireshark",
-        "zerocopy",
-        "bindgen"
+        "zerocopy"
     ],
     "ignorePaths": [
         "target",

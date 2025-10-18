@@ -2382,9 +2382,7 @@ dependencies = [
  "pyo3-stub-gen-derive",
  "rusmpp",
  "rusmppc",
- "rustls",
  "tokio",
- "tokio-rustls",
  "tokio-util",
  "tracing",
 ]

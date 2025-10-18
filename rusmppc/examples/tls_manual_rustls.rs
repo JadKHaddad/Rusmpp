@@ -14,13 +14,13 @@
 //! Run the server with:
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem --host localhost:2775 --server
+//! cargo run -p rusmppc --example tls_manual_rustls --features rustls -- --cert cert.pem --key key.pem --host localhost:2775 --server
 //! ```
 //!
 //! In another terminal, run the client with:
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --host localhost:2775 --client
+//! cargo run -p rusmppc --example tls_manual_rustls --features rustls -- --cert cert.pem --host localhost:2775 --client
 //! ```
 //!
 

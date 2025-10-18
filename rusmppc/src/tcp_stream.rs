@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::{
     pin::Pin,
     task::{Context, Poll},
@@ -12,6 +14,8 @@ pub enum MaybeTlsStream<S> {
     Plain(S),
     #[cfg(feature = "rustls")]
     Rustls(Box<tokio_rustls::client::TlsStream<S>>),
+    #[cfg(feature = "native-tls")]
+    NativeTls(Box<tokio_native_tls::TlsStream<S>>),
 }
 
 impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
@@ -35,13 +39,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
                 let mut root_store = rustls::RootCertStore::empty();
                 #[cfg(feature = "rustls-tls-native-roots")]
                 {
-                    tracing::debug!(target: "rusmppc::connection::tls", "Loading native root CA certificates");
+                    tracing::debug!(target: "rusmppc::connection::tls::rustls", "Loading native root CA certificates");
 
                     let rustls_native_certs::CertificateResult { certs, errors, .. } =
                         rustls_native_certs::load_native_certs();
 
                     if !errors.is_empty() {
-                        tracing::warn!(target: "rusmppc::connection::tls",?errors, "Native root CA certificate loading errors");
+                        tracing::warn!(target: "rusmppc::connection::tls::rustls",?errors, "Native root CA certificate loading errors");
                     }
 
                     // Not finding any native root CA certificates is not fatal if the
@@ -57,15 +61,15 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
                     let total = certs.len();
                     let (added, ignored) = root_store.add_parsable_certificates(certs);
 
-                    tracing::debug!(target: "rusmppc::connection::tls", total, added, ignored, "Added native root certificates");
+                    tracing::debug!(target: "rusmppc::connection::tls::rustls", total, added, ignored, "Added native root certificates");
                 }
                 #[cfg(feature = "rustls-tls-webpki-roots")]
                 {
-                    tracing::debug!(target: "rusmppc::connection::tls", "Loading webpki root CA certificates");
+                    tracing::debug!(target: "rusmppc::connection::tls::rustls", "Loading webpki root CA certificates");
 
                     root_store.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
 
-                    tracing::debug!(target: "rusmppc::connection::tls", added = webpki_roots::TLS_SERVER_ROOTS.len(), "Added webpki root certificates");
+                    tracing::debug!(target: "rusmppc::connection::tls::rustls", added = webpki_roots::TLS_SERVER_ROOTS.len(), "Added webpki root certificates");
                 }
 
                 std::sync::Arc::new(
@@ -77,17 +81,13 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
         };
 
         let domain = rustls_pki_types::ServerName::try_from(domain)
-            .map_err(|err| {
-                crate::error::Error::Connect(std::io::Error::new(
-                    std::io::ErrorKind::InvalidInput,
-                    err,
-                ))
-            })?
+            .map_err(|err| std::io::Error::new(std::io::ErrorKind::InvalidInput, err))
+            .map_err(crate::error::Error::Connect)?
             .to_owned();
 
         let connector = tokio_rustls::TlsConnector::from(config);
 
-        tracing::debug!(target: "rusmppc::connection::tls", "Establishing TLS connection");
+        tracing::debug!(target: "rusmppc::connection::tls::rustls", "Establishing TLS connection");
 
         let stream = connector
             .connect(domain, stream)
@@ -95,6 +95,33 @@ impl<S: AsyncRead + AsyncWrite + Unpin> MaybeTlsStream<S> {
             .map_err(crate::error::Error::Connect)?;
 
         Ok(Self::Rustls(Box::new(stream)))
+    }
+
+    /// Creates a new [`MaybeTlsStream::NativeTls`].
+    #[cfg(feature = "native-tls")]
+    pub async fn native_tls(
+        stream: S,
+        domain: &str,
+        connector: Option<native_tls::TlsConnector>,
+    ) -> Result<Self, crate::error::Error> {
+        let connector = match connector {
+            Some(connector) => connector,
+            None => native_tls::TlsConnector::new()
+                .map_err(std::io::Error::other)
+                .map_err(crate::error::Error::Connect)?,
+        };
+
+        let connector = tokio_native_tls::TlsConnector::from(connector);
+
+        tracing::debug!(target: "rusmppc::connection::tls::native-tls", "Establishing TLS connection");
+
+        let stream = connector
+            .connect(domain, stream)
+            .await
+            .map_err(std::io::Error::other)
+            .map_err(crate::error::Error::Connect)?;
+
+        Ok(Self::NativeTls(Box::new(stream)))
     }
 }
 
@@ -108,6 +135,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> AsyncRead for MaybeTlsStream<S> {
             MaybeTlsStream::Plain(s) => Pin::new(s).poll_read(cx, buf),
             #[cfg(feature = "rustls")]
             MaybeTlsStream::Rustls(s) => Pin::new(s).poll_read(cx, buf),
+            #[cfg(feature = "native-tls")]
+            MaybeTlsStream::NativeTls(s) => Pin::new(s).poll_read(cx, buf),
         }
     }
 }
@@ -122,6 +151,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> AsyncWrite for MaybeTlsStream<S> {
             MaybeTlsStream::Plain(s) => Pin::new(s).poll_write(cx, buf),
             #[cfg(feature = "rustls")]
             MaybeTlsStream::Rustls(s) => Pin::new(s).poll_write(cx, buf),
+            #[cfg(feature = "native-tls")]
+            MaybeTlsStream::NativeTls(s) => Pin::new(s).poll_write(cx, buf),
         }
     }
 
@@ -130,6 +161,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> AsyncWrite for MaybeTlsStream<S> {
             MaybeTlsStream::Plain(s) => Pin::new(s).poll_flush(cx),
             #[cfg(feature = "rustls")]
             MaybeTlsStream::Rustls(s) => Pin::new(s).poll_flush(cx),
+            #[cfg(feature = "native-tls")]
+            MaybeTlsStream::NativeTls(s) => Pin::new(s).poll_flush(cx),
         }
     }
 
@@ -141,6 +174,8 @@ impl<S: AsyncRead + AsyncWrite + Unpin> AsyncWrite for MaybeTlsStream<S> {
             MaybeTlsStream::Plain(s) => Pin::new(s).poll_shutdown(cx),
             #[cfg(feature = "rustls")]
             MaybeTlsStream::Rustls(s) => Pin::new(s).poll_shutdown(cx),
+            #[cfg(feature = "native-tls")]
+            MaybeTlsStream::NativeTls(s) => Pin::new(s).poll_shutdown(cx),
         }
     }
 }

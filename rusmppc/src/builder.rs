@@ -22,6 +22,9 @@ pub struct ConnectionBuilder {
     /// TLS configurations provided by the user. If None, default configurations will be used.
     #[cfg(feature = "rustls")]
     rustls_config: Option<rustls::ClientConfig>,
+    /// Native TLS connector provided by the user. If None, default connector will be used.
+    #[cfg(feature = "native-tls")]
+    native_tls_connector: Option<native_tls::TlsConnector>,
 }
 
 impl Default for ConnectionBuilder {
@@ -40,6 +43,7 @@ impl ConnectionBuilder {
     /// - `response_timeout`: 5 seconds
     /// - `check_interface_version`: true
     /// - `rustls_config`: default configuration will be used if TLS is enabled. See [`rustls_config`](Self::rustls_config) for more details.
+    /// - `native_tls_connector`: default connector will be used if TLS is enabled. See [`native_tls_connector`](Self::native_tls_connector) for more details.
     pub fn new() -> Self {
         Self {
             max_command_length: 4096,
@@ -49,6 +53,8 @@ impl ConnectionBuilder {
             check_interface_version: true,
             #[cfg(feature = "rustls")]
             rustls_config: None,
+            #[cfg(feature = "native-tls")]
+            native_tls_connector: None,
         }
     }
 
@@ -193,6 +199,8 @@ impl ConnectionBuilder {
     }
 
     /// Disables the response timeout.
+    ///
+    /// When disabled, the client will wait indefinitely for a response from the server.
     pub fn no_response_timeout(mut self) -> Self {
         self.response_timeout = None;
         self
@@ -225,6 +233,15 @@ impl ConnectionBuilder {
     #[cfg(feature = "rustls")]
     pub fn rustls_config(mut self, config: rustls::ClientConfig) -> Self {
         self.rustls_config = Some(config);
+        self
+    }
+
+    /// Sets a custom `native-tls` connector.
+    ///
+    /// If not set, a default connector will be used.
+    #[cfg(feature = "native-tls")]
+    pub fn native_tls_connector(mut self, connector: native_tls::TlsConnector) -> Self {
+        self.native_tls_connector = Some(connector);
         self
     }
 }
@@ -321,16 +338,33 @@ impl NoSpawnConnectionBuilder {
         let stream = match scheme {
             Scheme::Smpp => MaybeTlsStream::plain(stream),
             Scheme::Ssmpp => {
-                #[cfg(feature = "rustls")]
+                #[cfg(all(feature = "rustls", not(feature = "native-tls")))]
                 {
                     MaybeTlsStream::rustls(stream, domain, self.builder.rustls_config.take())
                         .await?
                 }
-                #[cfg(not(feature = "rustls"))]
+                // If both features are enabled, prefer rustls.
+                #[cfg(all(feature = "rustls", feature = "native-tls"))]
+                {
+                    tracing::warn!(target: "rusmppc::connection::tls", "Both `rustls` and `native-tls` features are enabled, preferring `rustls` for TLS connections");
+
+                    MaybeTlsStream::rustls(stream, domain, self.builder.rustls_config.take())
+                        .await?
+                }
+                #[cfg(all(not(feature = "rustls"), feature = "native-tls"))]
+                {
+                    MaybeTlsStream::native_tls(
+                        stream,
+                        domain,
+                        self.builder.native_tls_connector.take(),
+                    )
+                    .await?
+                }
+                #[cfg(not(any(feature = "rustls", feature = "native-tls")))]
                 {
                     return Err(Error::Connect(std::io::Error::new(
                         std::io::ErrorKind::InvalidInput,
-                        "TLS support is not enabled, enable the `rustls` feature to use ssmpp/smpps",
+                        "TLS support is not enabled, enable the `rustls` or `native-tls` feature to use ssmpp/smpps",
                     )));
                 }
             }

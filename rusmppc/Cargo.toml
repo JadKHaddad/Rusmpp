@@ -30,11 +30,15 @@ futures = "0.3.31"
 thiserror = "2.0.12"
 pin-project-lite = "0.2.16"
 url = "2.5.7"
+
 rustls = { version = "0.23.32", optional = true }
 tokio-rustls = { version = "0.26.3", optional = true }
 rustls-pki-types = { version = "1.12.0", optional = true }
 rustls-native-certs = { version = "0.8.1", optional = true }
 webpki-roots = { version = "1.0.3", optional = true }
+
+native-tls = { version = "0.2.11", optional = true }
+tokio-native-tls = { version = "0.3.1", optional = true }
 
 [dev-dependencies]
 tokio = { version = "1.47.1", features = ["full"] }
@@ -47,10 +51,12 @@ argh = "0.1.13"
 default = ["rustls", "rustls-tls-native-roots", "rustls-tls-webpki-roots"]
 # Enables TLS support via Rustls. Enabled by default.
 rustls = ["dep:rustls", "dep:tokio-rustls", "dep:rustls-pki-types"]
-# Enables Rustls to use the platform's native root certificates while using default configuration. Enables the `rustls` feature and enabled by default.
+# Enables Rustls to use the platform's native root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
 rustls-tls-native-roots = ["rustls", "dep:rustls-native-certs"]
-# Enables Rustls to use the webpki-roots crate's root certificates while using default configuration. Enables the `rustls` feature and enabled by default.
+# Enables Rustls to use the webpki-roots crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
 rustls-tls-webpki-roots = ["rustls", "dep:webpki-roots"]
+# Enables TLS support via native-tls.
+native-tls = ["dep:native-tls", "dep:tokio-native-tls"]
 
 [package.metadata.docs.rs]
 all-features = true
@@ -67,11 +73,16 @@ path = "examples/rusmppc_submit_sm.rs"
 required-features = []
 
 [[example]]
-name = "tls_manual"
-path = "examples/tls_manual.rs"
-required-features = []
+name = "tls_manual_rustls"
+path = "examples/tls_manual_rustls.rs"
+required-features = ["rustls"]
 
 [[example]]
-name = "tls_self_signed_certificate"
-path = "examples/tls_self_signed_certificate.rs"
-required-features = []
+name = "tls_self_signed_certificate_rustls"
+path = "examples/tls_self_signed_certificate_rustls.rs"
+required-features = ["rustls"]
+
+[[example]]
+name = "tls_self_signed_certificate_native_tls"
+path = "examples/tls_self_signed_certificate_native_tls.rs"
+required-features = ["native-tls"]

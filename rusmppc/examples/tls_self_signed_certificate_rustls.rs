@@ -1,15 +1,15 @@
-//! See `tls_manual` example to create a self-signed certificate and private key.
+//! See `tls_manual_rustls` example to create a self-signed certificate and private key.
 //!
-//! Run the `tls_manual` example to run the tls server.
+//! Run the `tls_manual_rustls` example to run the tls server.
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_manual -- --cert cert.pem --key key.pem --host localhost:2775 --server
+//! cargo run -p rusmppc --example tls_manual_rustls --features rustls -- --cert cert.pem --key key.pem --host localhost:2775 --server
 //! ```
 //!
 //! In another terminal, run this example to connect to the server using the self-signed certificate.
 //!
 //! ```not_rust
-//! cargo run -p rusmppc --example tls_self_signed_certificate -- --cert cert.pem --host localhost:2775
+//! cargo run -p rusmppc --example tls_self_signed_certificate_rustls --features rustls -- --cert cert.pem --host localhost:2775
 //! ```
 //!
 

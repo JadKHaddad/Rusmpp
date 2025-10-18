@@ -31,5 +31,10 @@ rusmppc = { path = "../../rusmppc", default-features = false, features = [
     "rustls-ring",
 ] }
 
+# Override for aarch64-unknown-linux-gnu only. No ssl support.
+[target.'cfg(all(target_arch = "aarch64", target_os = "linux", not(target_env = "musl")))'.dependencies.rusmppc]
+path = "../../rusmppc"
+default-features = false
+
 [[bin]]
 name = "stub-gen"

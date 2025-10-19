@@ -1,4 +1,5 @@
-//! You can run this example using [SMPP SMSC Simulator](https://github.com/melroselabs/smpp-smsc-simulator) or with the public SMPP server at `smpp://rusmpps.rusmpp.org:2775`.
+//! You can run this example using [SMPP SMSC Simulator](https://github.com/melroselabs/smpp-smsc-simulator)
+//! or with the public SMPP server at `smpp://rusmpps.rusmpp.org:2775` or `smpps://rusmpps.rusmpp.org:2776`.
 //!
 //! Run with
 //!
@@ -31,6 +32,8 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .enquire_link_interval(Duration::from_secs(5))
         // If the server does not respond within 2 seconds, consider it a timeout.
         .response_timeout(Duration::from_secs(2))
+        // connect to the SMPP server using plain TCP
+        // or use `smpps://rusmpps.rusmpp.org:2776` for a TLS connection.
         .connect("smpp://rusmpps.rusmpp.org:2775")
         .await?;
 

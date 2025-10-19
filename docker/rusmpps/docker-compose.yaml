@@ -1,0 +1,11 @@
+services:
+  rusmpps:
+    container_name: rusmpps
+    image: jadkhaddad/rusmpps:latest
+    environment:
+      - RUSMPPS_CONFIG_FILE=/etc/rusmpps/config.yaml
+    ports:
+      - "2775:2775"
+    restart: unless-stopped
+    volumes:
+      - ./config.yaml:/etc/rusmpps/config.yaml:ro

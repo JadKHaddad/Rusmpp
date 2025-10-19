@@ -26,6 +26,7 @@ jobs:
             target: x86
           - runner: ubuntu-22.04
             target: aarch64
+            no_default_features: true # disable rustls feature on aarch64
           - runner: ubuntu-22.04
             target: armv7
           - runner: ubuntu-22.04
@@ -41,7 +42,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --find-interpreter --manifest-path rusmppy/rusmppyc/Cargo.toml
+          args: --release --out dist --find-interpreter --manifest-path rusmppy/rusmppyc/Cargo.toml ${{ matrix.platform.no_default_features && '--no-default-features' || '' }}
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
       - name: Upload wheels

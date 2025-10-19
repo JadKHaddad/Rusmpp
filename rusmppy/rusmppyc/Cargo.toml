@@ -1,6 +1,6 @@
 [package]
 name = "rusmppyc"
-version = "0.3.0-alpha.1"
+version = "0.3.0-alpha.2"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -24,7 +24,16 @@ humantime = "2.2.0"
 pyo3-log = "0.12.4"
 tracing = { version = "0.1.41", features = ["log-always"] }
 rusmpp = { path = "../../rusmpp", default-features = false }
-rusmppc = { path = "../../rusmppc" }
+rusmppc = { path = "../../rusmppc", default-features = false }
+
+[features]
+default = ["rustls"]
+rustls = [
+    "rusmppc/rustls",
+    "rusmppc/rustls-tls-native-roots",
+    "rusmppc/rustls-tls-webpki-roots",
+    "rusmppc/rustls-ring",
+]
 
 [[bin]]
 name = "stub-gen"

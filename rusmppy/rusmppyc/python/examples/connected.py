@@ -1,5 +1,8 @@
 import logging
 import asyncio
+import ssl
+
+from pathlib import Path
 
 from rusmppyc import (
     BindTransceiverResp,
@@ -35,7 +38,14 @@ async def handle_events(events: Events, client: Client):
 
 
 async def main():
-    read, write = await asyncio.open_connection("127.0.0.1", 2775)
+    cert_path = Path(__file__).resolve().parents[4] / "cert.pem"
+
+    ssl_ctx = ssl.create_default_context(ssl.Purpose.SERVER_AUTH)
+    ssl_ctx.load_verify_locations(cert_path)
+
+    read, write = await asyncio.open_connection(
+        "127.0.0.1", 2775, ssl=ssl_ctx, server_hostname="localhost"
+    )
 
     try:
         # Use Client.connected to create a client with an existing StreamReader and StreamWriter

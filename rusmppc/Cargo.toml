@@ -31,8 +31,16 @@ thiserror = "2.0.12"
 pin-project-lite = "0.2.16"
 url = "2.5.7"
 
-rustls = { version = "0.23.32", optional = true }
-tokio-rustls = { version = "0.26.3", optional = true }
+rustls = { version = "0.23.32", default-features = false, features = [
+    "logging",
+    "std",
+    "tls12",
+], optional = true }
+tokio-rustls = { version = "0.26.3", default-features = false, features = [
+    "logging",
+    "tls12",
+], optional = true }
+
 rustls-pki-types = { version = "1.12.0", optional = true }
 rustls-native-certs = { version = "0.8.1", optional = true }
 webpki-roots = { version = "1.0.3", optional = true }
@@ -43,12 +51,26 @@ tokio-native-tls = { version = "0.3.1", optional = true }
 [dev-dependencies]
 tokio = { version = "1.47.1", features = ["full"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-rustls = "0.23.32"
-tokio-rustls = "0.26.3"
+rustls = { version = "0.23.32", default-features = false, features = [
+    "ring",
+    "logging",
+    "std",
+    "tls12",
+] }
+tokio-rustls = { version = "0.26.3", default-features = false, features = [
+    "ring",
+    "logging",
+    "tls12",
+] }
 argh = "0.1.13"
 
 [features]
-default = ["rustls", "rustls-tls-native-roots", "rustls-tls-webpki-roots"]
+default = [
+    "rustls",
+    "rustls-tls-native-roots",
+    "rustls-tls-webpki-roots",
+    "rustls-aws-lc-rs",
+]
 # Enables TLS support via Rustls. Enabled by default.
 rustls = ["dep:rustls", "dep:tokio-rustls", "dep:rustls-pki-types"]
 # Enables Rustls to use the platform's native root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
@@ -57,6 +79,9 @@ rustls-tls-native-roots = ["rustls", "dep:rustls-native-certs"]
 rustls-tls-webpki-roots = ["rustls", "dep:webpki-roots"]
 # Enables TLS support via native-tls.
 native-tls = ["dep:native-tls", "dep:tokio-native-tls"]
+
+rustls-aws-lc-rs = ["rustls?/aws-lc-rs", "tokio-rustls?/aws-lc-rs"]
+rustls-ring = ["rustls?/ring", "tokio-rustls?/ring"]
 
 [package.metadata.docs.rs]
 all-features = true

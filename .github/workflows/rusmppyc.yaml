@@ -69,7 +69,7 @@ jobs:
         uses: PyO3/maturin-action@v1
         with:
           target: aarch64
-          args: --release --out dist --find-interpreter --manifest-path rusmppy/rusmppyc/Cargo.toml
+          args: --release --out dist --find-interpreter --manifest-path rusmppy/rusmppyc/Cargo.toml --no-default-features # disable rustls on aarch64
           sccache: ${{ !startsWith(github.ref, 'refs/tags/') }}
           manylinux: auto
       - name: Upload wheels

@@ -1,4 +1,0 @@
-bind_addr: 0.0.0.0:2776
-upstream_host: rusmpps:2775
-cert: "/etc/tls-upstream/cert.pem"
-key: "/etc/tls-upstream/key.pem"

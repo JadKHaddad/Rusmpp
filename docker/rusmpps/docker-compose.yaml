@@ -10,16 +10,17 @@ services:
     volumes:
       - ./config.yaml:/etc/rusmpps/config.yaml:ro
 
-  tls-upstream:
-    container_name: tls-upstream
-    image: jadkhaddad/tls-upstream:latest
+  # <https://github.com/JadKHaddad/upstream/tree/0.1.0>
+  upstream:
+    container_name: upstream
+    image: jadkhaddad/upstream:0.1.0
     command:
       - "--config-file"
-      - "/etc/tls-upstream/config.yaml"
+      - "/etc/upstream/config.yaml"
     ports:
       - "2776:2776"
     restart: unless-stopped
     volumes:
-      - ./tls-upstream-config.yaml:/etc/tls-upstream/config.yaml:ro
-      - /opt/caddy/mnt/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/rusmpps.rusmpp.org/rusmpps.rusmpp.org.crt:/etc/tls-upstream/cert.pem:ro
-      - /opt/caddy/mnt/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/rusmpps.rusmpp.org/rusmpps.rusmpp.org.key:/etc/tls-upstream/key.pem:ro
+      - ./upstream-config.yaml:/etc/upstream/config.yaml:ro
+      - /opt/caddy/mnt/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/rusmpps.rusmpp.org/rusmpps.rusmpp.org.crt:/etc/upstream/cert.pem:ro
+      - /opt/caddy/mnt/data/caddy/certificates/acme-v02.api.letsencrypt.org-directory/rusmpps.rusmpp.org/rusmpps.rusmpp.org.key:/etc/upstream/key.pem:ro

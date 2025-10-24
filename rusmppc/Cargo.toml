@@ -1,6 +1,6 @@
 [package]
 name = "rusmppc"
-version = "0.3.0-alpha.2"
+version = "0.3.0-alpha.3"
 edition = "2024"
 rust-version = "1.85.1"
 description = "A Rust SMPP client."
@@ -48,6 +48,8 @@ webpki-roots = { version = "1.0.3", optional = true }
 native-tls = { version = "0.2.11", optional = true }
 tokio-native-tls = { version = "0.3.1", optional = true }
 
+hickory-resolver = { version = "0.25.2" }
+
 [dev-dependencies]
 tokio = { version = "1.47.1", features = ["full"] }
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
@@ -71,15 +73,17 @@ default = [
 ]
 # Enables TLS support via Rustls. Enabled by default.
 rustls = ["dep:rustls", "dep:tokio-rustls", "dep:rustls-pki-types"]
-# Enables Rustls to use the platform's native root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
+# Uses the platform's native root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
 rustls-tls-native-roots = ["rustls", "dep:rustls-native-certs"]
-# Enables Rustls to use the webpki-roots crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
+# Uses the webpki-roots crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
 rustls-tls-webpki-roots = ["rustls", "dep:webpki-roots"]
+# Uses aws-lc-rs as the TLS backend for Rustls. Enabled by default.
+rustls-aws-lc-rs = ["rustls?/aws-lc-rs", "tokio-rustls?/aws-lc-rs"]
+# Uses ring as the TLS backend for Rustls.
+rustls-ring = ["rustls?/ring", "tokio-rustls?/ring"]
 # Enables TLS support via native-tls.
 native-tls = ["dep:native-tls", "dep:tokio-native-tls"]
 
-rustls-aws-lc-rs = ["rustls?/aws-lc-rs", "tokio-rustls?/aws-lc-rs"]
-rustls-ring = ["rustls?/ring", "tokio-rustls?/ring"]
 
 [package.metadata.docs.rs]
 all-features = true

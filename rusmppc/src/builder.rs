@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{net::SocketAddr, time::Duration};
 
 use futures::{FutureExt, Stream};
 
@@ -264,7 +264,7 @@ impl NoSpawnConnectionBuilder {
     /// - If the URL does not have a host.
     /// - If DNS resolution fails.
     /// - If the connection to the server fails.
-    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` or `native-tls` features are not enabled.
     /// - If TLS handshake fails.
     #[allow(unused_mut)]
     pub async fn connect(
@@ -312,13 +312,23 @@ impl NoSpawnConnectionBuilder {
 
         let port = url.port().unwrap_or(2775);
 
-        let host = format!("{domain}:{port}");
+        tracing::debug!(target: "rusmppc::connection::dns", domain, "Resolving domain");
 
-        tracing::debug!(target: "rusmppc::connection::dns", host, "Resolving host");
+        let resolver = hickory_resolver::TokioResolver::builder_tokio()
+            .map_err(|err| {
+                Error::Connect(std::io::Error::other(format!(
+                    "Failed to create DNS resolver: {err}"
+                )))
+            })?
+            .build();
 
-        let socket_addr = tokio::net::lookup_host(host)
+        let ip_addr = resolver
+            .lookup_ip(domain)
             .await
-            .map_err(Error::Connect)?
+            .map_err(|err| {
+                Error::Connect(std::io::Error::other(format!("Failed to lookup IP: {err}")))
+            })?
+            .into_iter()
             .next()
             .ok_or_else(|| {
                 Error::Connect(std::io::Error::new(
@@ -326,6 +336,8 @@ impl NoSpawnConnectionBuilder {
                     "No addresses found for the given host",
                 ))
             })?;
+
+        let socket_addr = SocketAddr::new(ip_addr, port);
 
         tracing::debug!(target: "rusmppc::connection::tcp", %socket_addr, "Connecting");
 

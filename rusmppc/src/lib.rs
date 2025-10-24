@@ -5,8 +5,10 @@
 //! ## Features
 //!
 //! - `rustls`:  Enables TLS support via [`rustls`](https://docs.rs/rustls/latest/rustls/). Enabled by default.
-//! - `rustls-tls-native-roots`: Enables [`rustls`](https://docs.rs/rustls/latest/rustls/) to use the platform's native root certificates through [`rustls-native-certs`](https://docs.rs/rustls-native-certs/latest/rustls_native_certs/) while using default configuration. Enables the `rustls` feature and is enabled by default.
-//! - `rustls-tls-webpki-roots`: Enables [`rustls`](https://docs.rs/rustls/latest/rustls/) to use the [`webpki-roots`](https://docs.rs/webpki-roots/latest/webpki_roots/) crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
+//! - `rustls-tls-native-roots`: Uses the platform's native root certificates through [`rustls-native-certs`](https://docs.rs/rustls-native-certs/latest/rustls_native_certs/) while using default configuration. Enables the `rustls` feature and is enabled by default.
+//! - `rustls-tls-webpki-roots`: Uses the [`webpki-roots`](https://docs.rs/webpki-roots/latest/webpki_roots/) crate's root certificates while using default configuration. Enables the `rustls` feature and is enabled by default.
+//! - `rustls-aws-lc-rs`: Uses [`aws-lc-rs`](https://docs.rs/aws-lc-rs/latest/aws_lc_rs/) as the TLS backend for [`rustls`](https://docs.rs/rustls/latest/rustls/). Enabled by default.
+//! - `rustls-ring`: Uses [`ring`](https://docs.rs/ring/latest/ring/) as the TLS backend for [`rustls`](https://docs.rs/rustls/latest/rustls/).
 //! - `native-tls`: Enables TLS support via [`native-tls`](https://docs.rs/native-tls/latest/native_tls/).
 //!
 //! # Example

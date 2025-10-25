@@ -7,20 +7,20 @@
 )]
 
 use embassy_executor::Spawner;
-use embassy_net::{tcp::TcpSocket, Runner, StackResources};
+use embassy_net::{Runner, StackResources, tcp::TcpSocket};
 use embassy_time::{Duration, Timer};
 use esp_hal::{clock::CpuClock, rng::Trng, timer::timg::TimerGroup};
+use esp_wifi::EspWifiController;
 use esp_wifi::wifi::{
     ClientConfiguration, Configuration, WifiController, WifiDevice, WifiEvent, WifiState,
 };
-use esp_wifi::EspWifiController;
-use framez::{next, send, Framed};
+use framez::{Framed, next, send};
 use log::{error, info};
 use rusmppz::{
-    codec::CommandCodec,
+    Command, CommandStatus, Pdu,
+    framez::CommandCodec,
     pdus::{BindTransceiver, SubmitSm},
     types::{COctetString, OctetString},
-    Command, CommandStatus, Pdu,
 };
 use smoltcp::wire::DnsQueryType;
 

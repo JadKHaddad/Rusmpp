@@ -10,7 +10,7 @@
 use core::error::Error;
 use embedded_io_adapters::tokio_1::FromTokio;
 use framez::{Framed, next, send};
-use rusmppz::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
+use rusmppz::{Command, CommandId, CommandStatus, Pdu, framez::CommandCodec};
 use tracing::info;
 
 #[tokio::main]
@@ -19,7 +19,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // You can filter them out by setting the `rusmppz` target to `off`,
     // or by disabling the `tracing` feature.
     tracing_subscriber::fmt()
-        .with_env_filter("client=info,server=info,rusmppz=trace,framez=debug")
+        .with_env_filter("client=info,server=info,rusmpp=trace,framez=debug")
         .init();
 
     // In-memory duplex stream to simulate a server and client.

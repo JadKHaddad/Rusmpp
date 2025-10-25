@@ -1252,7 +1252,7 @@ dependencies = [
 
 [[package]]
 name = "rusmpp-core"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "framez",
  "heapless 0.9.1",
@@ -1262,7 +1262,7 @@ dependencies = [
 
 [[package]]
 name = "rusmpp-macros"
-version = "0.1.0"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1271,7 +1271,7 @@ dependencies = [
 
 [[package]]
 name = "rusmppz"
-version = "0.0.0"
+version = "0.1.1"
 dependencies = [
  "rusmpp-core",
 ]

@@ -25,7 +25,9 @@ tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 framez = { version = "0.3.0", default-features = false, features = ["tracing"] }
 
 [features]
-default = []
+default = ["framez"]
+# Implements framez' Encoder/Decoder traits.
+framez = ["rusmpp-core/framez"]
 # Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
 pretty-hex-fmt = ["rusmpp-core/pretty-hex-fmt"]
 # Prints byte slices as characters.

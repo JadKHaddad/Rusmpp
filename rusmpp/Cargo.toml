@@ -30,7 +30,7 @@ default = ["tokio-codec"]
 # Implements tokio's util codec Encoder/Decoder traits.
 tokio-codec = ["rusmpp-core/tokio-codec"]
 # Enables verbose DecodeError with DecodeErrorSource.
-verbose = []
+verbose = ["rusmpp-core/verbose"]
 # Derives serde Serialize for all SMPP types.
 serde = ["rusmpp-core/serde"]
 # Derives serde Deserialize for all SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.

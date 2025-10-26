@@ -21,6 +21,7 @@ impl DecodeError {
     #[inline]
     #[cold]
     #[cfg(feature = "verbose")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
     pub fn with_source(mut self, field: SmppField, error: DecodeError) -> Self {
         self.source = Some(alloc::boxed::Box::new(DecodeErrorSource { field, error }));
         self
@@ -29,12 +30,14 @@ impl DecodeError {
     #[inline]
     #[cold]
     #[cfg(feature = "verbose")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
     pub fn as_source(self, field: SmppField) -> DecodeError {
         DecodeError::new(self.kind).with_source(field, self)
     }
 
     #[inline]
     #[cfg(feature = "verbose")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
     pub fn source(&self) -> Option<&DecodeErrorSource> {
         self.source.as_deref()
     }
@@ -71,6 +74,7 @@ impl DecodeError {
 
     /// Checks recursively if the field exists in the sources tree.
     #[cfg(feature = "verbose")]
+    #[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
     pub fn field_exists(&self, field: SmppField) -> bool {
         if let Some(source) = &self.source {
             if source.field == field {
@@ -87,6 +91,7 @@ impl DecodeError {
 /// Source of [`DecodeError`].
 #[derive(Debug)]
 #[cfg(feature = "verbose")]
+#[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
 pub struct DecodeErrorSource {
     field: SmppField,
     error: DecodeError,

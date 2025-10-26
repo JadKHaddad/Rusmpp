@@ -10,7 +10,7 @@ use crate::{Action, Event, Request, Timer, UnregisteredRequest, error::Error};
 use futures::Sink;
 use futures::Stream;
 use pin_project_lite::pin_project;
-use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
+use rusmpp::{Command, CommandId, CommandStatus, Pdu, tokio_codec::CommandCodec};
 use tokio::{
     io::{AsyncRead, AsyncWrite, ReadBuf},
     sync::{

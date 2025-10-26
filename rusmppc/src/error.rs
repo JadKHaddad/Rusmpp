@@ -4,7 +4,7 @@ use std::time::Duration;
 
 use rusmpp::{
     Command,
-    codec::tokio::{DecodeError, EncodeError},
+    tokio_codec::{DecodeError, EncodeError},
     values::InterfaceVersion,
 };
 

@@ -10,7 +10,7 @@
 //! use core::error::Error;
 //! use futures::{SinkExt, StreamExt};
 //! use rusmpp::{
-//!     codec::{tokio::EncodeError, CommandCodec},
+//!     tokio_codec::{EncodeError, CommandCodec},
 //!     Command, CommandId, CommandStatus, Pdu,
 //! };
 //! use tokio::io::DuplexStream;
@@ -84,13 +84,13 @@
 //!
 //! ## Features
 //!
-//! - `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits for the [`CommandCodec`](crate::codec::CommandCodec).
-//! - `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
-//! - `arbitrary`: Implements [`Arbitrary`](https://docs.rs/arbitrary/latest/arbitrary/trait.Arbitrary.html) trait for all SMPP types.
+//! - `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits.
 //! - `verbose`: Enables verbose error reports.
-//! - `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
 //! - `serde`: Implements [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) trait for all SMPP types.
 //! - `serde-deserialize-unchecked`: Implements [`Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html) trait for all SMPP types, but does not check the validity of the data. Use with caution.
+//! - `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
+//! - `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
+//! - `char-fmt`: Logs byte slices as characters, if `tracing` feature is enabled.
 //!
 
 #![no_std]
@@ -99,44 +99,25 @@
 #![deny(missing_debug_implementations)]
 // #![deny(missing_docs)]
 
-#[cfg(any(test, feature = "tokio-codec", feature = "arbitrary"))]
-extern crate std;
-
-extern crate alloc;
-
-pub mod codec;
-
-pub mod command;
-pub use command::command_id::CommandId;
-pub use command::command_status::CommandStatus;
-pub use command::inner::Command;
-
-pub mod pdus;
-pub use pdus::pdu::Pdu;
-
-pub mod session;
-
-pub mod tlvs;
+#[cfg(feature = "tokio-codec")]
+#[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
+pub mod tokio_codec;
 
 pub mod types;
-
-pub mod values;
-
-mod macros;
-
-pub(crate) mod utils;
 
 pub mod decode;
 pub mod encode;
 
+pub use rusmpp_core::{CommandId, CommandStatus, command::owned::Command, pdus::owned::Pdu};
+
+pub mod command;
+
+pub mod values;
+
+pub mod tlvs;
+
+pub mod pdus;
+
 pub mod fields;
 
-#[cfg(test)]
-pub(crate) mod tests;
-
-#[cfg(any(test, feature = "tokio-codec"))]
-pub(crate) use macros::debug;
-#[cfg(feature = "tokio-codec")]
-pub(crate) use macros::error;
-#[cfg(feature = "tokio-codec")]
-pub(crate) use macros::trace;
+pub mod session;

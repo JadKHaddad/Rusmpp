@@ -10,7 +10,7 @@ use core::error::Error;
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    codec::{CommandCodec, tokio::EncodeError},
+    tokio_codec::{CommandCodec, EncodeError},
 };
 use tokio::io::DuplexStream;
 use tokio_util::codec::Framed;

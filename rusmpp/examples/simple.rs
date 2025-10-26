@@ -6,7 +6,7 @@
 //!
 
 use futures::{SinkExt, StreamExt};
-use rusmpp::{Command, CommandId, CommandStatus, Pdu, codec::CommandCodec};
+use rusmpp::{Command, CommandId, CommandStatus, Pdu, tokio_codec::CommandCodec};
 use tokio::net::TcpStream;
 use tokio_util::codec::Framed;
 

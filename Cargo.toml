@@ -11,14 +11,3 @@ members = [
     "rusmpp-macros",
 ]
 default-members = ["rusmpp"]
-
-[patch.crates-io]
-# TODO: must be removed after migrating rusmpp to rusmpp-core
-# TODO: remove the path after issue is resolved. PR https://github.com/eupn/macrotest/pull/124
-# macrotest generates a bin project for every test and uses the dependencies and the dev-dependencies
-# of this project. Since `tracing` is defined here twice, as an optional dependency and
-# a non-optional dependency, and there is a feature `tracing`, that requires this dependency,
-# macrotest will fail with: 
-#  feature `test-feature` includes `dep:tracing`, but `tracing` is not an optional dependency
-#  A non-optional dependency of the same name is defined; consider adding `optional = true` to its definition.
-macrotest = { git = "https://github.com/JadKHaddad/macrotest.git", branch = "fix/manifest" }

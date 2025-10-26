@@ -15,7 +15,7 @@ This is a low level library for implementing clients and servers. If you are loo
 use core::error::Error;
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
-    codec::{tokio::EncodeError, CommandCodec},
+    tokio_codec::{EncodeError, CommandCodec},
     Command, CommandId, CommandStatus, Pdu,
 };
 use tokio::io::DuplexStream;
@@ -90,13 +90,13 @@ See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/rusmpp/example
 
 ## Features
 
-- `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits for the [`CommandCodec`](https://docs.rs/rusmpp/latest/rusmpp/codec/struct.CommandCodec.html).
-- `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
-- `arbitrary`: Implements [`Arbitrary`](https://docs.rs/arbitrary/latest/arbitrary/trait.Arbitrary.html) trait for all SMPP types.
+- `tokio-codec`: Implements [`Encoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Encoder.html) and [`Decoder`](https://docs.rs/tokio-util/latest/tokio_util/codec/trait.Decoder.html) traits.
 - `verbose`: Enables verbose error reports.
-- `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
 - `serde`: Implements [`Serialize`](https://docs.rs/serde/latest/serde/trait.Serialize.html) trait for all SMPP types.
 - `serde-deserialize-unchecked`: Implements [`Deserialize`](https://docs.rs/serde/latest/serde/trait.Deserialize.html) trait for all SMPP types, but does not check the validity of the data. Use with caution.
+- `tracing`: Enables logging using [`tracing`](https://docs.rs/tracing/latest/tracing/).
+- `pretty-hex-fmt`: Logs byte slices like `[0x00, 0x00, 0x00, 0x6F]` instead of `[00, 00, 00, 6F]`, if `tracing` feature is enabled.
+- `char-fmt`: Logs byte slices as characters, if `tracing` feature is enabled.
 
 ## License
 

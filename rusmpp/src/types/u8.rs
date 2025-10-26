@@ -5,32 +5,3 @@
 //!
 //! A 1-octet Integer with a value 5, would be encoded in a
 //! single octet with the value 0x05
-
-use crate::{
-    decode::{Decode, DecodeError},
-    encode::{Encode, Length},
-};
-
-impl Length for u8 {
-    fn length(&self) -> usize {
-        1
-    }
-}
-
-impl Encode for u8 {
-    fn encode(&self, dst: &mut [u8]) -> usize {
-        dst[0] = *self;
-
-        1
-    }
-}
-
-impl Decode for u8 {
-    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
-        if src.is_empty() {
-            return Err(DecodeError::unexpected_eof());
-        }
-
-        Ok((src[0], 1))
-    }
-}

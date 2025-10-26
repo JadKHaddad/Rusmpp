@@ -3,8 +3,8 @@ use std::{str::FromStr, sync::Arc, time::Duration};
 use futures::{SinkExt, StreamExt, TryStreamExt, future};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    codec::CommandCodec,
     pdus::{BindReceiverResp, BindTransceiverResp, SubmitSmResp},
+    tokio_codec::CommandCodec,
     types::COctetString,
     values::InterfaceVersion,
 };

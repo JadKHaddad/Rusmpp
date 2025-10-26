@@ -3,11 +3,11 @@ use std::time::{Duration, Instant};
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    codec::CommandCodec,
     pdus::{
         AlertNotification, BindReceiverResp, BindTransceiverResp, BindTransmitterResp, SubmitSm,
         SubmitSmResp,
     },
+    tokio_codec::CommandCodec,
 };
 use tokio::io::{AsyncRead, AsyncWrite};
 use tokio_util::codec::Framed;

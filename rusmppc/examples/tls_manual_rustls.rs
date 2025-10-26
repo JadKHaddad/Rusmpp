@@ -30,8 +30,8 @@ use argh::FromArgs;
 use futures::{SinkExt, TryStreamExt};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    codec::CommandCodec,
     pdus::{BindReceiverResp, BindTransceiver, BindTransceiverResp, BindTransmitterResp},
+    tokio_codec::CommandCodec,
     types::COctetString,
 };
 use rusmppc::ConnectionBuilder;

@@ -1,6 +1,6 @@
 [package]
 name = "rusmpp"
-version = "0.2.3"
+version = "0.3.0-alpha.0"
 edition = "2024"
 rust-version = "1.85.0"
 description = "A Rust SMPP library."
@@ -12,46 +12,35 @@ keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dev-dependencies]
 tracing = { version = "0.1.40" }
-tokio = { version = "1.47.1", features = ["full"] }
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-tracing-test = "0.2.5"
-futures = "0.3.31"
-testcontainers = "0.25.0"
-# XXX: do not update because of the patch
-macrotest = "1.1.0"
-strum = "0.27.2"
-strum_macros = "0.27.2"
-
-[dependencies]
+tokio = { version = "1.48.0", features = ["full"] }
 tokio-util = { version = "0.7.16", default-features = false, features = [
     "codec",
-], optional = true }
-tracing = { version = "0.1.40", default-features = false, optional = true }
-arbitrary = { version = "1.4.2", default-features = false, features = [
-    "derive_arbitrary",
-], optional = true }
-serde = { version = "1.0.219", default-features = false, features = [
-    "derive",
+] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
+futures = "0.3.31"
+
+[dependencies]
+rusmpp-core = { path = "../rusmpp-core", version = "0.1.3", default-features = false, features = [
     "alloc",
-], optional = true }
-pastey = "0.1.0"
+    "tokio-codec",
+] }
 
 [features]
 default = ["tokio-codec"]
-# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
-pretty-hex-fmt = []
-# Implements tokio's util codec Encoder/Decoder traits for the CommandCodec.
-tokio-codec = ["dep:tokio-util"]
-# Enables tracing support.
-tracing = ["dep:tracing"]
-# Implements arbitrary's Arbitrary trait for fuzz testing.
-arbitrary = ["dep:arbitrary"]
+# Implements tokio's util codec Encoder/Decoder traits.
+tokio-codec = ["rusmpp-core/tokio-codec"]
 # Enables verbose DecodeError with DecodeErrorSource.
-verbose = []
+verbose = ["rusmpp-core/verbose"]
 # Derives serde Serialize for all SMPP types.
-serde = ["dep:serde"]
+serde = ["rusmpp-core/serde"]
 # Derives serde Deserialize for all SMPP types. This will allow to create unchecked SMPP values from arbitrary serialized data, which may not be valid SMPP values.
-serde-deserialize-unchecked = ["dep:serde"]
+serde-deserialize-unchecked = ["rusmpp-core/serde-deserialize-unchecked"]
+# Prints byte slices like: [0x00, 0x00, 0x00, 0x6F] instead of [00, 00, 00, 6F].
+pretty-hex-fmt = ["rusmpp-core/pretty-hex-fmt"]
+# Prints byte slices as characters.
+char-fmt = ["rusmpp-core/char-fmt"]
+# Enables logging via the `tracing` crate.
+tracing = ["rusmpp-core/tracing"]
 
 [[example]]
 name = "client_server"

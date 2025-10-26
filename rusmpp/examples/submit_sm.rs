@@ -10,9 +10,9 @@
 use futures::{SinkExt, StreamExt};
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
-    codec::CommandCodec,
     pdus::{BindTransceiver, SubmitSm},
     tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
+    tokio_codec::CommandCodec,
     types::{AnyOctetString, COctetString, OctetString},
     values::{
         EsmClass, InterfaceVersion, MessagePayload, Npi, RegisteredDelivery, ServiceType, Ton,

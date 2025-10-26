@@ -34,6 +34,8 @@ pub use command_status::CommandStatus;
 
 pub mod command;
 
+pub mod session;
+
 pub mod fields;
 
 pub mod decode;

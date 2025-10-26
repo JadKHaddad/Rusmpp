@@ -20,7 +20,7 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 futures = "0.3.31"
 
 [dependencies]
-rusmpp-core = { path = "../rusmpp-core", version = "0.1.2", default-features = false, features = [
+rusmpp-core = { path = "../rusmpp-core", version = "0.1.3", default-features = false, features = [
     "alloc",
     "tokio-codec",
 ] }

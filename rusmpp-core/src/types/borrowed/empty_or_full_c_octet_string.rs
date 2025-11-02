@@ -293,7 +293,7 @@ mod tests {
         }
     }
 
-    mod to_str {
+    mod as_str {
         use super::*;
 
         #[test]

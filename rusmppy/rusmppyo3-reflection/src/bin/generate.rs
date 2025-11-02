@@ -94,6 +94,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracer.trace_simple_type::<QueryBroadcastSm>()?;
     tracer.trace_simple_type::<QueryBroadcastSmResp>()?;
     tracer.trace_simple_type::<CancelBroadcastSm>()?;
+    tracer.trace_simple_type::<BroadcastRequestTlvValue>()?;
+    tracer.trace_simple_type::<BroadcastResponseTlvValue>()?;
+    tracer.trace_simple_type::<CancelBroadcastTlvValue>()?;
+    tracer.trace_simple_type::<MessageDeliveryRequestTlvValue>()?;
+    tracer.trace_simple_type::<MessageDeliveryResponseTlvValue>()?;
+    tracer.trace_simple_type::<MessageSubmissionRequestTlvValue>()?;
+    tracer.trace_simple_type::<MessageSubmissionResponseTlvValue>()?;
+    tracer.trace_simple_type::<QueryBroadcastResponseTlvValue>()?;
 
     let registry = tracer.registry()?;
 

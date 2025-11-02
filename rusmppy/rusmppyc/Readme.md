@@ -151,7 +151,3 @@ if __name__ == "__main__":
   ```bash
   python3 -c "import rusmppyc; print(rusmppyc.__version__)"
   ```
-
-## TODO
-
-- Revisit and fix all the docs

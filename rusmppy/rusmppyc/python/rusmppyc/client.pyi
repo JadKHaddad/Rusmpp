@@ -60,8 +60,10 @@ class Client:
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
         disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation, which can be
-            useful when connecting to servers running a non-standard SMPP version.
+            If ``True``, disables interface version validation.
+            This library uses ``SMPP v5`` implementation to encode and decode commands.
+            Binding to a server with another SMPP version may cause issues encoding and decoding commands.
+            Disable interface version check to allow binding to servers with any SMPP version.
 
         Returns
         -------
@@ -135,8 +137,10 @@ class Client:
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
         disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation, which can be
-            useful when connecting to servers running a non-standard SMPP version.
+            If ``True``, disables interface version validation.
+            This library uses ``SMPP v5`` implementation to encode and decode commands.
+            Binding to a server with another SMPP version may cause issues encoding and decoding commands.
+            Disable interface version check to allow binding to servers with any SMPP version.
 
         Returns
         -------

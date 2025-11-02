@@ -14,9 +14,8 @@ use pyo3::{pyclass, pymethods, types::PyType, Bound, PyAny, PyObject, PyResult, 
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp, SubmitSm},
-    tlvs::MessageSubmissionRequestTlvValue,
-    types::{AnyOctetString, COctetString, EmptyOrFullCOctetString, OctetString},
-    values::{MessagePayload, ServiceType},
+    types::{COctetString, EmptyOrFullCOctetString, OctetString},
+    values::ServiceType,
 };
 use rusmppc::ConnectionBuilder;
 
@@ -276,7 +275,6 @@ impl Client {
         data_coding=crate::generated::DataCoding::McSpecific(),
         sm_default_msg_id=u8::default(),
         short_message=Vec::new(),
-        message_payload=None,
         status=crate::generated::CommandStatus::EsmeRok()))]
     fn submit_sm<'p>(
         &self,
@@ -298,7 +296,6 @@ impl Client {
         data_coding: crate::generated::DataCoding,
         sm_default_msg_id: u8,
         short_message: Vec<u8>,
-        message_payload: Option<Vec<u8>>,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let builder = SubmitSm::builder()
@@ -329,13 +326,6 @@ impl Client {
             .data_coding(data_coding.into())
             .sm_default_msg_id(sm_default_msg_id)
             .short_message(OctetString::new(short_message).map_pdu_err("short_message")?);
-
-        let builder = match message_payload {
-            Some(payload) => builder.push_tlv(MessageSubmissionRequestTlvValue::MessagePayload(
-                MessagePayload::new(AnyOctetString::new(payload)),
-            )),
-            None => builder,
-        };
 
         let pdu = builder.build();
 

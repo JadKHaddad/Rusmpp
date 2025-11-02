@@ -18,7 +18,18 @@ use std::{
     io::{Result, Write},
 };
 
-const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &["TlvTag", "TlvValue"];
+const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &[
+    "TlvTag",
+    "TlvValue",
+    "BroadcastRequestTlvValue",
+    "BroadcastResponseTlvValue",
+    "CancelBroadcastTlvValue",
+    "MessageDeliveryRequestTlvValue",
+    "MessageDeliveryResponseTlvValue",
+    "MessageSubmissionRequestTlvValue",
+    "MessageSubmissionResponseTlvValue",
+    "QueryBroadcastResponseTlvValue",
+];
 
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {

@@ -60,8 +60,10 @@ class Client:
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
         disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation, which can be
-            useful when connecting to servers running a non-standard SMPP version.
+            If ``True``, disables interface version validation.
+            This library uses ``SMPP v5`` implementation to encode and decode commands.
+            Binding to a server with another SMPP version may cause issues encoding and decoding commands.
+            Disable interface version check to allow binding to servers with any SMPP version.
 
         Returns
         -------
@@ -135,8 +137,10 @@ class Client:
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
         disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation, which can be
-            useful when connecting to servers running a non-standard SMPP version.
+            If ``True``, disables interface version validation.
+            This library uses ``SMPP v5`` implementation to encode and decode commands.
+            Binding to a server with another SMPP version may cause issues encoding and decoding commands.
+            Disable interface version check to allow binding to servers with any SMPP version.
 
         Returns
         -------
@@ -295,7 +299,6 @@ class Client:
         data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
-        message_payload: Optional[builtins.bytes] = None,
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> SubmitSmResp:
         """
@@ -337,8 +340,6 @@ class Client:
             The default short message ID.
         short_message : bytes, optional
             The message payload (up to 254 bytes). Ignored if ``message_payload`` is provided.
-        message_payload : bytes, optional
-            An optional TLV parameter carrying the message body if longer than 254 bytes.
         status : CommandStatus, default=CommandStatus.EsmeRok()
             The command status to include in the ``SubmitSm`` request.
 

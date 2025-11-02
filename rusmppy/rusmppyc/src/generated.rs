@@ -4021,6 +4021,522 @@ impl Pdu {
     }
 }
 
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum MessageSubmissionRequestTlvValue {
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
+    BillingIdentification(Vec<u8>),
+    CallbackNum(Vec<u8>),
+    CallbackNumAtag(Vec<u8>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrNpCountry(Vec<u8>),
+    DestAddrNpInformation(Vec<u8>),
+    DestAddrNpResolution(DestAddrNpResolution),
+    DestAddrSubunit(AddrSubunit),
+    DestBearerType(BearerType),
+    DestNetworkId(Vec<u8>),
+    DestNetworkType(NetworkType),
+    DestNodeId(Vec<u8>),
+    DestSubaddress(Subaddress),
+    DestTelematicsId(u16),
+    DestPort(u16),
+    DisplayTime(DisplayTime),
+    ItsReplyType(ItsReplyType),
+    ItsSessionInfo(ItsSessionInfo),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(MessagePayload),
+    MoreMessagesToSend(MoreMessagesToSend),
+    MsMsgWaitFacilities(MsMsgWaitFacilities),
+    MsValidity(MsValidity),
+    NumberOfMessages(NumberOfMessages),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    QosTimeToLive(u32),
+    SarMsgRefNum(u16),
+    SarSegmentSeqnum(u8),
+    SarTotalSegments(u8),
+    SetDpf(SetDpf),
+    SmsSignal(u16),
+    SourceAddrSubunit(AddrSubunit),
+    SourceBearerType(BearerType),
+    SourceNetworkId(Vec<u8>),
+    SourceNetworkType(NetworkType),
+    SourceNodeId(Vec<u8>),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    SourceTelematicsId(u16),
+    UserMessageReference(UserMessageReference),
+    UserResponseCode(u8),
+    UssdServiceOp(UssdServiceOp),
+}
+
+impl From<rusmpp_types::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
+    fn from(value: rusmpp_types::MessageSubmissionRequestTlvValue) -> Self {
+        match value {
+            rusmpp_types::MessageSubmissionRequestTlvValue::AlertOnMessageDelivery(inner) => {
+                MessageSubmissionRequestTlvValue::AlertOnMessageDelivery(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::BillingIdentification(inner) => {
+                MessageSubmissionRequestTlvValue::BillingIdentification(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::CallbackNum(inner) => {
+                MessageSubmissionRequestTlvValue::CallbackNum(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::CallbackNumAtag(inner) => {
+                MessageSubmissionRequestTlvValue::CallbackNumAtag(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::CallbackNumPresInd(inner) => {
+                MessageSubmissionRequestTlvValue::CallbackNumPresInd(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestAddrNpCountry(inner) => {
+                MessageSubmissionRequestTlvValue::DestAddrNpCountry(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestAddrNpInformation(inner) => {
+                MessageSubmissionRequestTlvValue::DestAddrNpInformation(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestAddrNpResolution(inner) => {
+                MessageSubmissionRequestTlvValue::DestAddrNpResolution(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestAddrSubunit(inner) => {
+                MessageSubmissionRequestTlvValue::DestAddrSubunit(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestBearerType(inner) => {
+                MessageSubmissionRequestTlvValue::DestBearerType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestNetworkId(inner) => {
+                MessageSubmissionRequestTlvValue::DestNetworkId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestNetworkType(inner) => {
+                MessageSubmissionRequestTlvValue::DestNetworkType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestNodeId(inner) => {
+                MessageSubmissionRequestTlvValue::DestNodeId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestSubaddress(inner) => {
+                MessageSubmissionRequestTlvValue::DestSubaddress(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestTelematicsId(inner) => {
+                MessageSubmissionRequestTlvValue::DestTelematicsId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DestPort(inner) => {
+                MessageSubmissionRequestTlvValue::DestPort(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::DisplayTime(inner) => {
+                MessageSubmissionRequestTlvValue::DisplayTime(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::ItsReplyType(inner) => {
+                MessageSubmissionRequestTlvValue::ItsReplyType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::ItsSessionInfo(inner) => {
+                MessageSubmissionRequestTlvValue::ItsSessionInfo(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::LanguageIndicator(inner) => {
+                MessageSubmissionRequestTlvValue::LanguageIndicator(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::MessagePayload(inner) => {
+                MessageSubmissionRequestTlvValue::MessagePayload(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::MoreMessagesToSend(inner) => {
+                MessageSubmissionRequestTlvValue::MoreMessagesToSend(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::MsMsgWaitFacilities(inner) => {
+                MessageSubmissionRequestTlvValue::MsMsgWaitFacilities(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::MsValidity(inner) => {
+                MessageSubmissionRequestTlvValue::MsValidity(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::NumberOfMessages(inner) => {
+                MessageSubmissionRequestTlvValue::NumberOfMessages(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::PayloadType(inner) => {
+                MessageSubmissionRequestTlvValue::PayloadType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::PrivacyIndicator(inner) => {
+                MessageSubmissionRequestTlvValue::PrivacyIndicator(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::QosTimeToLive(inner) => {
+                MessageSubmissionRequestTlvValue::QosTimeToLive(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SarMsgRefNum(inner) => {
+                MessageSubmissionRequestTlvValue::SarMsgRefNum(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SarSegmentSeqnum(inner) => {
+                MessageSubmissionRequestTlvValue::SarSegmentSeqnum(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SarTotalSegments(inner) => {
+                MessageSubmissionRequestTlvValue::SarTotalSegments(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SetDpf(inner) => {
+                MessageSubmissionRequestTlvValue::SetDpf(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SmsSignal(inner) => {
+                MessageSubmissionRequestTlvValue::SmsSignal(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceAddrSubunit(inner) => {
+                MessageSubmissionRequestTlvValue::SourceAddrSubunit(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceBearerType(inner) => {
+                MessageSubmissionRequestTlvValue::SourceBearerType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceNetworkId(inner) => {
+                MessageSubmissionRequestTlvValue::SourceNetworkId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceNetworkType(inner) => {
+                MessageSubmissionRequestTlvValue::SourceNetworkType(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceNodeId(inner) => {
+                MessageSubmissionRequestTlvValue::SourceNodeId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourcePort(inner) => {
+                MessageSubmissionRequestTlvValue::SourcePort(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceSubaddress(inner) => {
+                MessageSubmissionRequestTlvValue::SourceSubaddress(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::SourceTelematicsId(inner) => {
+                MessageSubmissionRequestTlvValue::SourceTelematicsId(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::UserMessageReference(inner) => {
+                MessageSubmissionRequestTlvValue::UserMessageReference(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::UserResponseCode(inner) => {
+                MessageSubmissionRequestTlvValue::UserResponseCode(inner.into())
+            }
+            rusmpp_types::MessageSubmissionRequestTlvValue::UssdServiceOp(inner) => {
+                MessageSubmissionRequestTlvValue::UssdServiceOp(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type MessageSubmissionRequestTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageSubmissionRequestTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum BroadcastRequestTlvValue {
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    BroadcastContentType(BroadcastContentType),
+    BroadcastFrequencyInterval(BroadcastFrequencyInterval),
+    BroadcastRepNum(BroadcastRepNum),
+    AlertOnMessageDelivery(AlertOnMessageDelivery),
+    BroadcastChannelIndicator(BroadcastChannelIndicator),
+    BroadcastContentTypeInfo(Vec<u8>),
+    BroadcastMessageClass(BroadcastMessageClass),
+    BroadcastServiceGroup(Vec<u8>),
+    CallbackNum(Vec<u8>),
+    CallbackNumAtag(Vec<u8>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrSubunit(AddrSubunit),
+    DestSubaddress(Subaddress),
+    DestPort(u16),
+    DisplayTime(DisplayTime),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(MessagePayload),
+    MsValidity(MsValidity),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    SmsSignal(u16),
+    SourceAddrSubunit(AddrSubunit),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    UserMessageReference(UserMessageReference),
+}
+
+impl From<rusmpp_types::BroadcastRequestTlvValue> for BroadcastRequestTlvValue {
+    fn from(value: rusmpp_types::BroadcastRequestTlvValue) -> Self {
+        match value {
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastAreaIdentifier(inner) => {
+                BroadcastRequestTlvValue::BroadcastAreaIdentifier(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastContentType(inner) => {
+                BroadcastRequestTlvValue::BroadcastContentType(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastFrequencyInterval(inner) => {
+                BroadcastRequestTlvValue::BroadcastFrequencyInterval(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastRepNum(inner) => {
+                BroadcastRequestTlvValue::BroadcastRepNum(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::AlertOnMessageDelivery(inner) => {
+                BroadcastRequestTlvValue::AlertOnMessageDelivery(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastChannelIndicator(inner) => {
+                BroadcastRequestTlvValue::BroadcastChannelIndicator(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastContentTypeInfo(inner) => {
+                BroadcastRequestTlvValue::BroadcastContentTypeInfo(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastMessageClass(inner) => {
+                BroadcastRequestTlvValue::BroadcastMessageClass(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::BroadcastServiceGroup(inner) => {
+                BroadcastRequestTlvValue::BroadcastServiceGroup(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::CallbackNum(inner) => {
+                BroadcastRequestTlvValue::CallbackNum(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::CallbackNumAtag(inner) => {
+                BroadcastRequestTlvValue::CallbackNumAtag(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::CallbackNumPresInd(inner) => {
+                BroadcastRequestTlvValue::CallbackNumPresInd(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::DestAddrSubunit(inner) => {
+                BroadcastRequestTlvValue::DestAddrSubunit(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::DestSubaddress(inner) => {
+                BroadcastRequestTlvValue::DestSubaddress(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::DestPort(inner) => {
+                BroadcastRequestTlvValue::DestPort(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::DisplayTime(inner) => {
+                BroadcastRequestTlvValue::DisplayTime(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::LanguageIndicator(inner) => {
+                BroadcastRequestTlvValue::LanguageIndicator(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::MessagePayload(inner) => {
+                BroadcastRequestTlvValue::MessagePayload(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::MsValidity(inner) => {
+                BroadcastRequestTlvValue::MsValidity(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::PayloadType(inner) => {
+                BroadcastRequestTlvValue::PayloadType(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::PrivacyIndicator(inner) => {
+                BroadcastRequestTlvValue::PrivacyIndicator(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::SmsSignal(inner) => {
+                BroadcastRequestTlvValue::SmsSignal(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::SourceAddrSubunit(inner) => {
+                BroadcastRequestTlvValue::SourceAddrSubunit(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::SourcePort(inner) => {
+                BroadcastRequestTlvValue::SourcePort(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::SourceSubaddress(inner) => {
+                BroadcastRequestTlvValue::SourceSubaddress(inner.into())
+            }
+            rusmpp_types::BroadcastRequestTlvValue::UserMessageReference(inner) => {
+                BroadcastRequestTlvValue::UserMessageReference(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type BroadcastRequestTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastRequestTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum MessageDeliveryRequestTlvValue {
+    CallbackNum(Vec<u8>),
+    CallbackNumAtag(Vec<u8>),
+    CallbackNumPresInd(CallbackNumPresInd),
+    DestAddrNpCountry(Vec<u8>),
+    DestAddrNpInformation(Vec<u8>),
+    DestAddrNpResolution(DestAddrNpResolution),
+    DestAddrSubunit(AddrSubunit),
+    DestNetworkId(Vec<u8>),
+    DestNodeId(Vec<u8>),
+    DestSubaddress(Subaddress),
+    DestPort(u16),
+    DpfResult(DpfResult),
+    ItsReplyType(ItsReplyType),
+    ItsSessionInfo(ItsSessionInfo),
+    LanguageIndicator(LanguageIndicator),
+    MessagePayload(MessagePayload),
+    MessageState(MessageState),
+    NetworkErrorCode(NetworkErrorCode),
+    PayloadType(PayloadType),
+    PrivacyIndicator(PrivacyIndicator),
+    ReceiptedMessageId(Vec<u8>),
+    SarMsgRefNum(u16),
+    SarSegmentSeqnum(u8),
+    SarTotalSegments(u8),
+    SourceAddrSubunit(AddrSubunit),
+    SourceNetworkId(Vec<u8>),
+    SourceNodeId(Vec<u8>),
+    SourcePort(u16),
+    SourceSubaddress(Subaddress),
+    UserMessageReference(UserMessageReference),
+    UserResponseCode(u8),
+    UssdServiceOp(UssdServiceOp),
+}
+
+impl From<rusmpp_types::MessageDeliveryRequestTlvValue> for MessageDeliveryRequestTlvValue {
+    fn from(value: rusmpp_types::MessageDeliveryRequestTlvValue) -> Self {
+        match value {
+            rusmpp_types::MessageDeliveryRequestTlvValue::CallbackNum(inner) => {
+                MessageDeliveryRequestTlvValue::CallbackNum(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::CallbackNumAtag(inner) => {
+                MessageDeliveryRequestTlvValue::CallbackNumAtag(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::CallbackNumPresInd(inner) => {
+                MessageDeliveryRequestTlvValue::CallbackNumPresInd(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestAddrNpCountry(inner) => {
+                MessageDeliveryRequestTlvValue::DestAddrNpCountry(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestAddrNpInformation(inner) => {
+                MessageDeliveryRequestTlvValue::DestAddrNpInformation(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestAddrNpResolution(inner) => {
+                MessageDeliveryRequestTlvValue::DestAddrNpResolution(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestAddrSubunit(inner) => {
+                MessageDeliveryRequestTlvValue::DestAddrSubunit(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestNetworkId(inner) => {
+                MessageDeliveryRequestTlvValue::DestNetworkId(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestNodeId(inner) => {
+                MessageDeliveryRequestTlvValue::DestNodeId(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestSubaddress(inner) => {
+                MessageDeliveryRequestTlvValue::DestSubaddress(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DestPort(inner) => {
+                MessageDeliveryRequestTlvValue::DestPort(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::DpfResult(inner) => {
+                MessageDeliveryRequestTlvValue::DpfResult(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::ItsReplyType(inner) => {
+                MessageDeliveryRequestTlvValue::ItsReplyType(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::ItsSessionInfo(inner) => {
+                MessageDeliveryRequestTlvValue::ItsSessionInfo(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::LanguageIndicator(inner) => {
+                MessageDeliveryRequestTlvValue::LanguageIndicator(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::MessagePayload(inner) => {
+                MessageDeliveryRequestTlvValue::MessagePayload(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::MessageState(inner) => {
+                MessageDeliveryRequestTlvValue::MessageState(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::NetworkErrorCode(inner) => {
+                MessageDeliveryRequestTlvValue::NetworkErrorCode(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::PayloadType(inner) => {
+                MessageDeliveryRequestTlvValue::PayloadType(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::PrivacyIndicator(inner) => {
+                MessageDeliveryRequestTlvValue::PrivacyIndicator(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::ReceiptedMessageId(inner) => {
+                MessageDeliveryRequestTlvValue::ReceiptedMessageId(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SarMsgRefNum(inner) => {
+                MessageDeliveryRequestTlvValue::SarMsgRefNum(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SarSegmentSeqnum(inner) => {
+                MessageDeliveryRequestTlvValue::SarSegmentSeqnum(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SarTotalSegments(inner) => {
+                MessageDeliveryRequestTlvValue::SarTotalSegments(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SourceAddrSubunit(inner) => {
+                MessageDeliveryRequestTlvValue::SourceAddrSubunit(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SourceNetworkId(inner) => {
+                MessageDeliveryRequestTlvValue::SourceNetworkId(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SourceNodeId(inner) => {
+                MessageDeliveryRequestTlvValue::SourceNodeId(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SourcePort(inner) => {
+                MessageDeliveryRequestTlvValue::SourcePort(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::SourceSubaddress(inner) => {
+                MessageDeliveryRequestTlvValue::SourceSubaddress(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::UserMessageReference(inner) => {
+                MessageDeliveryRequestTlvValue::UserMessageReference(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::UserResponseCode(inner) => {
+                MessageDeliveryRequestTlvValue::UserResponseCode(inner.into())
+            }
+            rusmpp_types::MessageDeliveryRequestTlvValue::UssdServiceOp(inner) => {
+                MessageDeliveryRequestTlvValue::UssdServiceOp(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type MessageDeliveryRequestTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageDeliveryRequestTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum QueryBroadcastResponseTlvValue {
+    MessageState(MessageState),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    BroadcastAreaSuccess(BroadcastAreaSuccess),
+    BroadcastEndTime(Vec<u8>),
+    UserMessageReference(UserMessageReference),
+}
+
+impl From<rusmpp_types::QueryBroadcastResponseTlvValue> for QueryBroadcastResponseTlvValue {
+    fn from(value: rusmpp_types::QueryBroadcastResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::QueryBroadcastResponseTlvValue::MessageState(inner) => {
+                QueryBroadcastResponseTlvValue::MessageState(inner.into())
+            }
+            rusmpp_types::QueryBroadcastResponseTlvValue::BroadcastAreaIdentifier(inner) => {
+                QueryBroadcastResponseTlvValue::BroadcastAreaIdentifier(inner.into())
+            }
+            rusmpp_types::QueryBroadcastResponseTlvValue::BroadcastAreaSuccess(inner) => {
+                QueryBroadcastResponseTlvValue::BroadcastAreaSuccess(inner.into())
+            }
+            rusmpp_types::QueryBroadcastResponseTlvValue::BroadcastEndTime(inner) => {
+                QueryBroadcastResponseTlvValue::BroadcastEndTime(inner.into())
+            }
+            rusmpp_types::QueryBroadcastResponseTlvValue::UserMessageReference(inner) => {
+                QueryBroadcastResponseTlvValue::UserMessageReference(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type QueryBroadcastResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl QueryBroadcastResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
@@ -4051,6 +4567,138 @@ impl Command {
     }
 }
 
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum MessageSubmissionResponseTlvValue {
+    AdditionalStatusInfoText(Vec<u8>),
+    DeliveryFailureReason(DeliveryFailureReason),
+    DpfResult(DpfResult),
+    NetworkErrorCode(NetworkErrorCode),
+}
+
+impl From<rusmpp_types::MessageSubmissionResponseTlvValue> for MessageSubmissionResponseTlvValue {
+    fn from(value: rusmpp_types::MessageSubmissionResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner) => {
+                MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner) => {
+                MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::DpfResult(inner) => {
+                MessageSubmissionResponseTlvValue::DpfResult(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::NetworkErrorCode(inner) => {
+                MessageSubmissionResponseTlvValue::NetworkErrorCode(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type MessageSubmissionResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageSubmissionResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum BroadcastResponseTlvValue {
+    BroadcastErrorStatus(CommandStatus),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+}
+
+impl From<rusmpp_types::BroadcastResponseTlvValue> for BroadcastResponseTlvValue {
+    fn from(value: rusmpp_types::BroadcastResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::BroadcastResponseTlvValue::BroadcastErrorStatus(inner) => {
+                BroadcastResponseTlvValue::BroadcastErrorStatus(inner.into())
+            }
+            rusmpp_types::BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner) => {
+                BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type BroadcastResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum CancelBroadcastTlvValue {
+    BroadcastContentType(BroadcastContentType),
+    UserMessageReference(UserMessageReference),
+}
+
+impl From<rusmpp_types::CancelBroadcastTlvValue> for CancelBroadcastTlvValue {
+    fn from(value: rusmpp_types::CancelBroadcastTlvValue) -> Self {
+        match value {
+            rusmpp_types::CancelBroadcastTlvValue::BroadcastContentType(inner) => {
+                CancelBroadcastTlvValue::BroadcastContentType(inner.into())
+            }
+            rusmpp_types::CancelBroadcastTlvValue::UserMessageReference(inner) => {
+                CancelBroadcastTlvValue::UserMessageReference(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type CancelBroadcastTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CancelBroadcastTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum MessageDeliveryResponseTlvValue {
+    AdditionalStatusInfoText(Vec<u8>),
+    DeliveryFailureReason(DeliveryFailureReason),
+    NetworkErrorCode(NetworkErrorCode),
+}
+
+impl From<rusmpp_types::MessageDeliveryResponseTlvValue> for MessageDeliveryResponseTlvValue {
+    fn from(value: rusmpp_types::MessageDeliveryResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(inner) => {
+                MessageDeliveryResponseTlvValue::AdditionalStatusInfoText(inner.into())
+            }
+            rusmpp_types::MessageDeliveryResponseTlvValue::DeliveryFailureReason(inner) => {
+                MessageDeliveryResponseTlvValue::DeliveryFailureReason(inner.into())
+            }
+            rusmpp_types::MessageDeliveryResponseTlvValue::NetworkErrorCode(inner) => {
+                MessageDeliveryResponseTlvValue::NetworkErrorCode(inner.into())
+            }
+            _ => panic!("Unexpected variant in Rusmpp type MessageDeliveryResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageDeliveryResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
 pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::PyResult<()> {
     use ::pyo3::types::PyModuleMethods;
     m.add_class::<AddrSubunit>()?;
@@ -4072,10 +4720,13 @@ pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::
     m.add_class::<BroadcastFrequencyInterval>()?;
     m.add_class::<BroadcastMessageClass>()?;
     m.add_class::<BroadcastRepNum>()?;
+    m.add_class::<BroadcastRequestTlvValue>()?;
+    m.add_class::<BroadcastResponseTlvValue>()?;
     m.add_class::<BroadcastSm>()?;
     m.add_class::<BroadcastSmResp>()?;
     m.add_class::<CallbackNumPresInd>()?;
     m.add_class::<CancelBroadcastSm>()?;
+    m.add_class::<CancelBroadcastTlvValue>()?;
     m.add_class::<CancelSm>()?;
     m.add_class::<Command>()?;
     m.add_class::<CommandId>()?;
@@ -4104,8 +4755,12 @@ pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::
     m.add_class::<ItsSessionInfo>()?;
     m.add_class::<LanguageIndicator>()?;
     m.add_class::<MCDeliveryReceipt>()?;
+    m.add_class::<MessageDeliveryRequestTlvValue>()?;
+    m.add_class::<MessageDeliveryResponseTlvValue>()?;
     m.add_class::<MessagePayload>()?;
     m.add_class::<MessageState>()?;
+    m.add_class::<MessageSubmissionRequestTlvValue>()?;
+    m.add_class::<MessageSubmissionResponseTlvValue>()?;
     m.add_class::<MessageType>()?;
     m.add_class::<MessagingMode>()?;
     m.add_class::<MoreMessagesToSend>()?;
@@ -4124,6 +4779,7 @@ pub fn add_classes(m: &::pyo3::Bound<'_, ::pyo3::prelude::PyModule>) -> ::pyo3::
     m.add_class::<Presentation>()?;
     m.add_class::<PriorityFlag>()?;
     m.add_class::<PrivacyIndicator>()?;
+    m.add_class::<QueryBroadcastResponseTlvValue>()?;
     m.add_class::<QueryBroadcastSm>()?;
     m.add_class::<QueryBroadcastSmResp>()?;
     m.add_class::<QuerySm>()?;

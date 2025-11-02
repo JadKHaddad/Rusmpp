@@ -121,8 +121,9 @@ impl<const N: usize> EmptyOrFullCOctetString<N> {
 
     /// Convert an [`EmptyOrFullCOctetString`] to a &[`str`] without the null terminator.
     #[inline]
-    pub fn to_str(&self) -> Result<&str, core::str::Utf8Error> {
+    pub fn as_str(&self) -> &str {
         core::str::from_utf8(&self.bytes[0..self.bytes.len() - 1])
+            .expect("EmptyOrFullCOctetString is ascii by definition")
     }
 
     /// Get the bytes of an [`EmptyOrFullCOctetString`].
@@ -433,14 +434,14 @@ mod tests {
         }
     }
 
-    mod to_str {
+    mod as_str {
         use super::*;
 
         #[test]
         fn empty_ok() {
             let bytes = b"\0";
             let string = EmptyOrFullCOctetString::<6>::new(bytes).unwrap();
-            assert!(string.to_str().unwrap().is_empty());
+            assert!(string.as_str().is_empty());
             assert!(string.to_string().is_empty());
         }
 
@@ -448,7 +449,7 @@ mod tests {
         fn ok() {
             let bytes = b"Hello\0";
             let string = EmptyOrFullCOctetString::<6>::new(bytes).unwrap();
-            assert_eq!(string.to_str().unwrap(), "Hello");
+            assert_eq!(string.as_str(), "Hello");
             assert_eq!(string.to_string(), "Hello");
         }
     }

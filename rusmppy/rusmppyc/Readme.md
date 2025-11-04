@@ -88,7 +88,6 @@ async def main():
             destination_addr="0987654321",
             data_coding=DataCoding.Ucs2(),
             short_message=b"Hello, World!",
-            message_payload=b"Big Big Message!" * 10,
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")

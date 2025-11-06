@@ -108,7 +108,6 @@ pub enum Exception {
     Other(String),
 }
 
-// TODO: use this impl in `impl From<rusmppc::error::Error> for Exception`
 impl std::fmt::Display for Exception {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -181,32 +180,22 @@ impl From<rusmppc::error::Error> for Exception {
 impl From<Exception> for PyErr {
     fn from(error: Exception) -> Self {
         match error {
-            Exception::Connect(error) => ConnectException::new_err(error),
-            Exception::Io(error) => IoException::new_err(error),
-            Exception::ConnectionClosed() => {
-                ConnectionClosedException::new_err("Connection closed")
+            Exception::Connect(_) => ConnectException::new_err(error.to_string()),
+            Exception::Io(_) => IoException::new_err(error.to_string()),
+            Exception::ConnectionClosed() => ConnectionClosedException::new_err(error.to_string()),
+            Exception::Encode(_) => EncodeException::new_err(error.to_string()),
+            Exception::Decode(_) => DecodeException::new_err(error.to_string()),
+            Exception::ResponseTimeout { .. } => {
+                ResponseTimeoutException::new_err(error.to_string())
             }
-            Exception::Encode(error) => EncodeException::new_err(error),
-            Exception::Decode(error) => DecodeException::new_err(error),
-            Exception::ResponseTimeout {
-                sequence_number,
-                timeout,
-            } => ResponseTimeoutException::new_err(format!(
-                "Response timeout: sequence number: {sequence_number}, timeout: {timeout}",
-            )),
-            Exception::UnexpectedResponse { response } => {
-                UnexpectedResponseException::new_err(response)
+            Exception::UnexpectedResponse { .. } => {
+                UnexpectedResponseException::new_err(error.to_string())
             }
-            Exception::UnsupportedInterfaceVersion {
-                version,
-                supported_version,
-            } => UnsupportedInterfaceVersionException::new_err(format!(
-                "Unsupported interface version: {version:?}, supported version: {supported_version:?}",
-            )),
-            Exception::Value { name, error } => {
-                ValueException::new_err(format!("Invalid SMPP value: name: {name}, error: {error}"))
+            Exception::UnsupportedInterfaceVersion { .. } => {
+                UnsupportedInterfaceVersionException::new_err(error.to_string())
             }
-            Exception::Other(error) => RusmppycException::new_err(error),
+            Exception::Value { .. } => ValueException::new_err(error.to_string()),
+            Exception::Other(_) => RusmppycException::new_err(error.to_string()),
         }
     }
 }

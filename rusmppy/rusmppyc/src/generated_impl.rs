@@ -1,11 +1,12 @@
 use rusmpp::{
     tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
+    types::{COctetString, OctetString},
     values::{DataCoding, InterfaceVersion, Npi, Ton},
     CommandStatus,
 };
 
 use crate::{
-    exception::Exception,
+    exception::{Exception, TlvValueExceptionExt},
     generated::{
         CommandStatus as GCommandStatus, DataCoding as GDataCoding,
         InterfaceVersion as GInterfaceVersion,
@@ -234,25 +235,38 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
 
     fn try_from(value: GMessageSubmissionRequestTlvValue) -> Result<Self, Self::Error> {
         use GMessageSubmissionRequestTlvValue as GValue;
-        use MessageSubmissionRequestTlvValue as Value;
 
         let value = match value {
             GValue::AlertOnMessageDelivery(value) => todo!(),
-            GValue::BillingIdentification(value) => todo!(),
-            GValue::CallbackNum(value) => todo!(),
-            GValue::CallbackNumAtag(value) => todo!(),
+            GValue::BillingIdentification(value) => Self::BillingIdentification(
+                OctetString::new(value).map_tlv_value_err("billing_identification")?,
+            ),
+            GValue::CallbackNum(value) => {
+                Self::CallbackNum(OctetString::new(value).map_tlv_value_err("callback_num")?)
+            }
+            GValue::CallbackNumAtag(value) => Self::CallbackNumAtag(
+                OctetString::new(value).map_tlv_value_err("callback_num_atag")?,
+            ),
             GValue::CallbackNumPresInd(value) => todo!(),
-            GValue::DestAddrNpCountry(value) => todo!(),
-            GValue::DestAddrNpInformation(value) => todo!(),
+            GValue::DestAddrNpCountry(value) => Self::DestAddrNpCountry(
+                OctetString::new(value).map_tlv_value_err("dest_addr_np_country")?,
+            ),
+            GValue::DestAddrNpInformation(value) => Self::DestAddrNpInformation(
+                OctetString::new(value).map_tlv_value_err("dest_addr_np_information")?,
+            ),
             GValue::DestAddrNpResolution(value) => todo!(),
             GValue::DestAddrSubunit(value) => todo!(),
             GValue::DestBearerType(value) => todo!(),
-            GValue::DestNetworkId(value) => todo!(),
+            GValue::DestNetworkId(value) => {
+                Self::DestNetworkId(COctetString::new(value).map_tlv_value_err("dest_network_id")?)
+            }
             GValue::DestNetworkType(value) => todo!(),
-            GValue::DestNodeId(value) => todo!(),
+            GValue::DestNodeId(value) => {
+                Self::DestNodeId(OctetString::new(value).map_tlv_value_err("dest_node_id")?)
+            }
             GValue::DestSubaddress(value) => todo!(),
-            GValue::DestTelematicsId(value) => todo!(),
-            GValue::DestPort(value) => todo!(),
+            GValue::DestTelematicsId(value) => Self::DestTelematicsId(value),
+            GValue::DestPort(value) => Self::DestPort(value),
             GValue::DisplayTime(value) => todo!(),
             GValue::ItsReplyType(value) => todo!(),
             GValue::ItsSessionInfo(value) => todo!(),
@@ -264,24 +278,28 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
             GValue::NumberOfMessages(value) => todo!(),
             GValue::PayloadType(value) => todo!(),
             GValue::PrivacyIndicator(value) => todo!(),
-            GValue::QosTimeToLive(value) => todo!(),
-            GValue::SarMsgRefNum(value) => todo!(),
-            GValue::SarSegmentSeqnum(value) => todo!(),
-            GValue::SarTotalSegments(value) => todo!(),
+            GValue::QosTimeToLive(value) => Self::QosTimeToLive(value),
+            GValue::SarMsgRefNum(value) => Self::SarMsgRefNum(value),
+            GValue::SarSegmentSeqnum(value) => Self::SarSegmentSeqnum(value),
+            GValue::SarTotalSegments(value) => Self::SarTotalSegments(value),
             GValue::SetDpf(value) => todo!(),
-            GValue::SmsSignal(value) => todo!(),
+            GValue::SmsSignal(value) => Self::SmsSignal(value),
             GValue::SourceAddrSubunit(value) => todo!(),
             GValue::SourceBearerType(value) => todo!(),
-            GValue::SourceNetworkId(value) => todo!(),
+            GValue::SourceNetworkId(value) => Self::SourceNetworkId(
+                COctetString::new(value).map_tlv_value_err("source_network_id")?,
+            ),
             GValue::SourceNetworkType(value) => todo!(),
-            GValue::SourceNodeId(value) => todo!(),
-            GValue::SourcePort(value) => todo!(),
+            GValue::SourceNodeId(value) => {
+                Self::SourceNodeId(OctetString::new(value).map_tlv_value_err("source_node_id")?)
+            }
+            GValue::SourcePort(value) => Self::SourcePort(value),
             GValue::SourceSubaddress(value) => todo!(),
-            GValue::SourceTelematicsId(value) => todo!(),
+            GValue::SourceTelematicsId(value) => Self::SourceTelematicsId(value),
             GValue::UserMessageReference(value) => todo!(),
-            GValue::UserResponseCode(value) => todo!(),
+            GValue::UserResponseCode(value) => Self::UserResponseCode(value),
             GValue::UssdServiceOp(value) => todo!(),
-            GValue::Other { tag, value } => Value::Other {
+            GValue::Other { tag, value } => Self::Other {
                 tag: tag.into(),
                 value: value.into(),
             },

@@ -11,6 +11,7 @@ use crate::{
 
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, TlvValue)]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 pub enum MessageSubmissionRequestTlvValue<'a> {
     AlertOnMessageDelivery(AlertOnMessageDelivery),
     BillingIdentification(OctetString<'a, 0, 1024>),

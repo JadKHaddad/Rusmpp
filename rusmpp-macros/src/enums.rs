@@ -96,6 +96,7 @@ pub fn derive_tlv_value_for_enum(
     // Collect match arms
     let mut tag_arms = Vec::new();
     let mut value_arms = Vec::new();
+    let mut has_other_variant = false;
 
     for variant in &data_enum.variants {
         let v_ident = &variant.ident;
@@ -110,10 +111,55 @@ pub fn derive_tlv_value_for_enum(
                     #ident::#v_ident(value) => TlvValue::#v_ident(value),
                 });
             }
+            Fields::Named(fields) => {
+                if v_ident == "Other" {
+                    if has_other_variant {
+                        return Err(syn::Error::new_spanned(
+                            v_ident,
+                            "Duplicate 'Other' variant found. Only one is allowed.",
+                        ));
+                    }
+
+                    // Check that it has exactly two fields named tag/value of correct types
+                    let mut has_tag = false;
+                    let mut has_value = false;
+
+                    for field in &fields.named {
+                        let name = field.ident.as_ref().unwrap().to_string();
+                        match name.as_str() {
+                            "tag" => has_tag = true,
+                            "value" => has_value = true,
+                            _ => {
+                                return Err(syn::Error::new_spanned(
+                                    &field.ident,
+                                    "Unexpected field in 'Other' variant. Expected only { tag, value }.",
+                                ));
+                            }
+                        }
+                    }
+
+                    if !(has_tag && has_value) {
+                        return Err(syn::Error::new_spanned(
+                            &variant.ident,
+                            "The 'Other' variant must have fields { tag: TlvTag, value: AnyOctetString }.",
+                        ));
+                    }
+
+                    has_other_variant = true;
+
+                    tag_arms.push(quote! {
+                        #ident::Other { tag, .. } => *tag,
+                    });
+
+                    value_arms.push(quote! {
+                        #ident::Other { tag, value } => TlvValue::Other { tag, value },
+                    });
+                }
+            }
             _ => {
                 return Err(syn::Error::new_spanned(
                     &variant.ident,
-                    "TlvValue can only be derived for tuple variants with a single field",
+                    "TlvValue can only be derived for tuple variants with a single field or a named 'Other' variant.",
                 ));
             }
         }

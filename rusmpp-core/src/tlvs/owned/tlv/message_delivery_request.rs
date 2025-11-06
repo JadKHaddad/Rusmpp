@@ -5,7 +5,7 @@ use crate::{
         TlvTag,
         owned::{Tlv, TlvValue},
     },
-    types::owned::{COctetString, OctetString},
+    types::owned::{AnyOctetString, COctetString, OctetString},
     values::{owned::*, *},
 };
 
@@ -46,4 +46,5 @@ pub enum MessageDeliveryRequestTlvValue {
     UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
+    Other { tag: TlvTag, value: AnyOctetString },
 }

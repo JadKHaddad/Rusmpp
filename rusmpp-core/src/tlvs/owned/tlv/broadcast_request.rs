@@ -5,7 +5,7 @@ use crate::{
         TlvTag,
         owned::{Tlv, TlvValue},
     },
-    types::owned::OctetString,
+    types::owned::{AnyOctetString, OctetString},
     values::{owned::*, *},
 };
 
@@ -40,4 +40,5 @@ pub enum BroadcastRequestTlvValue {
     SourcePort(u16),
     SourceSubaddress(Subaddress),
     UserMessageReference(UserMessageReference),
+    Other { tag: TlvTag, value: AnyOctetString },
 }

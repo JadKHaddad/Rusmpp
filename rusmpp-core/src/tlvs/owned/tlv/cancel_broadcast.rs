@@ -5,6 +5,7 @@ use crate::{
         TlvTag,
         owned::{Tlv, TlvValue},
     },
+    types::owned::AnyOctetString,
     values::*,
 };
 
@@ -20,4 +21,8 @@ pub enum CancelBroadcastTlvValue {
     /// Note: The message_id field should be set to NULL if
     /// using the user_message_reference TLV.
     UserMessageReference(UserMessageReference),
+    Other {
+        tag: TlvTag,
+        value: AnyOctetString,
+    },
 }

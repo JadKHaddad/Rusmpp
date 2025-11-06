@@ -11,8 +11,7 @@ from .rusmppyc import (
     ResponseTimeoutException,
     UnexpectedResponseException,
     UnsupportedInterfaceVersionException,
-    PduException,
-    TlvValueException,
+    ValueException,
 )
 
 __all__ = [
@@ -25,6 +24,5 @@ __all__ = [
     "ResponseTimeoutException",
     "UnexpectedResponseException",
     "UnsupportedInterfaceVersionException",
-    "PduException",
-    "TlvValueException",
+    "ValueException",
 ]

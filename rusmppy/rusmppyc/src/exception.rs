@@ -66,16 +66,9 @@ create_exception!(
 
 create_exception!(
     exceptions,
-    PduException,
+    ValueException,
     RusmppycException,
-    "The client created an invalid `SMPP` PDU."
-);
-
-create_exception!(
-    exceptions,
-    TlvValueException,
-    RusmppycException,
-    "The client created an invalid `SMPP` TLV value."
+    "The client created an invalid `SMPP` value."
 );
 
 /// Errors that can occur while calling Rusmppyc functions.
@@ -101,14 +94,11 @@ pub enum Exception {
         version: crate::generated::InterfaceVersion,
         supported_version: crate::generated::InterfaceVersion,
     },
-    /// The user created an invalid `SMPP` PDU.
-    Pdu {
-        field: String,
-        error: String,
-    },
-    /// The user created an invalid `SMPP` TLV value.
-    TlvValue {
-        value: String,
+    /// The user created an invalid `SMPP` value.
+    Value {
+        /// The name of the value that caused the error.
+        name: String,
+        /// The error message.
         error: String,
     },
     /// Other error type.
@@ -175,38 +165,22 @@ impl From<Exception> for PyErr {
             } => UnsupportedInterfaceVersionException::new_err(format!(
                 "Unsupported interface version: {version:?}, supported version: {supported_version:?}",
             )),
-            Exception::Pdu { field, error } => {
-                PduException::new_err(format!("Invalid PDU: field: {field}, error: {error}"))
-            }
-            Exception::TlvValue { value, error } => {
-                TlvValueException::new_err(format!("Invalid TLV value: value: {value}, error: {error}"))
+            Exception::Value { name, error } => {
+                ValueException::new_err(format!("Invalid SMPP value: name: {name}, error: {error}"))
             }
             Exception::Other(error) => RusmppycException::new_err(error),
         }
     }
 }
 
-pub trait PduExceptionExt<T> {
-    fn map_pdu_err(self, field: &'static str) -> Result<T, Exception>;
+pub trait ValueExceptionExt<T> {
+    fn map_value_err(self, name: &'static str) -> Result<T, Exception>;
 }
 
-impl<T, E: std::error::Error> PduExceptionExt<T> for Result<T, E> {
-    fn map_pdu_err(self, field: &'static str) -> Result<T, Exception> {
-        self.map_err(|error| Exception::Pdu {
-            field: field.to_string(),
-            error: error.to_string(),
-        })
-    }
-}
-
-pub trait TlvValueExceptionExt<T> {
-    fn map_tlv_value_err(self, value: &'static str) -> Result<T, Exception>;
-}
-
-impl<T, E: std::error::Error> TlvValueExceptionExt<T> for Result<T, E> {
-    fn map_tlv_value_err(self, value: &'static str) -> Result<T, Exception> {
-        self.map_err(|error| Exception::TlvValue {
-            value: value.to_string(),
+impl<T, E: std::error::Error> ValueExceptionExt<T> for Result<T, E> {
+    fn map_value_err(self, name: &'static str) -> Result<T, Exception> {
+        self.map_err(|error| Exception::Value {
+            name: name.to_string(),
             error: error.to_string(),
         })
     }

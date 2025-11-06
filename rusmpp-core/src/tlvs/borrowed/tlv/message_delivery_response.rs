@@ -5,7 +5,7 @@ use crate::{
         TlvTag,
         borrowed::{Tlv, TlvValue},
     },
-    types::borrowed::COctetString,
+    types::borrowed::{AnyOctetString, COctetString},
     values::*,
 };
 
@@ -16,4 +16,8 @@ pub enum MessageDeliveryResponseTlvValue<'a> {
     AdditionalStatusInfoText(COctetString<'a, 1, 256>),
     DeliveryFailureReason(DeliveryFailureReason),
     NetworkErrorCode(NetworkErrorCode),
+    Other {
+        tag: TlvTag,
+        value: AnyOctetString<'a>,
+    },
 }

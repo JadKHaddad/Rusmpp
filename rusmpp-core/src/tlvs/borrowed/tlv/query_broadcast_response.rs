@@ -5,7 +5,7 @@ use crate::{
         TlvTag,
         borrowed::{Tlv, TlvValue},
     },
-    types::borrowed::OctetString,
+    types::borrowed::{AnyOctetString, OctetString},
     values::{borrowed::*, *},
 };
 
@@ -18,4 +18,8 @@ pub enum QueryBroadcastResponseTlvValue<'a> {
     BroadcastAreaSuccess(BroadcastAreaSuccess),
     BroadcastEndTime(OctetString<'a, 0, 17>),
     UserMessageReference(UserMessageReference),
+    Other {
+        tag: TlvTag,
+        value: AnyOctetString<'a>,
+    },
 }

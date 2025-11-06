@@ -6,6 +6,7 @@ use crate::{
         TlvTag,
         borrowed::{Tlv, TlvValue},
     },
+    types::borrowed::AnyOctetString,
     values::borrowed::*,
 };
 
@@ -15,4 +16,8 @@ use crate::{
 pub enum BroadcastResponseTlvValue<'a> {
     BroadcastErrorStatus(CommandStatus),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier<'a>),
+    Other {
+        tag: TlvTag,
+        value: AnyOctetString<'a>,
+    },
 }

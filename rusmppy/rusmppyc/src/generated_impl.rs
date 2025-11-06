@@ -279,6 +279,49 @@ impl From<GCallbackNumPresInd> for CallbackNumPresInd {
     }
 }
 
+impl From<GDestAddrNpResolution> for DestAddrNpResolution {
+    fn from(value: GDestAddrNpResolution) -> Self {
+        match value {
+            GDestAddrNpResolution::QueryNotPerformed() => Self::QueryNotPerformed,
+            GDestAddrNpResolution::QueryPerformedNumberNotPorted() => {
+                Self::QueryPerformedNumberNotPorted
+            }
+            GDestAddrNpResolution::QueryPerformedNumberPorted() => Self::QueryPerformedNumberPorted,
+            GDestAddrNpResolution::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GAddrSubunit> for AddrSubunit {
+    fn from(value: GAddrSubunit) -> Self {
+        match value {
+            GAddrSubunit::Unknown() => Self::Unknown,
+            GAddrSubunit::MSDisplay() => Self::MSDisplay,
+            GAddrSubunit::MobileEquipment() => Self::MobileEquipment,
+            GAddrSubunit::SmartCard() => Self::SmartCard,
+            GAddrSubunit::ExternalUnit() => Self::ExternalUnit,
+            GAddrSubunit::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GBearerType> for BearerType {
+    fn from(value: GBearerType) -> Self {
+        match value {
+            GBearerType::Unknown() => Self::Unknown,
+            GBearerType::Sms() => Self::Sms,
+            GBearerType::Csd() => Self::Csd,
+            GBearerType::PacketData() => Self::PacketData,
+            GBearerType::Ussd() => Self::Ussd,
+            GBearerType::Cdpd() => Self::Cdpd,
+            GBearerType::DataTac() => Self::DataTac,
+            GBearerType::FlexReFlex() => Self::FlexReFlex,
+            GBearerType::CellBroadcast() => Self::CellBroadcast,
+            GBearerType::Other(value) => Self::Other(value),
+        }
+    }
+}
+
 impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -303,9 +346,9 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
             GValue::DestAddrNpInformation(value) => Self::DestAddrNpInformation(
                 OctetString::new(value).map_value_err("dest_addr_np_information")?,
             ),
-            GValue::DestAddrNpResolution(value) => todo!(),
-            GValue::DestAddrSubunit(value) => todo!(),
-            GValue::DestBearerType(value) => todo!(),
+            GValue::DestAddrNpResolution(value) => Self::DestAddrNpResolution(value.into()),
+            GValue::DestAddrSubunit(value) => Self::DestAddrSubunit(value.into()),
+            GValue::DestBearerType(value) => Self::DestBearerType(value.into()),
             GValue::DestNetworkId(value) => {
                 Self::DestNetworkId(COctetString::new(value).map_value_err("dest_network_id")?)
             }

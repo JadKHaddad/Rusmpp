@@ -108,6 +108,44 @@ pub enum Exception {
     Other(String),
 }
 
+// TODO: use this impl in `impl From<rusmppc::error::Error> for Exception`
+impl std::fmt::Display for Exception {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Exception::Connect(error) => write!(f, "Connect error: {}", error),
+            Exception::Io(error) => write!(f, "IO error: {}", error),
+            Exception::ConnectionClosed() => write!(f, "Connection closed"),
+            Exception::Encode(error) => write!(f, "Encode error: {}", error),
+            Exception::Decode(error) => write!(f, "Decode error: {}", error),
+            Exception::ResponseTimeout {
+                sequence_number,
+                timeout,
+            } => write!(
+                f,
+                "Response timeout: sequence number: {}, timeout: {}",
+                sequence_number, timeout
+            ),
+            Exception::UnexpectedResponse { response } => {
+                write!(f, "Unexpected response: {}", response)
+            }
+            Exception::UnsupportedInterfaceVersion {
+                version,
+                supported_version,
+            } => write!(
+                f,
+                "Unsupported interface version: {:?}, supported version: {:?}",
+                version, supported_version
+            ),
+            Exception::Value { name, error } => {
+                write!(f, "Invalid SMPP value: name: {}, error: {}", name, error)
+            }
+            Exception::Other(error) => write!(f, "Other error: {}", error),
+        }
+    }
+}
+
+impl std::error::Error for Exception {}
+
 impl From<rusmppc::error::Error> for Exception {
     fn from(error: rusmppc::error::Error) -> Self {
         match error {

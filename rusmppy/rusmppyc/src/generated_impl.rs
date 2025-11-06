@@ -16,7 +16,8 @@ use crate::{
         ItsSessionInfo as GItsSessionInfo, LanguageIndicator as GLanguageIndicator,
         MessageSubmissionRequestTlvValue as GMessageSubmissionRequestTlvValue,
         NetworkType as GNetworkType, Npi as GNpi, Presentation as GPresentation,
-        Screening as GScreening, TlvTag as GeneratedTlvTag, Ton as GTon,
+        PrivacyIndicator as GPrivacyIndicator, Screening as GScreening, Subaddress as GSubaddress,
+        SubaddressTag as GSubaddressTag, TlvTag as GeneratedTlvTag, Ton as GTon,
     },
 };
 
@@ -322,6 +323,108 @@ impl From<GBearerType> for BearerType {
     }
 }
 
+impl From<GNetworkType> for NetworkType {
+    fn from(value: GNetworkType) -> Self {
+        match value {
+            GNetworkType::Unknown() => Self::Unknown,
+            GNetworkType::Gsm() => Self::Gsm,
+            GNetworkType::Ansi136() => Self::Ansi136,
+            GNetworkType::Is95() => Self::Is95,
+            GNetworkType::Pdc() => Self::Pdc,
+            GNetworkType::Phs() => Self::Phs,
+            GNetworkType::IDen() => Self::IDen,
+            GNetworkType::Amps() => Self::Amps,
+            GNetworkType::PagingNetwork() => Self::PagingNetwork,
+            GNetworkType::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GSubaddressTag> for SubaddressTag {
+    fn from(value: GSubaddressTag) -> Self {
+        match value {
+            GSubaddressTag::NsapEven() => Self::NsapEven,
+            GSubaddressTag::NsapOdd() => Self::NsapOdd,
+            GSubaddressTag::UserSpecified() => Self::UserSpecified,
+            GSubaddressTag::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl TryFrom<GSubaddress> for Subaddress {
+    type Error = Exception;
+
+    fn try_from(value: GSubaddress) -> Result<Self, Self::Error> {
+        Ok(Self {
+            tag: value.tag.into(),
+            addr: OctetString::new(value.addr).map_value_err("addr")?,
+        })
+    }
+}
+
+impl From<GDisplayTime> for DisplayTime {
+    fn from(value: GDisplayTime) -> Self {
+        match value {
+            GDisplayTime::Temporary() => Self::Temporary,
+            GDisplayTime::Default() => Self::Default,
+            GDisplayTime::Invoke() => Self::Invoke,
+            GDisplayTime::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GItsSessionInfo> for ItsSessionInfo {
+    fn from(value: GItsSessionInfo) -> Self {
+        Self {
+            session_number: value.session_number,
+            sequence_number: value.sequence_number,
+        }
+    }
+}
+
+impl From<GLanguageIndicator> for LanguageIndicator {
+    fn from(value: GLanguageIndicator) -> Self {
+        match value {
+            GLanguageIndicator::Unspecified() => Self::Unspecified,
+            GLanguageIndicator::English() => Self::English,
+            GLanguageIndicator::French() => Self::French,
+            GLanguageIndicator::Spanish() => Self::Spanish,
+            GLanguageIndicator::German() => Self::German,
+            GLanguageIndicator::Portuguese() => Self::Portuguese,
+            GLanguageIndicator::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GPrivacyIndicator> for PrivacyIndicator {
+    fn from(value: GPrivacyIndicator) -> Self {
+        match value {
+            GPrivacyIndicator::NotRestricted() => Self::NotRestricted,
+            GPrivacyIndicator::Restricted() => Self::Restricted,
+            GPrivacyIndicator::Confidential() => Self::Confidential,
+            GPrivacyIndicator::Secret() => Self::Secret,
+            GPrivacyIndicator::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GItsReplyType> for ItsReplyType {
+    fn from(value: GItsReplyType) -> Self {
+        match value {
+            GItsReplyType::Digit() => Self::Digit,
+            GItsReplyType::Number() => Self::Number,
+            GItsReplyType::TelephoneNo() => Self::TelephoneNo,
+            GItsReplyType::Password() => Self::Password,
+            GItsReplyType::CharacterLine() => Self::CharacterLine,
+            GItsReplyType::Menu() => Self::Menu,
+            GItsReplyType::Date() => Self::Date,
+            GItsReplyType::Time() => Self::Time,
+            GItsReplyType::Continue() => Self::Continue,
+            GItsReplyType::Other(value) => Self::Other(value),
+        }
+    }
+}
+
 impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -352,17 +455,19 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
             GValue::DestNetworkId(value) => {
                 Self::DestNetworkId(COctetString::new(value).map_value_err("dest_network_id")?)
             }
-            GValue::DestNetworkType(value) => todo!(),
+            GValue::DestNetworkType(value) => Self::DestNetworkType(value.into()),
             GValue::DestNodeId(value) => {
                 Self::DestNodeId(OctetString::new(value).map_value_err("dest_node_id")?)
             }
-            GValue::DestSubaddress(value) => todo!(),
+            GValue::DestSubaddress(value) => {
+                Self::DestSubaddress(value.try_into().map_value_err("dest_subaddress")?)
+            }
             GValue::DestTelematicsId(value) => Self::DestTelematicsId(value),
             GValue::DestPort(value) => Self::DestPort(value),
-            GValue::DisplayTime(value) => todo!(),
-            GValue::ItsReplyType(value) => todo!(),
-            GValue::ItsSessionInfo(value) => todo!(),
-            GValue::LanguageIndicator(value) => todo!(),
+            GValue::DisplayTime(value) => Self::DisplayTime(value.into()),
+            GValue::ItsReplyType(value) => Self::ItsReplyType(value.into()),
+            GValue::ItsSessionInfo(value) => Self::ItsSessionInfo(value.into()),
+            GValue::LanguageIndicator(value) => Self::LanguageIndicator(value.into()),
             GValue::MessagePayload(value) => todo!(),
             GValue::MoreMessagesToSend(value) => todo!(),
             GValue::MsMsgWaitFacilities(value) => todo!(),

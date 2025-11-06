@@ -32,7 +32,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
-        disable_interface_version_check: bool = False,
+        interface_version_check: bool = True,
     ) -> tuple["Client", Events]:
         """
         Connect to an SMPP server.
@@ -59,8 +59,8 @@ class Client:
             ``None`` to wait indefinitely.
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
-        disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation.
+        interface_version_check : bool, default=True
+            If ``False``, disables interface version validation.
             This library uses ``SMPP v5`` implementation to encode and decode commands.
             Binding to a server with another SMPP version may cause issues encoding and decoding commands.
             Disable interface version check to allow binding to servers with any SMPP version.
@@ -108,7 +108,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
-        disable_interface_version_check: bool = False,
+        interface_version_check: bool = True,
     ) -> tuple["Client", Events]:
         """
         Create a client from an existing asyncio connection.
@@ -136,8 +136,8 @@ class Client:
             ``None`` to wait indefinitely.
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
-        disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation.
+        interface_version_check : bool, default=True
+            If ``False``, disables interface version validation.
             This library uses ``SMPP v5`` implementation to encode and decode commands.
             Binding to a server with another SMPP version may cause issues encoding and decoding commands.
             Disable interface version check to allow binding to servers with any SMPP version.

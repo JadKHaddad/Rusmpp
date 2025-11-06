@@ -11,6 +11,7 @@ use crate::{
 
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, TlvValue)]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 pub enum MessageDeliveryRequestTlvValue<'a> {
     CallbackNum(OctetString<'a, 4, 19>),
     CallbackNumAtag(OctetString<'a, 0, 65>),

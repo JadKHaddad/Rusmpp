@@ -9,6 +9,7 @@ use crate::{
 // XXX: This value has no lifetime parameters but annotated with non_exhaustive. If a new value with a lifetime parameter is added in the future it will be a breaking change.
 #[non_exhaustive]
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 pub enum CancelBroadcastTlvValue {
     /// Specifies the content type of the message.
     BroadcastContentType(BroadcastContentType),

@@ -1,189 +1,212 @@
 use rusmpp::{
+    tlvs::MessageSubmissionRequestTlvValue,
     values::{DataCoding, InterfaceVersion, Npi, Ton},
     CommandStatus,
 };
 
-// TODO: can we implement this in the generated.rs instead?
+use crate::{
+    exception::Exception,
+    generated::{
+        CommandStatus as GCommandStatus, DataCoding as GDataCoding,
+        InterfaceVersion as GInterfaceVersion,
+        MessageSubmissionRequestTlvValue as GMessageSubmissionRequestTlvValue, Npi as GeneratedNpi,
+        Ton as GeneratedTon,
+    },
+};
 
-impl From<crate::generated::CommandStatus> for CommandStatus {
-    fn from(value: crate::generated::CommandStatus) -> Self {
+impl From<GCommandStatus> for CommandStatus {
+    fn from(value: GCommandStatus) -> Self {
         match value {
-            crate::generated::CommandStatus::EsmeRok() => CommandStatus::EsmeRok,
-            crate::generated::CommandStatus::EsmeRinvmsglen() => CommandStatus::EsmeRinvmsglen,
-            crate::generated::CommandStatus::EsmeRinvcmdlen() => CommandStatus::EsmeRinvcmdlen,
-            crate::generated::CommandStatus::EsmeRinvcmdid() => CommandStatus::EsmeRinvcmdid,
-            crate::generated::CommandStatus::EsmeRinvbndsts() => CommandStatus::EsmeRinvbndsts,
-            crate::generated::CommandStatus::EsmeRalybnd() => CommandStatus::EsmeRalybnd,
-            crate::generated::CommandStatus::EsmeRinvprtflg() => CommandStatus::EsmeRinvprtflg,
-            crate::generated::CommandStatus::EsmeRinvregdlvflg() => {
-                CommandStatus::EsmeRinvregdlvflg
-            }
-            crate::generated::CommandStatus::EsmeRsyserr() => CommandStatus::EsmeRsyserr,
-            crate::generated::CommandStatus::EsmeRinvsrcadr() => CommandStatus::EsmeRinvsrcadr,
-            crate::generated::CommandStatus::EsmeRinvdstadr() => CommandStatus::EsmeRinvdstadr,
-            crate::generated::CommandStatus::EsmeRinvmsgid() => CommandStatus::EsmeRinvmsgid,
-            crate::generated::CommandStatus::EsmeRbindfail() => CommandStatus::EsmeRbindfail,
-            crate::generated::CommandStatus::EsmeRinvpaswd() => CommandStatus::EsmeRinvpaswd,
-            crate::generated::CommandStatus::EsmeRinvsysid() => CommandStatus::EsmeRinvsysid,
-            crate::generated::CommandStatus::EsmeRcancelfail() => CommandStatus::EsmeRcancelfail,
-            crate::generated::CommandStatus::EsmeRreplacefail() => CommandStatus::EsmeRreplacefail,
-            crate::generated::CommandStatus::EsmeRmsgqful() => CommandStatus::EsmeRmsgqful,
-            crate::generated::CommandStatus::EsmeRinvsertyp() => CommandStatus::EsmeRinvsertyp,
-            crate::generated::CommandStatus::EsmeRinvnumdests() => CommandStatus::EsmeRinvnumdests,
-            crate::generated::CommandStatus::EsmeRinvdlname() => CommandStatus::EsmeRinvdlname,
-            crate::generated::CommandStatus::EsmeRinvdestflag() => CommandStatus::EsmeRinvdestflag,
-            crate::generated::CommandStatus::EsmeRinvsubrep() => CommandStatus::EsmeRinvsubrep,
-            crate::generated::CommandStatus::EsmeRinvesmclass() => CommandStatus::EsmeRinvesmclass,
-            crate::generated::CommandStatus::EsmeRcntsubdl() => CommandStatus::EsmeRcntsubdl,
-            crate::generated::CommandStatus::EsmeRsubmitfail() => CommandStatus::EsmeRsubmitfail,
-            crate::generated::CommandStatus::EsmeRinvsrcton() => CommandStatus::EsmeRinvsrcton,
-            crate::generated::CommandStatus::EsmeRinvsrcnpi() => CommandStatus::EsmeRinvsrcnpi,
-            crate::generated::CommandStatus::EsmeRinvdstton() => CommandStatus::EsmeRinvdstton,
-            crate::generated::CommandStatus::EsmeRinvdstnpi() => CommandStatus::EsmeRinvdstnpi,
-            crate::generated::CommandStatus::EsmeRinvsystyp() => CommandStatus::EsmeRinvsystyp,
-            crate::generated::CommandStatus::EsmeRinvrepflag() => CommandStatus::EsmeRinvrepflag,
-            crate::generated::CommandStatus::EsmeRinvnummsgs() => CommandStatus::EsmeRinvnummsgs,
-            crate::generated::CommandStatus::EsmeRthrottled() => CommandStatus::EsmeRthrottled,
-            crate::generated::CommandStatus::EsmeRinvsched() => CommandStatus::EsmeRinvsched,
-            crate::generated::CommandStatus::EsmeRinvexpiry() => CommandStatus::EsmeRinvexpiry,
-            crate::generated::CommandStatus::EsmeRinvdftmsgid() => CommandStatus::EsmeRinvdftmsgid,
-            crate::generated::CommandStatus::EsmeRxTAppn() => CommandStatus::EsmeRxTAppn,
-            crate::generated::CommandStatus::EsmeRxPAppn() => CommandStatus::EsmeRxPAppn,
-            crate::generated::CommandStatus::EsmeRxRAppn() => CommandStatus::EsmeRxRAppn,
-            crate::generated::CommandStatus::EsmeRqueryfail() => CommandStatus::EsmeRqueryfail,
-            crate::generated::CommandStatus::EsmeRinvtlvstream() => {
-                CommandStatus::EsmeRinvtlvstream
-            }
-            crate::generated::CommandStatus::EsmeRtlvnotallwd() => CommandStatus::EsmeRtlvnotallwd,
-            crate::generated::CommandStatus::EsmeRinvtlvlen() => CommandStatus::EsmeRinvtlvlen,
-            crate::generated::CommandStatus::EsmeRmissingtlv() => CommandStatus::EsmeRmissingtlv,
-            crate::generated::CommandStatus::EsmeRinvtlvval() => CommandStatus::EsmeRinvtlvval,
-            crate::generated::CommandStatus::EsmeRdeliveryfailure() => {
-                CommandStatus::EsmeRdeliveryfailure
-            }
-            crate::generated::CommandStatus::EsmeRunknownerr() => CommandStatus::EsmeRunknownerr,
-            crate::generated::CommandStatus::EsmeRsertypunauth() => {
-                CommandStatus::EsmeRsertypunauth
-            }
-            crate::generated::CommandStatus::EsmeRprohibited() => CommandStatus::EsmeRprohibited,
-            crate::generated::CommandStatus::EsmeRsertypunavail() => {
-                CommandStatus::EsmeRsertypunavail
-            }
-            crate::generated::CommandStatus::EsmeRsertypdenied() => {
-                CommandStatus::EsmeRsertypdenied
-            }
-            crate::generated::CommandStatus::EsmeRinvdcs() => CommandStatus::EsmeRinvdcs,
-            crate::generated::CommandStatus::EsmeRinvsrcaddrsubunit() => {
-                CommandStatus::EsmeRinvsrcaddrsubunit
-            }
-            crate::generated::CommandStatus::EsmeRinvdstaddrsubunit() => {
-                CommandStatus::EsmeRinvdstaddrsubunit
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastfreqint() => {
-                CommandStatus::EsmeRinvbcastfreqint
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastaliasName() => {
-                CommandStatus::EsmeRinvbcastaliasName
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastareafmt() => {
-                CommandStatus::EsmeRinvbcastareafmt
-            }
-            crate::generated::CommandStatus::EsmeRinvnumbcastAreas() => {
-                CommandStatus::EsmeRinvnumbcastAreas
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastcnttype() => {
-                CommandStatus::EsmeRinvbcastcnttype
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastmsgclass() => {
-                CommandStatus::EsmeRinvbcastmsgclass
-            }
-            crate::generated::CommandStatus::EsmeRbcastfail() => CommandStatus::EsmeRbcastfail,
-            crate::generated::CommandStatus::EsmeRbcastqueryfail() => {
-                CommandStatus::EsmeRbcastqueryfail
-            }
-            crate::generated::CommandStatus::EsmeRbcastcancelfail() => {
-                CommandStatus::EsmeRbcastcancelfail
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastRep() => CommandStatus::EsmeRinvbcastRep,
-            crate::generated::CommandStatus::EsmeRinvbcastsrvgrp() => {
-                CommandStatus::EsmeRinvbcastsrvgrp
-            }
-            crate::generated::CommandStatus::EsmeRinvbcastchanind() => {
-                CommandStatus::EsmeRinvbcastchanind
-            }
-            crate::generated::CommandStatus::Other(value) => CommandStatus::Other(value),
+            GCommandStatus::EsmeRok() => CommandStatus::EsmeRok,
+            GCommandStatus::EsmeRinvmsglen() => CommandStatus::EsmeRinvmsglen,
+            GCommandStatus::EsmeRinvcmdlen() => CommandStatus::EsmeRinvcmdlen,
+            GCommandStatus::EsmeRinvcmdid() => CommandStatus::EsmeRinvcmdid,
+            GCommandStatus::EsmeRinvbndsts() => CommandStatus::EsmeRinvbndsts,
+            GCommandStatus::EsmeRalybnd() => CommandStatus::EsmeRalybnd,
+            GCommandStatus::EsmeRinvprtflg() => CommandStatus::EsmeRinvprtflg,
+            GCommandStatus::EsmeRinvregdlvflg() => CommandStatus::EsmeRinvregdlvflg,
+            GCommandStatus::EsmeRsyserr() => CommandStatus::EsmeRsyserr,
+            GCommandStatus::EsmeRinvsrcadr() => CommandStatus::EsmeRinvsrcadr,
+            GCommandStatus::EsmeRinvdstadr() => CommandStatus::EsmeRinvdstadr,
+            GCommandStatus::EsmeRinvmsgid() => CommandStatus::EsmeRinvmsgid,
+            GCommandStatus::EsmeRbindfail() => CommandStatus::EsmeRbindfail,
+            GCommandStatus::EsmeRinvpaswd() => CommandStatus::EsmeRinvpaswd,
+            GCommandStatus::EsmeRinvsysid() => CommandStatus::EsmeRinvsysid,
+            GCommandStatus::EsmeRcancelfail() => CommandStatus::EsmeRcancelfail,
+            GCommandStatus::EsmeRreplacefail() => CommandStatus::EsmeRreplacefail,
+            GCommandStatus::EsmeRmsgqful() => CommandStatus::EsmeRmsgqful,
+            GCommandStatus::EsmeRinvsertyp() => CommandStatus::EsmeRinvsertyp,
+            GCommandStatus::EsmeRinvnumdests() => CommandStatus::EsmeRinvnumdests,
+            GCommandStatus::EsmeRinvdlname() => CommandStatus::EsmeRinvdlname,
+            GCommandStatus::EsmeRinvdestflag() => CommandStatus::EsmeRinvdestflag,
+            GCommandStatus::EsmeRinvsubrep() => CommandStatus::EsmeRinvsubrep,
+            GCommandStatus::EsmeRinvesmclass() => CommandStatus::EsmeRinvesmclass,
+            GCommandStatus::EsmeRcntsubdl() => CommandStatus::EsmeRcntsubdl,
+            GCommandStatus::EsmeRsubmitfail() => CommandStatus::EsmeRsubmitfail,
+            GCommandStatus::EsmeRinvsrcton() => CommandStatus::EsmeRinvsrcton,
+            GCommandStatus::EsmeRinvsrcnpi() => CommandStatus::EsmeRinvsrcnpi,
+            GCommandStatus::EsmeRinvdstton() => CommandStatus::EsmeRinvdstton,
+            GCommandStatus::EsmeRinvdstnpi() => CommandStatus::EsmeRinvdstnpi,
+            GCommandStatus::EsmeRinvsystyp() => CommandStatus::EsmeRinvsystyp,
+            GCommandStatus::EsmeRinvrepflag() => CommandStatus::EsmeRinvrepflag,
+            GCommandStatus::EsmeRinvnummsgs() => CommandStatus::EsmeRinvnummsgs,
+            GCommandStatus::EsmeRthrottled() => CommandStatus::EsmeRthrottled,
+            GCommandStatus::EsmeRinvsched() => CommandStatus::EsmeRinvsched,
+            GCommandStatus::EsmeRinvexpiry() => CommandStatus::EsmeRinvexpiry,
+            GCommandStatus::EsmeRinvdftmsgid() => CommandStatus::EsmeRinvdftmsgid,
+            GCommandStatus::EsmeRxTAppn() => CommandStatus::EsmeRxTAppn,
+            GCommandStatus::EsmeRxPAppn() => CommandStatus::EsmeRxPAppn,
+            GCommandStatus::EsmeRxRAppn() => CommandStatus::EsmeRxRAppn,
+            GCommandStatus::EsmeRqueryfail() => CommandStatus::EsmeRqueryfail,
+            GCommandStatus::EsmeRinvtlvstream() => CommandStatus::EsmeRinvtlvstream,
+            GCommandStatus::EsmeRtlvnotallwd() => CommandStatus::EsmeRtlvnotallwd,
+            GCommandStatus::EsmeRinvtlvlen() => CommandStatus::EsmeRinvtlvlen,
+            GCommandStatus::EsmeRmissingtlv() => CommandStatus::EsmeRmissingtlv,
+            GCommandStatus::EsmeRinvtlvval() => CommandStatus::EsmeRinvtlvval,
+            GCommandStatus::EsmeRdeliveryfailure() => CommandStatus::EsmeRdeliveryfailure,
+            GCommandStatus::EsmeRunknownerr() => CommandStatus::EsmeRunknownerr,
+            GCommandStatus::EsmeRsertypunauth() => CommandStatus::EsmeRsertypunauth,
+            GCommandStatus::EsmeRprohibited() => CommandStatus::EsmeRprohibited,
+            GCommandStatus::EsmeRsertypunavail() => CommandStatus::EsmeRsertypunavail,
+            GCommandStatus::EsmeRsertypdenied() => CommandStatus::EsmeRsertypdenied,
+            GCommandStatus::EsmeRinvdcs() => CommandStatus::EsmeRinvdcs,
+            GCommandStatus::EsmeRinvsrcaddrsubunit() => CommandStatus::EsmeRinvsrcaddrsubunit,
+            GCommandStatus::EsmeRinvdstaddrsubunit() => CommandStatus::EsmeRinvdstaddrsubunit,
+            GCommandStatus::EsmeRinvbcastfreqint() => CommandStatus::EsmeRinvbcastfreqint,
+            GCommandStatus::EsmeRinvbcastaliasName() => CommandStatus::EsmeRinvbcastaliasName,
+            GCommandStatus::EsmeRinvbcastareafmt() => CommandStatus::EsmeRinvbcastareafmt,
+            GCommandStatus::EsmeRinvnumbcastAreas() => CommandStatus::EsmeRinvnumbcastAreas,
+            GCommandStatus::EsmeRinvbcastcnttype() => CommandStatus::EsmeRinvbcastcnttype,
+            GCommandStatus::EsmeRinvbcastmsgclass() => CommandStatus::EsmeRinvbcastmsgclass,
+            GCommandStatus::EsmeRbcastfail() => CommandStatus::EsmeRbcastfail,
+            GCommandStatus::EsmeRbcastqueryfail() => CommandStatus::EsmeRbcastqueryfail,
+            GCommandStatus::EsmeRbcastcancelfail() => CommandStatus::EsmeRbcastcancelfail,
+            GCommandStatus::EsmeRinvbcastRep() => CommandStatus::EsmeRinvbcastRep,
+            GCommandStatus::EsmeRinvbcastsrvgrp() => CommandStatus::EsmeRinvbcastsrvgrp,
+            GCommandStatus::EsmeRinvbcastchanind() => CommandStatus::EsmeRinvbcastchanind,
+            GCommandStatus::Other(value) => CommandStatus::Other(value),
         }
     }
 }
 
-impl From<crate::generated::InterfaceVersion> for InterfaceVersion {
-    fn from(value: crate::generated::InterfaceVersion) -> Self {
+impl From<GInterfaceVersion> for InterfaceVersion {
+    fn from(value: GInterfaceVersion) -> Self {
         match value {
-            crate::generated::InterfaceVersion::Smpp3_3OrEarlier(value) => {
-                InterfaceVersion::Smpp3_3OrEarlier(value)
-            }
-            crate::generated::InterfaceVersion::Smpp3_4() => InterfaceVersion::Smpp3_4,
-            crate::generated::InterfaceVersion::Smpp5_0() => InterfaceVersion::Smpp5_0,
-            crate::generated::InterfaceVersion::Other(value) => InterfaceVersion::Other(value),
+            GInterfaceVersion::Smpp3_3OrEarlier(value) => InterfaceVersion::Smpp3_3OrEarlier(value),
+            GInterfaceVersion::Smpp3_4() => InterfaceVersion::Smpp3_4,
+            GInterfaceVersion::Smpp5_0() => InterfaceVersion::Smpp5_0,
+            GInterfaceVersion::Other(value) => InterfaceVersion::Other(value),
         }
     }
 }
 
-impl From<crate::generated::Ton> for Ton {
-    fn from(value: crate::generated::Ton) -> Self {
+impl From<GeneratedTon> for Ton {
+    fn from(value: GeneratedTon) -> Self {
         match value {
-            crate::generated::Ton::Unknown() => Ton::Unknown,
-            crate::generated::Ton::International() => Ton::International,
-            crate::generated::Ton::National() => Ton::National,
-            crate::generated::Ton::NetworkSpecific() => Ton::NetworkSpecific,
-            crate::generated::Ton::SubscriberNumber() => Ton::SubscriberNumber,
-            crate::generated::Ton::Alphanumeric() => Ton::Alphanumeric,
-            crate::generated::Ton::Abbreviated() => Ton::Abbreviated,
-            crate::generated::Ton::Other(value) => Ton::Other(value),
+            GeneratedTon::Unknown() => Ton::Unknown,
+            GeneratedTon::International() => Ton::International,
+            GeneratedTon::National() => Ton::National,
+            GeneratedTon::NetworkSpecific() => Ton::NetworkSpecific,
+            GeneratedTon::SubscriberNumber() => Ton::SubscriberNumber,
+            GeneratedTon::Alphanumeric() => Ton::Alphanumeric,
+            GeneratedTon::Abbreviated() => Ton::Abbreviated,
+            GeneratedTon::Other(value) => Ton::Other(value),
         }
     }
 }
 
-impl From<crate::generated::Npi> for Npi {
-    fn from(value: crate::generated::Npi) -> Self {
+impl From<GeneratedNpi> for Npi {
+    fn from(value: GeneratedNpi) -> Self {
         match value {
-            crate::generated::Npi::Unknown() => Npi::Unknown,
-            crate::generated::Npi::Isdn() => Npi::Isdn,
-            crate::generated::Npi::Data() => Npi::Data,
-            crate::generated::Npi::Telex() => Npi::Telex,
-            crate::generated::Npi::LandMobile() => Npi::LandMobile,
-            crate::generated::Npi::National() => Npi::National,
-            crate::generated::Npi::Private() => Npi::Private,
-            crate::generated::Npi::Ermes() => Npi::Ermes,
-            crate::generated::Npi::Internet() => Npi::Internet,
-            crate::generated::Npi::WapClientId() => Npi::WapClientId,
-            crate::generated::Npi::Other(value) => Npi::Other(value),
+            GeneratedNpi::Unknown() => Npi::Unknown,
+            GeneratedNpi::Isdn() => Npi::Isdn,
+            GeneratedNpi::Data() => Npi::Data,
+            GeneratedNpi::Telex() => Npi::Telex,
+            GeneratedNpi::LandMobile() => Npi::LandMobile,
+            GeneratedNpi::National() => Npi::National,
+            GeneratedNpi::Private() => Npi::Private,
+            GeneratedNpi::Ermes() => Npi::Ermes,
+            GeneratedNpi::Internet() => Npi::Internet,
+            GeneratedNpi::WapClientId() => Npi::WapClientId,
+            GeneratedNpi::Other(value) => Npi::Other(value),
         }
     }
 }
 
-impl From<crate::generated::DataCoding> for DataCoding {
-    fn from(value: crate::generated::DataCoding) -> Self {
+impl From<GDataCoding> for DataCoding {
+    fn from(value: GDataCoding) -> Self {
         match value {
-            crate::generated::DataCoding::McSpecific() => DataCoding::McSpecific,
-            crate::generated::DataCoding::Ia5() => DataCoding::Ia5,
-            crate::generated::DataCoding::OctetUnspecified() => DataCoding::OctetUnspecified,
-            crate::generated::DataCoding::Latin1() => DataCoding::Latin1,
-            crate::generated::DataCoding::OctetUnspecified2() => DataCoding::OctetUnspecified2,
-            crate::generated::DataCoding::Jis() => DataCoding::Jis,
-            crate::generated::DataCoding::Cyrillic() => DataCoding::Cyrillic,
-            crate::generated::DataCoding::LatinHebrew() => DataCoding::LatinHebrew,
-            crate::generated::DataCoding::Ucs2() => DataCoding::Ucs2,
-            crate::generated::DataCoding::PictogramEncoding() => DataCoding::PictogramEncoding,
-            crate::generated::DataCoding::Iso2022JpMusicCodes() => DataCoding::Iso2022JpMusicCodes,
-            crate::generated::DataCoding::ExtendedKanjiJis() => DataCoding::ExtendedKanjiJis,
-            crate::generated::DataCoding::Ksc5601() => DataCoding::Ksc5601,
-            crate::generated::DataCoding::GsmMwiControl() => DataCoding::GsmMwiControl,
-            crate::generated::DataCoding::GsmMwiControl2() => DataCoding::GsmMwiControl2,
-            crate::generated::DataCoding::GsmMessageClassControl() => {
-                DataCoding::GsmMessageClassControl
-            }
-            crate::generated::DataCoding::Other(value) => DataCoding::Other(value),
+            GDataCoding::McSpecific() => DataCoding::McSpecific,
+            GDataCoding::Ia5() => DataCoding::Ia5,
+            GDataCoding::OctetUnspecified() => DataCoding::OctetUnspecified,
+            GDataCoding::Latin1() => DataCoding::Latin1,
+            GDataCoding::OctetUnspecified2() => DataCoding::OctetUnspecified2,
+            GDataCoding::Jis() => DataCoding::Jis,
+            GDataCoding::Cyrillic() => DataCoding::Cyrillic,
+            GDataCoding::LatinHebrew() => DataCoding::LatinHebrew,
+            GDataCoding::Ucs2() => DataCoding::Ucs2,
+            GDataCoding::PictogramEncoding() => DataCoding::PictogramEncoding,
+            GDataCoding::Iso2022JpMusicCodes() => DataCoding::Iso2022JpMusicCodes,
+            GDataCoding::ExtendedKanjiJis() => DataCoding::ExtendedKanjiJis,
+            GDataCoding::Ksc5601() => DataCoding::Ksc5601,
+            GDataCoding::GsmMwiControl() => DataCoding::GsmMwiControl,
+            GDataCoding::GsmMwiControl2() => DataCoding::GsmMwiControl2,
+            GDataCoding::GsmMessageClassControl() => DataCoding::GsmMessageClassControl,
+            GDataCoding::Other(value) => DataCoding::Other(value),
+        }
+    }
+}
+
+impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
+    type Error = Exception;
+
+    fn try_from(value: GMessageSubmissionRequestTlvValue) -> Result<Self, Self::Error> {
+        match value {
+            GMessageSubmissionRequestTlvValue::AlertOnMessageDelivery(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::BillingIdentification(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::CallbackNum(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::CallbackNumAtag(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::CallbackNumPresInd(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestAddrNpCountry(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestAddrNpInformation(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestAddrNpResolution(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestAddrSubunit(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestBearerType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestNetworkId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestNetworkType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestNodeId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestSubaddress(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestTelematicsId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DestPort(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::DisplayTime(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::ItsReplyType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::ItsSessionInfo(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::LanguageIndicator(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::MessagePayload(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::MoreMessagesToSend(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::MsMsgWaitFacilities(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::MsValidity(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::NumberOfMessages(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::PayloadType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::PrivacyIndicator(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::QosTimeToLive(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SarMsgRefNum(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SarSegmentSeqnum(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SarTotalSegments(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SetDpf(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SmsSignal(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceAddrSubunit(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceBearerType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceNetworkId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceNetworkType(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceNodeId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourcePort(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceSubaddress(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::SourceTelematicsId(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::UserMessageReference(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::UserResponseCode(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::UssdServiceOp(value) => todo!(),
+            GMessageSubmissionRequestTlvValue::Other { tag, value } => todo!(),
         }
     }
 }

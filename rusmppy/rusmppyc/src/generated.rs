@@ -4069,6 +4069,7 @@ pub enum MessageSubmissionRequestTlvValue {
     UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
+    Other { tag: TlvTag, value: Vec<u8> },
 }
 
 impl From<rusmpp_types::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
@@ -4206,6 +4207,12 @@ impl From<rusmpp_types::MessageSubmissionRequestTlvValue> for MessageSubmissionR
             rusmpp_types::MessageSubmissionRequestTlvValue::UssdServiceOp(inner) => {
                 MessageSubmissionRequestTlvValue::UssdServiceOp(inner.into())
             }
+            rusmpp_types::MessageSubmissionRequestTlvValue::Other { tag, value } => {
+                MessageSubmissionRequestTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
             _ => panic!("Unexpected variant in Rusmpp type MessageSubmissionRequestTlvValue"),
         }
     }
@@ -4249,6 +4256,7 @@ pub enum BroadcastRequestTlvValue {
     SourcePort(u16),
     SourceSubaddress(Subaddress),
     UserMessageReference(UserMessageReference),
+    Other { tag: TlvTag, value: Vec<u8> },
 }
 
 impl From<rusmpp_types::BroadcastRequestTlvValue> for BroadcastRequestTlvValue {
@@ -4332,6 +4340,12 @@ impl From<rusmpp_types::BroadcastRequestTlvValue> for BroadcastRequestTlvValue {
             rusmpp_types::BroadcastRequestTlvValue::UserMessageReference(inner) => {
                 BroadcastRequestTlvValue::UserMessageReference(inner.into())
             }
+            rusmpp_types::BroadcastRequestTlvValue::Other { tag, value } => {
+                BroadcastRequestTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
             _ => panic!("Unexpected variant in Rusmpp type BroadcastRequestTlvValue"),
         }
     }
@@ -4381,6 +4395,7 @@ pub enum MessageDeliveryRequestTlvValue {
     UserMessageReference(UserMessageReference),
     UserResponseCode(u8),
     UssdServiceOp(UssdServiceOp),
+    Other { tag: TlvTag, value: Vec<u8> },
 }
 
 impl From<rusmpp_types::MessageDeliveryRequestTlvValue> for MessageDeliveryRequestTlvValue {
@@ -4482,6 +4497,12 @@ impl From<rusmpp_types::MessageDeliveryRequestTlvValue> for MessageDeliveryReque
             rusmpp_types::MessageDeliveryRequestTlvValue::UssdServiceOp(inner) => {
                 MessageDeliveryRequestTlvValue::UssdServiceOp(inner.into())
             }
+            rusmpp_types::MessageDeliveryRequestTlvValue::Other { tag, value } => {
+                MessageDeliveryRequestTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
             _ => panic!("Unexpected variant in Rusmpp type MessageDeliveryRequestTlvValue"),
         }
     }
@@ -4504,6 +4525,7 @@ pub enum QueryBroadcastResponseTlvValue {
     BroadcastAreaSuccess(BroadcastAreaSuccess),
     BroadcastEndTime(Vec<u8>),
     UserMessageReference(UserMessageReference),
+    Other { tag: TlvTag, value: Vec<u8> },
 }
 
 impl From<rusmpp_types::QueryBroadcastResponseTlvValue> for QueryBroadcastResponseTlvValue {
@@ -4524,6 +4546,12 @@ impl From<rusmpp_types::QueryBroadcastResponseTlvValue> for QueryBroadcastRespon
             rusmpp_types::QueryBroadcastResponseTlvValue::UserMessageReference(inner) => {
                 QueryBroadcastResponseTlvValue::UserMessageReference(inner.into())
             }
+            rusmpp_types::QueryBroadcastResponseTlvValue::Other { tag, value } => {
+                QueryBroadcastResponseTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
             _ => panic!("Unexpected variant in Rusmpp type QueryBroadcastResponseTlvValue"),
         }
     }
@@ -4532,6 +4560,125 @@ impl From<rusmpp_types::QueryBroadcastResponseTlvValue> for QueryBroadcastRespon
 #[::pyo3::pymethods]
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 impl QueryBroadcastResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum MessageSubmissionResponseTlvValue {
+    AdditionalStatusInfoText(Vec<u8>),
+    DeliveryFailureReason(DeliveryFailureReason),
+    DpfResult(DpfResult),
+    NetworkErrorCode(NetworkErrorCode),
+    Other { tag: TlvTag, value: Vec<u8> },
+}
+
+impl From<rusmpp_types::MessageSubmissionResponseTlvValue> for MessageSubmissionResponseTlvValue {
+    fn from(value: rusmpp_types::MessageSubmissionResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner) => {
+                MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner) => {
+                MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::DpfResult(inner) => {
+                MessageSubmissionResponseTlvValue::DpfResult(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::NetworkErrorCode(inner) => {
+                MessageSubmissionResponseTlvValue::NetworkErrorCode(inner.into())
+            }
+            rusmpp_types::MessageSubmissionResponseTlvValue::Other { tag, value } => {
+                MessageSubmissionResponseTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
+            _ => panic!("Unexpected variant in Rusmpp type MessageSubmissionResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl MessageSubmissionResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum BroadcastResponseTlvValue {
+    BroadcastErrorStatus(CommandStatus),
+    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
+    Other { tag: TlvTag, value: Vec<u8> },
+}
+
+impl From<rusmpp_types::BroadcastResponseTlvValue> for BroadcastResponseTlvValue {
+    fn from(value: rusmpp_types::BroadcastResponseTlvValue) -> Self {
+        match value {
+            rusmpp_types::BroadcastResponseTlvValue::BroadcastErrorStatus(inner) => {
+                BroadcastResponseTlvValue::BroadcastErrorStatus(inner.into())
+            }
+            rusmpp_types::BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner) => {
+                BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner.into())
+            }
+            rusmpp_types::BroadcastResponseTlvValue::Other { tag, value } => {
+                BroadcastResponseTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
+            _ => panic!("Unexpected variant in Rusmpp type BroadcastResponseTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl BroadcastResponseTlvValue {
+    fn __repr__(&self) -> String {
+        format!("{self:?}")
+    }
+}
+
+#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
+#[derive(Clone, Debug, PartialEq, PartialOrd)]
+#[::pyo3::pyclass(get_all, set_all)]
+pub enum CancelBroadcastTlvValue {
+    BroadcastContentType(BroadcastContentType),
+    UserMessageReference(UserMessageReference),
+    Other { tag: TlvTag, value: Vec<u8> },
+}
+
+impl From<rusmpp_types::CancelBroadcastTlvValue> for CancelBroadcastTlvValue {
+    fn from(value: rusmpp_types::CancelBroadcastTlvValue) -> Self {
+        match value {
+            rusmpp_types::CancelBroadcastTlvValue::BroadcastContentType(inner) => {
+                CancelBroadcastTlvValue::BroadcastContentType(inner.into())
+            }
+            rusmpp_types::CancelBroadcastTlvValue::UserMessageReference(inner) => {
+                CancelBroadcastTlvValue::UserMessageReference(inner.into())
+            }
+            rusmpp_types::CancelBroadcastTlvValue::Other { tag, value } => {
+                CancelBroadcastTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
+            }
+            _ => panic!("Unexpected variant in Rusmpp type CancelBroadcastTlvValue"),
+        }
+    }
+}
+
+#[::pyo3::pymethods]
+#[::pyo3_stub_gen_derive::gen_stub_pymethods]
+impl CancelBroadcastTlvValue {
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4570,108 +4717,11 @@ impl Command {
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
 #[::pyo3::pyclass(get_all, set_all)]
-pub enum MessageSubmissionResponseTlvValue {
-    AdditionalStatusInfoText(Vec<u8>),
-    DeliveryFailureReason(DeliveryFailureReason),
-    DpfResult(DpfResult),
-    NetworkErrorCode(NetworkErrorCode),
-}
-
-impl From<rusmpp_types::MessageSubmissionResponseTlvValue> for MessageSubmissionResponseTlvValue {
-    fn from(value: rusmpp_types::MessageSubmissionResponseTlvValue) -> Self {
-        match value {
-            rusmpp_types::MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner) => {
-                MessageSubmissionResponseTlvValue::AdditionalStatusInfoText(inner.into())
-            }
-            rusmpp_types::MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner) => {
-                MessageSubmissionResponseTlvValue::DeliveryFailureReason(inner.into())
-            }
-            rusmpp_types::MessageSubmissionResponseTlvValue::DpfResult(inner) => {
-                MessageSubmissionResponseTlvValue::DpfResult(inner.into())
-            }
-            rusmpp_types::MessageSubmissionResponseTlvValue::NetworkErrorCode(inner) => {
-                MessageSubmissionResponseTlvValue::NetworkErrorCode(inner.into())
-            }
-            _ => panic!("Unexpected variant in Rusmpp type MessageSubmissionResponseTlvValue"),
-        }
-    }
-}
-
-#[::pyo3::pymethods]
-#[::pyo3_stub_gen_derive::gen_stub_pymethods]
-impl MessageSubmissionResponseTlvValue {
-    fn __repr__(&self) -> String {
-        format!("{self:?}")
-    }
-}
-
-#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
-pub enum BroadcastResponseTlvValue {
-    BroadcastErrorStatus(CommandStatus),
-    BroadcastAreaIdentifier(BroadcastAreaIdentifier),
-}
-
-impl From<rusmpp_types::BroadcastResponseTlvValue> for BroadcastResponseTlvValue {
-    fn from(value: rusmpp_types::BroadcastResponseTlvValue) -> Self {
-        match value {
-            rusmpp_types::BroadcastResponseTlvValue::BroadcastErrorStatus(inner) => {
-                BroadcastResponseTlvValue::BroadcastErrorStatus(inner.into())
-            }
-            rusmpp_types::BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner) => {
-                BroadcastResponseTlvValue::BroadcastAreaIdentifier(inner.into())
-            }
-            _ => panic!("Unexpected variant in Rusmpp type BroadcastResponseTlvValue"),
-        }
-    }
-}
-
-#[::pyo3::pymethods]
-#[::pyo3_stub_gen_derive::gen_stub_pymethods]
-impl BroadcastResponseTlvValue {
-    fn __repr__(&self) -> String {
-        format!("{self:?}")
-    }
-}
-
-#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
-pub enum CancelBroadcastTlvValue {
-    BroadcastContentType(BroadcastContentType),
-    UserMessageReference(UserMessageReference),
-}
-
-impl From<rusmpp_types::CancelBroadcastTlvValue> for CancelBroadcastTlvValue {
-    fn from(value: rusmpp_types::CancelBroadcastTlvValue) -> Self {
-        match value {
-            rusmpp_types::CancelBroadcastTlvValue::BroadcastContentType(inner) => {
-                CancelBroadcastTlvValue::BroadcastContentType(inner.into())
-            }
-            rusmpp_types::CancelBroadcastTlvValue::UserMessageReference(inner) => {
-                CancelBroadcastTlvValue::UserMessageReference(inner.into())
-            }
-            _ => panic!("Unexpected variant in Rusmpp type CancelBroadcastTlvValue"),
-        }
-    }
-}
-
-#[::pyo3::pymethods]
-#[::pyo3_stub_gen_derive::gen_stub_pymethods]
-impl CancelBroadcastTlvValue {
-    fn __repr__(&self) -> String {
-        format!("{self:?}")
-    }
-}
-
-#[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
-#[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
 pub enum MessageDeliveryResponseTlvValue {
     AdditionalStatusInfoText(Vec<u8>),
     DeliveryFailureReason(DeliveryFailureReason),
     NetworkErrorCode(NetworkErrorCode),
+    Other { tag: TlvTag, value: Vec<u8> },
 }
 
 impl From<rusmpp_types::MessageDeliveryResponseTlvValue> for MessageDeliveryResponseTlvValue {
@@ -4685,6 +4735,12 @@ impl From<rusmpp_types::MessageDeliveryResponseTlvValue> for MessageDeliveryResp
             }
             rusmpp_types::MessageDeliveryResponseTlvValue::NetworkErrorCode(inner) => {
                 MessageDeliveryResponseTlvValue::NetworkErrorCode(inner.into())
+            }
+            rusmpp_types::MessageDeliveryResponseTlvValue::Other { tag, value } => {
+                MessageDeliveryResponseTlvValue::Other {
+                    tag: tag.into(),
+                    value: value.into(),
+                }
             }
             _ => panic!("Unexpected variant in Rusmpp type MessageDeliveryResponseTlvValue"),
         }

@@ -1,17 +1,22 @@
 use rusmpp::{
     tlvs::{MessageSubmissionRequestTlvValue, TlvTag},
     types::{COctetString, OctetString},
-    values::{DataCoding, InterfaceVersion, Npi, Ton},
+    values::*,
     CommandStatus,
 };
 
 use crate::{
     exception::{Exception, ValueExceptionExt},
     generated::{
+        AddrSubunit as GAddrSubunit, AlertOnMessageDelivery as GAlertOnMessageDelivery,
+        BearerType as GBearerType, CallbackNumPresInd as GCallbackNumPresInd,
         CommandStatus as GCommandStatus, DataCoding as GDataCoding,
-        InterfaceVersion as GInterfaceVersion,
-        MessageSubmissionRequestTlvValue as GMessageSubmissionRequestTlvValue, Npi as GeneratedNpi,
-        TlvTag as GeneratedTlvTag, Ton as GeneratedTon,
+        DestAddrNpResolution as GDestAddrNpResolution, DisplayTime as GDisplayTime,
+        InterfaceVersion as GInterfaceVersion, ItsReplyType as GItsReplyType,
+        ItsSessionInfo as GItsSessionInfo, LanguageIndicator as GLanguageIndicator,
+        MessageSubmissionRequestTlvValue as GMessageSubmissionRequestTlvValue,
+        NetworkType as GNetworkType, Npi as GNpi, Presentation as GPresentation,
+        Screening as GScreening, TlvTag as GeneratedTlvTag, Ton as GTon,
     },
 };
 
@@ -173,35 +178,35 @@ impl From<GInterfaceVersion> for InterfaceVersion {
     }
 }
 
-impl From<GeneratedTon> for Ton {
-    fn from(value: GeneratedTon) -> Self {
+impl From<GTon> for Ton {
+    fn from(value: GTon) -> Self {
         match value {
-            GeneratedTon::Unknown() => Self::Unknown,
-            GeneratedTon::International() => Self::International,
-            GeneratedTon::National() => Self::National,
-            GeneratedTon::NetworkSpecific() => Self::NetworkSpecific,
-            GeneratedTon::SubscriberNumber() => Self::SubscriberNumber,
-            GeneratedTon::Alphanumeric() => Self::Alphanumeric,
-            GeneratedTon::Abbreviated() => Self::Abbreviated,
-            GeneratedTon::Other(value) => Self::Other(value),
+            GTon::Unknown() => Self::Unknown,
+            GTon::International() => Self::International,
+            GTon::National() => Self::National,
+            GTon::NetworkSpecific() => Self::NetworkSpecific,
+            GTon::SubscriberNumber() => Self::SubscriberNumber,
+            GTon::Alphanumeric() => Self::Alphanumeric,
+            GTon::Abbreviated() => Self::Abbreviated,
+            GTon::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GeneratedNpi> for Npi {
-    fn from(value: GeneratedNpi) -> Self {
+impl From<GNpi> for Npi {
+    fn from(value: GNpi) -> Self {
         match value {
-            GeneratedNpi::Unknown() => Self::Unknown,
-            GeneratedNpi::Isdn() => Self::Isdn,
-            GeneratedNpi::Data() => Self::Data,
-            GeneratedNpi::Telex() => Self::Telex,
-            GeneratedNpi::LandMobile() => Self::LandMobile,
-            GeneratedNpi::National() => Self::National,
-            GeneratedNpi::Private() => Self::Private,
-            GeneratedNpi::Ermes() => Self::Ermes,
-            GeneratedNpi::Internet() => Self::Internet,
-            GeneratedNpi::WapClientId() => Self::WapClientId,
-            GeneratedNpi::Other(value) => Self::Other(value),
+            GNpi::Unknown() => Self::Unknown,
+            GNpi::Isdn() => Self::Isdn,
+            GNpi::Data() => Self::Data,
+            GNpi::Telex() => Self::Telex,
+            GNpi::LandMobile() => Self::LandMobile,
+            GNpi::National() => Self::National,
+            GNpi::Private() => Self::Private,
+            GNpi::Ermes() => Self::Ermes,
+            GNpi::Internet() => Self::Internet,
+            GNpi::WapClientId() => Self::WapClientId,
+            GNpi::Other(value) => Self::Other(value),
         }
     }
 }
@@ -230,6 +235,50 @@ impl From<GDataCoding> for DataCoding {
     }
 }
 
+impl From<GAlertOnMessageDelivery> for AlertOnMessageDelivery {
+    fn from(value: GAlertOnMessageDelivery) -> Self {
+        match value {
+            GAlertOnMessageDelivery::UseMobileDefaultAlert() => Self::UseMobileDefaultAlert,
+            GAlertOnMessageDelivery::UseLowPriorityAlert() => Self::UseLowPriorityAlert,
+            GAlertOnMessageDelivery::UseMediumPriorityAlert() => Self::UseMediumPriorityAlert,
+            GAlertOnMessageDelivery::UseHighPriorityAlert() => Self::UseHighPriorityAlert,
+            GAlertOnMessageDelivery::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GScreening> for Screening {
+    fn from(value: GScreening) -> Self {
+        match value {
+            GScreening::NotScreened() => Self::NotScreened,
+            GScreening::VerifiedAndPassed() => Self::VerifiedAndPassed,
+            GScreening::VerifiedAndFailed() => Self::VerifiedAndFailed,
+            GScreening::NetworkProvided() => Self::NetworkProvided,
+            GScreening::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GPresentation> for Presentation {
+    fn from(value: GPresentation) -> Self {
+        match value {
+            GPresentation::PresentationAllowed() => Self::PresentationAllowed,
+            GPresentation::PresentationRestricted() => Self::PresentationRestricted,
+            GPresentation::NumberNotAvailable() => Self::NumberNotAvailable,
+            GPresentation::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<GCallbackNumPresInd> for CallbackNumPresInd {
+    fn from(value: GCallbackNumPresInd) -> Self {
+        Self {
+            presentation: Presentation::from(value.presentation),
+            screening: Screening::from(value.screening),
+        }
+    }
+}
+
 impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -237,7 +286,7 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
         use GMessageSubmissionRequestTlvValue as GValue;
 
         let value = match value {
-            GValue::AlertOnMessageDelivery(value) => todo!(),
+            GValue::AlertOnMessageDelivery(value) => Self::AlertOnMessageDelivery(value.into()),
             GValue::BillingIdentification(value) => Self::BillingIdentification(
                 OctetString::new(value).map_value_err("billing_identification")?,
             ),
@@ -247,7 +296,7 @@ impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvV
             GValue::CallbackNumAtag(value) => {
                 Self::CallbackNumAtag(OctetString::new(value).map_value_err("callback_num_atag")?)
             }
-            GValue::CallbackNumPresInd(value) => todo!(),
+            GValue::CallbackNumPresInd(value) => Self::CallbackNumPresInd(value.into()),
             GValue::DestAddrNpCountry(value) => Self::DestAddrNpCountry(
                 OctetString::new(value).map_value_err("dest_addr_np_country")?,
             ),

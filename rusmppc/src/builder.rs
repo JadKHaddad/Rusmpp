@@ -214,14 +214,32 @@ impl ConnectionBuilder {
         self
     }
 
+    /// Enables the interface version check.
+    ///
+    /// See [`with_interface_version_check`](Self::with_interface_version_check) for more details.
+    pub fn enable_interface_version_check(mut self) -> Self {
+        self.check_interface_version = true;
+        self
+    }
+
     /// Disables the interface version check.
+    ///
+    /// See [`with_interface_version_check`](Self::with_interface_version_check) for more details.
+    pub fn disable_interface_version_check(mut self) -> Self {
+        self.check_interface_version = false;
+        self
+    }
+
+    /// Enables or disables the interface version check.
+    ///
+    /// By default, the interface version check is enabled.
     ///
     /// This library uses `SMPP v5` implementation to encode and decode commands.
     ///
     /// Binding to a server with another `SMPP` version may cause issues encoding and decoding commands.
     /// Disable interface version check to allow binding to servers with any `SMPP` version.
-    pub fn disable_interface_version_check(mut self) -> Self {
-        self.check_interface_version = false;
+    pub fn with_interface_version_check(mut self, check: bool) -> Self {
+        self.check_interface_version = check;
         self
     }
 

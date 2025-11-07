@@ -459,10 +459,36 @@ where
                 writeln!(self.out, "}}\n")?;
 
                 // Generate the methods
-                writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "impl {name} {{")?;
                 self.out.indent();
+
+                // __new__
+                writeln!(self.out, "#[new]")?;
+                let params: Vec<String> = fields
+                    .iter()
+                    .map(|f| {
+                        format!(
+                            "{}: {}",
+                            f.name,
+                            Self::quote_type(&f.value, Some(&self.known_sizes))
+                        )
+                    })
+                    .collect();
+                writeln!(self.out, "fn new({}) -> Self {{", params.join(", "))?;
+                self.out.indent();
+                writeln!(self.out, "Self {{")?;
+                self.out.indent();
+                for field in fields {
+                    writeln!(self.out, "{},", field.name)?;
+                }
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+                self.out.unindent();
+                writeln!(self.out, "}}")?;
+
+                // __repr__
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;
                 self.out.indent();
                 writeln!(self.out, "format!(\"{{self:?}}\")")?;
@@ -556,8 +582,8 @@ where
                 writeln!(self.out, "}}\n")?;
 
                 // Generate the methods
-                writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "impl {name} {{")?;
                 self.out.indent();
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;

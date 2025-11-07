@@ -465,6 +465,54 @@ impl From<g::MsMsgWaitFacilities> for MsMsgWaitFacilities {
     }
 }
 
+impl From<g::MsValidityBehavior> for MsValidityBehavior {
+    fn from(value: g::MsValidityBehavior) -> Self {
+        match value {
+            g::MsValidityBehavior::StoreIndefinitely() => Self::StoreIndefinitely,
+            g::MsValidityBehavior::PowerDown() => Self::PowerDown,
+            g::MsValidityBehavior::ValidUntilRegistrationAreaChanges() => {
+                Self::ValidUntilRegistrationAreaChanges
+            }
+            g::MsValidityBehavior::DisplayOnly() => Self::DisplayOnly,
+            g::MsValidityBehavior::RelativeTimePeriod() => Self::RelativeTimePeriod,
+            g::MsValidityBehavior::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::UnitsOfTime> for UnitsOfTime {
+    fn from(value: g::UnitsOfTime) -> Self {
+        match value {
+            g::UnitsOfTime::Seconds() => Self::Seconds,
+            g::UnitsOfTime::Minutes() => Self::Minutes,
+            g::UnitsOfTime::Hours() => Self::Hours,
+            g::UnitsOfTime::Days() => Self::Days,
+            g::UnitsOfTime::Weeks() => Self::Weeks,
+            g::UnitsOfTime::Months() => Self::Months,
+            g::UnitsOfTime::Years() => Self::Years,
+            g::UnitsOfTime::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::MsValidityInformation> for MsValidityInformation {
+    fn from(value: g::MsValidityInformation) -> Self {
+        Self {
+            units_of_time: value.units_of_time.into(),
+            number_of_time_units: value.number_of_time_units,
+        }
+    }
+}
+
+impl From<g::MsValidity> for MsValidity {
+    fn from(value: g::MsValidity) -> Self {
+        Self {
+            validity_behavior: value.validity_behavior.into(),
+            validity_information: value.validity_information.map(From::from),
+        }
+    }
+}
+
 impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -511,7 +559,7 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
             GValue::MessagePayload(value) => Self::MessagePayload(value.into()),
             GValue::MoreMessagesToSend(value) => Self::MoreMessagesToSend(value.into()),
             GValue::MsMsgWaitFacilities(value) => Self::MsMsgWaitFacilities(value.into()),
-            GValue::MsValidity(value) => todo!(),
+            GValue::MsValidity(value) => Self::MsValidity(value.into()),
             GValue::NumberOfMessages(value) => todo!(),
             GValue::PayloadType(value) => todo!(),
             GValue::PrivacyIndicator(value) => todo!(),

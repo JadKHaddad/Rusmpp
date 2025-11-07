@@ -51,7 +51,7 @@ fn rusmppyc(py: Python, m: &Bound<'_, PyModule>) -> PyResult<()> {
         "UnsupportedInterfaceVersionException",
         py.get_type::<UnsupportedInterfaceVersionException>(),
     )?;
-    m.add("PduException", py.get_type::<PduException>())?;
+    m.add("ValueException", py.get_type::<ValueException>())?;
 
     Ok(())
 }

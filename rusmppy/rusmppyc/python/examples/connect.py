@@ -1,5 +1,5 @@
-import logging
 import asyncio
+import logging
 
 from rusmppyc import (
     BindTransceiverResp,
@@ -9,6 +9,8 @@ from rusmppyc import (
     Event,
     Events,
     InterfaceVersion,
+    MessagePayload,
+    MessageSubmissionRequestTlvValue,
     Npi,
     SubmitSmResp,
     Ton,
@@ -75,6 +77,12 @@ async def main():
             destination_addr="0987654321",
             data_coding=DataCoding.Ucs2(),
             short_message=b"Hello, World!",
+            tlvs=[
+                # The message payload will override the short message
+                MessageSubmissionRequestTlvValue.MessagePayload(
+                    MessagePayload(b"Big Message" * 10)
+                )
+            ],
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")

@@ -66,9 +66,9 @@ create_exception!(
 
 create_exception!(
     exceptions,
-    PduException,
+    ValueException,
     RusmppycException,
-    "The client created an invalid `SMPP` PDU."
+    "The client created an invalid `SMPP` value."
 );
 
 /// Errors that can occur while calling Rusmppyc functions.
@@ -94,9 +94,11 @@ pub enum Exception {
         version: crate::generated::InterfaceVersion,
         supported_version: crate::generated::InterfaceVersion,
     },
-    /// The user created a invalid `SMPP` PDU.
-    Pdu {
-        field: String,
+    /// The user created an invalid `SMPP` value.
+    Value {
+        /// The name of the value that caused the error.
+        name: String,
+        /// The error message.
         error: String,
     },
     /// Other error type.
@@ -105,6 +107,43 @@ pub enum Exception {
     /// This error should not be returned by this library and if so it should be considered a bug.
     Other(String),
 }
+
+impl std::fmt::Display for Exception {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Exception::Connect(error) => write!(f, "Connect error: {}", error),
+            Exception::Io(error) => write!(f, "IO error: {}", error),
+            Exception::ConnectionClosed() => write!(f, "Connection closed"),
+            Exception::Encode(error) => write!(f, "Encode error: {}", error),
+            Exception::Decode(error) => write!(f, "Decode error: {}", error),
+            Exception::ResponseTimeout {
+                sequence_number,
+                timeout,
+            } => write!(
+                f,
+                "Response timeout: sequence number: {}, timeout: {}",
+                sequence_number, timeout
+            ),
+            Exception::UnexpectedResponse { response } => {
+                write!(f, "Unexpected response: {}", response)
+            }
+            Exception::UnsupportedInterfaceVersion {
+                version,
+                supported_version,
+            } => write!(
+                f,
+                "Unsupported interface version: {:?}, supported version: {:?}",
+                version, supported_version
+            ),
+            Exception::Value { name, error } => {
+                write!(f, "Invalid SMPP value: name: {}, error: {}", name, error)
+            }
+            Exception::Other(error) => write!(f, "Other error: {}", error),
+        }
+    }
+}
+
+impl std::error::Error for Exception {}
 
 impl From<rusmppc::error::Error> for Exception {
     fn from(error: rusmppc::error::Error) -> Self {
@@ -141,44 +180,34 @@ impl From<rusmppc::error::Error> for Exception {
 impl From<Exception> for PyErr {
     fn from(error: Exception) -> Self {
         match error {
-            Exception::Connect(error) => ConnectException::new_err(error),
-            Exception::Io(error) => IoException::new_err(error),
-            Exception::ConnectionClosed() => {
-                ConnectionClosedException::new_err("Connection closed")
+            Exception::Connect(_) => ConnectException::new_err(error.to_string()),
+            Exception::Io(_) => IoException::new_err(error.to_string()),
+            Exception::ConnectionClosed() => ConnectionClosedException::new_err(error.to_string()),
+            Exception::Encode(_) => EncodeException::new_err(error.to_string()),
+            Exception::Decode(_) => DecodeException::new_err(error.to_string()),
+            Exception::ResponseTimeout { .. } => {
+                ResponseTimeoutException::new_err(error.to_string())
             }
-            Exception::Encode(error) => EncodeException::new_err(error),
-            Exception::Decode(error) => DecodeException::new_err(error),
-            Exception::ResponseTimeout {
-                sequence_number,
-                timeout,
-            } => ResponseTimeoutException::new_err(format!(
-                "Response timeout: sequence number: {sequence_number}, timeout: {timeout}",
-            )),
-            Exception::UnexpectedResponse { response } => {
-                UnexpectedResponseException::new_err(response)
+            Exception::UnexpectedResponse { .. } => {
+                UnexpectedResponseException::new_err(error.to_string())
             }
-            Exception::UnsupportedInterfaceVersion {
-                version,
-                supported_version,
-            } => UnsupportedInterfaceVersionException::new_err(format!(
-                "Unsupported interface version: {version:?}, supported version: {supported_version:?}",
-            )),
-            Exception::Pdu { field, error } => {
-                PduException::new_err(format!("Invalid PDU: field: {field}, error: {error}"))
+            Exception::UnsupportedInterfaceVersion { .. } => {
+                UnsupportedInterfaceVersionException::new_err(error.to_string())
             }
-            Exception::Other(error) => RusmppycException::new_err(error),
+            Exception::Value { .. } => ValueException::new_err(error.to_string()),
+            Exception::Other(_) => RusmppycException::new_err(error.to_string()),
         }
     }
 }
 
-pub trait PduExceptionExt<T> {
-    fn map_pdu_err(self, field: &'static str) -> Result<T, Exception>;
+pub trait ValueExceptionExt<T> {
+    fn map_value_err(self, name: &'static str) -> Result<T, Exception>;
 }
 
-impl<T, E: std::error::Error> PduExceptionExt<T> for Result<T, E> {
-    fn map_pdu_err(self, field: &'static str) -> Result<T, Exception> {
-        self.map_err(|error| Exception::Pdu {
-            field: field.to_string(),
+impl<T, E: std::error::Error> ValueExceptionExt<T> for Result<T, E> {
+    fn map_value_err(self, name: &'static str) -> Result<T, Exception> {
+        self.map_err(|error| Exception::Value {
+            name: name.to_string(),
             error: error.to_string(),
         })
     }

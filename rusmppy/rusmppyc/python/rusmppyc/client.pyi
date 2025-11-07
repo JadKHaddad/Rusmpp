@@ -1,19 +1,20 @@
-import builtins
 import asyncio
+import builtins
 from typing import Optional
 
+from .events import Events
 from .rusmppyc import (
     BindReceiverResp,
-    BindTransmitterResp,
-    SubmitSmResp,
-    CommandStatus,
     BindTransceiverResp,
-    InterfaceVersion,
-    Ton,
-    Npi,
+    BindTransmitterResp,
+    CommandStatus,
     DataCoding,
+    InterfaceVersion,
+    MessageSubmissionRequestTlvValue,
+    Npi,
+    SubmitSmResp,
+    Ton,
 )
-from .events import Events
 
 __all__ = ["Client"]
 
@@ -32,7 +33,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
-        disable_interface_version_check: bool = False,
+        interface_version_check: bool = True,
     ) -> tuple["Client", Events]:
         """
         Connect to an SMPP server.
@@ -59,8 +60,8 @@ class Client:
             ``None`` to wait indefinitely.
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
-        disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation.
+        interface_version_check : bool, default=True
+            If ``False``, disables interface version validation.
             This library uses ``SMPP v5`` implementation to encode and decode commands.
             Binding to a server with another SMPP version may cause issues encoding and decoding commands.
             Disable interface version check to allow binding to servers with any SMPP version.
@@ -108,7 +109,7 @@ class Client:
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
         max_command_length: builtins.int = 4096,
-        disable_interface_version_check: bool = False,
+        interface_version_check: bool = True,
     ) -> tuple["Client", Events]:
         """
         Create a client from an existing asyncio connection.
@@ -136,8 +137,8 @@ class Client:
             ``None`` to wait indefinitely.
         max_command_length : int, default=4096
             Maximum length in bytes of incoming SMPP commands.
-        disable_interface_version_check : bool, default=False
-            If ``True``, disables interface version validation.
+        interface_version_check : bool, default=True
+            If ``False``, disables interface version validation.
             This library uses ``SMPP v5`` implementation to encode and decode commands.
             Binding to a server with another SMPP version may cause issues encoding and decoding commands.
             Disable interface version check to allow binding to servers with any SMPP version.
@@ -299,6 +300,7 @@ class Client:
         data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
+        tlvs: builtins.list[MessageSubmissionRequestTlvValue] = [],
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> SubmitSmResp:
         """
@@ -340,6 +342,8 @@ class Client:
             The default short message ID.
         short_message : bytes, optional
             The message payload (up to 254 bytes). Ignored if ``message_payload`` is provided.
+        tlvs: List[MessageSubmissionRequestTlvValue], default=[]
+            The Message Submission Request TLVs.
         status : CommandStatus, default=CommandStatus.EsmeRok()
             The command status to include in the ``SubmitSm`` request.
 

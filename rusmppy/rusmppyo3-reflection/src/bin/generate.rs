@@ -1,7 +1,7 @@
 //! Run with
 //!
 //! ```bash
-//! cargo run -p rusmppyo3-reflection --bin generate
+//! cargo run -p rusmppyo3-reflection --bin generate && cargo fmt
 //! ```
 
 use std::io::Write;

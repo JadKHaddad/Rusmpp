@@ -8,7 +8,7 @@ __all__ = [
     "ResponseTimeoutException",
     "UnexpectedResponseException",
     "UnsupportedInterfaceVersionException",
-    "PduException",
+    "ValueException",
 ]
 
 class RusmppycException(Exception):
@@ -56,7 +56,7 @@ class UnsupportedInterfaceVersionException(RusmppycException):
 
     ...
 
-class PduException(RusmppycException):
-    "The client created an invalid `SMPP` PDU."
+class ValueException(RusmppycException):
+    "The client created an invalid `SMPP` value."
 
     ...

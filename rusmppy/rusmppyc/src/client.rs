@@ -14,6 +14,7 @@ use pyo3::{pyclass, pymethods, types::PyType, Bound, PyAny, PyObject, PyResult, 
 use pyo3_async_runtimes::tokio::future_into_py;
 use rusmpp::{
     pdus::{BindReceiver, BindTransceiver, BindTransmitter, DeliverSmResp, SubmitSm},
+    tlvs::MessageSubmissionRequestTlvValue,
     types::{COctetString, EmptyOrFullCOctetString, OctetString},
     values::ServiceType,
 };
@@ -248,8 +249,6 @@ impl Client {
     // XXX: `ServiceType`, `EsmClass`, `PriorityFlag`, `RegisteredDelivery` and `ReplaceIfPresentFlag`
     // are represented as u8 and then converted to the Rusmpp appropriate type: Structs that are repr(u8): (u8 values wrapped in helper structs).
     // Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API.
-
-    // XXX: Message submission request TLVs are not supported.
     #[pyo3(signature=(service_type=String::new(),
         source_addr_ton=crate::generated::Ton::Unknown(),
         source_addr_npi=crate::generated::Npi::Unknown(),
@@ -267,6 +266,7 @@ impl Client {
         data_coding=crate::generated::DataCoding::McSpecific(),
         sm_default_msg_id=u8::default(),
         short_message=Vec::new(),
+        tlvs=Vec::new(),
         status=crate::generated::CommandStatus::EsmeRok()))]
     fn submit_sm<'p>(
         &self,
@@ -288,6 +288,7 @@ impl Client {
         data_coding: crate::generated::DataCoding,
         sm_default_msg_id: u8,
         short_message: Vec<u8>,
+        tlvs: Vec<crate::generated::MessageSubmissionRequestTlvValue>,
         status: crate::generated::CommandStatus,
     ) -> PyResult<Bound<'p, PyAny>> {
         let builder = SubmitSm::builder()
@@ -317,7 +318,13 @@ impl Client {
             .replace_if_present_flag(replace_if_present_flag.into())
             .data_coding(data_coding.into())
             .sm_default_msg_id(sm_default_msg_id)
-            .short_message(OctetString::new(short_message).map_value_err("short_message")?);
+            .short_message(OctetString::new(short_message).map_value_err("short_message")?)
+            .tlvs(
+                tlvs.into_iter()
+                    .map(MessageSubmissionRequestTlvValue::try_from)
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_value_err("tlvs")?,
+            );
 
         let pdu = builder.build();
 

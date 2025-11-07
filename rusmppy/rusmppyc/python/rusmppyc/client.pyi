@@ -1,19 +1,20 @@
-import builtins
 import asyncio
+import builtins
 from typing import Optional
 
+from .events import Events
 from .rusmppyc import (
     BindReceiverResp,
-    BindTransmitterResp,
-    SubmitSmResp,
-    CommandStatus,
     BindTransceiverResp,
-    InterfaceVersion,
-    Ton,
-    Npi,
+    BindTransmitterResp,
+    CommandStatus,
     DataCoding,
+    InterfaceVersion,
+    MessageSubmissionRequestTlvValue,
+    Npi,
+    SubmitSmResp,
+    Ton,
 )
-from .events import Events
 
 __all__ = ["Client"]
 
@@ -299,6 +300,7 @@ class Client:
         data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
+        tlvs: builtins.list[MessageSubmissionRequestTlvValue] = [],
         status: CommandStatus = CommandStatus.EsmeRok(),
     ) -> SubmitSmResp:
         """
@@ -340,6 +342,8 @@ class Client:
             The default short message ID.
         short_message : bytes, optional
             The message payload (up to 254 bytes). Ignored if ``message_payload`` is provided.
+        tlvs: List[MessageSubmissionRequestTlvValue], default=[]
+            The Message Submission Request TLVs.
         status : CommandStatus, default=CommandStatus.EsmeRok()
             The command status to include in the ``SubmitSm`` request.
 

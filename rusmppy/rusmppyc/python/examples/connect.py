@@ -1,5 +1,5 @@
-import logging
 import asyncio
+import logging
 
 from rusmppyc import (
     BindTransceiverResp,

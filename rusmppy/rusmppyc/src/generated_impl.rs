@@ -7,272 +7,261 @@ use rusmpp::{
 
 use crate::{
     exception::{Exception, ValueExceptionExt},
-    generated::{
-        AddrSubunit as GAddrSubunit, AlertOnMessageDelivery as GAlertOnMessageDelivery,
-        BearerType as GBearerType, CallbackNumPresInd as GCallbackNumPresInd,
-        CommandStatus as GCommandStatus, DataCoding as GDataCoding,
-        DestAddrNpResolution as GDestAddrNpResolution, DisplayTime as GDisplayTime,
-        InterfaceVersion as GInterfaceVersion, ItsReplyType as GItsReplyType,
-        ItsSessionInfo as GItsSessionInfo, LanguageIndicator as GLanguageIndicator,
-        MessageSubmissionRequestTlvValue as GMessageSubmissionRequestTlvValue,
-        NetworkType as GNetworkType, Npi as GNpi, Presentation as GPresentation,
-        PrivacyIndicator as GPrivacyIndicator, Screening as GScreening, Subaddress as GSubaddress,
-        SubaddressTag as GSubaddressTag, TlvTag as GeneratedTlvTag, Ton as GTon,
-    },
+    generated as g,
 };
 
-impl From<GCommandStatus> for CommandStatus {
-    fn from(value: GCommandStatus) -> Self {
+impl From<g::CommandStatus> for CommandStatus {
+    fn from(value: g::CommandStatus) -> Self {
         match value {
-            GCommandStatus::EsmeRok() => Self::EsmeRok,
-            GCommandStatus::EsmeRinvmsglen() => Self::EsmeRinvmsglen,
-            GCommandStatus::EsmeRinvcmdlen() => Self::EsmeRinvcmdlen,
-            GCommandStatus::EsmeRinvcmdid() => Self::EsmeRinvcmdid,
-            GCommandStatus::EsmeRinvbndsts() => Self::EsmeRinvbndsts,
-            GCommandStatus::EsmeRalybnd() => Self::EsmeRalybnd,
-            GCommandStatus::EsmeRinvprtflg() => Self::EsmeRinvprtflg,
-            GCommandStatus::EsmeRinvregdlvflg() => Self::EsmeRinvregdlvflg,
-            GCommandStatus::EsmeRsyserr() => Self::EsmeRsyserr,
-            GCommandStatus::EsmeRinvsrcadr() => Self::EsmeRinvsrcadr,
-            GCommandStatus::EsmeRinvdstadr() => Self::EsmeRinvdstadr,
-            GCommandStatus::EsmeRinvmsgid() => Self::EsmeRinvmsgid,
-            GCommandStatus::EsmeRbindfail() => Self::EsmeRbindfail,
-            GCommandStatus::EsmeRinvpaswd() => Self::EsmeRinvpaswd,
-            GCommandStatus::EsmeRinvsysid() => Self::EsmeRinvsysid,
-            GCommandStatus::EsmeRcancelfail() => Self::EsmeRcancelfail,
-            GCommandStatus::EsmeRreplacefail() => Self::EsmeRreplacefail,
-            GCommandStatus::EsmeRmsgqful() => Self::EsmeRmsgqful,
-            GCommandStatus::EsmeRinvsertyp() => Self::EsmeRinvsertyp,
-            GCommandStatus::EsmeRinvnumdests() => Self::EsmeRinvnumdests,
-            GCommandStatus::EsmeRinvdlname() => Self::EsmeRinvdlname,
-            GCommandStatus::EsmeRinvdestflag() => Self::EsmeRinvdestflag,
-            GCommandStatus::EsmeRinvsubrep() => Self::EsmeRinvsubrep,
-            GCommandStatus::EsmeRinvesmclass() => Self::EsmeRinvesmclass,
-            GCommandStatus::EsmeRcntsubdl() => Self::EsmeRcntsubdl,
-            GCommandStatus::EsmeRsubmitfail() => Self::EsmeRsubmitfail,
-            GCommandStatus::EsmeRinvsrcton() => Self::EsmeRinvsrcton,
-            GCommandStatus::EsmeRinvsrcnpi() => Self::EsmeRinvsrcnpi,
-            GCommandStatus::EsmeRinvdstton() => Self::EsmeRinvdstton,
-            GCommandStatus::EsmeRinvdstnpi() => Self::EsmeRinvdstnpi,
-            GCommandStatus::EsmeRinvsystyp() => Self::EsmeRinvsystyp,
-            GCommandStatus::EsmeRinvrepflag() => Self::EsmeRinvrepflag,
-            GCommandStatus::EsmeRinvnummsgs() => Self::EsmeRinvnummsgs,
-            GCommandStatus::EsmeRthrottled() => Self::EsmeRthrottled,
-            GCommandStatus::EsmeRinvsched() => Self::EsmeRinvsched,
-            GCommandStatus::EsmeRinvexpiry() => Self::EsmeRinvexpiry,
-            GCommandStatus::EsmeRinvdftmsgid() => Self::EsmeRinvdftmsgid,
-            GCommandStatus::EsmeRxTAppn() => Self::EsmeRxTAppn,
-            GCommandStatus::EsmeRxPAppn() => Self::EsmeRxPAppn,
-            GCommandStatus::EsmeRxRAppn() => Self::EsmeRxRAppn,
-            GCommandStatus::EsmeRqueryfail() => Self::EsmeRqueryfail,
-            GCommandStatus::EsmeRinvtlvstream() => Self::EsmeRinvtlvstream,
-            GCommandStatus::EsmeRtlvnotallwd() => Self::EsmeRtlvnotallwd,
-            GCommandStatus::EsmeRinvtlvlen() => Self::EsmeRinvtlvlen,
-            GCommandStatus::EsmeRmissingtlv() => Self::EsmeRmissingtlv,
-            GCommandStatus::EsmeRinvtlvval() => Self::EsmeRinvtlvval,
-            GCommandStatus::EsmeRdeliveryfailure() => Self::EsmeRdeliveryfailure,
-            GCommandStatus::EsmeRunknownerr() => Self::EsmeRunknownerr,
-            GCommandStatus::EsmeRsertypunauth() => Self::EsmeRsertypunauth,
-            GCommandStatus::EsmeRprohibited() => Self::EsmeRprohibited,
-            GCommandStatus::EsmeRsertypunavail() => Self::EsmeRsertypunavail,
-            GCommandStatus::EsmeRsertypdenied() => Self::EsmeRsertypdenied,
-            GCommandStatus::EsmeRinvdcs() => Self::EsmeRinvdcs,
-            GCommandStatus::EsmeRinvsrcaddrsubunit() => Self::EsmeRinvsrcaddrsubunit,
-            GCommandStatus::EsmeRinvdstaddrsubunit() => Self::EsmeRinvdstaddrsubunit,
-            GCommandStatus::EsmeRinvbcastfreqint() => Self::EsmeRinvbcastfreqint,
-            GCommandStatus::EsmeRinvbcastaliasName() => Self::EsmeRinvbcastaliasName,
-            GCommandStatus::EsmeRinvbcastareafmt() => Self::EsmeRinvbcastareafmt,
-            GCommandStatus::EsmeRinvnumbcastAreas() => Self::EsmeRinvnumbcastAreas,
-            GCommandStatus::EsmeRinvbcastcnttype() => Self::EsmeRinvbcastcnttype,
-            GCommandStatus::EsmeRinvbcastmsgclass() => Self::EsmeRinvbcastmsgclass,
-            GCommandStatus::EsmeRbcastfail() => Self::EsmeRbcastfail,
-            GCommandStatus::EsmeRbcastqueryfail() => Self::EsmeRbcastqueryfail,
-            GCommandStatus::EsmeRbcastcancelfail() => Self::EsmeRbcastcancelfail,
-            GCommandStatus::EsmeRinvbcastRep() => Self::EsmeRinvbcastRep,
-            GCommandStatus::EsmeRinvbcastsrvgrp() => Self::EsmeRinvbcastsrvgrp,
-            GCommandStatus::EsmeRinvbcastchanind() => Self::EsmeRinvbcastchanind,
-            GCommandStatus::Other(value) => Self::Other(value),
+            g::CommandStatus::EsmeRok() => Self::EsmeRok,
+            g::CommandStatus::EsmeRinvmsglen() => Self::EsmeRinvmsglen,
+            g::CommandStatus::EsmeRinvcmdlen() => Self::EsmeRinvcmdlen,
+            g::CommandStatus::EsmeRinvcmdid() => Self::EsmeRinvcmdid,
+            g::CommandStatus::EsmeRinvbndsts() => Self::EsmeRinvbndsts,
+            g::CommandStatus::EsmeRalybnd() => Self::EsmeRalybnd,
+            g::CommandStatus::EsmeRinvprtflg() => Self::EsmeRinvprtflg,
+            g::CommandStatus::EsmeRinvregdlvflg() => Self::EsmeRinvregdlvflg,
+            g::CommandStatus::EsmeRsyserr() => Self::EsmeRsyserr,
+            g::CommandStatus::EsmeRinvsrcadr() => Self::EsmeRinvsrcadr,
+            g::CommandStatus::EsmeRinvdstadr() => Self::EsmeRinvdstadr,
+            g::CommandStatus::EsmeRinvmsgid() => Self::EsmeRinvmsgid,
+            g::CommandStatus::EsmeRbindfail() => Self::EsmeRbindfail,
+            g::CommandStatus::EsmeRinvpaswd() => Self::EsmeRinvpaswd,
+            g::CommandStatus::EsmeRinvsysid() => Self::EsmeRinvsysid,
+            g::CommandStatus::EsmeRcancelfail() => Self::EsmeRcancelfail,
+            g::CommandStatus::EsmeRreplacefail() => Self::EsmeRreplacefail,
+            g::CommandStatus::EsmeRmsgqful() => Self::EsmeRmsgqful,
+            g::CommandStatus::EsmeRinvsertyp() => Self::EsmeRinvsertyp,
+            g::CommandStatus::EsmeRinvnumdests() => Self::EsmeRinvnumdests,
+            g::CommandStatus::EsmeRinvdlname() => Self::EsmeRinvdlname,
+            g::CommandStatus::EsmeRinvdestflag() => Self::EsmeRinvdestflag,
+            g::CommandStatus::EsmeRinvsubrep() => Self::EsmeRinvsubrep,
+            g::CommandStatus::EsmeRinvesmclass() => Self::EsmeRinvesmclass,
+            g::CommandStatus::EsmeRcntsubdl() => Self::EsmeRcntsubdl,
+            g::CommandStatus::EsmeRsubmitfail() => Self::EsmeRsubmitfail,
+            g::CommandStatus::EsmeRinvsrcton() => Self::EsmeRinvsrcton,
+            g::CommandStatus::EsmeRinvsrcnpi() => Self::EsmeRinvsrcnpi,
+            g::CommandStatus::EsmeRinvdstton() => Self::EsmeRinvdstton,
+            g::CommandStatus::EsmeRinvdstnpi() => Self::EsmeRinvdstnpi,
+            g::CommandStatus::EsmeRinvsystyp() => Self::EsmeRinvsystyp,
+            g::CommandStatus::EsmeRinvrepflag() => Self::EsmeRinvrepflag,
+            g::CommandStatus::EsmeRinvnummsgs() => Self::EsmeRinvnummsgs,
+            g::CommandStatus::EsmeRthrottled() => Self::EsmeRthrottled,
+            g::CommandStatus::EsmeRinvsched() => Self::EsmeRinvsched,
+            g::CommandStatus::EsmeRinvexpiry() => Self::EsmeRinvexpiry,
+            g::CommandStatus::EsmeRinvdftmsgid() => Self::EsmeRinvdftmsgid,
+            g::CommandStatus::EsmeRxTAppn() => Self::EsmeRxTAppn,
+            g::CommandStatus::EsmeRxPAppn() => Self::EsmeRxPAppn,
+            g::CommandStatus::EsmeRxRAppn() => Self::EsmeRxRAppn,
+            g::CommandStatus::EsmeRqueryfail() => Self::EsmeRqueryfail,
+            g::CommandStatus::EsmeRinvtlvstream() => Self::EsmeRinvtlvstream,
+            g::CommandStatus::EsmeRtlvnotallwd() => Self::EsmeRtlvnotallwd,
+            g::CommandStatus::EsmeRinvtlvlen() => Self::EsmeRinvtlvlen,
+            g::CommandStatus::EsmeRmissingtlv() => Self::EsmeRmissingtlv,
+            g::CommandStatus::EsmeRinvtlvval() => Self::EsmeRinvtlvval,
+            g::CommandStatus::EsmeRdeliveryfailure() => Self::EsmeRdeliveryfailure,
+            g::CommandStatus::EsmeRunknownerr() => Self::EsmeRunknownerr,
+            g::CommandStatus::EsmeRsertypunauth() => Self::EsmeRsertypunauth,
+            g::CommandStatus::EsmeRprohibited() => Self::EsmeRprohibited,
+            g::CommandStatus::EsmeRsertypunavail() => Self::EsmeRsertypunavail,
+            g::CommandStatus::EsmeRsertypdenied() => Self::EsmeRsertypdenied,
+            g::CommandStatus::EsmeRinvdcs() => Self::EsmeRinvdcs,
+            g::CommandStatus::EsmeRinvsrcaddrsubunit() => Self::EsmeRinvsrcaddrsubunit,
+            g::CommandStatus::EsmeRinvdstaddrsubunit() => Self::EsmeRinvdstaddrsubunit,
+            g::CommandStatus::EsmeRinvbcastfreqint() => Self::EsmeRinvbcastfreqint,
+            g::CommandStatus::EsmeRinvbcastaliasName() => Self::EsmeRinvbcastaliasName,
+            g::CommandStatus::EsmeRinvbcastareafmt() => Self::EsmeRinvbcastareafmt,
+            g::CommandStatus::EsmeRinvnumbcastAreas() => Self::EsmeRinvnumbcastAreas,
+            g::CommandStatus::EsmeRinvbcastcnttype() => Self::EsmeRinvbcastcnttype,
+            g::CommandStatus::EsmeRinvbcastmsgclass() => Self::EsmeRinvbcastmsgclass,
+            g::CommandStatus::EsmeRbcastfail() => Self::EsmeRbcastfail,
+            g::CommandStatus::EsmeRbcastqueryfail() => Self::EsmeRbcastqueryfail,
+            g::CommandStatus::EsmeRbcastcancelfail() => Self::EsmeRbcastcancelfail,
+            g::CommandStatus::EsmeRinvbcastRep() => Self::EsmeRinvbcastRep,
+            g::CommandStatus::EsmeRinvbcastsrvgrp() => Self::EsmeRinvbcastsrvgrp,
+            g::CommandStatus::EsmeRinvbcastchanind() => Self::EsmeRinvbcastchanind,
+            g::CommandStatus::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GeneratedTlvTag> for TlvTag {
-    fn from(value: GeneratedTlvTag) -> Self {
+impl From<g::TlvTag> for TlvTag {
+    fn from(value: g::TlvTag) -> Self {
         match value {
-            GeneratedTlvTag::DestAddrSubunit() => Self::DestAddrSubunit,
-            GeneratedTlvTag::DestNetworkType() => Self::DestNetworkType,
-            GeneratedTlvTag::DestBearerType() => Self::DestBearerType,
-            GeneratedTlvTag::DestTelematicsId() => Self::DestTelematicsId,
-            GeneratedTlvTag::SourceAddrSubunit() => Self::SourceAddrSubunit,
-            GeneratedTlvTag::SourceNetworkType() => Self::SourceNetworkType,
-            GeneratedTlvTag::SourceBearerType() => Self::SourceBearerType,
-            GeneratedTlvTag::SourceTelematicsId() => Self::SourceTelematicsId,
-            GeneratedTlvTag::QosTimeToLive() => Self::QosTimeToLive,
-            GeneratedTlvTag::PayloadType() => Self::PayloadType,
-            GeneratedTlvTag::AdditionalStatusInfoText() => Self::AdditionalStatusInfoText,
-            GeneratedTlvTag::ReceiptedMessageId() => Self::ReceiptedMessageId,
-            GeneratedTlvTag::MsMsgWaitFacilities() => Self::MsMsgWaitFacilities,
-            GeneratedTlvTag::PrivacyIndicator() => Self::PrivacyIndicator,
-            GeneratedTlvTag::SourceSubaddress() => Self::SourceSubaddress,
-            GeneratedTlvTag::DestSubaddress() => Self::DestSubaddress,
-            GeneratedTlvTag::UserMessageReference() => Self::UserMessageReference,
-            GeneratedTlvTag::UserResponseCode() => Self::UserResponseCode,
-            GeneratedTlvTag::SourcePort() => Self::SourcePort,
-            GeneratedTlvTag::DestPort() => Self::DestPort,
-            GeneratedTlvTag::SarMsgRefNum() => Self::SarMsgRefNum,
-            GeneratedTlvTag::LanguageIndicator() => Self::LanguageIndicator,
-            GeneratedTlvTag::SarTotalSegments() => Self::SarTotalSegments,
-            GeneratedTlvTag::SarSegmentSeqnum() => Self::SarSegmentSeqnum,
-            GeneratedTlvTag::ScInterfaceVersion() => Self::ScInterfaceVersion,
-            GeneratedTlvTag::CallbackNumPresInd() => Self::CallbackNumPresInd,
-            GeneratedTlvTag::CallbackNumAtag() => Self::CallbackNumAtag,
-            GeneratedTlvTag::NumberOfMessages() => Self::NumberOfMessages,
-            GeneratedTlvTag::CallbackNum() => Self::CallbackNum,
-            GeneratedTlvTag::DpfResult() => Self::DpfResult,
-            GeneratedTlvTag::SetDpf() => Self::SetDpf,
-            GeneratedTlvTag::MsAvailabilityStatus() => Self::MsAvailabilityStatus,
-            GeneratedTlvTag::NetworkErrorCode() => Self::NetworkErrorCode,
-            GeneratedTlvTag::MessagePayload() => Self::MessagePayload,
-            GeneratedTlvTag::DeliveryFailureReason() => Self::DeliveryFailureReason,
-            GeneratedTlvTag::MoreMessagesToSend() => Self::MoreMessagesToSend,
-            GeneratedTlvTag::MessageState() => Self::MessageState,
-            GeneratedTlvTag::CongestionState() => Self::CongestionState,
-            GeneratedTlvTag::UssdServiceOp() => Self::UssdServiceOp,
-            GeneratedTlvTag::BroadcastChannelIndicator() => Self::BroadcastChannelIndicator,
-            GeneratedTlvTag::BroadcastContentType() => Self::BroadcastContentType,
-            GeneratedTlvTag::BroadcastContentTypeInfo() => Self::BroadcastContentTypeInfo,
-            GeneratedTlvTag::BroadcastMessageClass() => Self::BroadcastMessageClass,
-            GeneratedTlvTag::BroadcastRepNum() => Self::BroadcastRepNum,
-            GeneratedTlvTag::BroadcastFrequencyInterval() => Self::BroadcastFrequencyInterval,
-            GeneratedTlvTag::BroadcastAreaIdentifier() => Self::BroadcastAreaIdentifier,
-            GeneratedTlvTag::BroadcastErrorStatus() => Self::BroadcastErrorStatus,
-            GeneratedTlvTag::BroadcastAreaSuccess() => Self::BroadcastAreaSuccess,
-            GeneratedTlvTag::BroadcastEndTime() => Self::BroadcastEndTime,
-            GeneratedTlvTag::BroadcastServiceGroup() => Self::BroadcastServiceGroup,
-            GeneratedTlvTag::BillingIdentification() => Self::BillingIdentification,
-            GeneratedTlvTag::SourceNetworkId() => Self::SourceNetworkId,
-            GeneratedTlvTag::DestNetworkId() => Self::DestNetworkId,
-            GeneratedTlvTag::SourceNodeId() => Self::SourceNodeId,
-            GeneratedTlvTag::DestNodeId() => Self::DestNodeId,
-            GeneratedTlvTag::DestAddrNpResolution() => Self::DestAddrNpResolution,
-            GeneratedTlvTag::DestAddrNpInformation() => Self::DestAddrNpInformation,
-            GeneratedTlvTag::DestAddrNpCountry() => Self::DestAddrNpCountry,
-            GeneratedTlvTag::DisplayTime() => Self::DisplayTime,
-            GeneratedTlvTag::SmsSignal() => Self::SmsSignal,
-            GeneratedTlvTag::MsValidity() => Self::MsValidity,
-            GeneratedTlvTag::AlertOnMessageDelivery() => Self::AlertOnMessageDelivery,
-            GeneratedTlvTag::ItsReplyType() => Self::ItsReplyType,
-            GeneratedTlvTag::ItsSessionInfo() => Self::ItsSessionInfo,
-            GeneratedTlvTag::Other(tag) => Self::Other(tag),
+            g::TlvTag::DestAddrSubunit() => Self::DestAddrSubunit,
+            g::TlvTag::DestNetworkType() => Self::DestNetworkType,
+            g::TlvTag::DestBearerType() => Self::DestBearerType,
+            g::TlvTag::DestTelematicsId() => Self::DestTelematicsId,
+            g::TlvTag::SourceAddrSubunit() => Self::SourceAddrSubunit,
+            g::TlvTag::SourceNetworkType() => Self::SourceNetworkType,
+            g::TlvTag::SourceBearerType() => Self::SourceBearerType,
+            g::TlvTag::SourceTelematicsId() => Self::SourceTelematicsId,
+            g::TlvTag::QosTimeToLive() => Self::QosTimeToLive,
+            g::TlvTag::PayloadType() => Self::PayloadType,
+            g::TlvTag::AdditionalStatusInfoText() => Self::AdditionalStatusInfoText,
+            g::TlvTag::ReceiptedMessageId() => Self::ReceiptedMessageId,
+            g::TlvTag::MsMsgWaitFacilities() => Self::MsMsgWaitFacilities,
+            g::TlvTag::PrivacyIndicator() => Self::PrivacyIndicator,
+            g::TlvTag::SourceSubaddress() => Self::SourceSubaddress,
+            g::TlvTag::DestSubaddress() => Self::DestSubaddress,
+            g::TlvTag::UserMessageReference() => Self::UserMessageReference,
+            g::TlvTag::UserResponseCode() => Self::UserResponseCode,
+            g::TlvTag::SourcePort() => Self::SourcePort,
+            g::TlvTag::DestPort() => Self::DestPort,
+            g::TlvTag::SarMsgRefNum() => Self::SarMsgRefNum,
+            g::TlvTag::LanguageIndicator() => Self::LanguageIndicator,
+            g::TlvTag::SarTotalSegments() => Self::SarTotalSegments,
+            g::TlvTag::SarSegmentSeqnum() => Self::SarSegmentSeqnum,
+            g::TlvTag::ScInterfaceVersion() => Self::ScInterfaceVersion,
+            g::TlvTag::CallbackNumPresInd() => Self::CallbackNumPresInd,
+            g::TlvTag::CallbackNumAtag() => Self::CallbackNumAtag,
+            g::TlvTag::NumberOfMessages() => Self::NumberOfMessages,
+            g::TlvTag::CallbackNum() => Self::CallbackNum,
+            g::TlvTag::DpfResult() => Self::DpfResult,
+            g::TlvTag::SetDpf() => Self::SetDpf,
+            g::TlvTag::MsAvailabilityStatus() => Self::MsAvailabilityStatus,
+            g::TlvTag::NetworkErrorCode() => Self::NetworkErrorCode,
+            g::TlvTag::MessagePayload() => Self::MessagePayload,
+            g::TlvTag::DeliveryFailureReason() => Self::DeliveryFailureReason,
+            g::TlvTag::MoreMessagesToSend() => Self::MoreMessagesToSend,
+            g::TlvTag::MessageState() => Self::MessageState,
+            g::TlvTag::CongestionState() => Self::CongestionState,
+            g::TlvTag::UssdServiceOp() => Self::UssdServiceOp,
+            g::TlvTag::BroadcastChannelIndicator() => Self::BroadcastChannelIndicator,
+            g::TlvTag::BroadcastContentType() => Self::BroadcastContentType,
+            g::TlvTag::BroadcastContentTypeInfo() => Self::BroadcastContentTypeInfo,
+            g::TlvTag::BroadcastMessageClass() => Self::BroadcastMessageClass,
+            g::TlvTag::BroadcastRepNum() => Self::BroadcastRepNum,
+            g::TlvTag::BroadcastFrequencyInterval() => Self::BroadcastFrequencyInterval,
+            g::TlvTag::BroadcastAreaIdentifier() => Self::BroadcastAreaIdentifier,
+            g::TlvTag::BroadcastErrorStatus() => Self::BroadcastErrorStatus,
+            g::TlvTag::BroadcastAreaSuccess() => Self::BroadcastAreaSuccess,
+            g::TlvTag::BroadcastEndTime() => Self::BroadcastEndTime,
+            g::TlvTag::BroadcastServiceGroup() => Self::BroadcastServiceGroup,
+            g::TlvTag::BillingIdentification() => Self::BillingIdentification,
+            g::TlvTag::SourceNetworkId() => Self::SourceNetworkId,
+            g::TlvTag::DestNetworkId() => Self::DestNetworkId,
+            g::TlvTag::SourceNodeId() => Self::SourceNodeId,
+            g::TlvTag::DestNodeId() => Self::DestNodeId,
+            g::TlvTag::DestAddrNpResolution() => Self::DestAddrNpResolution,
+            g::TlvTag::DestAddrNpInformation() => Self::DestAddrNpInformation,
+            g::TlvTag::DestAddrNpCountry() => Self::DestAddrNpCountry,
+            g::TlvTag::DisplayTime() => Self::DisplayTime,
+            g::TlvTag::SmsSignal() => Self::SmsSignal,
+            g::TlvTag::MsValidity() => Self::MsValidity,
+            g::TlvTag::AlertOnMessageDelivery() => Self::AlertOnMessageDelivery,
+            g::TlvTag::ItsReplyType() => Self::ItsReplyType,
+            g::TlvTag::ItsSessionInfo() => Self::ItsSessionInfo,
+            g::TlvTag::Other(tag) => Self::Other(tag),
         }
     }
 }
 
-impl From<GInterfaceVersion> for InterfaceVersion {
-    fn from(value: GInterfaceVersion) -> Self {
+impl From<g::InterfaceVersion> for InterfaceVersion {
+    fn from(value: g::InterfaceVersion) -> Self {
         match value {
-            GInterfaceVersion::Smpp3_3OrEarlier(value) => Self::Smpp3_3OrEarlier(value),
-            GInterfaceVersion::Smpp3_4() => Self::Smpp3_4,
-            GInterfaceVersion::Smpp5_0() => Self::Smpp5_0,
-            GInterfaceVersion::Other(value) => Self::Other(value),
+            g::InterfaceVersion::Smpp3_3OrEarlier(value) => Self::Smpp3_3OrEarlier(value),
+            g::InterfaceVersion::Smpp3_4() => Self::Smpp3_4,
+            g::InterfaceVersion::Smpp5_0() => Self::Smpp5_0,
+            g::InterfaceVersion::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GTon> for Ton {
-    fn from(value: GTon) -> Self {
+impl From<g::Ton> for Ton {
+    fn from(value: g::Ton) -> Self {
         match value {
-            GTon::Unknown() => Self::Unknown,
-            GTon::International() => Self::International,
-            GTon::National() => Self::National,
-            GTon::NetworkSpecific() => Self::NetworkSpecific,
-            GTon::SubscriberNumber() => Self::SubscriberNumber,
-            GTon::Alphanumeric() => Self::Alphanumeric,
-            GTon::Abbreviated() => Self::Abbreviated,
-            GTon::Other(value) => Self::Other(value),
+            g::Ton::Unknown() => Self::Unknown,
+            g::Ton::International() => Self::International,
+            g::Ton::National() => Self::National,
+            g::Ton::NetworkSpecific() => Self::NetworkSpecific,
+            g::Ton::SubscriberNumber() => Self::SubscriberNumber,
+            g::Ton::Alphanumeric() => Self::Alphanumeric,
+            g::Ton::Abbreviated() => Self::Abbreviated,
+            g::Ton::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GNpi> for Npi {
-    fn from(value: GNpi) -> Self {
+impl From<g::Npi> for Npi {
+    fn from(value: g::Npi) -> Self {
         match value {
-            GNpi::Unknown() => Self::Unknown,
-            GNpi::Isdn() => Self::Isdn,
-            GNpi::Data() => Self::Data,
-            GNpi::Telex() => Self::Telex,
-            GNpi::LandMobile() => Self::LandMobile,
-            GNpi::National() => Self::National,
-            GNpi::Private() => Self::Private,
-            GNpi::Ermes() => Self::Ermes,
-            GNpi::Internet() => Self::Internet,
-            GNpi::WapClientId() => Self::WapClientId,
-            GNpi::Other(value) => Self::Other(value),
+            g::Npi::Unknown() => Self::Unknown,
+            g::Npi::Isdn() => Self::Isdn,
+            g::Npi::Data() => Self::Data,
+            g::Npi::Telex() => Self::Telex,
+            g::Npi::LandMobile() => Self::LandMobile,
+            g::Npi::National() => Self::National,
+            g::Npi::Private() => Self::Private,
+            g::Npi::Ermes() => Self::Ermes,
+            g::Npi::Internet() => Self::Internet,
+            g::Npi::WapClientId() => Self::WapClientId,
+            g::Npi::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GDataCoding> for DataCoding {
-    fn from(value: GDataCoding) -> Self {
+impl From<g::DataCoding> for DataCoding {
+    fn from(value: g::DataCoding) -> Self {
         match value {
-            GDataCoding::McSpecific() => Self::McSpecific,
-            GDataCoding::Ia5() => Self::Ia5,
-            GDataCoding::OctetUnspecified() => Self::OctetUnspecified,
-            GDataCoding::Latin1() => Self::Latin1,
-            GDataCoding::OctetUnspecified2() => Self::OctetUnspecified2,
-            GDataCoding::Jis() => Self::Jis,
-            GDataCoding::Cyrillic() => Self::Cyrillic,
-            GDataCoding::LatinHebrew() => Self::LatinHebrew,
-            GDataCoding::Ucs2() => Self::Ucs2,
-            GDataCoding::PictogramEncoding() => Self::PictogramEncoding,
-            GDataCoding::Iso2022JpMusicCodes() => Self::Iso2022JpMusicCodes,
-            GDataCoding::ExtendedKanjiJis() => Self::ExtendedKanjiJis,
-            GDataCoding::Ksc5601() => Self::Ksc5601,
-            GDataCoding::GsmMwiControl() => Self::GsmMwiControl,
-            GDataCoding::GsmMwiControl2() => Self::GsmMwiControl2,
-            GDataCoding::GsmMessageClassControl() => Self::GsmMessageClassControl,
-            GDataCoding::Other(value) => Self::Other(value),
+            g::DataCoding::McSpecific() => Self::McSpecific,
+            g::DataCoding::Ia5() => Self::Ia5,
+            g::DataCoding::OctetUnspecified() => Self::OctetUnspecified,
+            g::DataCoding::Latin1() => Self::Latin1,
+            g::DataCoding::OctetUnspecified2() => Self::OctetUnspecified2,
+            g::DataCoding::Jis() => Self::Jis,
+            g::DataCoding::Cyrillic() => Self::Cyrillic,
+            g::DataCoding::LatinHebrew() => Self::LatinHebrew,
+            g::DataCoding::Ucs2() => Self::Ucs2,
+            g::DataCoding::PictogramEncoding() => Self::PictogramEncoding,
+            g::DataCoding::Iso2022JpMusicCodes() => Self::Iso2022JpMusicCodes,
+            g::DataCoding::ExtendedKanjiJis() => Self::ExtendedKanjiJis,
+            g::DataCoding::Ksc5601() => Self::Ksc5601,
+            g::DataCoding::GsmMwiControl() => Self::GsmMwiControl,
+            g::DataCoding::GsmMwiControl2() => Self::GsmMwiControl2,
+            g::DataCoding::GsmMessageClassControl() => Self::GsmMessageClassControl,
+            g::DataCoding::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GAlertOnMessageDelivery> for AlertOnMessageDelivery {
-    fn from(value: GAlertOnMessageDelivery) -> Self {
+impl From<g::AlertOnMessageDelivery> for AlertOnMessageDelivery {
+    fn from(value: g::AlertOnMessageDelivery) -> Self {
         match value {
-            GAlertOnMessageDelivery::UseMobileDefaultAlert() => Self::UseMobileDefaultAlert,
-            GAlertOnMessageDelivery::UseLowPriorityAlert() => Self::UseLowPriorityAlert,
-            GAlertOnMessageDelivery::UseMediumPriorityAlert() => Self::UseMediumPriorityAlert,
-            GAlertOnMessageDelivery::UseHighPriorityAlert() => Self::UseHighPriorityAlert,
-            GAlertOnMessageDelivery::Other(value) => Self::Other(value),
+            g::AlertOnMessageDelivery::UseMobileDefaultAlert() => Self::UseMobileDefaultAlert,
+            g::AlertOnMessageDelivery::UseLowPriorityAlert() => Self::UseLowPriorityAlert,
+            g::AlertOnMessageDelivery::UseMediumPriorityAlert() => Self::UseMediumPriorityAlert,
+            g::AlertOnMessageDelivery::UseHighPriorityAlert() => Self::UseHighPriorityAlert,
+            g::AlertOnMessageDelivery::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GScreening> for Screening {
-    fn from(value: GScreening) -> Self {
+impl From<g::Screening> for Screening {
+    fn from(value: g::Screening) -> Self {
         match value {
-            GScreening::NotScreened() => Self::NotScreened,
-            GScreening::VerifiedAndPassed() => Self::VerifiedAndPassed,
-            GScreening::VerifiedAndFailed() => Self::VerifiedAndFailed,
-            GScreening::NetworkProvided() => Self::NetworkProvided,
-            GScreening::Other(value) => Self::Other(value),
+            g::Screening::NotScreened() => Self::NotScreened,
+            g::Screening::VerifiedAndPassed() => Self::VerifiedAndPassed,
+            g::Screening::VerifiedAndFailed() => Self::VerifiedAndFailed,
+            g::Screening::NetworkProvided() => Self::NetworkProvided,
+            g::Screening::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GPresentation> for Presentation {
-    fn from(value: GPresentation) -> Self {
+impl From<g::Presentation> for Presentation {
+    fn from(value: g::Presentation) -> Self {
         match value {
-            GPresentation::PresentationAllowed() => Self::PresentationAllowed,
-            GPresentation::PresentationRestricted() => Self::PresentationRestricted,
-            GPresentation::NumberNotAvailable() => Self::NumberNotAvailable,
-            GPresentation::Other(value) => Self::Other(value),
+            g::Presentation::PresentationAllowed() => Self::PresentationAllowed,
+            g::Presentation::PresentationRestricted() => Self::PresentationRestricted,
+            g::Presentation::NumberNotAvailable() => Self::NumberNotAvailable,
+            g::Presentation::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GCallbackNumPresInd> for CallbackNumPresInd {
-    fn from(value: GCallbackNumPresInd) -> Self {
+impl From<g::CallbackNumPresInd> for CallbackNumPresInd {
+    fn from(value: g::CallbackNumPresInd) -> Self {
         Self {
             presentation: Presentation::from(value.presentation),
             screening: Screening::from(value.screening),
@@ -280,81 +269,83 @@ impl From<GCallbackNumPresInd> for CallbackNumPresInd {
     }
 }
 
-impl From<GDestAddrNpResolution> for DestAddrNpResolution {
-    fn from(value: GDestAddrNpResolution) -> Self {
+impl From<g::DestAddrNpResolution> for DestAddrNpResolution {
+    fn from(value: g::DestAddrNpResolution) -> Self {
         match value {
-            GDestAddrNpResolution::QueryNotPerformed() => Self::QueryNotPerformed,
-            GDestAddrNpResolution::QueryPerformedNumberNotPorted() => {
+            g::DestAddrNpResolution::QueryNotPerformed() => Self::QueryNotPerformed,
+            g::DestAddrNpResolution::QueryPerformedNumberNotPorted() => {
                 Self::QueryPerformedNumberNotPorted
             }
-            GDestAddrNpResolution::QueryPerformedNumberPorted() => Self::QueryPerformedNumberPorted,
-            GDestAddrNpResolution::Other(value) => Self::Other(value),
+            g::DestAddrNpResolution::QueryPerformedNumberPorted() => {
+                Self::QueryPerformedNumberPorted
+            }
+            g::DestAddrNpResolution::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GAddrSubunit> for AddrSubunit {
-    fn from(value: GAddrSubunit) -> Self {
+impl From<g::AddrSubunit> for AddrSubunit {
+    fn from(value: g::AddrSubunit) -> Self {
         match value {
-            GAddrSubunit::Unknown() => Self::Unknown,
-            GAddrSubunit::MSDisplay() => Self::MSDisplay,
-            GAddrSubunit::MobileEquipment() => Self::MobileEquipment,
-            GAddrSubunit::SmartCard() => Self::SmartCard,
-            GAddrSubunit::ExternalUnit() => Self::ExternalUnit,
-            GAddrSubunit::Other(value) => Self::Other(value),
+            g::AddrSubunit::Unknown() => Self::Unknown,
+            g::AddrSubunit::MSDisplay() => Self::MSDisplay,
+            g::AddrSubunit::MobileEquipment() => Self::MobileEquipment,
+            g::AddrSubunit::SmartCard() => Self::SmartCard,
+            g::AddrSubunit::ExternalUnit() => Self::ExternalUnit,
+            g::AddrSubunit::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GBearerType> for BearerType {
-    fn from(value: GBearerType) -> Self {
+impl From<g::BearerType> for BearerType {
+    fn from(value: g::BearerType) -> Self {
         match value {
-            GBearerType::Unknown() => Self::Unknown,
-            GBearerType::Sms() => Self::Sms,
-            GBearerType::Csd() => Self::Csd,
-            GBearerType::PacketData() => Self::PacketData,
-            GBearerType::Ussd() => Self::Ussd,
-            GBearerType::Cdpd() => Self::Cdpd,
-            GBearerType::DataTac() => Self::DataTac,
-            GBearerType::FlexReFlex() => Self::FlexReFlex,
-            GBearerType::CellBroadcast() => Self::CellBroadcast,
-            GBearerType::Other(value) => Self::Other(value),
+            g::BearerType::Unknown() => Self::Unknown,
+            g::BearerType::Sms() => Self::Sms,
+            g::BearerType::Csd() => Self::Csd,
+            g::BearerType::PacketData() => Self::PacketData,
+            g::BearerType::Ussd() => Self::Ussd,
+            g::BearerType::Cdpd() => Self::Cdpd,
+            g::BearerType::DataTac() => Self::DataTac,
+            g::BearerType::FlexReFlex() => Self::FlexReFlex,
+            g::BearerType::CellBroadcast() => Self::CellBroadcast,
+            g::BearerType::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GNetworkType> for NetworkType {
-    fn from(value: GNetworkType) -> Self {
+impl From<g::NetworkType> for NetworkType {
+    fn from(value: g::NetworkType) -> Self {
         match value {
-            GNetworkType::Unknown() => Self::Unknown,
-            GNetworkType::Gsm() => Self::Gsm,
-            GNetworkType::Ansi136() => Self::Ansi136,
-            GNetworkType::Is95() => Self::Is95,
-            GNetworkType::Pdc() => Self::Pdc,
-            GNetworkType::Phs() => Self::Phs,
-            GNetworkType::IDen() => Self::IDen,
-            GNetworkType::Amps() => Self::Amps,
-            GNetworkType::PagingNetwork() => Self::PagingNetwork,
-            GNetworkType::Other(value) => Self::Other(value),
+            g::NetworkType::Unknown() => Self::Unknown,
+            g::NetworkType::Gsm() => Self::Gsm,
+            g::NetworkType::Ansi136() => Self::Ansi136,
+            g::NetworkType::Is95() => Self::Is95,
+            g::NetworkType::Pdc() => Self::Pdc,
+            g::NetworkType::Phs() => Self::Phs,
+            g::NetworkType::IDen() => Self::IDen,
+            g::NetworkType::Amps() => Self::Amps,
+            g::NetworkType::PagingNetwork() => Self::PagingNetwork,
+            g::NetworkType::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GSubaddressTag> for SubaddressTag {
-    fn from(value: GSubaddressTag) -> Self {
+impl From<g::SubaddressTag> for SubaddressTag {
+    fn from(value: g::SubaddressTag) -> Self {
         match value {
-            GSubaddressTag::NsapEven() => Self::NsapEven,
-            GSubaddressTag::NsapOdd() => Self::NsapOdd,
-            GSubaddressTag::UserSpecified() => Self::UserSpecified,
-            GSubaddressTag::Other(value) => Self::Other(value),
+            g::SubaddressTag::NsapEven() => Self::NsapEven,
+            g::SubaddressTag::NsapOdd() => Self::NsapOdd,
+            g::SubaddressTag::UserSpecified() => Self::UserSpecified,
+            g::SubaddressTag::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl TryFrom<GSubaddress> for Subaddress {
+impl TryFrom<g::Subaddress> for Subaddress {
     type Error = Exception;
 
-    fn try_from(value: GSubaddress) -> Result<Self, Self::Error> {
+    fn try_from(value: g::Subaddress) -> Result<Self, Self::Error> {
         Ok(Self {
             tag: value.tag.into(),
             addr: OctetString::new(value.addr).map_value_err("addr")?,
@@ -362,19 +353,19 @@ impl TryFrom<GSubaddress> for Subaddress {
     }
 }
 
-impl From<GDisplayTime> for DisplayTime {
-    fn from(value: GDisplayTime) -> Self {
+impl From<g::DisplayTime> for DisplayTime {
+    fn from(value: g::DisplayTime) -> Self {
         match value {
-            GDisplayTime::Temporary() => Self::Temporary,
-            GDisplayTime::Default() => Self::Default,
-            GDisplayTime::Invoke() => Self::Invoke,
-            GDisplayTime::Other(value) => Self::Other(value),
+            g::DisplayTime::Temporary() => Self::Temporary,
+            g::DisplayTime::Default() => Self::Default,
+            g::DisplayTime::Invoke() => Self::Invoke,
+            g::DisplayTime::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GItsSessionInfo> for ItsSessionInfo {
-    fn from(value: GItsSessionInfo) -> Self {
+impl From<g::ItsSessionInfo> for ItsSessionInfo {
+    fn from(value: g::ItsSessionInfo) -> Self {
         Self {
             session_number: value.session_number,
             sequence_number: value.sequence_number,
@@ -382,54 +373,54 @@ impl From<GItsSessionInfo> for ItsSessionInfo {
     }
 }
 
-impl From<GLanguageIndicator> for LanguageIndicator {
-    fn from(value: GLanguageIndicator) -> Self {
+impl From<g::LanguageIndicator> for LanguageIndicator {
+    fn from(value: g::LanguageIndicator) -> Self {
         match value {
-            GLanguageIndicator::Unspecified() => Self::Unspecified,
-            GLanguageIndicator::English() => Self::English,
-            GLanguageIndicator::French() => Self::French,
-            GLanguageIndicator::Spanish() => Self::Spanish,
-            GLanguageIndicator::German() => Self::German,
-            GLanguageIndicator::Portuguese() => Self::Portuguese,
-            GLanguageIndicator::Other(value) => Self::Other(value),
+            g::LanguageIndicator::Unspecified() => Self::Unspecified,
+            g::LanguageIndicator::English() => Self::English,
+            g::LanguageIndicator::French() => Self::French,
+            g::LanguageIndicator::Spanish() => Self::Spanish,
+            g::LanguageIndicator::German() => Self::German,
+            g::LanguageIndicator::Portuguese() => Self::Portuguese,
+            g::LanguageIndicator::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GPrivacyIndicator> for PrivacyIndicator {
-    fn from(value: GPrivacyIndicator) -> Self {
+impl From<g::PrivacyIndicator> for PrivacyIndicator {
+    fn from(value: g::PrivacyIndicator) -> Self {
         match value {
-            GPrivacyIndicator::NotRestricted() => Self::NotRestricted,
-            GPrivacyIndicator::Restricted() => Self::Restricted,
-            GPrivacyIndicator::Confidential() => Self::Confidential,
-            GPrivacyIndicator::Secret() => Self::Secret,
-            GPrivacyIndicator::Other(value) => Self::Other(value),
+            g::PrivacyIndicator::NotRestricted() => Self::NotRestricted,
+            g::PrivacyIndicator::Restricted() => Self::Restricted,
+            g::PrivacyIndicator::Confidential() => Self::Confidential,
+            g::PrivacyIndicator::Secret() => Self::Secret,
+            g::PrivacyIndicator::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl From<GItsReplyType> for ItsReplyType {
-    fn from(value: GItsReplyType) -> Self {
+impl From<g::ItsReplyType> for ItsReplyType {
+    fn from(value: g::ItsReplyType) -> Self {
         match value {
-            GItsReplyType::Digit() => Self::Digit,
-            GItsReplyType::Number() => Self::Number,
-            GItsReplyType::TelephoneNo() => Self::TelephoneNo,
-            GItsReplyType::Password() => Self::Password,
-            GItsReplyType::CharacterLine() => Self::CharacterLine,
-            GItsReplyType::Menu() => Self::Menu,
-            GItsReplyType::Date() => Self::Date,
-            GItsReplyType::Time() => Self::Time,
-            GItsReplyType::Continue() => Self::Continue,
-            GItsReplyType::Other(value) => Self::Other(value),
+            g::ItsReplyType::Digit() => Self::Digit,
+            g::ItsReplyType::Number() => Self::Number,
+            g::ItsReplyType::TelephoneNo() => Self::TelephoneNo,
+            g::ItsReplyType::Password() => Self::Password,
+            g::ItsReplyType::CharacterLine() => Self::CharacterLine,
+            g::ItsReplyType::Menu() => Self::Menu,
+            g::ItsReplyType::Date() => Self::Date,
+            g::ItsReplyType::Time() => Self::Time,
+            g::ItsReplyType::Continue() => Self::Continue,
+            g::ItsReplyType::Other(value) => Self::Other(value),
         }
     }
 }
 
-impl TryFrom<GMessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
+impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
-    fn try_from(value: GMessageSubmissionRequestTlvValue) -> Result<Self, Self::Error> {
-        use GMessageSubmissionRequestTlvValue as GValue;
+    fn try_from(value: g::MessageSubmissionRequestTlvValue) -> Result<Self, Self::Error> {
+        use g::MessageSubmissionRequestTlvValue as GValue;
 
         let value = match value {
             GValue::AlertOnMessageDelivery(value) => Self::AlertOnMessageDelivery(value.into()),

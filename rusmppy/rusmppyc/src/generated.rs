@@ -1,5 +1,6 @@
 #![allow(clippy::enum_variant_names)]
 #![allow(clippy::useless_conversion)]
+#![allow(clippy::too_many_arguments)]
 
 pub mod rusmpp_types {
     pub use ::rusmpp::{pdus::*, tlvs::*, values::*, Command, CommandId, CommandStatus, Pdu};

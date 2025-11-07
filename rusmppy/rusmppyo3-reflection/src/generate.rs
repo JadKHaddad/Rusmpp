@@ -209,6 +209,7 @@ where
 
         writeln!(self.out, "#![allow(clippy::enum_variant_names)]")?;
         writeln!(self.out, "#![allow(clippy::useless_conversion)]")?;
+        writeln!(self.out, "#![allow(clippy::too_many_arguments)]")?;
 
         writeln!(self.out)?;
 

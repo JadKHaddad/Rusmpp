@@ -513,6 +513,57 @@ impl From<g::MsValidity> for MsValidity {
     }
 }
 
+impl From<g::NumberOfMessages> for NumberOfMessages {
+    fn from(value: g::NumberOfMessages) -> Self {
+        match value {
+            g::NumberOfMessages::Allowed(value) => Self::Allowed(value),
+            g::NumberOfMessages::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::PayloadType> for PayloadType {
+    fn from(value: g::PayloadType) -> Self {
+        match value {
+            g::PayloadType::Default() => Self::Default,
+            g::PayloadType::WcmpMessage() => Self::WcmpMessage,
+            g::PayloadType::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::SetDpf> for SetDpf {
+    fn from(value: g::SetDpf) -> Self {
+        match value {
+            g::SetDpf::NotRequested() => Self::NotRequested,
+            g::SetDpf::Requested() => Self::Requested,
+            g::SetDpf::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::UserMessageReference> for UserMessageReference {
+    fn from(value: g::UserMessageReference) -> Self {
+        Self { value: value.value }
+    }
+}
+
+impl From<g::UssdServiceOp> for UssdServiceOp {
+    fn from(value: g::UssdServiceOp) -> Self {
+        match value {
+            g::UssdServiceOp::PssdIndication() => Self::PssdIndication,
+            g::UssdServiceOp::PssrIndication() => Self::PssrIndication,
+            g::UssdServiceOp::UssrRequest() => Self::UssrRequest,
+            g::UssdServiceOp::UssnRequest() => Self::UssnRequest,
+            g::UssdServiceOp::PssdResponse() => Self::PssdResponse,
+            g::UssdServiceOp::PssrResponse() => Self::PssrResponse,
+            g::UssdServiceOp::UssrConfirm() => Self::UssrConfirm,
+            g::UssdServiceOp::UssnConfirm() => Self::UssnConfirm,
+            g::UssdServiceOp::Other(value) => Self::Other(value),
+        }
+    }
+}
+
 impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -560,16 +611,16 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
             GValue::MoreMessagesToSend(value) => Self::MoreMessagesToSend(value.into()),
             GValue::MsMsgWaitFacilities(value) => Self::MsMsgWaitFacilities(value.into()),
             GValue::MsValidity(value) => Self::MsValidity(value.into()),
-            GValue::NumberOfMessages(value) => todo!(),
-            GValue::PayloadType(value) => todo!(),
-            GValue::PrivacyIndicator(value) => todo!(),
+            GValue::NumberOfMessages(value) => Self::NumberOfMessages(value.into()),
+            GValue::PayloadType(value) => Self::PayloadType(value.into()),
+            GValue::PrivacyIndicator(value) => Self::PrivacyIndicator(value.into()),
             GValue::QosTimeToLive(value) => Self::QosTimeToLive(value),
             GValue::SarMsgRefNum(value) => Self::SarMsgRefNum(value),
             GValue::SarSegmentSeqnum(value) => Self::SarSegmentSeqnum(value),
             GValue::SarTotalSegments(value) => Self::SarTotalSegments(value),
-            GValue::SetDpf(value) => todo!(),
+            GValue::SetDpf(value) => Self::SetDpf(value.into()),
             GValue::SmsSignal(value) => Self::SmsSignal(value),
-            GValue::SourceAddrSubunit(value) => todo!(),
+            GValue::SourceAddrSubunit(value) => Self::SourceAddrSubunit(value.into()),
             GValue::SourceBearerType(value) => Self::SourceBearerType(value.into()),
             GValue::SourceNetworkId(value) => {
                 Self::SourceNetworkId(COctetString::new(value).map_value_err("source_network_id")?)
@@ -583,9 +634,9 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
                 Self::SourceSubaddress(value.try_into().map_value_err("source_subaddress")?)
             }
             GValue::SourceTelematicsId(value) => Self::SourceTelematicsId(value),
-            GValue::UserMessageReference(value) => todo!(),
+            GValue::UserMessageReference(value) => Self::UserMessageReference(value.into()),
             GValue::UserResponseCode(value) => Self::UserResponseCode(value),
-            GValue::UssdServiceOp(value) => todo!(),
+            GValue::UssdServiceOp(value) => Self::UssdServiceOp(value.into()),
             GValue::Other { tag, value } => Self::Other {
                 tag: tag.into(),
                 value: value.into(),

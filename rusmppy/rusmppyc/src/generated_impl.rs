@@ -416,6 +416,55 @@ impl From<g::ItsReplyType> for ItsReplyType {
     }
 }
 
+impl From<g::MessagePayload> for MessagePayload {
+    fn from(value: g::MessagePayload) -> Self {
+        Self {
+            value: value.value.into(),
+        }
+    }
+}
+
+impl From<g::MoreMessagesToSend> for MoreMessagesToSend {
+    fn from(value: g::MoreMessagesToSend) -> Self {
+        match value {
+            g::MoreMessagesToSend::NoMoreMessagesToFollow() => Self::NoMoreMessagesToFollow,
+            g::MoreMessagesToSend::MoreMessagesToFollow() => Self::MoreMessagesToFollow,
+            g::MoreMessagesToSend::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::Indicator> for Indicator {
+    fn from(value: g::Indicator) -> Self {
+        match value {
+            g::Indicator::Inactive() => Self::Inactive,
+            g::Indicator::Active() => Self::Active,
+            g::Indicator::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::TypeOfMessage> for TypeOfMessage {
+    fn from(value: g::TypeOfMessage) -> Self {
+        match value {
+            g::TypeOfMessage::VoicemailMessageWaiting() => Self::VoicemailMessageWaiting,
+            g::TypeOfMessage::FaxMessageWaiting() => Self::FaxMessageWaiting,
+            g::TypeOfMessage::ElectronicMailMessageWaiting() => Self::ElectronicMailMessageWaiting,
+            g::TypeOfMessage::OtherMessageWaiting() => Self::OtherMessageWaiting,
+            g::TypeOfMessage::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::MsMsgWaitFacilities> for MsMsgWaitFacilities {
+    fn from(value: g::MsMsgWaitFacilities) -> Self {
+        Self {
+            indicator: value.indicator.into(),
+            type_of_message: value.type_of_message.into(),
+        }
+    }
+}
+
 impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTlvValue {
     type Error = Exception;
 
@@ -459,9 +508,9 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
             GValue::ItsReplyType(value) => Self::ItsReplyType(value.into()),
             GValue::ItsSessionInfo(value) => Self::ItsSessionInfo(value.into()),
             GValue::LanguageIndicator(value) => Self::LanguageIndicator(value.into()),
-            GValue::MessagePayload(value) => todo!(),
-            GValue::MoreMessagesToSend(value) => todo!(),
-            GValue::MsMsgWaitFacilities(value) => todo!(),
+            GValue::MessagePayload(value) => Self::MessagePayload(value.into()),
+            GValue::MoreMessagesToSend(value) => Self::MoreMessagesToSend(value.into()),
+            GValue::MsMsgWaitFacilities(value) => Self::MsMsgWaitFacilities(value.into()),
             GValue::MsValidity(value) => todo!(),
             GValue::NumberOfMessages(value) => todo!(),
             GValue::PayloadType(value) => todo!(),
@@ -473,16 +522,18 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
             GValue::SetDpf(value) => todo!(),
             GValue::SmsSignal(value) => Self::SmsSignal(value),
             GValue::SourceAddrSubunit(value) => todo!(),
-            GValue::SourceBearerType(value) => todo!(),
+            GValue::SourceBearerType(value) => Self::SourceBearerType(value.into()),
             GValue::SourceNetworkId(value) => {
                 Self::SourceNetworkId(COctetString::new(value).map_value_err("source_network_id")?)
             }
-            GValue::SourceNetworkType(value) => todo!(),
+            GValue::SourceNetworkType(value) => Self::SourceNetworkType(value.into()),
             GValue::SourceNodeId(value) => {
                 Self::SourceNodeId(OctetString::new(value).map_value_err("source_node_id")?)
             }
             GValue::SourcePort(value) => Self::SourcePort(value),
-            GValue::SourceSubaddress(value) => todo!(),
+            GValue::SourceSubaddress(value) => {
+                Self::SourceSubaddress(value.try_into().map_value_err("source_subaddress")?)
+            }
             GValue::SourceTelematicsId(value) => Self::SourceTelematicsId(value),
             GValue::UserMessageReference(value) => todo!(),
             GValue::UserResponseCode(value) => Self::UserResponseCode(value),

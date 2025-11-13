@@ -15,7 +15,12 @@ description = "An async SMPP v5 Python client powered by Rust"
 readme = "Readme.md"
 license = { text = "MIT OR Apache-2.0" }
 authors = [{ name = "Jad K. Haddad", email = "jadkhaddad@gmail.com" }]
+maintainers = [{ name = "Jad K. Haddad", email = "jadkhaddad@gmail.com" }]
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
+
+[project.urls]
+Homepage = "https://github.com/Rusmpp/Rusmpp"
+Repository = "https://github.com/Rusmpp/Rusmpp.git"
 
 [tool.maturin]
 features = ["pyo3/extension-module", "pyo3/generate-import-lib"]

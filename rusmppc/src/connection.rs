@@ -487,6 +487,9 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             if matches!(self.state, State::Closing) {
                                 tracing::debug!(target: CONN, "Closed");
 
+                                // We set the state to `Errored` here to stop further processing in the next poll.
+                                // This isn’t really an error — we could just as well call it `Closed`.
+                                // `Errored` simply indicates that we are neither `Active` nor `Closing`.
                                 self.as_mut().set_state(State::Errored);
 
                                 return Poll::Ready(());

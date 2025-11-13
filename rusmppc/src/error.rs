@@ -17,12 +17,12 @@ pub enum Error {
     /// This error is returned by [`ConnectionBuilder::connect`](crate::builder::ConnectionBuilder::connect).
     #[error("Failed to connect to the server: {0}")]
     Connect(#[source] std::io::Error),
-    /// IO error occurred.
+    /// I/O error occurred.
     ///
     /// This error can occur during reading from or writing to the network stream.
     ///
     /// This error can be returned by various methods, such as sending commands or during background operations through the event stream as an [`Event::Error`](crate::event::Event::Error).
-    #[error("Io error: {0}")]
+    #[error("I/O error: {0}")]
     Io(#[source] std::io::Error),
     /// The connection to the `SMPP` server is closed.
     ///
@@ -34,7 +34,7 @@ pub enum Error {
     ///
     /// [`Error::ConnectionClosed`] is different from [`Error::ConnectionClosedByPeer`].
     ///
-    /// - [`Error::ConnectionClosed`] means that the the background connection managing the `SMPP` connection is closed (for example, the user called [`Client::close`](crate::client::Client::close) or the connection encountered a fatal error and closed itself).
+    /// - [`Error::ConnectionClosed`] means that the background connection managing the `SMPP` connection is closed (for example, the user called [`Client::close`](crate::client::Client::close) or the connection encountered a fatal error and closed itself).
     /// - [`Error::ConnectionClosedByPeer`] means that the `SMPP` server closed the (TCP) connection unexpectedly.
     #[error("Connection closed")]
     ConnectionClosed,
@@ -49,7 +49,7 @@ pub enum Error {
     /// [`Error::ConnectionClosedByPeer`] is different from [`Error::ConnectionClosed`].
     ///
     /// - [`Error::ConnectionClosedByPeer`] means that the `SMPP` server closed the (TCP) connection unexpectedly.
-    /// - [`Error::ConnectionClosed`] means that the the background connection managing the `SMPP` connection is closed (for example, the user called [`Client::close`](crate::client::Client::close) or the connection encountered a fatal error and closed itself).
+    /// - [`Error::ConnectionClosed`] means that the background connection managing the `SMPP` connection is closed (for example, the user called [`Client::close`](crate::client::Client::close) or the connection encountered a fatal error and closed itself).
     #[error("Connection closed by peer")]
     ConnectionClosedByPeer,
     /// Protocol encode error.
@@ -74,7 +74,7 @@ pub enum Error {
     ///
     /// The server did not respond to the request within the specified timeout.
     ///
-    /// This error is returned by methods that send commands and waits for a response, such as [`bind_transceiver`](crate::client::Client::bind_transceiver) and [`submit_sm`](crate::client::Client::submit_sm).
+    /// This error is returned by methods that send commands and wait for a response, such as [`bind_transceiver`](crate::client::Client::bind_transceiver) and [`submit_sm`](crate::client::Client::submit_sm).
     #[error("Response timed out: sequence number: {sequence_number}, timeout: {timeout:?}")]
     ResponseTimeout {
         /// The sequence number of the request that timed out.
@@ -86,7 +86,7 @@ pub enum Error {
     ///
     /// Error responses are responses with the status code other than [`EsmeRok`](rusmpp::CommandStatus::EsmeRok).
     ///
-    /// This error is returned by methods that send commands and waits for a response, such as [`bind_transceiver`](crate::client::Client::bind_transceiver) and [`submit_sm`](crate::client::Client::submit_sm).
+    /// This error is returned by methods that send commands and wait for a response, such as [`bind_transceiver`](crate::client::Client::bind_transceiver) and [`submit_sm`](crate::client::Client::submit_sm).
     #[error("Unexpected response from the server: response: {response:?}")]
     UnexpectedResponse {
         /// The response that was received from the server.

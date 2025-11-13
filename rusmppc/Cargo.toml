@@ -1,6 +1,6 @@
 [package]
 name = "rusmppc"
-version = "0.3.0-alpha.3"
+version = "0.3.0-alpha.4"
 edition = "2024"
 rust-version = "1.85.1"
 description = "A Rust SMPP client."
@@ -11,7 +11,7 @@ readme = "Readme.md"
 keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 
 [dependencies]
-rusmpp = { path = "../rusmpp", version = "0.3.0-alpha.0", default-features = false, features = [
+rusmpp = { path = "../rusmpp", version = "0.3.0-alpha.1", default-features = false, features = [
     "tokio-codec",
     "tracing",
     "verbose",

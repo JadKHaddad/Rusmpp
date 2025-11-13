@@ -2394,7 +2394,7 @@ dependencies = [
 
 [[package]]
 name = "rusmppc"
-version = "0.3.0-alpha.3"
+version = "0.3.0-alpha.4"
 dependencies = [
  "argh",
  "futures",

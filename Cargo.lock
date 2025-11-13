@@ -2459,7 +2459,7 @@ dependencies = [
 
 [[package]]
 name = "rusmppyo3-reflection"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "rusmpp",
  "serde-generate",

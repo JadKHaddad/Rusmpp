@@ -1,6 +1,6 @@
 [package]
 name = "rusmppyc"
-version = "0.3.0-alpha.2"
+version = "0.3.0-alpha.3"
 edition = "2021"
 publish = false
 
@@ -24,8 +24,8 @@ bytes = "1.10.1"
 humantime = "2.2.0"
 pyo3-log = "0.12.4"
 tracing = { version = "0.1.41", features = ["log-always"] }
-rusmpp = { path = "../../rusmpp", default-features = false }
-rusmppc = { path = "../../rusmppc", default-features = false }
+rusmpp = { path = "../../rusmpp", version = "0.3.0-alpha.1", default-features = false }
+rusmppc = { path = "../../rusmppc", version = "0.3.0-alpha.4", default-features = false }
 
 [features]
 default = ["rustls"]

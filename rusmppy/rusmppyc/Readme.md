@@ -1,7 +1,7 @@
 # Rusmppyc
 
 [![PyPI - License](https://img.shields.io/pypi/l/rusmppyc)](https://github.com/Rusmpp/Rusmpp?tab=readme-ov-file#license)
-![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%Rusmpp%2FRusmpp%2Frefs%2Fheads%2Fmain%2Frusmppy%2Frusmppyc%2Fpyproject.toml&logo=python)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2FRusmpp%2FRusmpp%2Frefs%2Fheads%2Fmain%2Frusmppy%2Frusmppyc%2Fpyproject.toml&logo=python)
 [![PyPI](https://img.shields.io/pypi/v/rusmppyc?logo=python)](https://pypi.org/project/rusmppyc/)
 [![PyPI Downloads](https://static.pepy.tech/badge/rusmppyc)](https://pepy.tech/projects/rusmppyc)
 

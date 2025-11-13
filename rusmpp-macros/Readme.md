@@ -1,6 +1,6 @@
 # Rusmpp-Macros
 
-![Build Status](https://github.com/JadKHaddad/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
+![Build Status](https://github.com/Rusmpp/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
 [![crates.io](https://img.shields.io/crates/v/rusmpp-macros.svg)](https://crates.io/crates/rusmpp-macros)
 [![Crates.io (MSRV)](https://img.shields.io/crates/msrv/rusmpp-macros)](https://crates.io/crates/rusmpp-macros)
 [![docs.rs](https://docs.rs/rusmpp/badge.svg)](https://docs.rs/rusmpp-macros)

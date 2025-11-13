@@ -1,6 +1,6 @@
 # Rusmpp-Core
 
-![Build Status](https://github.com/JadKHaddad/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
+![Build Status](https://github.com/Rusmpp/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
 [![crates.io](https://img.shields.io/crates/v/rusmpp-core.svg)](https://crates.io/crates/rusmpp-core)
 [![Crates.io (MSRV)](https://img.shields.io/crates/msrv/rusmpp-core)](https://crates.io/crates/rusmpp-core)
 [![docs.rs](https://docs.rs/rusmpp/badge.svg)](https://docs.rs/rusmpp-core)

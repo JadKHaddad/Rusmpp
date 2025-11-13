@@ -1,6 +1,6 @@
 # Rusmppc
 
-![Build Status](https://github.com/JadKHaddad/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
+![Build Status](https://github.com/Rusmpp/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
 [![crates.io](https://img.shields.io/crates/v/rusmppc.svg)](https://crates.io/crates/rusmppc)
 [![Crates.io (MSRV)](https://img.shields.io/crates/msrv/rusmppc)](https://crates.io/crates/rusmppc)
 [![docs.rs](https://docs.rs/rusmpp/badge.svg)](https://docs.rs/rusmppc)

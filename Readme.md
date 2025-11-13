@@ -1,6 +1,6 @@
 # Rusmpp
 
-![Build Status](https://github.com/JadKHaddad/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
+![Build Status](https://github.com/Rusmpp/Rusmpp/actions/workflows/build-and-test.yml/badge.svg)
 [![crates.io](https://img.shields.io/crates/v/rusmpp.svg)](https://crates.io/crates/rusmpp)
 [![Crates.io (MSRV)](https://img.shields.io/crates/msrv/rusmpp)](https://crates.io/crates/rusmpp)
 [![docs.rs](https://docs.rs/rusmpp/badge.svg)](https://docs.rs/rusmpp)
@@ -86,7 +86,7 @@ async fn launch_server(stream: DuplexStream) -> Result<(), Box<dyn Error>> {
 }
 ```
 
-See the [examples](https://github.com/JadKHaddad/Rusmpp/tree/main/rusmpp/examples) directory for more examples.
+See the [examples](https://github.com/Rusmpp/Rusmpp/tree/main/rusmpp/examples) directory for more examples.
 
 ## Features
 

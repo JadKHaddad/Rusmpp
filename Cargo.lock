@@ -2364,7 +2364,7 @@ dependencies = [
 
 [[package]]
 name = "rusmpp-core"
-version = "0.1.3"
+version = "0.3.0"
 dependencies = [
  "arbitrary",
  "embedded-io-adapters",

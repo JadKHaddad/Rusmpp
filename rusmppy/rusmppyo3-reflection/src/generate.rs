@@ -106,6 +106,22 @@ fn py_additional_methods(name: &str) -> &'static str {
         .unwrap_or("")
 }
 
+/// Issue: [Rusmpp #102](https://github.com/Rusmpp/Rusmpp/issues/102)
+fn gen_stub_pymethods(name: &str) -> &'static str {
+    static STUB_GEN: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+
+    STUB_GEN
+        .get_or_init(|| {
+            let mut m = HashMap::new();
+            m.insert("EsmClass", "#[cfg_attr(not(any(PyO3_PyPy, PyO3_GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]");
+            m.insert("RegisteredDelivery", "#[cfg_attr(not(any(PyO3_PyPy, PyO3_GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]");
+            m
+        })
+        .get(name)
+        .copied()
+        .unwrap_or("#[::pyo3_stub_gen_derive::gen_stub_pymethods]")
+}
+
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {
     /// Language-independent configuration.
@@ -538,7 +554,8 @@ where
                 self.default_impl(name)?;
 
                 // Generate the methods
-                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                let gen_stub_pymethods = gen_stub_pymethods(name);
+                writeln!(self.out, "{gen_stub_pymethods}")?;
                 writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "impl {name} {{")?;
                 self.out.indent();
@@ -672,7 +689,8 @@ where
                 self.default_impl(name)?;
 
                 // Generate the methods
-                writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
+                let gen_stub_pymethods = gen_stub_pymethods(name);
+                writeln!(self.out, "{gen_stub_pymethods}")?;
                 writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "impl {name} {{")?;
                 self.out.indent();

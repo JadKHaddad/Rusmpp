@@ -108,6 +108,7 @@ class Client:
         cls,
         read: asyncio.StreamReader,
         write: asyncio.StreamWriter,
+        read_bytes: builtins.int = 1024,
         enquire_link_interval: Optional[builtins.int] = 5000,
         enquire_link_response_timeout: builtins.int = 2000,
         response_timeout: Optional[builtins.int] = 2000,
@@ -129,6 +130,9 @@ class Client:
             The asyncio stream reader associated with the existing connection.
         write : asyncio.StreamWriter
             The asyncio stream writer associated with the existing connection.
+        read_bytes : int, default=1024
+            The number of bytes to read from the stream at a time.
+            See <https://docs.python.org/3/library/asyncio-stream.html#asyncio.StreamReader.read> for details.
         enquire_link_interval : Optional[int], default=5000
             Interval in milliseconds between automatic EnquireLink commands.
             Set to ``None`` to disable EnquireLink.

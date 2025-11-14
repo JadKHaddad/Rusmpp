@@ -70,6 +70,7 @@ impl Client {
     #[classmethod]
     #[pyo3(signature=(read,
         write,
+        read_bytes=1024,
         enquire_link_interval=5000,
         enquire_link_response_timeout=2000,
         response_timeout=2000,
@@ -80,6 +81,7 @@ impl Client {
         py: Python<'p>,
         read: PyObject,
         write: PyObject,
+        read_bytes: isize,
         enquire_link_interval: Option<u64>,
         enquire_link_response_timeout: u64,
         response_timeout: Option<u64>,
@@ -87,7 +89,7 @@ impl Client {
         interface_version_check: bool,
     ) -> PyResult<Bound<'p, PyAny>> {
         future_into_py(py, async move {
-            let read_write = (read, write).into_tokio_async_read_and_write();
+            let read_write = (read, write).into_tokio_async_read_and_write(read_bytes);
 
             let builder = ConnectionBuilder::new()
                 .max_command_length(max_command_length)

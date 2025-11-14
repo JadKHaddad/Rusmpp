@@ -6,25 +6,28 @@ use pyo3::{types::PyBytes, PyErr, PyObject, PyResult, Python};
 use tokio::io::{AsyncRead, AsyncWrite};
 
 pub trait IO {
-    fn into_tokio_async_read_and_write(self) -> impl AsyncRead + AsyncWrite;
+    fn into_tokio_async_read_and_write(self, read_bytes: isize) -> impl AsyncRead + AsyncWrite;
 }
 
 impl IO for (PyObject, PyObject) {
     // Converts a tuple of Python asyncio StreamReader and StreamWriter to a Tokio AsyncRead and AsyncWrite.
-    fn into_tokio_async_read_and_write(self) -> impl AsyncRead + AsyncWrite {
+    fn into_tokio_async_read_and_write(self, read_bytes: isize) -> impl AsyncRead + AsyncWrite {
         tokio::io::join(
-            async_io_stream_reader_to_async_read(self.0),
+            async_io_stream_reader_to_async_read(self.0, read_bytes),
             async_io_stream_writer_to_async_write(self.1),
         )
     }
 }
 
 /// Converts a Python [asyncio.StreamReader](https://docs.python.org/3/library/asyncio-stream.html#streamreader) to a [`Stream`].
-fn async_io_stream_reader_to_stream(reader: PyObject) -> impl Stream<Item = PyResult<Bytes>> {
-    futures::stream::unfold(reader, |reader| async move {
+fn async_io_stream_reader_to_stream(
+    reader: PyObject,
+    bytes: isize,
+) -> impl Stream<Item = PyResult<Bytes>> {
+    futures::stream::unfold(reader, move |reader| async move {
         let extract = async {
             let fut = Python::with_gil(|py| {
-                let awaitable = reader.call_method1(py, "read", (1024,))?;
+                let awaitable = reader.call_method1(py, "read", (bytes,))?;
 
                 pyo3_async_runtimes::tokio::into_future(awaitable.into_bound(py))
             })?;
@@ -48,8 +51,8 @@ fn async_io_stream_reader_to_stream(reader: PyObject) -> impl Stream<Item = PyRe
 }
 
 /// Converts a Python [asyncio.StreamReader](https://docs.python.org/3/library/asyncio-stream.html#streamreader) to an [`AsyncRead`].
-fn async_io_stream_reader_to_async_read(stream_reader: PyObject) -> impl AsyncRead {
-    tokio_util::io::StreamReader::new(async_io_stream_reader_to_stream(stream_reader))
+fn async_io_stream_reader_to_async_read(stream_reader: PyObject, bytes: isize) -> impl AsyncRead {
+    tokio_util::io::StreamReader::new(async_io_stream_reader_to_stream(stream_reader, bytes))
 }
 
 /// Converts a Python [asyncio.StreamWriter](https://docs.python.org/3/library/asyncio-stream.html#streamwriter) to a [`Sink`].

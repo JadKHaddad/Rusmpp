@@ -44,7 +44,8 @@ async def main():
     ssl_ctx.load_verify_locations(cert_path)
 
     read, write = await asyncio.open_connection(
-        "127.0.0.1", 2775, ssl=ssl_ctx, server_hostname="localhost"
+        "127.0.0.1",
+        2775,  # ssl=ssl_ctx, server_hostname="localhost"
     )
 
     try:
@@ -52,6 +53,7 @@ async def main():
         client, events = await Client.connected(
             read,
             write,
+            read_bytes=-1,
             enquire_link_interval=5000,
             enquire_link_response_timeout=2000,
             response_timeout=2000,

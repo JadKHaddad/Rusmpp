@@ -56,10 +56,30 @@ fn new_py_signature(name: &str) -> &'static str {
     CUSTOM_NEW_PY_SIGNATURE
         .get_or_init(|| {
             let mut m = HashMap::new();
-            m.insert("EsmClass", "#[pyo3(signature=(messaging_mode=crate::generated::MessagingMode::default_(), message_type=crate::generated::MessageType::default_(), ansi41_specific=crate::generated::Ansi41Specific::default_(), gsm_features=crate::generated::GsmFeatures::default_()))]");
+            m.insert(
+                "EsmClass",
+                "#[pyo3(signature=(
+        messaging_mode=crate::generated::MessagingMode::default_(),
+        message_type=crate::generated::MessageType::default_(),
+        ansi41_specific=crate::generated::Ansi41Specific::default_(),
+        gsm_features=crate::generated::GsmFeatures::default_()
+    ))]",
+            );
+
+            m.insert(
+                "RegisteredDelivery",
+                "#[pyo3(signature=(
+        mc_delivery_receipt=crate::generated::MCDeliveryReceipt::default_(),
+        sme_originated_acknowledgement=crate::generated::SmeOriginatedAcknowledgement::default_(),
+        intermediate_notification=crate::generated::IntermediateNotification::default_(),
+        other=0
+    ))]",
+            );
+
             m
         })
-        .get(name).copied()
+        .get(name)
+        .copied()
         .unwrap_or("")
 }
 

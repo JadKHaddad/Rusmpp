@@ -723,3 +723,60 @@ impl From<g::ReplaceIfPresentFlag> for ReplaceIfPresentFlag {
         }
     }
 }
+
+impl From<g::RegisteredDelivery> for RegisteredDelivery {
+    fn from(value: g::RegisteredDelivery) -> Self {
+        Self::new(
+            value.mc_delivery_receipt.into(),
+            value.sme_originated_acknowledgement.into(),
+            value.intermediate_notification.into(),
+            value.other,
+        )
+    }
+}
+
+impl From<g::MCDeliveryReceipt> for MCDeliveryReceipt {
+    fn from(value: g::MCDeliveryReceipt) -> Self {
+        match value {
+            g::MCDeliveryReceipt::NoMcDeliveryReceiptRequested() => Self::NoMcDeliveryReceiptRequested,
+            g::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure() => Self::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure,
+            g::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure() => Self::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsFailure,
+            g::MCDeliveryReceipt::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess() => Self::McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccess,
+            g::MCDeliveryReceipt::Other(value) => Self::Other(value)
+        }
+    }
+}
+
+impl From<g::SmeOriginatedAcknowledgement> for SmeOriginatedAcknowledgement {
+    fn from(value: g::SmeOriginatedAcknowledgement) -> Self {
+        match value {
+            g::SmeOriginatedAcknowledgement::NoReceiptSmeAcknowledgementRequested() => {
+                Self::NoReceiptSmeAcknowledgementRequested
+            }
+            g::SmeOriginatedAcknowledgement::SmeDeliveryAcknowledgementRequested() => {
+                Self::SmeDeliveryAcknowledgementRequested
+            }
+            g::SmeOriginatedAcknowledgement::SmeUserAcknowledgementRequested() => {
+                Self::SmeUserAcknowledgementRequested
+            }
+            g::SmeOriginatedAcknowledgement::BothDeliveryAndUserAcknowledgmentRequested() => {
+                Self::BothDeliveryAndUserAcknowledgmentRequested
+            }
+            g::SmeOriginatedAcknowledgement::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::IntermediateNotification> for IntermediateNotification {
+    fn from(value: g::IntermediateNotification) -> Self {
+        match value {
+            g::IntermediateNotification::NoIntermediaryNotificationRequested() => {
+                Self::NoIntermediaryNotificationRequested
+            }
+            g::IntermediateNotification::IntermediateNotificationRequested() => {
+                Self::IntermediateNotificationRequested
+            }
+            g::IntermediateNotification::Other(value) => Self::Other(value),
+        }
+    }
+}

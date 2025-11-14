@@ -18,6 +18,10 @@ from rusmppyc import (
     GsmFeatures,
     MessageType,
     ReplaceIfPresentFlag,
+    RegisteredDelivery,
+    MCDeliveryReceipt,
+    IntermediateNotification,
+    SmeOriginatedAcknowledgement,
 )
 from rusmppyc.exceptions import RusmppycException
 
@@ -83,9 +87,14 @@ async def main():
             esm_class=EsmClass(
                 message_type=MessageType.ShortMessageContainsMCDeliveryReceipt(),
                 gsm_features=GsmFeatures.NotSelected(),
-                # other fields use default values
+                # omitted fields use default values
             ),
             replace_if_present_flag=ReplaceIfPresentFlag.DoNotReplace(),
+            registered_delivery=RegisteredDelivery(
+                mc_delivery_receipt=MCDeliveryReceipt.McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure(),
+                sme_originated_acknowledgement=SmeOriginatedAcknowledgement.BothDeliveryAndUserAcknowledgmentRequested(),
+                intermediate_notification=IntermediateNotification.IntermediateNotificationRequested(),
+            ),
             short_message=b"Hello, World!",
             tlvs=[
                 # The message payload will override the short message
@@ -93,6 +102,7 @@ async def main():
                     MessagePayload(b"Big Message" * 10)
                 )
             ],
+            # omitted fields use default values
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")

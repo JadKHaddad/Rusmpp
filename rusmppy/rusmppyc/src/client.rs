@@ -246,9 +246,7 @@ impl Client {
         })
     }
 
-    // XXX: `ServiceType`, `PriorityFlag`, `RegisteredDelivery`.
-    // are represented as u8 and then converted to the Rusmpp appropriate type: Structs that are repr(u8): (u8 values wrapped in helper structs).
-    // Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API (YET).
+    // XXX: Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API (YET).
     #[pyo3(signature=(service_type=String::new(),
         source_addr_ton=crate::generated::Ton::Unknown(),
         source_addr_npi=crate::generated::Npi::Unknown(),
@@ -261,7 +259,7 @@ impl Client {
         priority_flag=u8::default(),
         schedule_delivery_time=String::new(),
         validity_period=String::new(),
-        registered_delivery=u8::default(),
+        registered_delivery=crate::generated::RegisteredDelivery::default_(),
         replace_if_present_flag=crate::generated::ReplaceIfPresentFlag::DoNotReplace(),
         data_coding=crate::generated::DataCoding::McSpecific(),
         sm_default_msg_id=u8::default(),
@@ -283,7 +281,7 @@ impl Client {
         priority_flag: u8,
         schedule_delivery_time: String,
         validity_period: String,
-        registered_delivery: u8,
+        registered_delivery: crate::generated::RegisteredDelivery,
         replace_if_present_flag: crate::generated::ReplaceIfPresentFlag,
         data_coding: crate::generated::DataCoding,
         sm_default_msg_id: u8,

@@ -4208,7 +4208,12 @@ impl EsmClass {
 #[::pyo3::pymethods]
 impl EsmClass {
     #[new]
-    #[pyo3(signature=(messaging_mode=crate::generated::MessagingMode::default_(), message_type=crate::generated::MessageType::default_(), ansi41_specific=crate::generated::Ansi41Specific::default_(), gsm_features=crate::generated::GsmFeatures::default_()))]
+    #[pyo3(signature=(
+            messaging_mode=crate::generated::MessagingMode::default_(),
+            message_type=crate::generated::MessageType::default_(),
+            ansi41_specific=crate::generated::Ansi41Specific::default_(),
+            gsm_features=crate::generated::GsmFeatures::default_()
+        ))]
     fn new(
         messaging_mode: MessagingMode,
         message_type: MessageType,
@@ -4392,7 +4397,12 @@ impl RegisteredDelivery {
 #[::pyo3::pymethods]
 impl RegisteredDelivery {
     #[new]
-
+    #[pyo3(signature=(
+            mc_delivery_receipt=crate::generated::MCDeliveryReceipt::default_(),
+            sme_originated_acknowledgement=crate::generated::SmeOriginatedAcknowledgement::default_(),
+            intermediate_notification=crate::generated::IntermediateNotification::default_(),
+            other=0
+        ))]
     fn new(
         mc_delivery_receipt: MCDeliveryReceipt,
         sme_originated_acknowledgement: SmeOriginatedAcknowledgement,

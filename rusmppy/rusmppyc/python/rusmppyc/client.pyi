@@ -9,6 +9,7 @@ from .rusmppyc import (
     BindTransmitterResp,
     CommandStatus,
     DataCoding,
+    EsmClass,
     InterfaceVersion,
     MessageSubmissionRequestTlvValue,
     Npi,
@@ -290,7 +291,7 @@ class Client:
         dest_addr_ton: Ton = Ton.Unknown(),
         dest_addr_npi: Npi = Npi.Unknown(),
         destination_addr: builtins.str = "",
-        esm_class: builtins.int = 0,
+        esm_class: EsmClass = EsmClass.default(),
         protocol_id: builtins.int = 0,
         priority_flag: builtins.int = 0,
         schedule_delivery_time: builtins.str = "",
@@ -322,7 +323,7 @@ class Client:
             The Numbering Plan Indicator (NPI) for the destination address.
         destination_addr : str
             The destination address (recipient phone number).
-        esm_class : int, default=0
+        esm_class : EsmClass, default=EsmClass.default()
             The message mode and type (e.g., delivery receipt request, datagram mode).
         protocol_id : int, default=0
             The protocol identifier.

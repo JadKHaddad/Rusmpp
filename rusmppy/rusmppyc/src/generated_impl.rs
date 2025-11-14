@@ -646,3 +646,70 @@ impl TryFrom<g::MessageSubmissionRequestTlvValue> for MessageSubmissionRequestTl
         Ok(value)
     }
 }
+
+impl From<g::EsmClass> for EsmClass {
+    fn from(value: g::EsmClass) -> Self {
+        Self {
+            messaging_mode: value.messaging_mode.into(),
+            message_type: value.message_type.into(),
+            ansi41_specific: value.ansi41_specific.into(),
+            gsm_features: value.gsm_features.into(),
+        }
+    }
+}
+
+impl From<g::MessagingMode> for MessagingMode {
+    fn from(value: g::MessagingMode) -> Self {
+        match value {
+            g::MessagingMode::Default() => Self::Default,
+            g::MessagingMode::Datagram() => Self::Datagram,
+            g::MessagingMode::Forward() => Self::Forward,
+            g::MessagingMode::StoreAndForward() => Self::StoreAndForward,
+            g::MessagingMode::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::MessageType> for MessageType {
+    fn from(value: g::MessageType) -> Self {
+        match value {
+            g::MessageType::Default() => Self::Default,
+            g::MessageType::ShortMessageContainsMCDeliveryReceipt() => {
+                Self::ShortMessageContainsMCDeliveryReceipt
+            }
+            g::MessageType::ShortMessageContainsIntermediateDeliveryNotification() => {
+                Self::ShortMessageContainsIntermediateDeliveryNotification
+            }
+            g::MessageType::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::Ansi41Specific> for Ansi41Specific {
+    fn from(value: g::Ansi41Specific) -> Self {
+        match value {
+            g::Ansi41Specific::ShortMessageContainsDeliveryAcknowledgement() => {
+                Self::ShortMessageContainsDeliveryAcknowledgement
+            }
+            g::Ansi41Specific::ShortMessageContainsUserAcknowledgment() => {
+                Self::ShortMessageContainsUserAcknowledgment
+            }
+            g::Ansi41Specific::ShortMessageContainsConversationAbort() => {
+                Self::ShortMessageContainsConversationAbort
+            }
+            g::Ansi41Specific::Other(value) => Self::Other(value),
+        }
+    }
+}
+
+impl From<g::GsmFeatures> for GsmFeatures {
+    fn from(value: g::GsmFeatures) -> Self {
+        match value {
+            g::GsmFeatures::NotSelected() => Self::NotSelected,
+            g::GsmFeatures::UdhiIndicator() => Self::UdhiIndicator,
+            g::GsmFeatures::SetReplyPath() => Self::SetReplyPath,
+            g::GsmFeatures::SetUdhiAndReplyPath() => Self::SetUdhiAndReplyPath,
+            g::GsmFeatures::Other(value) => Self::Other(value),
+        }
+    }
+}

@@ -31,9 +31,20 @@ impl From<rusmpp_types::AddrSubunit> for AddrSubunit {
     }
 }
 
+impl AddrSubunit {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::AddrSubunit::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl AddrSubunit {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -72,9 +83,20 @@ impl From<rusmpp_types::AlertOnMessageDelivery> for AlertOnMessageDelivery {
     }
 }
 
+impl AlertOnMessageDelivery {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::AlertOnMessageDelivery::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl AlertOnMessageDelivery {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -113,9 +135,20 @@ impl From<rusmpp_types::BearerType> for BearerType {
     }
 }
 
+impl BearerType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BearerType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BearerType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -144,9 +177,20 @@ impl From<rusmpp_types::BroadcastAreaFormat> for BroadcastAreaFormat {
     }
 }
 
+impl BroadcastAreaFormat {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastAreaFormat::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastAreaFormat {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -170,12 +214,24 @@ impl From<rusmpp_types::BroadcastAreaIdentifier> for BroadcastAreaIdentifier {
     }
 }
 
+impl BroadcastAreaIdentifier {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastAreaIdentifier::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastAreaIdentifier {
     #[new]
+
     fn new(format: BroadcastAreaFormat, area: Vec<u8>) -> Self {
         Self { format, area }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -207,9 +263,20 @@ impl From<rusmpp_types::BroadcastAreaSuccess> for BroadcastAreaSuccess {
     }
 }
 
+impl BroadcastAreaSuccess {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastAreaSuccess::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastAreaSuccess {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -238,9 +305,20 @@ impl From<rusmpp_types::BroadcastChannelIndicator> for BroadcastChannelIndicator
     }
 }
 
+impl BroadcastChannelIndicator {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastChannelIndicator::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastChannelIndicator {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -419,9 +497,20 @@ impl From<rusmpp_types::EncodingContentType> for EncodingContentType {
     }
 }
 
+impl EncodingContentType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::EncodingContentType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl EncodingContentType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -450,9 +539,20 @@ impl From<rusmpp_types::TypeOfNetwork> for TypeOfNetwork {
     }
 }
 
+impl TypeOfNetwork {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::TypeOfNetwork::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl TypeOfNetwork {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -476,15 +576,27 @@ impl From<rusmpp_types::BroadcastContentType> for BroadcastContentType {
     }
 }
 
+impl BroadcastContentType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastContentType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastContentType {
     #[new]
+
     fn new(type_of_network: TypeOfNetwork, encoding_content_type: EncodingContentType) -> Self {
         Self {
             type_of_network,
             encoding_content_type,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -524,9 +636,20 @@ impl From<rusmpp_types::UnitOfTime> for UnitOfTime {
     }
 }
 
+impl UnitOfTime {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::UnitOfTime::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl UnitOfTime {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -550,12 +673,24 @@ impl From<rusmpp_types::BroadcastFrequencyInterval> for BroadcastFrequencyInterv
     }
 }
 
+impl BroadcastFrequencyInterval {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastFrequencyInterval::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastFrequencyInterval {
     #[new]
+
     fn new(unit: UnitOfTime, value: u16) -> Self {
         Self { unit, value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -589,9 +724,20 @@ impl From<rusmpp_types::BroadcastMessageClass> for BroadcastMessageClass {
     }
 }
 
+impl BroadcastMessageClass {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastMessageClass::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastMessageClass {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -613,12 +759,24 @@ impl From<rusmpp_types::BroadcastRepNum> for BroadcastRepNum {
     }
 }
 
+impl BroadcastRepNum {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastRepNum::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastRepNum {
     #[new]
+
     fn new(value: u8) -> Self {
         Self { value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -648,9 +806,20 @@ impl From<rusmpp_types::Presentation> for Presentation {
     }
 }
 
+impl Presentation {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Presentation::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Presentation {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -679,9 +848,20 @@ impl From<rusmpp_types::Screening> for Screening {
     }
 }
 
+impl Screening {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Screening::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Screening {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -705,15 +885,27 @@ impl From<rusmpp_types::CallbackNumPresInd> for CallbackNumPresInd {
     }
 }
 
+impl CallbackNumPresInd {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::CallbackNumPresInd::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl CallbackNumPresInd {
     #[new]
+
     fn new(presentation: Presentation, screening: Screening) -> Self {
         Self {
             presentation,
             screening,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -895,9 +1087,20 @@ impl From<rusmpp_types::CommandStatus> for CommandStatus {
     }
 }
 
+impl CommandStatus {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::CommandStatus::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl CommandStatus {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -940,9 +1143,20 @@ impl From<rusmpp_types::CongestionState> for CongestionState {
     }
 }
 
+impl CongestionState {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::CongestionState::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl CongestionState {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -981,9 +1195,20 @@ impl From<rusmpp_types::DeliveryFailureReason> for DeliveryFailureReason {
     }
 }
 
+impl DeliveryFailureReason {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DeliveryFailureReason::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DeliveryFailureReason {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1018,9 +1243,20 @@ impl From<rusmpp_types::DestAddrNpResolution> for DestAddrNpResolution {
     }
 }
 
+impl DestAddrNpResolution {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DestAddrNpResolution::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DestAddrNpResolution {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1047,9 +1283,20 @@ impl From<rusmpp_types::DisplayTime> for DisplayTime {
     }
 }
 
+impl DisplayTime {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DisplayTime::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DisplayTime {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1074,9 +1321,20 @@ impl From<rusmpp_types::DpfResult> for DpfResult {
     }
 }
 
+impl DpfResult {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DpfResult::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DpfResult {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1105,9 +1363,20 @@ impl From<rusmpp_types::InterfaceVersion> for InterfaceVersion {
     }
 }
 
+impl InterfaceVersion {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::InterfaceVersion::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl InterfaceVersion {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1146,9 +1415,20 @@ impl From<rusmpp_types::ItsReplyType> for ItsReplyType {
     }
 }
 
+impl ItsReplyType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ItsReplyType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ItsReplyType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1172,15 +1452,27 @@ impl From<rusmpp_types::ItsSessionInfo> for ItsSessionInfo {
     }
 }
 
+impl ItsSessionInfo {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ItsSessionInfo::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ItsSessionInfo {
     #[new]
+
     fn new(session_number: u8, sequence_number: u8) -> Self {
         Self {
             session_number,
             sequence_number,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1214,9 +1506,20 @@ impl From<rusmpp_types::LanguageIndicator> for LanguageIndicator {
     }
 }
 
+impl LanguageIndicator {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::LanguageIndicator::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl LanguageIndicator {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1238,12 +1541,24 @@ impl From<rusmpp_types::MessagePayload> for MessagePayload {
     }
 }
 
+impl MessagePayload {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MessagePayload::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MessagePayload {
     #[new]
+
     fn new(value: Vec<u8>) -> Self {
         Self { value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1285,9 +1600,20 @@ impl From<rusmpp_types::MessageState> for MessageState {
     }
 }
 
+impl MessageState {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MessageState::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MessageState {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1318,9 +1644,20 @@ impl From<rusmpp_types::MoreMessagesToSend> for MoreMessagesToSend {
     }
 }
 
+impl MoreMessagesToSend {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MoreMessagesToSend::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MoreMessagesToSend {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1349,9 +1686,20 @@ impl From<rusmpp_types::MsAvailabilityStatus> for MsAvailabilityStatus {
     }
 }
 
+impl MsAvailabilityStatus {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MsAvailabilityStatus::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MsAvailabilityStatus {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1376,9 +1724,20 @@ impl From<rusmpp_types::Indicator> for Indicator {
     }
 }
 
+impl Indicator {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Indicator::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Indicator {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1413,9 +1772,20 @@ impl From<rusmpp_types::TypeOfMessage> for TypeOfMessage {
     }
 }
 
+impl TypeOfMessage {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::TypeOfMessage::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl TypeOfMessage {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1439,15 +1809,27 @@ impl From<rusmpp_types::MsMsgWaitFacilities> for MsMsgWaitFacilities {
     }
 }
 
+impl MsMsgWaitFacilities {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MsMsgWaitFacilities::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MsMsgWaitFacilities {
     #[new]
+
     fn new(indicator: Indicator, type_of_message: TypeOfMessage) -> Self {
         Self {
             indicator,
             type_of_message,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1487,9 +1869,20 @@ impl From<rusmpp_types::MsValidityBehavior> for MsValidityBehavior {
     }
 }
 
+impl MsValidityBehavior {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MsValidityBehavior::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MsValidityBehavior {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1524,9 +1917,20 @@ impl From<rusmpp_types::UnitsOfTime> for UnitsOfTime {
     }
 }
 
+impl UnitsOfTime {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::UnitsOfTime::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl UnitsOfTime {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1550,15 +1954,27 @@ impl From<rusmpp_types::MsValidityInformation> for MsValidityInformation {
     }
 }
 
+impl MsValidityInformation {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MsValidityInformation::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MsValidityInformation {
     #[new]
+
     fn new(units_of_time: UnitsOfTime, number_of_time_units: u16) -> Self {
         Self {
             units_of_time,
             number_of_time_units,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1583,10 +1999,17 @@ impl From<rusmpp_types::MsValidity> for MsValidity {
     }
 }
 
+impl MsValidity {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MsValidity::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MsValidity {
     #[new]
+
     fn new(
         validity_behavior: MsValidityBehavior,
         validity_information: Option<MsValidityInformation>,
@@ -1595,6 +2018,11 @@ impl MsValidity {
             validity_behavior,
             validity_information,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1644,9 +2072,20 @@ impl From<rusmpp_types::ErrorCodeNetworkType> for ErrorCodeNetworkType {
     }
 }
 
+impl ErrorCodeNetworkType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ErrorCodeNetworkType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ErrorCodeNetworkType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1670,15 +2109,27 @@ impl From<rusmpp_types::NetworkErrorCode> for NetworkErrorCode {
     }
 }
 
+impl NetworkErrorCode {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::NetworkErrorCode::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl NetworkErrorCode {
     #[new]
+
     fn new(network_type: ErrorCodeNetworkType, error_code: u16) -> Self {
         Self {
             network_type,
             error_code,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -1718,9 +2169,20 @@ impl From<rusmpp_types::NetworkType> for NetworkType {
     }
 }
 
+impl NetworkType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::NetworkType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl NetworkType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1745,9 +2207,20 @@ impl From<rusmpp_types::NumberOfMessages> for NumberOfMessages {
     }
 }
 
+impl NumberOfMessages {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::NumberOfMessages::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl NumberOfMessages {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1772,9 +2245,20 @@ impl From<rusmpp_types::PayloadType> for PayloadType {
     }
 }
 
+impl PayloadType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::PayloadType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl PayloadType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1803,9 +2287,20 @@ impl From<rusmpp_types::PrivacyIndicator> for PrivacyIndicator {
     }
 }
 
+impl PrivacyIndicator {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::PrivacyIndicator::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl PrivacyIndicator {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1830,9 +2325,20 @@ impl From<rusmpp_types::SetDpf> for SetDpf {
     }
 }
 
+impl SetDpf {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SetDpf::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SetDpf {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1859,9 +2365,20 @@ impl From<rusmpp_types::SubaddressTag> for SubaddressTag {
     }
 }
 
+impl SubaddressTag {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SubaddressTag::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SubaddressTag {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1885,12 +2402,24 @@ impl From<rusmpp_types::Subaddress> for Subaddress {
     }
 }
 
+impl Subaddress {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Subaddress::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Subaddress {
     #[new]
+
     fn new(tag: SubaddressTag, addr: Vec<u8>) -> Self {
         Self { tag, addr }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2067,12 +2596,24 @@ impl From<rusmpp_types::UserMessageReference> for UserMessageReference {
     }
 }
 
+impl UserMessageReference {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::UserMessageReference::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl UserMessageReference {
     #[new]
+
     fn new(value: u16) -> Self {
         Self { value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2110,9 +2651,20 @@ impl From<rusmpp_types::UssdServiceOp> for UssdServiceOp {
     }
 }
 
+impl UssdServiceOp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::UssdServiceOp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl UssdServiceOp {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2394,9 +2946,20 @@ impl From<rusmpp_types::Npi> for Npi {
     }
 }
 
+impl Npi {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Npi::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Npi {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2426,6 +2989,7 @@ impl From<rusmpp_types::Tlv> for Tlv {
 #[::pyo3::pymethods]
 impl Tlv {
     #[new]
+
     fn new(tag: TlvTag, value_length: u16, value: Option<TlvValue>) -> Self {
         Self {
             tag,
@@ -2467,9 +3031,20 @@ impl From<rusmpp_types::Ton> for Ton {
     }
 }
 
+impl Ton {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Ton::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Ton {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2503,10 +3078,17 @@ impl From<rusmpp_types::AlertNotification> for AlertNotification {
     }
 }
 
+impl AlertNotification {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::AlertNotification::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl AlertNotification {
     #[new]
+
     fn new(
         source_addr_ton: Ton,
         source_addr_npi: Npi,
@@ -2525,6 +3107,11 @@ impl AlertNotification {
             esme_addr,
             ms_availability_status,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2559,10 +3146,17 @@ impl From<rusmpp_types::BindReceiver> for BindReceiver {
     }
 }
 
+impl BindReceiver {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindReceiver::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindReceiver {
     #[new]
+
     fn new(
         system_id: Vec<u8>,
         password: Vec<u8>,
@@ -2581,6 +3175,11 @@ impl BindReceiver {
             addr_npi,
             address_range,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2605,15 +3204,27 @@ impl From<rusmpp_types::BindReceiverResp> for BindReceiverResp {
     }
 }
 
+impl BindReceiverResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindReceiverResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindReceiverResp {
     #[new]
+
     fn new(system_id: Vec<u8>, sc_interface_version: Option<Tlv>) -> Self {
         Self {
             system_id,
             sc_interface_version,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2648,10 +3259,17 @@ impl From<rusmpp_types::BindTransceiver> for BindTransceiver {
     }
 }
 
+impl BindTransceiver {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindTransceiver::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindTransceiver {
     #[new]
+
     fn new(
         system_id: Vec<u8>,
         password: Vec<u8>,
@@ -2670,6 +3288,11 @@ impl BindTransceiver {
             addr_npi,
             address_range,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2694,15 +3317,27 @@ impl From<rusmpp_types::BindTransceiverResp> for BindTransceiverResp {
     }
 }
 
+impl BindTransceiverResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindTransceiverResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindTransceiverResp {
     #[new]
+
     fn new(system_id: Vec<u8>, sc_interface_version: Option<Tlv>) -> Self {
         Self {
             system_id,
             sc_interface_version,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2737,10 +3372,17 @@ impl From<rusmpp_types::BindTransmitter> for BindTransmitter {
     }
 }
 
+impl BindTransmitter {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindTransmitter::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindTransmitter {
     #[new]
+
     fn new(
         system_id: Vec<u8>,
         password: Vec<u8>,
@@ -2759,6 +3401,11 @@ impl BindTransmitter {
             addr_npi,
             address_range,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2783,15 +3430,27 @@ impl From<rusmpp_types::BindTransmitterResp> for BindTransmitterResp {
     }
 }
 
+impl BindTransmitterResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BindTransmitterResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BindTransmitterResp {
     #[new]
+
     fn new(system_id: Vec<u8>, sc_interface_version: Option<Tlv>) -> Self {
         Self {
             system_id,
             sc_interface_version,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2847,9 +3506,20 @@ impl From<rusmpp_types::DataCoding> for DataCoding {
     }
 }
 
+impl DataCoding {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DataCoding::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DataCoding {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2871,12 +3541,24 @@ impl From<rusmpp_types::PriorityFlag> for PriorityFlag {
     }
 }
 
+impl PriorityFlag {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::PriorityFlag::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl PriorityFlag {
     #[new]
+
     fn new(value: u8) -> Self {
         Self { value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2906,9 +3588,20 @@ impl From<rusmpp_types::ReplaceIfPresentFlag> for ReplaceIfPresentFlag {
     }
 }
 
+impl ReplaceIfPresentFlag {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ReplaceIfPresentFlag::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ReplaceIfPresentFlag {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2930,12 +3623,24 @@ impl From<rusmpp_types::ServiceType> for ServiceType {
     }
 }
 
+impl ServiceType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ServiceType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ServiceType {
     #[new]
+
     fn new(value: Vec<u8>) -> Self {
         Self { value }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -2980,10 +3685,17 @@ impl From<rusmpp_types::BroadcastSm> for BroadcastSm {
     }
 }
 
+impl BroadcastSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         source_addr_ton: Ton,
@@ -3013,6 +3725,11 @@ impl BroadcastSm {
             tlvs,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3036,12 +3753,24 @@ impl From<rusmpp_types::BroadcastSmResp> for BroadcastSmResp {
     }
 }
 
+impl BroadcastSmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::BroadcastSmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl BroadcastSmResp {
     #[new]
+
     fn new(message_id: Vec<u8>, tlvs: Vec<Tlv>) -> Self {
         Self { message_id, tlvs }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3074,10 +3803,17 @@ impl From<rusmpp_types::CancelBroadcastSm> for CancelBroadcastSm {
     }
 }
 
+impl CancelBroadcastSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::CancelBroadcastSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl CancelBroadcastSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         message_id: Vec<u8>,
@@ -3094,6 +3830,11 @@ impl CancelBroadcastSm {
             source_addr,
             tlvs,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3130,10 +3871,17 @@ impl From<rusmpp_types::CancelSm> for CancelSm {
     }
 }
 
+impl CancelSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::CancelSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl CancelSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         message_id: Vec<u8>,
@@ -3154,6 +3902,11 @@ impl CancelSm {
             dest_addr_npi,
             destination_addr,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3276,9 +4029,20 @@ impl From<rusmpp_types::Ansi41Specific> for Ansi41Specific {
     }
 }
 
+impl Ansi41Specific {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Ansi41Specific::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Ansi41Specific {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3307,9 +4071,20 @@ impl From<rusmpp_types::GsmFeatures> for GsmFeatures {
     }
 }
 
+impl GsmFeatures {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::GsmFeatures::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl GsmFeatures {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3340,9 +4115,20 @@ impl From<rusmpp_types::MessageType> for MessageType {
     }
 }
 
+impl MessageType {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MessageType::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MessageType {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3371,9 +4157,20 @@ impl From<rusmpp_types::MessagingMode> for MessagingMode {
     }
 }
 
+impl MessagingMode {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MessagingMode::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MessagingMode {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3401,10 +4198,17 @@ impl From<rusmpp_types::EsmClass> for EsmClass {
     }
 }
 
+impl EsmClass {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::EsmClass::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl EsmClass {
     #[new]
+    #[pyo3(signature=(messaging_mode=crate::generated::MessagingMode::default_(), message_type=crate::generated::MessageType::default_(), ansi41_specific=crate::generated::Ansi41Specific::default_(), gsm_features=crate::generated::GsmFeatures::default_()))]
     fn new(
         messaging_mode: MessagingMode,
         message_type: MessageType,
@@ -3417,6 +4221,11 @@ impl EsmClass {
             ansi41_specific,
             gsm_features,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3448,9 +4257,20 @@ impl From<rusmpp_types::IntermediateNotification> for IntermediateNotification {
     }
 }
 
+impl IntermediateNotification {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::IntermediateNotification::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl IntermediateNotification {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3479,9 +4299,20 @@ impl From<rusmpp_types::MCDeliveryReceipt> for MCDeliveryReceipt {
     }
 }
 
+impl MCDeliveryReceipt {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::MCDeliveryReceipt::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl MCDeliveryReceipt {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3510,9 +4341,20 @@ impl From<rusmpp_types::SmeOriginatedAcknowledgement> for SmeOriginatedAcknowled
     }
 }
 
+impl SmeOriginatedAcknowledgement {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SmeOriginatedAcknowledgement::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SmeOriginatedAcknowledgement {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3540,10 +4382,17 @@ impl From<rusmpp_types::RegisteredDelivery> for RegisteredDelivery {
     }
 }
 
+impl RegisteredDelivery {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::RegisteredDelivery::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl RegisteredDelivery {
     #[new]
+
     fn new(
         mc_delivery_receipt: MCDeliveryReceipt,
         sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
@@ -3556,6 +4405,11 @@ impl RegisteredDelivery {
             intermediate_notification,
             other,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3598,10 +4452,17 @@ impl From<rusmpp_types::DataSm> for DataSm {
     }
 }
 
+impl DataSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DataSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DataSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         source_addr_ton: Ton,
@@ -3629,6 +4490,11 @@ impl DataSm {
             tlvs,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3652,12 +4518,24 @@ impl From<rusmpp_types::DataSmResp> for DataSmResp {
     }
 }
 
+impl DataSmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DataSmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DataSmResp {
     #[new]
+
     fn new(message_id: Vec<u8>, tlvs: Vec<Tlv>) -> Self {
         Self { message_id, tlvs }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3716,10 +4594,17 @@ impl From<rusmpp_types::DeliverSm> for DeliverSm {
     }
 }
 
+impl DeliverSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DeliverSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DeliverSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         source_addr_ton: Ton,
@@ -3763,6 +4648,11 @@ impl DeliverSm {
             tlvs,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3786,12 +4676,24 @@ impl From<rusmpp_types::DeliverSmResp> for DeliverSmResp {
     }
 }
 
+impl DeliverSmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DeliverSmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DeliverSmResp {
     #[new]
+
     fn new(message_id: Vec<u8>, tlvs: Vec<Tlv>) -> Self {
         Self { message_id, tlvs }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3816,15 +4718,27 @@ impl From<rusmpp_types::Outbind> for Outbind {
     }
 }
 
+impl Outbind {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Outbind::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Outbind {
     #[new]
+
     fn new(system_id: Vec<u8>, password: Vec<u8>) -> Self {
         Self {
             system_id,
             password,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3855,10 +4769,17 @@ impl From<rusmpp_types::QueryBroadcastSm> for QueryBroadcastSm {
     }
 }
 
+impl QueryBroadcastSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::QueryBroadcastSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl QueryBroadcastSm {
     #[new]
+
     fn new(
         message_id: Vec<u8>,
         source_addr_ton: Ton,
@@ -3873,6 +4794,11 @@ impl QueryBroadcastSm {
             source_addr,
             user_message_reference,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3897,12 +4823,24 @@ impl From<rusmpp_types::QueryBroadcastSmResp> for QueryBroadcastSmResp {
     }
 }
 
+impl QueryBroadcastSmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::QueryBroadcastSmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl QueryBroadcastSmResp {
     #[new]
+
     fn new(message_id: Vec<u8>, tlvs: Vec<Tlv>) -> Self {
         Self { message_id, tlvs }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3931,10 +4869,17 @@ impl From<rusmpp_types::QuerySm> for QuerySm {
     }
 }
 
+impl QuerySm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::QuerySm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl QuerySm {
     #[new]
+
     fn new(
         message_id: Vec<u8>,
         source_addr_ton: Ton,
@@ -3947,6 +4892,11 @@ impl QuerySm {
             source_addr_npi,
             source_addr,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -3975,10 +4925,17 @@ impl From<rusmpp_types::QuerySmResp> for QuerySmResp {
     }
 }
 
+impl QuerySmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::QuerySmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl QuerySmResp {
     #[new]
+
     fn new(
         message_id: Vec<u8>,
         final_date: Vec<u8>,
@@ -3991,6 +4948,11 @@ impl QuerySmResp {
             message_state,
             error_code,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -4033,10 +4995,17 @@ impl From<rusmpp_types::ReplaceSm> for ReplaceSm {
     }
 }
 
+impl ReplaceSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::ReplaceSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl ReplaceSm {
     #[new]
+
     fn new(
         message_id: Vec<u8>,
         source_addr_ton: Ton,
@@ -4064,6 +5033,11 @@ impl ReplaceSm {
             message_payload,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4088,9 +5062,20 @@ impl From<rusmpp_types::DestFlag> for DestFlag {
     }
 }
 
+impl DestFlag {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::DestFlag::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl DestFlag {
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4118,6 +5103,7 @@ impl From<rusmpp_types::DistributionListName> for DistributionListName {
 #[::pyo3::pymethods]
 impl DistributionListName {
     #[new]
+
     fn new(dest_flag: DestFlag, dl_name: Vec<u8>) -> Self {
         Self { dest_flag, dl_name }
     }
@@ -4152,6 +5138,7 @@ impl From<rusmpp_types::SmeAddress> for SmeAddress {
 #[::pyo3::pymethods]
 impl SmeAddress {
     #[new]
+
     fn new(
         dest_flag: DestFlag,
         dest_addr_ton: Ton,
@@ -4247,10 +5234,17 @@ impl From<rusmpp_types::SubmitMulti> for SubmitMulti {
     }
 }
 
+impl SubmitMulti {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SubmitMulti::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SubmitMulti {
     #[new]
+
     fn new(
         service_type: ServiceType,
         source_addr_ton: Ton,
@@ -4292,6 +5286,11 @@ impl SubmitMulti {
             tlvs,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4319,10 +5318,17 @@ impl From<rusmpp_types::UnsuccessSme> for UnsuccessSme {
     }
 }
 
+impl UnsuccessSme {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::UnsuccessSme::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl UnsuccessSme {
     #[new]
+
     fn new(
         dest_addr_ton: Ton,
         dest_addr_npi: Npi,
@@ -4335,6 +5341,11 @@ impl UnsuccessSme {
             destination_addr,
             error_status_code,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -4363,10 +5374,17 @@ impl From<rusmpp_types::SubmitMultiResp> for SubmitMultiResp {
     }
 }
 
+impl SubmitMultiResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SubmitMultiResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SubmitMultiResp {
     #[new]
+
     fn new(
         message_id: Vec<u8>,
         no_unsuccess: u8,
@@ -4379,6 +5397,11 @@ impl SubmitMultiResp {
             unsuccess_sme,
             tlvs,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -4437,10 +5460,17 @@ impl From<rusmpp_types::SubmitSm> for SubmitSm {
     }
 }
 
+impl SubmitSm {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SubmitSm::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SubmitSm {
     #[new]
+
     fn new(
         service_type: ServiceType,
         source_addr_ton: Ton,
@@ -4484,6 +5514,11 @@ impl SubmitSm {
             tlvs,
         }
     }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
+    }
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4507,12 +5542,24 @@ impl From<rusmpp_types::SubmitSmResp> for SubmitSmResp {
     }
 }
 
+impl SubmitSmResp {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::SubmitSmResp::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl SubmitSmResp {
     #[new]
+
     fn new(message_id: Vec<u8>, tlvs: Vec<Tlv>) -> Self {
         Self { message_id, tlvs }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -5301,10 +6348,17 @@ impl From<rusmpp_types::Command> for Command {
     }
 }
 
+impl Command {
+    pub fn default_() -> Self {
+        Self::from(rusmpp_types::Command::default())
+    }
+}
+
 #[::pyo3_stub_gen_derive::gen_stub_pymethods]
 #[::pyo3::pymethods]
 impl Command {
     #[new]
+
     fn new(id: CommandId, status: CommandStatus, sequence_number: u32, pdu: Option<Pdu>) -> Self {
         Self {
             id,
@@ -5312,6 +6366,11 @@ impl Command {
             sequence_number,
             pdu,
         }
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::default_()
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")

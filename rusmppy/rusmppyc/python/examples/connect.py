@@ -16,6 +16,11 @@ from rusmppyc import (
     Ton,
 )
 from rusmppyc.exceptions import RusmppycException
+from rusmppyc.rusmppyc import (
+    EsmClass,
+    GsmFeatures,
+    MessageType,
+)
 
 
 async def handle_events(events: Events, client: Client):
@@ -76,6 +81,11 @@ async def main():
             dest_addr_npi=Npi.National(),
             destination_addr="0987654321",
             data_coding=DataCoding.Ucs2(),
+            esm_class=EsmClass(
+                message_type=MessageType.ShortMessageContainsMCDeliveryReceipt(),
+                gsm_features=GsmFeatures.NotSelected(),
+                # other fields use default values
+            ),
             short_message=b"Hello, World!",
             tlvs=[
                 # The message payload will override the short message
@@ -127,8 +137,11 @@ if __name__ == "__main__":
     )
 
     logging.getLogger().setLevel(logging.DEBUG)
+
+    logging.getLogger("hickory_proto").setLevel(logging.WARNING)
+    logging.getLogger("hickory_resolver").setLevel(logging.WARNING)
     logging.getLogger("rusmpp").setLevel(logging.INFO)
-    logging.getLogger("rusmppc").setLevel(logging.INFO)
+    logging.getLogger("rusmppc").setLevel(logging.DEBUG)
     logging.getLogger("rusmppyc").setLevel(logging.DEBUG)
 
     asyncio.run(main())

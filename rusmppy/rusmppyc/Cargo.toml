@@ -27,6 +27,9 @@ tracing = { version = "0.1.41", features = ["log-always"] }
 rusmpp = { path = "../../rusmpp", version = "0.3.0-alpha.1", default-features = false }
 rusmppc = { path = "../../rusmppc", version = "0.3.0-alpha.4", default-features = false }
 
+[build-dependencies]
+pyo3-build-config = { version = "0.27.1", features = ["resolve-config"] }
+
 [features]
 default = ["rustls"]
 rustls = [

@@ -1769,7 +1769,7 @@ dependencies = [
  "num-integer",
  "num-traits",
  "pyo3",
- "pyo3-build-config",
+ "pyo3-build-config 0.25.1",
  "rustc-hash",
 ]
 
@@ -2082,7 +2082,7 @@ dependencies = [
  "memoffset",
  "once_cell",
  "portable-atomic",
- "pyo3-build-config",
+ "pyo3-build-config 0.25.1",
  "pyo3-ffi",
  "pyo3-macros",
  "unindent",
@@ -2124,13 +2124,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "pyo3-build-config"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f77d387774f6f6eec64a004eac0ed525aab7fa1966d94b42f743797b3e395afb"
+dependencies = [
+ "target-lexicon",
+]
+
+[[package]]
 name = "pyo3-ffi"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7114fe5457c61b276ab77c5055f206295b812608083644a5c5b2640c3102565c"
 dependencies = [
  "libc",
- "pyo3-build-config",
+ "pyo3-build-config 0.25.1",
 ]
 
 [[package]]
@@ -2164,7 +2173,7 @@ checksum = "4109984c22491085343c05b0dbc54ddc405c3cf7b4374fc533f5c3313a572ccc"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
- "pyo3-build-config",
+ "pyo3-build-config 0.25.1",
  "quote",
  "syn 2.0.106",
 ]
@@ -2447,6 +2456,7 @@ dependencies = [
  "humantime",
  "pyo3",
  "pyo3-async-runtimes",
+ "pyo3-build-config 0.27.1",
  "pyo3-log",
  "pyo3-stub-gen",
  "pyo3-stub-gen-derive",

@@ -4275,10 +4275,7 @@ impl EsmClass {
     }
 }
 
-#[cfg_attr(
-    not(any(PyO3_PyPy, PyO3_GraalPy)),
-    ::pyo3_stub_gen_derive::gen_stub_pymethods
-)]
+#[cfg_attr(not(any(PyPy, GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]
 #[::pyo3::pymethods]
 impl EsmClass {
     #[new]
@@ -4471,10 +4468,7 @@ impl RegisteredDelivery {
     }
 }
 
-#[cfg_attr(
-    not(any(PyO3_PyPy, PyO3_GraalPy)),
-    ::pyo3_stub_gen_derive::gen_stub_pymethods
-)]
+#[cfg_attr(not(any(PyPy, GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]
 #[::pyo3::pymethods]
 impl RegisteredDelivery {
     #[new]

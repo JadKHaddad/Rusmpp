@@ -113,8 +113,14 @@ fn gen_stub_pymethods(name: &str) -> &'static str {
     STUB_GEN
         .get_or_init(|| {
             let mut m = HashMap::new();
-            m.insert("EsmClass", "#[cfg_attr(not(any(PyO3_PyPy, PyO3_GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]");
-            m.insert("RegisteredDelivery", "#[cfg_attr(not(any(PyO3_PyPy, PyO3_GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]");
+            m.insert(
+                "EsmClass",
+                "#[cfg_attr(not(any(PyPy, GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]",
+            );
+            m.insert(
+                "RegisteredDelivery",
+                "#[cfg_attr(not(any(PyPy, GraalPy)), ::pyo3_stub_gen_derive::gen_stub_pymethods)]",
+            );
             m
         })
         .get(name)

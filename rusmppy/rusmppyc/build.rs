@@ -1,24 +1,5 @@
 fn main() {
-    println!("cargo::rustc-check-cfg=cfg(PyO3_PyPy)");
-    println!("cargo::rustc-check-cfg=cfg(PyO3_GraalPy)");
-
-    // set by maturin
-    if let Ok(sig) = std::env::var("PYO3_ENVIRONMENT_SIGNATURE") {
-        println!("cargo:warning=PYO3_ENVIRONMENT_SIGNATURE = {sig}");
-
-        let sig_lower = sig.to_lowercase();
-
-        if sig_lower.starts_with("pypy") {
-            println!("cargo:warning=Detected PyPy environment");
-            println!("cargo:rustc-cfg=PyO3_PyPy");
-        }
-
-        if sig_lower.starts_with("graalpy") {
-            println!("cargo:warning=Detected GraalPy environment");
-            println!("cargo:rustc-cfg=PyO3_GraalPy");
-        }
-    }
-
-    println!("cargo:warning=PYO3_ENVIRONMENT_SIGNATURE = NOT SET");
-    println!("cargo:rerun-if-env-changed=PYO3_ENVIRONMENT_SIGNATURE");
+    // Use the same cfgs as pyo3. We need cfg(PyPy) and cfg(GraalPy)
+    // Issue: [Rusmpp #102](https://github.com/Rusmpp/Rusmpp/issues/102)
+    pyo3_build_config::use_pyo3_cfgs();
 }

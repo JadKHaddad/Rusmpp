@@ -246,7 +246,6 @@ impl Client {
         })
     }
 
-    // XXX: Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API (YET).
     #[pyo3(signature=(service_type=String::new(),
         source_addr_ton=crate::generated::Ton::Unknown(),
         source_addr_npi=crate::generated::Npi::Unknown(),

@@ -83,6 +83,29 @@ fn new_py_signature(name: &str) -> &'static str {
         .unwrap_or("")
 }
 
+fn py_additional_methods(name: &str) -> &'static str {
+    static METHODS: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+
+    METHODS
+        .get_or_init(|| {
+            let mut m = HashMap::new();
+
+            m.insert(
+                "RegisteredDelivery",
+                "#[classmethod]
+                #[pyo3(signature=())]
+                pub fn request_all<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+                    Self::from(rusmpp_types::RegisteredDelivery::request_all())
+                }",
+            );
+
+            m
+        })
+        .get(name)
+        .copied()
+        .unwrap_or("")
+}
+
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {
     /// Language-independent configuration.
@@ -548,6 +571,10 @@ where
                 // default
                 self.py_default_impl(name)?;
 
+                // additional methods
+                let additional_methods = py_additional_methods(name);
+                writeln!(self.out, "{additional_methods}")?;
+
                 // __repr__
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;
                 self.out.indent();
@@ -652,6 +679,10 @@ where
 
                 // default
                 self.py_default_impl(name)?;
+
+                // additional methods
+                let additional_methods = py_additional_methods(name);
+                writeln!(self.out, "{additional_methods}")?;
 
                 // __repr__
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;

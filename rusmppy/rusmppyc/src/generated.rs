@@ -45,6 +45,7 @@ impl AddrSubunit {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -97,6 +98,7 @@ impl AlertOnMessageDelivery {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -149,6 +151,7 @@ impl BearerType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -191,6 +194,7 @@ impl BroadcastAreaFormat {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -233,6 +237,7 @@ impl BroadcastAreaIdentifier {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -277,6 +282,7 @@ impl BroadcastAreaSuccess {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -319,6 +325,7 @@ impl BroadcastChannelIndicator {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -511,6 +518,7 @@ impl EncodingContentType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -553,6 +561,7 @@ impl TypeOfNetwork {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -598,6 +607,7 @@ impl BroadcastContentType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -650,6 +660,7 @@ impl UnitOfTime {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -692,6 +703,7 @@ impl BroadcastFrequencyInterval {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -738,6 +750,7 @@ impl BroadcastMessageClass {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -778,6 +791,7 @@ impl BroadcastRepNum {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -820,6 +834,7 @@ impl Presentation {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -862,6 +877,7 @@ impl Screening {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -907,6 +923,7 @@ impl CallbackNumPresInd {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1101,6 +1118,7 @@ impl CommandStatus {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1157,6 +1175,7 @@ impl CongestionState {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1209,6 +1228,7 @@ impl DeliveryFailureReason {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1257,6 +1277,7 @@ impl DestAddrNpResolution {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1297,6 +1318,7 @@ impl DisplayTime {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1335,6 +1357,7 @@ impl DpfResult {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1377,6 +1400,7 @@ impl InterfaceVersion {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1429,6 +1453,7 @@ impl ItsReplyType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1474,6 +1499,7 @@ impl ItsSessionInfo {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1520,6 +1546,7 @@ impl LanguageIndicator {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1560,6 +1587,7 @@ impl MessagePayload {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1614,6 +1642,7 @@ impl MessageState {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1658,6 +1687,7 @@ impl MoreMessagesToSend {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1700,6 +1730,7 @@ impl MsAvailabilityStatus {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1738,6 +1769,7 @@ impl Indicator {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1786,6 +1818,7 @@ impl TypeOfMessage {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1831,6 +1864,7 @@ impl MsMsgWaitFacilities {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1883,6 +1917,7 @@ impl MsValidityBehavior {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1931,6 +1966,7 @@ impl UnitsOfTime {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -1976,6 +2012,7 @@ impl MsValidityInformation {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2024,6 +2061,7 @@ impl MsValidity {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2086,6 +2124,7 @@ impl ErrorCodeNetworkType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2131,6 +2170,7 @@ impl NetworkErrorCode {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2183,6 +2223,7 @@ impl NetworkType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2221,6 +2262,7 @@ impl NumberOfMessages {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2259,6 +2301,7 @@ impl PayloadType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2301,6 +2344,7 @@ impl PrivacyIndicator {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2339,6 +2383,7 @@ impl SetDpf {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2379,6 +2424,7 @@ impl SubaddressTag {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2421,6 +2467,7 @@ impl Subaddress {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2615,6 +2662,7 @@ impl UserMessageReference {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2665,6 +2713,7 @@ impl UssdServiceOp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2960,6 +3009,7 @@ impl Npi {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -2997,6 +3047,7 @@ impl Tlv {
             value,
         }
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3045,6 +3096,7 @@ impl Ton {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3113,6 +3165,7 @@ impl AlertNotification {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3181,6 +3234,7 @@ impl BindReceiver {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3226,6 +3280,7 @@ impl BindReceiverResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3294,6 +3349,7 @@ impl BindTransceiver {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3339,6 +3395,7 @@ impl BindTransceiverResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3407,6 +3464,7 @@ impl BindTransmitter {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3452,6 +3510,7 @@ impl BindTransmitterResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3520,6 +3579,7 @@ impl DataCoding {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3560,6 +3620,7 @@ impl PriorityFlag {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3602,6 +3663,7 @@ impl ReplaceIfPresentFlag {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3642,6 +3704,7 @@ impl ServiceType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3730,6 +3793,7 @@ impl BroadcastSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3772,6 +3836,7 @@ impl BroadcastSmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3836,6 +3901,7 @@ impl CancelBroadcastSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -3908,6 +3974,7 @@ impl CancelSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4043,6 +4110,7 @@ impl Ansi41Specific {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4085,6 +4153,7 @@ impl GsmFeatures {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4129,6 +4198,7 @@ impl MessageType {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4171,6 +4241,7 @@ impl MessagingMode {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4232,6 +4303,7 @@ impl EsmClass {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4276,6 +4348,7 @@ impl IntermediateNotification {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4318,6 +4391,7 @@ impl MCDeliveryReceipt {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4360,6 +4434,7 @@ impl SmeOriginatedAcknowledgement {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4420,6 +4495,11 @@ impl RegisteredDelivery {
     #[pyo3(signature=())]
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
+    }
+    #[classmethod]
+    #[pyo3(signature=())]
+    pub fn request_all<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
+        Self::from(rusmpp_types::RegisteredDelivery::request_all())
     }
     fn __repr__(&self) -> String {
         format!("{self:?}")
@@ -4505,6 +4585,7 @@ impl DataSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4547,6 +4628,7 @@ impl DataSmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4663,6 +4745,7 @@ impl DeliverSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4705,6 +4788,7 @@ impl DeliverSmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4750,6 +4834,7 @@ impl Outbind {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4810,6 +4895,7 @@ impl QueryBroadcastSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4852,6 +4938,7 @@ impl QueryBroadcastSmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4908,6 +4995,7 @@ impl QuerySm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -4964,6 +5052,7 @@ impl QuerySmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5048,6 +5137,7 @@ impl ReplaceSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5086,6 +5176,7 @@ impl DestFlag {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5117,6 +5208,7 @@ impl DistributionListName {
     fn new(dest_flag: DestFlag, dl_name: Vec<u8>) -> Self {
         Self { dest_flag, dl_name }
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5162,6 +5254,7 @@ impl SmeAddress {
             destination_addr,
         }
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5301,6 +5394,7 @@ impl SubmitMulti {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5357,6 +5451,7 @@ impl UnsuccessSme {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5413,6 +5508,7 @@ impl SubmitMultiResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5529,6 +5625,7 @@ impl SubmitSm {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -5571,6 +5668,7 @@ impl SubmitSmResp {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }
@@ -6382,6 +6480,7 @@ impl Command {
     pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {
         Self::default_()
     }
+
     fn __repr__(&self) -> String {
         format!("{self:?}")
     }

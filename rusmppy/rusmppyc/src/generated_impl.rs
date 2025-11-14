@@ -713,3 +713,13 @@ impl From<g::GsmFeatures> for GsmFeatures {
         }
     }
 }
+
+impl From<g::ReplaceIfPresentFlag> for ReplaceIfPresentFlag {
+    fn from(value: g::ReplaceIfPresentFlag) -> Self {
+        match value {
+            g::ReplaceIfPresentFlag::DoNotReplace() => Self::DoNotReplace,
+            g::ReplaceIfPresentFlag::Replace() => Self::Replace,
+            g::ReplaceIfPresentFlag::Other(value) => Self::Other(value),
+        }
+    }
+}

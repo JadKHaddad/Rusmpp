@@ -17,6 +17,7 @@ from rusmppyc import (
     EsmClass,
     GsmFeatures,
     MessageType,
+    ReplaceIfPresentFlag,
 )
 from rusmppyc.exceptions import RusmppycException
 
@@ -84,6 +85,7 @@ async def main():
                 gsm_features=GsmFeatures.NotSelected(),
                 # other fields use default values
             ),
+            replace_if_present_flag=ReplaceIfPresentFlag.DoNotReplace(),
             short_message=b"Hello, World!",
             tlvs=[
                 # The message payload will override the short message

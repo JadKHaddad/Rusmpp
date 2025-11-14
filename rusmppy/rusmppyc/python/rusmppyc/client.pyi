@@ -15,6 +15,7 @@ from .rusmppyc import (
     Npi,
     SubmitSmResp,
     Ton,
+    ReplaceIfPresentFlag,
 )
 
 __all__ = ["Client"]
@@ -297,7 +298,7 @@ class Client:
         schedule_delivery_time: builtins.str = "",
         validity_period: builtins.str = "",
         registered_delivery: builtins.int = 0,
-        replace_if_present_flag: builtins.int = 0,
+        replace_if_present_flag: ReplaceIfPresentFlag = ReplaceIfPresentFlag.DoNotReplace(),
         data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
@@ -335,7 +336,7 @@ class Client:
             The validity period for the message in SMPP absolute or relative format.
         registered_delivery : int, default=0
             Controls whether delivery receipts or intermediate notifications are requested.
-        replace_if_present_flag : int, default=0
+        replace_if_present_flag : ReplaceIfPresentFlag = ReplaceIfPresentFlag.DoNotReplace(),
             Indicates whether to replace an existing message with the same ID.
         data_coding : DataCoding, default=DataCoding.McSpecific()
             The data coding scheme to use for the message.

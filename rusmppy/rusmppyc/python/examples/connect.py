@@ -14,6 +14,14 @@ from rusmppyc import (
     Npi,
     SubmitSmResp,
     Ton,
+    EsmClass,
+    GsmFeatures,
+    MessageType,
+    ReplaceIfPresentFlag,
+    RegisteredDelivery,
+    MCDeliveryReceipt,
+    IntermediateNotification,
+    SmeOriginatedAcknowledgement,
 )
 from rusmppyc.exceptions import RusmppycException
 
@@ -76,6 +84,19 @@ async def main():
             dest_addr_npi=Npi.National(),
             destination_addr="0987654321",
             data_coding=DataCoding.Ucs2(),
+            esm_class=EsmClass(
+                message_type=MessageType.ShortMessageContainsMCDeliveryReceipt(),
+                gsm_features=GsmFeatures.NotSelected(),
+                # Omitted fields use default values
+            ),
+            replace_if_present_flag=ReplaceIfPresentFlag.DoNotReplace(),
+            registered_delivery=RegisteredDelivery(
+                mc_delivery_receipt=MCDeliveryReceipt.McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure(),
+                sme_originated_acknowledgement=SmeOriginatedAcknowledgement.BothDeliveryAndUserAcknowledgmentRequested(),
+                intermediate_notification=IntermediateNotification.IntermediateNotificationRequested(),
+            ),
+            # This is equivalent to the above but more convenient
+            # registered_delivery=RegisteredDelivery.request_all(),
             short_message=b"Hello, World!",
             tlvs=[
                 # The message payload will override the short message
@@ -83,6 +104,7 @@ async def main():
                     MessagePayload(b"Big Message" * 10)
                 )
             ],
+            # Omitted fields use default values
         )
 
         logging.info(f"SubmitSm response: {submit_sm_response}")
@@ -127,8 +149,11 @@ if __name__ == "__main__":
     )
 
     logging.getLogger().setLevel(logging.DEBUG)
+
+    logging.getLogger("hickory_proto").setLevel(logging.WARNING)
+    logging.getLogger("hickory_resolver").setLevel(logging.WARNING)
     logging.getLogger("rusmpp").setLevel(logging.INFO)
-    logging.getLogger("rusmppc").setLevel(logging.INFO)
+    logging.getLogger("rusmppc").setLevel(logging.DEBUG)
     logging.getLogger("rusmppyc").setLevel(logging.DEBUG)
 
     asyncio.run(main())

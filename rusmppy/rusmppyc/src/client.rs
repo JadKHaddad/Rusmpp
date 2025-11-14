@@ -246,9 +246,6 @@ impl Client {
         })
     }
 
-    // XXX: `ServiceType`, `EsmClass`, `PriorityFlag`, `RegisteredDelivery` and `ReplaceIfPresentFlag`
-    // are represented as u8 and then converted to the Rusmpp appropriate type: Structs that are repr(u8): (u8 values wrapped in helper structs).
-    // Helper functions like `RegisteredDelivery::request_all()` are not available in the Python API.
     #[pyo3(signature=(service_type=String::new(),
         source_addr_ton=crate::generated::Ton::Unknown(),
         source_addr_npi=crate::generated::Npi::Unknown(),
@@ -256,13 +253,13 @@ impl Client {
         dest_addr_ton=crate::generated::Ton::Unknown(),
         dest_addr_npi=crate::generated::Npi::Unknown(),
         destination_addr=String::new(),
-        esm_class=u8::default(),
+        esm_class=crate::generated::EsmClass::default_(),
         protocol_id=u8::default(),
         priority_flag=u8::default(),
         schedule_delivery_time=String::new(),
         validity_period=String::new(),
-        registered_delivery=u8::default(),
-        replace_if_present_flag=u8::default(),
+        registered_delivery=crate::generated::RegisteredDelivery::default_(),
+        replace_if_present_flag=crate::generated::ReplaceIfPresentFlag::DoNotReplace(),
         data_coding=crate::generated::DataCoding::McSpecific(),
         sm_default_msg_id=u8::default(),
         short_message=Vec::new(),
@@ -278,13 +275,13 @@ impl Client {
         dest_addr_ton: crate::generated::Ton,
         dest_addr_npi: crate::generated::Npi,
         destination_addr: String,
-        esm_class: u8,
+        esm_class: crate::generated::EsmClass,
         protocol_id: u8,
         priority_flag: u8,
         schedule_delivery_time: String,
         validity_period: String,
-        registered_delivery: u8,
-        replace_if_present_flag: u8,
+        registered_delivery: crate::generated::RegisteredDelivery,
+        replace_if_present_flag: crate::generated::ReplaceIfPresentFlag,
         data_coding: crate::generated::DataCoding,
         sm_default_msg_id: u8,
         short_message: Vec<u8>,

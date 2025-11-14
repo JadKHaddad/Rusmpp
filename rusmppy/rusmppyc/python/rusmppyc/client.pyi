@@ -9,11 +9,14 @@ from .rusmppyc import (
     BindTransmitterResp,
     CommandStatus,
     DataCoding,
+    EsmClass,
     InterfaceVersion,
     MessageSubmissionRequestTlvValue,
     Npi,
     SubmitSmResp,
     Ton,
+    ReplaceIfPresentFlag,
+    RegisteredDelivery,
 )
 
 __all__ = ["Client"]
@@ -290,13 +293,13 @@ class Client:
         dest_addr_ton: Ton = Ton.Unknown(),
         dest_addr_npi: Npi = Npi.Unknown(),
         destination_addr: builtins.str = "",
-        esm_class: builtins.int = 0,
+        esm_class: EsmClass = EsmClass.default(),
         protocol_id: builtins.int = 0,
         priority_flag: builtins.int = 0,
         schedule_delivery_time: builtins.str = "",
         validity_period: builtins.str = "",
-        registered_delivery: builtins.int = 0,
-        replace_if_present_flag: builtins.int = 0,
+        registered_delivery: RegisteredDelivery = RegisteredDelivery.default(),
+        replace_if_present_flag: ReplaceIfPresentFlag = ReplaceIfPresentFlag.DoNotReplace(),
         data_coding: DataCoding = DataCoding.McSpecific(),
         sm_default_msg_id: builtins.int = 0,
         short_message: builtins.bytes = b"",
@@ -322,7 +325,7 @@ class Client:
             The Numbering Plan Indicator (NPI) for the destination address.
         destination_addr : str
             The destination address (recipient phone number).
-        esm_class : int, default=0
+        esm_class : EsmClass, default=EsmClass.default()
             The message mode and type (e.g., delivery receipt request, datagram mode).
         protocol_id : int, default=0
             The protocol identifier.
@@ -332,9 +335,9 @@ class Client:
             The scheduled delivery time in SMPP absolute or relative format.
         validity_period : str, default=""
             The validity period for the message in SMPP absolute or relative format.
-        registered_delivery : int, default=0
+        registered_delivery : RegisteredDelivery, default=RegisteredDelivery.default()
             Controls whether delivery receipts or intermediate notifications are requested.
-        replace_if_present_flag : int, default=0
+        replace_if_present_flag : ReplaceIfPresentFlag = ReplaceIfPresentFlag.DoNotReplace(),
             Indicates whether to replace an existing message with the same ID.
         data_coding : DataCoding, default=DataCoding.McSpecific()
             The data coding scheme to use for the message.

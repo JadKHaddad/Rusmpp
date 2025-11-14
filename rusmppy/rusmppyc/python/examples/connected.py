@@ -120,7 +120,10 @@ if __name__ == "__main__":
     )
 
     logging.getLogger().setLevel(logging.DEBUG)
+
     logging.getLogger("rusmpp").setLevel(logging.INFO)
+    logging.getLogger("rusmppc").setLevel(logging.DEBUG)
+    logging.getLogger("rusmppyc").setLevel(logging.DEBUG)
 
     # Avoid windows_events.py:859 <IocpProactor overlapped#=1 result#=0> is running after closing for xx.x seconds
     # asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())

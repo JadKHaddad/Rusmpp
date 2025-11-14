@@ -108,6 +108,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = CodeGeneratorConfig::new(String::from("types")).with_serialization(false);
 
     let generator = CodeGenerator::new(&config)
+        // It is okay to use `set_all` here because these are just data containers.
+        // Converting to rusmpp types will take care of validation.
         .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass(get_all, set_all)]")));
 
     let mut output = Vec::new();

@@ -14,8 +14,9 @@ use serde_generate::{
 use serde_reflection::{ContainerFormat, Format, Named, Registry, VariantFormat};
 use std::{
     borrow::Cow,
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     io::{Result, Write},
+    sync::OnceLock,
 };
 
 const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &[
@@ -30,6 +31,37 @@ const NON_EXHAUSTIVE_RUSMPP_ENUMS: &[&str] = &[
     "MessageSubmissionResponseTlvValue",
     "QueryBroadcastResponseTlvValue",
 ];
+const NON_DEFAULT_RUSMPP_TYPES: &[&str] = &[
+    "CommandId",
+    "DistributionListName",
+    "SmeAddress",
+    "DestAddress",
+    "Pdu",
+    "Tlv",
+    "TlvTag",
+    "TlvValue",
+    "BroadcastRequestTlvValue",
+    "BroadcastResponseTlvValue",
+    "CancelBroadcastTlvValue",
+    "MessageDeliveryRequestTlvValue",
+    "MessageDeliveryResponseTlvValue",
+    "MessageSubmissionRequestTlvValue",
+    "MessageSubmissionResponseTlvValue",
+    "QueryBroadcastResponseTlvValue",
+];
+
+fn new_py_signature(name: &str) -> &'static str {
+    static CUSTOM_NEW_PY_SIGNATURE: OnceLock<HashMap<&'static str, &'static str>> = OnceLock::new();
+
+    CUSTOM_NEW_PY_SIGNATURE
+        .get_or_init(|| {
+            let mut m = HashMap::new();
+            m.insert("EsmClass", "#[pyo3(signature=(messaging_mode=crate::generated::MessagingMode::default_(), message_type=crate::generated::MessageType::default_(), ansi41_specific=crate::generated::Ansi41Specific::default_(), gsm_features=crate::generated::GsmFeatures::default_()))]");
+            m
+        })
+        .get(name).copied()
+        .unwrap_or("")
+}
 
 /// Main configuration object for code-generation in Rust.
 pub struct CodeGenerator<'a> {
@@ -459,6 +491,9 @@ where
                 self.out.unindent();
                 writeln!(self.out, "}}\n")?;
 
+                // default
+                self.default_impl(name)?;
+
                 // Generate the methods
                 writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
                 writeln!(self.out, "#[::pyo3::pymethods]")?;
@@ -477,6 +512,7 @@ where
                         )
                     })
                     .collect();
+                writeln!(self.out, "{}", new_py_signature(name))?;
                 writeln!(self.out, "fn new({}) -> Self {{", params.join(", "))?;
                 self.out.indent();
                 writeln!(self.out, "Self {{")?;
@@ -488,6 +524,9 @@ where
                 writeln!(self.out, "}}")?;
                 self.out.unindent();
                 writeln!(self.out, "}}")?;
+
+                // default
+                self.py_default_impl(name)?;
 
                 // __repr__
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;
@@ -582,11 +621,19 @@ where
                 self.out.unindent();
                 writeln!(self.out, "}}\n")?;
 
+                // default
+                self.default_impl(name)?;
+
                 // Generate the methods
                 writeln!(self.out, "#[::pyo3_stub_gen_derive::gen_stub_pymethods]")?;
                 writeln!(self.out, "#[::pyo3::pymethods]")?;
                 writeln!(self.out, "impl {name} {{")?;
                 self.out.indent();
+
+                // default
+                self.py_default_impl(name)?;
+
+                // __repr__
                 writeln!(self.out, "fn __repr__(&self) -> String {{")?;
                 self.out.indent();
                 writeln!(self.out, "format!(\"{{self:?}}\")")?;
@@ -597,6 +644,39 @@ where
             }
         }
         self.output_custom_code(name)
+    }
+
+    fn default_impl(&mut self, name: &str) -> Result<()> {
+        let _: () = if !NON_DEFAULT_RUSMPP_TYPES.contains(&name) {
+            writeln!(self.out, "impl {name} {{")?;
+            self.out.indent();
+            writeln!(self.out, "pub fn default_() -> Self {{")?;
+            self.out.indent();
+            writeln!(self.out, "Self::from(rusmpp_types::{name}::default())")?;
+            self.out.unindent();
+            writeln!(self.out, "}}")?;
+            self.out.unindent();
+            writeln!(self.out, "}}\n")?;
+        };
+
+        Ok(())
+    }
+
+    fn py_default_impl(&mut self, name: &str) -> Result<()> {
+        let _: () = if !NON_DEFAULT_RUSMPP_TYPES.contains(&name) {
+            writeln!(self.out, "#[classmethod]")?;
+            writeln!(self.out, "#[pyo3(signature=())]")?;
+            writeln!(
+                self.out,
+                "pub fn default<'p>(_cls: &'p ::pyo3::Bound<'p, ::pyo3::types::PyType>) -> Self {{"
+            )?;
+            self.out.indent();
+            writeln!(self.out, "Self::default_()")?;
+            self.out.unindent();
+            writeln!(self.out, "}}")?;
+        };
+
+        Ok(())
     }
 
     fn output_add_classes(&mut self, registry: &Registry) -> Result<()> {

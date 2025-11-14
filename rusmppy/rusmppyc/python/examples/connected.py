@@ -121,8 +121,6 @@ if __name__ == "__main__":
 
     logging.getLogger().setLevel(logging.DEBUG)
 
-    logging.getLogger("hickory_proto").setLevel(logging.WARNING)
-    logging.getLogger("hickory_resolver").setLevel(logging.WARNING)
     logging.getLogger("rusmpp").setLevel(logging.INFO)
     logging.getLogger("rusmppc").setLevel(logging.DEBUG)
     logging.getLogger("rusmppyc").setLevel(logging.DEBUG)

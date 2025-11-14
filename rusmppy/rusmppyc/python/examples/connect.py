@@ -14,13 +14,11 @@ from rusmppyc import (
     Npi,
     SubmitSmResp,
     Ton,
-)
-from rusmppyc.exceptions import RusmppycException
-from rusmppyc.rusmppyc import (
     EsmClass,
     GsmFeatures,
     MessageType,
 )
+from rusmppyc.exceptions import RusmppycException
 
 
 async def handle_events(events: Events, client: Client):

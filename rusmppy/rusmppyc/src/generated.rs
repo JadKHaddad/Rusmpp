@@ -8,7 +8,7 @@ pub mod rusmpp_types {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum AddrSubunit {
     Unknown(),
     MSDisplay(),
@@ -52,7 +52,7 @@ impl AddrSubunit {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum AlertOnMessageDelivery {
     UseMobileDefaultAlert(),
     UseLowPriorityAlert(),
@@ -104,7 +104,7 @@ impl AlertOnMessageDelivery {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BearerType {
     Unknown(),
     Sms(),
@@ -156,7 +156,7 @@ impl BearerType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastAreaFormat {
     AliasName(),
     EllipsoidArc(),
@@ -198,7 +198,7 @@ impl BroadcastAreaFormat {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastAreaIdentifier {
     pub format: BroadcastAreaFormat,
     pub area: Vec<u8>,
@@ -240,7 +240,7 @@ impl BroadcastAreaIdentifier {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastAreaSuccess {
     InformationNotAvailable(),
     ZeroToHundred(u8),
@@ -284,7 +284,7 @@ impl BroadcastAreaSuccess {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastChannelIndicator {
     Basic(),
     Extended(),
@@ -326,7 +326,7 @@ impl BroadcastChannelIndicator {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum EncodingContentType {
     Index(),
     EmergencyBroadcasts(),
@@ -518,7 +518,7 @@ impl EncodingContentType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum TypeOfNetwork {
     Generic(),
     Gsm(),
@@ -560,7 +560,7 @@ impl TypeOfNetwork {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastContentType {
     pub type_of_network: TypeOfNetwork,
     pub encoding_content_type: EncodingContentType,
@@ -605,7 +605,7 @@ impl BroadcastContentType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum UnitOfTime {
     AsFrequentlyAsPossible(),
     Seconds(),
@@ -657,7 +657,7 @@ impl UnitOfTime {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastFrequencyInterval {
     pub unit: UnitOfTime,
     pub value: u16,
@@ -699,7 +699,7 @@ impl BroadcastFrequencyInterval {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastMessageClass {
     NoClassSpecified(),
     Class1(),
@@ -745,7 +745,7 @@ impl BroadcastMessageClass {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastRepNum {
     pub value: u8,
 }
@@ -785,7 +785,7 @@ impl BroadcastRepNum {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Presentation {
     PresentationAllowed(),
     PresentationRestricted(),
@@ -827,7 +827,7 @@ impl Presentation {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Screening {
     NotScreened(),
     VerifiedAndPassed(),
@@ -869,7 +869,7 @@ impl Screening {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct CallbackNumPresInd {
     pub presentation: Presentation,
     pub screening: Screening,
@@ -914,7 +914,7 @@ impl CallbackNumPresInd {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum CommandStatus {
     EsmeRok(),
     EsmeRinvmsglen(),
@@ -1108,7 +1108,7 @@ impl CommandStatus {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum CongestionState {
     Idle(),
     LowLoad(u8),
@@ -1164,7 +1164,7 @@ impl CongestionState {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DeliveryFailureReason {
     DestinationUnavailable(),
     DestinationAddressInvalid(),
@@ -1216,7 +1216,7 @@ impl DeliveryFailureReason {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DestAddrNpResolution {
     QueryNotPerformed(),
     QueryPerformedNumberNotPorted(),
@@ -1264,7 +1264,7 @@ impl DestAddrNpResolution {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DisplayTime {
     Temporary(),
     Default(),
@@ -1304,7 +1304,7 @@ impl DisplayTime {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DpfResult {
     NotSet(),
     Set(),
@@ -1342,7 +1342,7 @@ impl DpfResult {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum InterfaceVersion {
     Smpp3_3OrEarlier(u8),
     Smpp3_4(),
@@ -1384,7 +1384,7 @@ impl InterfaceVersion {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum ItsReplyType {
     Digit(),
     Number(),
@@ -1436,7 +1436,7 @@ impl ItsReplyType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct ItsSessionInfo {
     pub session_number: u8,
     pub sequence_number: u8,
@@ -1481,7 +1481,7 @@ impl ItsSessionInfo {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum LanguageIndicator {
     Unspecified(),
     English(),
@@ -1527,7 +1527,7 @@ impl LanguageIndicator {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct MessagePayload {
     pub value: Vec<u8>,
 }
@@ -1567,7 +1567,7 @@ impl MessagePayload {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageState {
     Scheduled(),
     Enroute(),
@@ -1621,7 +1621,7 @@ impl MessageState {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MoreMessagesToSend {
     NoMoreMessagesToFollow(),
     MoreMessagesToFollow(),
@@ -1665,7 +1665,7 @@ impl MoreMessagesToSend {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MsAvailabilityStatus {
     Available(),
     Denied(),
@@ -1707,7 +1707,7 @@ impl MsAvailabilityStatus {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Indicator {
     Inactive(),
     Active(),
@@ -1745,7 +1745,7 @@ impl Indicator {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum TypeOfMessage {
     VoicemailMessageWaiting(),
     FaxMessageWaiting(),
@@ -1793,7 +1793,7 @@ impl TypeOfMessage {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct MsMsgWaitFacilities {
     pub indicator: Indicator,
     pub type_of_message: TypeOfMessage,
@@ -1838,7 +1838,7 @@ impl MsMsgWaitFacilities {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MsValidityBehavior {
     StoreIndefinitely(),
     PowerDown(),
@@ -1890,7 +1890,7 @@ impl MsValidityBehavior {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum UnitsOfTime {
     Seconds(),
     Minutes(),
@@ -1938,7 +1938,7 @@ impl UnitsOfTime {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct MsValidityInformation {
     pub units_of_time: UnitsOfTime,
     pub number_of_time_units: u16,
@@ -1983,7 +1983,7 @@ impl MsValidityInformation {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct MsValidity {
     pub validity_behavior: MsValidityBehavior,
     pub validity_information: Option<MsValidityInformation>,
@@ -2031,7 +2031,7 @@ impl MsValidity {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum ErrorCodeNetworkType {
     Ansi136AccessDeniedReason(),
     Is95AccessDeniedReason(),
@@ -2093,7 +2093,7 @@ impl ErrorCodeNetworkType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct NetworkErrorCode {
     pub network_type: ErrorCodeNetworkType,
     pub error_code: u16,
@@ -2138,7 +2138,7 @@ impl NetworkErrorCode {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum NetworkType {
     Unknown(),
     Gsm(),
@@ -2190,7 +2190,7 @@ impl NetworkType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum NumberOfMessages {
     Allowed(u8),
     Other(u8),
@@ -2228,7 +2228,7 @@ impl NumberOfMessages {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum PayloadType {
     Default(),
     WcmpMessage(),
@@ -2266,7 +2266,7 @@ impl PayloadType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum PrivacyIndicator {
     NotRestricted(),
     Restricted(),
@@ -2308,7 +2308,7 @@ impl PrivacyIndicator {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum SetDpf {
     NotRequested(),
     Requested(),
@@ -2346,7 +2346,7 @@ impl SetDpf {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum SubaddressTag {
     NsapEven(),
     NsapOdd(),
@@ -2386,7 +2386,7 @@ impl SubaddressTag {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct Subaddress {
     pub tag: SubaddressTag,
     pub addr: Vec<u8>,
@@ -2428,7 +2428,7 @@ impl Subaddress {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum TlvTag {
     DestAddrSubunit(),
     DestNetworkType(),
@@ -2582,7 +2582,7 @@ impl TlvTag {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct UserMessageReference {
     pub value: u16,
 }
@@ -2622,7 +2622,7 @@ impl UserMessageReference {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum UssdServiceOp {
     PssdIndication(),
     PssrIndication(),
@@ -2672,7 +2672,7 @@ impl UssdServiceOp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum TlvValue {
     AdditionalStatusInfoText(Vec<u8>),
     AlertOnMessageDelivery(AlertOnMessageDelivery),
@@ -2913,7 +2913,7 @@ impl TlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Npi {
     Unknown(),
     Isdn(),
@@ -2967,7 +2967,7 @@ impl Npi {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct Tlv {
     pub tag: TlvTag,
     pub value_length: u16,
@@ -3004,7 +3004,7 @@ impl Tlv {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Ton {
     Unknown(),
     International(),
@@ -3052,7 +3052,7 @@ impl Ton {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct AlertNotification {
     pub source_addr_ton: Ton,
     pub source_addr_npi: Npi,
@@ -3120,7 +3120,7 @@ impl AlertNotification {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindReceiver {
     pub system_id: Vec<u8>,
     pub password: Vec<u8>,
@@ -3188,7 +3188,7 @@ impl BindReceiver {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindReceiverResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
@@ -3233,7 +3233,7 @@ impl BindReceiverResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindTransceiver {
     pub system_id: Vec<u8>,
     pub password: Vec<u8>,
@@ -3301,7 +3301,7 @@ impl BindTransceiver {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindTransceiverResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
@@ -3346,7 +3346,7 @@ impl BindTransceiverResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindTransmitter {
     pub system_id: Vec<u8>,
     pub password: Vec<u8>,
@@ -3414,7 +3414,7 @@ impl BindTransmitter {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BindTransmitterResp {
     pub system_id: Vec<u8>,
     pub sc_interface_version: Option<Tlv>,
@@ -3459,7 +3459,7 @@ impl BindTransmitterResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DataCoding {
     McSpecific(),
     Ia5(),
@@ -3527,7 +3527,7 @@ impl DataCoding {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct PriorityFlag {
     pub value: u8,
 }
@@ -3567,7 +3567,7 @@ impl PriorityFlag {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum ReplaceIfPresentFlag {
     DoNotReplace(),
     Replace(),
@@ -3609,7 +3609,7 @@ impl ReplaceIfPresentFlag {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct ServiceType {
     pub value: Vec<u8>,
 }
@@ -3649,7 +3649,7 @@ impl ServiceType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastSm {
     pub service_type: ServiceType,
     pub source_addr_ton: Ton,
@@ -3737,7 +3737,7 @@ impl BroadcastSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct BroadcastSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
@@ -3779,7 +3779,7 @@ impl BroadcastSmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct CancelBroadcastSm {
     pub service_type: ServiceType,
     pub message_id: Vec<u8>,
@@ -3843,7 +3843,7 @@ impl CancelBroadcastSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct CancelSm {
     pub service_type: ServiceType,
     pub message_id: Vec<u8>,
@@ -3915,7 +3915,7 @@ impl CancelSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum CommandId {
     BindReceiver(),
     BindTransmitter(),
@@ -4004,7 +4004,7 @@ impl CommandId {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Ansi41Specific {
     ShortMessageContainsDeliveryAcknowledgement(),
     ShortMessageContainsUserAcknowledgment(),
@@ -4050,7 +4050,7 @@ impl Ansi41Specific {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum GsmFeatures {
     NotSelected(),
     UdhiIndicator(),
@@ -4092,7 +4092,7 @@ impl GsmFeatures {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageType {
     Default(),
     ShortMessageContainsMCDeliveryReceipt(),
@@ -4136,7 +4136,7 @@ impl MessageType {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessagingMode {
     Default(),
     Datagram(),
@@ -4178,7 +4178,7 @@ impl MessagingMode {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct EsmClass {
     pub messaging_mode: MessagingMode,
     pub message_type: MessageType,
@@ -4234,7 +4234,7 @@ impl EsmClass {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum IntermediateNotification {
     NoIntermediaryNotificationRequested(),
     IntermediateNotificationRequested(),
@@ -4278,7 +4278,7 @@ impl IntermediateNotification {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MCDeliveryReceipt {
     NoMcDeliveryReceiptRequested(),
     McDeliveryReceiptRequestedWhereFinalDeliveryOutcomeIsSuccessOrFailure(),
@@ -4320,7 +4320,7 @@ impl MCDeliveryReceipt {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum SmeOriginatedAcknowledgement {
     NoReceiptSmeAcknowledgementRequested(),
     SmeDeliveryAcknowledgementRequested(),
@@ -4362,7 +4362,7 @@ impl SmeOriginatedAcknowledgement {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct RegisteredDelivery {
     pub mc_delivery_receipt: MCDeliveryReceipt,
     pub sme_originated_acknowledgement: SmeOriginatedAcknowledgement,
@@ -4418,7 +4418,7 @@ impl RegisteredDelivery {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct DataSm {
     pub service_type: ServiceType,
     pub source_addr_ton: Ton,
@@ -4502,7 +4502,7 @@ impl DataSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct DataSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
@@ -4544,7 +4544,7 @@ impl DataSmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct DeliverSm {
     pub service_type: ServiceType,
     pub source_addr_ton: Ton,
@@ -4660,7 +4660,7 @@ impl DeliverSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct DeliverSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
@@ -4702,7 +4702,7 @@ impl DeliverSmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct Outbind {
     pub system_id: Vec<u8>,
     pub password: Vec<u8>,
@@ -4747,7 +4747,7 @@ impl Outbind {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct QueryBroadcastSm {
     pub message_id: Vec<u8>,
     pub source_addr_ton: Ton,
@@ -4807,7 +4807,7 @@ impl QueryBroadcastSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct QueryBroadcastSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
@@ -4849,7 +4849,7 @@ impl QueryBroadcastSmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct QuerySm {
     pub message_id: Vec<u8>,
     pub source_addr_ton: Ton,
@@ -4905,7 +4905,7 @@ impl QuerySm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct QuerySmResp {
     pub message_id: Vec<u8>,
     pub final_date: Vec<u8>,
@@ -4961,7 +4961,7 @@ impl QuerySmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct ReplaceSm {
     pub message_id: Vec<u8>,
     pub source_addr_ton: Ton,
@@ -5045,7 +5045,7 @@ impl ReplaceSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DestFlag {
     SmeAddress(),
     DistributionListName(),
@@ -5083,7 +5083,7 @@ impl DestFlag {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct DistributionListName {
     pub dest_flag: DestFlag,
     pub dl_name: Vec<u8>,
@@ -5114,7 +5114,7 @@ impl DistributionListName {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct SmeAddress {
     pub dest_flag: DestFlag,
     pub dest_addr_ton: Ton,
@@ -5159,7 +5159,7 @@ impl SmeAddress {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum DestAddress {
     SmeAddress(SmeAddress),
     DistributionListName(DistributionListName),
@@ -5186,7 +5186,7 @@ impl DestAddress {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct SubmitMulti {
     pub service_type: ServiceType,
     pub source_addr_ton: Ton,
@@ -5298,7 +5298,7 @@ impl SubmitMulti {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct UnsuccessSme {
     pub dest_addr_ton: Ton,
     pub dest_addr_npi: Npi,
@@ -5354,7 +5354,7 @@ impl UnsuccessSme {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct SubmitMultiResp {
     pub message_id: Vec<u8>,
     pub no_unsuccess: u8,
@@ -5410,7 +5410,7 @@ impl SubmitMultiResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct SubmitSm {
     pub service_type: ServiceType,
     pub source_addr_ton: Ton,
@@ -5526,7 +5526,7 @@ impl SubmitSm {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct SubmitSmResp {
     pub message_id: Vec<u8>,
     pub tlvs: Vec<Tlv>,
@@ -5568,7 +5568,7 @@ impl SubmitSmResp {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum Pdu {
     BindTransmitter(BindTransmitter),
     BindTransmitterResp(BindTransmitterResp),
@@ -5665,7 +5665,7 @@ impl Pdu {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageSubmissionRequestTlvValue {
     AlertOnMessageDelivery(AlertOnMessageDelivery),
     BillingIdentification(Vec<u8>),
@@ -5870,7 +5870,7 @@ impl MessageSubmissionRequestTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastRequestTlvValue {
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
     BroadcastContentType(BroadcastContentType),
@@ -6003,7 +6003,7 @@ impl BroadcastRequestTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageDeliveryRequestTlvValue {
     CallbackNum(Vec<u8>),
     CallbackNumAtag(Vec<u8>),
@@ -6160,7 +6160,7 @@ impl MessageDeliveryRequestTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum QueryBroadcastResponseTlvValue {
     MessageState(MessageState),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
@@ -6209,7 +6209,7 @@ impl QueryBroadcastResponseTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageSubmissionResponseTlvValue {
     AdditionalStatusInfoText(Vec<u8>),
     DeliveryFailureReason(DeliveryFailureReason),
@@ -6254,7 +6254,7 @@ impl MessageSubmissionResponseTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum BroadcastResponseTlvValue {
     BroadcastErrorStatus(CommandStatus),
     BroadcastAreaIdentifier(BroadcastAreaIdentifier),
@@ -6291,7 +6291,7 @@ impl BroadcastResponseTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum CancelBroadcastTlvValue {
     BroadcastContentType(BroadcastContentType),
     UserMessageReference(UserMessageReference),
@@ -6328,7 +6328,7 @@ impl CancelBroadcastTlvValue {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub struct Command {
     pub id: CommandId,
     pub status: CommandStatus,
@@ -6379,7 +6379,7 @@ impl Command {
 
 #[::pyo3_stub_gen_derive::gen_stub_pyclass_complex_enum]
 #[derive(Clone, Debug, PartialEq, PartialOrd)]
-#[::pyo3::pyclass(get_all, set_all)]
+#[::pyo3::pyclass(get_all)]
 pub enum MessageDeliveryResponseTlvValue {
     AdditionalStatusInfoText(Vec<u8>),
     DeliveryFailureReason(DeliveryFailureReason),

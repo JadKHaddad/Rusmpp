@@ -108,7 +108,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config = CodeGeneratorConfig::new(String::from("types")).with_serialization(false);
 
     let generator = CodeGenerator::new(&config)
-        .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass(get_all, set_all)]")));
+        // do not use set_all because we have private fields in rust types that should not be set be the user.
+        .with_custom_derive_block(Some(String::from("#[::pyo3::pyclass(get_all)]")));
 
     let mut output = Vec::new();
 

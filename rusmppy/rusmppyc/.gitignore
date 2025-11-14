@@ -83,6 +83,7 @@ __pycache__/
 # Distribution / packaging
 .Python
 .venv/
+pypy-venv/
 env/
 bin/
 build/

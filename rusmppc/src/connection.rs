@@ -533,6 +533,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 continue 'main;
                             }
 
+                            // Enquire link responses not matching the last sent enquire link are ignored and must be passed to the client. (The client sent an enquire link manually)
                             if let CommandId::EnquireLinkResp = command.id() {
                                 if let Some(last_sequence_number) =
                                     self.last_enquire_link_sequence_number

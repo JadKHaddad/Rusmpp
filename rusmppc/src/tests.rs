@@ -746,6 +746,7 @@ async fn client_sends_enquire_link_connection_should_pass_response_to_client() {
         .connected(client);
 
     // Wait for the automatic enquire link to be sent
+    // We can not guarantee that an enquire link with seq (x) was sent before we send our own with seq (y) while the connection is still waiting for the response with seq (x)
     tokio::time::sleep(Duration::from_millis(50)).await;
 
     client

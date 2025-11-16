@@ -727,3 +727,36 @@ async fn enquire_link_interval_none_should_not_send_enquire_link_commands() {
     // after 3 seconds the connection should still be active since no enquire link commands were sent
     assert!(client.is_active(), "Connection was closed unexpectedly");
 }
+
+/// The connection should not treat the enquire link response as a response to an enquire link sent by the connection.
+///
+/// The response should be passed to the client to handle it.
+#[tokio::test]
+async fn client_sends_enquire_link_connection_should_pass_response_to_client() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        Server::new().run(server).await;
+    });
+
+    let (client, events) = ConnectionBuilder::new()
+        .enquire_link_interval(Duration::from_millis(10))
+        .connected(client);
+
+    // Wait for the automatic enquire link to be sent
+    // We can not guarantee that an enquire link with seq (x) was sent before we send our own with seq (y) while the connection is still waiting for the response with seq (x)
+    tokio::time::sleep(Duration::from_millis(50)).await;
+
+    client
+        .enquire_link()
+        .await
+        .expect("Failed to send enquire_link");
+
+    client.close().await.expect("Failed to close connection");
+
+    client.closed().await;
+
+    let _ = events.count().await;
+}

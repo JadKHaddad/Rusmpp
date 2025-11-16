@@ -116,6 +116,18 @@ impl Client {
             .await
     }
 
+    /// Sends an [`EnquireLink`](Pdu::EnquireLink) command to the server and waits for a successful [`EnquireLinkResp`](Pdu::EnquireLinkResp).
+    pub async fn enquire_link(&self) -> Result<(), Error> {
+        self.registered_request().enquire_link().await
+    }
+
+    /// Sends an [`EnquireLinkResp`](Pdu::EnquireLinkResp) command to the server.
+    pub async fn enquire_link_resp(&self, sequence_number: u32) -> Result<(), Error> {
+        self.unregistered_request()
+            .enquire_link_resp(sequence_number)
+            .await
+    }
+
     /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
     pub async fn generic_nack(&self, sequence_number: u32) -> Result<(), Error> {
         self.unregistered_request()
@@ -346,6 +358,12 @@ impl<'a> UnregisteredRequestBuilder<'a> {
             .await
     }
 
+    /// Sends an [`EnquireLinkResp`](Pdu::EnquireLinkResp) command to the server.
+    pub async fn enquire_link_resp(self, sequence_number: u32) -> Result<(), Error> {
+        self.unregistered_request(Pdu::EnquireLinkResp, sequence_number)
+            .await
+    }
+
     /// Sends a [`GenericNack`](Pdu::GenericNack) command to the server.
     pub async fn generic_nack(self, sequence_number: u32) -> Result<(), Error> {
         self.unregistered_request(Pdu::GenericNack, sequence_number)
@@ -384,6 +402,11 @@ impl<'a> UnregisteredRequestBuilder<'a> {
     /// Sends an [`Unbind`](Pdu::Unbind) command to the server and waits for a successful [`UnbindResp`](Pdu::UnbindResp).
     pub async fn unbind(&self) -> Result<(), Error> {
         self.registered_request().unbind().await
+    }
+
+    /// Sends an [`EnquireLink`](Pdu::EnquireLink) command to the server and waits for a successful [`EnquireLinkResp`](Pdu::EnquireLinkResp).
+    pub async fn enquire_link(&self) -> Result<(), Error> {
+        self.registered_request().enquire_link().await
     }
 }
 
@@ -564,6 +587,15 @@ impl<'a> RegisteredRequestBuilder<'a> {
             .map(|_| ())
             .map_err(Error::unexpected_response)
     }
+
+    /// Sends an [`EnquireLink`](Pdu::EnquireLink) command to the server and waits for a successful [`EnquireLinkResp`](Pdu::EnquireLinkResp).
+    pub async fn enquire_link(&self) -> Result<(), Error> {
+        self.request(Pdu::EnquireLink)
+            .await?
+            .ok_and_matches(CommandId::EnquireLinkResp)
+            .map(|_| ())
+            .map_err(Error::unexpected_response)
+    }
 }
 
 #[derive(Debug)]
@@ -603,6 +635,17 @@ impl<'a> NoWaitRequestBuilder<'a> {
 
         self.unregistered_request()
             .unregistered_request(Pdu::Unbind, sequence_number)
+            .await?;
+
+        Ok(sequence_number)
+    }
+
+    /// Sends an [`EnquireLink`](Pdu::EnquireLink) command to the server without waiting for the response.
+    pub async fn enquire_link(&self) -> Result<u32, Error> {
+        let sequence_number = self.client.inner.next_sequence_number();
+
+        self.unregistered_request()
+            .unregistered_request(Pdu::EnquireLink, sequence_number)
             .await?;
 
         Ok(sequence_number)

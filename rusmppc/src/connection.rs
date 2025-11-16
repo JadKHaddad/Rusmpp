@@ -49,6 +49,7 @@ pin_project! {
         enquire_link_interval: Option<Duration>,
         last_enquire_link_sequence_number: Option<u32>,
         enquire_link_response_timeout: Duration,
+        auto_enquire_link_response: bool,
         events: UnboundedSender<Event>,
         // Used to let the client wait for the connection to be closed
         _watch: watch::Receiver<()>,
@@ -68,6 +69,7 @@ impl Connection<NoneStream> {
         max_command_length: usize,
         enquire_link_interval: Option<Duration>,
         enquire_link_response_timeout: Duration,
+        auto_enquire_link_response: bool,
     ) -> (
         Self,
         watch::Sender<()>,
@@ -88,6 +90,7 @@ impl Connection<NoneStream> {
                 enquire_link_interval,
                 last_enquire_link_sequence_number: None,
                 enquire_link_response_timeout,
+                auto_enquire_link_response,
                 enquire_link_timer: enquire_link_interval.map(Timer::active).unwrap_or_default(),
                 enquire_link_response_timer: Timer::inactive(),
                 _watch: watch_rx,
@@ -117,6 +120,7 @@ impl Connection<NoneStream> {
             enquire_link_interval: self.enquire_link_interval,
             last_enquire_link_sequence_number: self.last_enquire_link_sequence_number,
             enquire_link_response_timeout: self.enquire_link_response_timeout,
+            auto_enquire_link_response: self.auto_enquire_link_response,
             events: self.events,
             _watch: self._watch,
             enquire_link_timer: self.enquire_link_timer,
@@ -519,7 +523,10 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
 
                             tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Received command");
 
-                            if let CommandId::EnquireLink = command.id() {
+                            // Auto respond to enquire link requests from the server only if auto_enquire_link_response is enabled.
+                            if let CommandId::EnquireLink = command.id()
+                                && self.auto_enquire_link_response
+                            {
                                 let response = Command::builder()
                                     .status(CommandStatus::EsmeRok)
                                     .sequence_number(command.sequence_number())

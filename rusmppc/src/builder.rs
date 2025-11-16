@@ -16,6 +16,8 @@ pub struct ConnectionBuilder {
     pub(crate) enquire_link_interval: Option<Duration>,
     /// Timeout for waiting for a an enquire link response from the server.
     pub(crate) enquire_link_response_timeout: Duration,
+    /// Whether to automatically respond to enquire link requests from the server.
+    pub(crate) auto_enquire_link_response: bool,
     /// Timeout for waiting for a response from the server.
     pub(crate) response_timeout: Option<Duration>,
     pub(crate) check_interface_version: bool,
@@ -40,6 +42,7 @@ impl ConnectionBuilder {
     /// - `max_command_length`: 4096 bytes
     /// - `enquire_link_interval`: 30 seconds
     /// - `enquire_link_response_timeout`: 5 seconds
+    /// - `auto_enquire_link_response`: true
     /// - `response_timeout`: 5 seconds
     /// - `check_interface_version`: true
     /// - `rustls_config`: default configuration will be used if TLS is enabled. See [`rustls_config`](Self::rustls_config) for more details.
@@ -49,6 +52,7 @@ impl ConnectionBuilder {
             max_command_length: 4096,
             enquire_link_interval: Some(Duration::from_secs(30)),
             enquire_link_response_timeout: Duration::from_secs(5),
+            auto_enquire_link_response: true,
             response_timeout: Some(Duration::from_secs(5)),
             check_interface_version: true,
             #[cfg(feature = "rustls")]
@@ -185,6 +189,34 @@ impl ConnectionBuilder {
         enquire_link_response_timeout: Duration,
     ) -> Self {
         self.enquire_link_response_timeout = enquire_link_response_timeout;
+        self
+    }
+
+    /// Enables automatic responses to enquire link requests from the server.
+    ///
+    /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
+    pub fn auto_enquire_link_response(mut self) -> Self {
+        self.auto_enquire_link_response = true;
+        self
+    }
+
+    /// Disables automatic responses to enquire link requests from the server.
+    ///
+    /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
+    pub fn no_auto_enquire_link_response(mut self) -> Self {
+        self.auto_enquire_link_response = false;
+        self
+    }
+
+    /// Sets whether to automatically respond to enquire link requests from the server.
+    ///
+    /// By default, this is set to `true`.
+    ///
+    /// When enabled, the connection will automatically respond to any enquire link requests received from the server.
+    ///
+    /// When disabled, the client will need to handle enquire link requests manually. The [`EnquireLink`](rusmpp::Pdu::EnquireLink) command will be received as an event in the event stream.
+    pub fn with_auto_enquire_link_response(mut self, auto: bool) -> Self {
+        self.auto_enquire_link_response = auto;
         self
     }
 
@@ -419,6 +451,7 @@ impl NoSpawnConnectionBuilder {
             self.builder.max_command_length,
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
+            self.builder.auto_enquire_link_response,
         );
 
         let client = Client::new(

@@ -760,3 +760,35 @@ async fn client_sends_enquire_link_connection_should_pass_response_to_client() {
 
     let _ = events.count().await;
 }
+
+#[tokio::test]
+async fn disabled_auto_enquire_link_response_should_pipe_enquire_link_through_events() {
+    init_tracing();
+
+    let (server, client) = tokio::io::duplex(1024);
+
+    tokio::spawn(async move {
+        let mut framed = Framed::new(server, CommandCodec::new());
+
+        framed
+            .send(
+                Command::builder()
+                    .status(CommandStatus::EsmeRok)
+                    .sequence_number(1)
+                    .pdu(Pdu::EnquireLink),
+            )
+            .await
+            .expect("Failed to send EnquireLink");
+    });
+
+    let (_client, mut events) = ConnectionBuilder::new()
+        .no_auto_enquire_link_response()
+        .connected(client);
+
+    // The enquire link request should be sent to the event stream
+    let Some(Event::Incoming(command)) = events.next().await else {
+        panic!("Expected command event");
+    };
+
+    assert!(matches!(command.id(), CommandId::EnquireLink));
+}

@@ -119,7 +119,7 @@ impl ConnectionBuilder {
     /// - If the URL does not have a host.
     /// - If DNS resolution fails.
     /// - If the connection to the server fails.
-    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` or `native-tls` features are not enabled.
     /// - If TLS handshake fails.
     pub async fn connect(
         self,

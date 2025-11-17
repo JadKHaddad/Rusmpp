@@ -782,7 +782,7 @@ async fn disabled_auto_enquire_link_response_should_pipe_enquire_link_through_ev
     });
 
     let (_client, mut events) = ConnectionBuilder::new()
-        .no_auto_enquire_link_response()
+        .disable_auto_enquire_link_response()
         .connected(client);
 
     // The enquire link request should be sent to the event stream

@@ -195,7 +195,7 @@ impl ConnectionBuilder {
     /// Enables automatic responses to enquire link requests from the server.
     ///
     /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
-    pub fn auto_enquire_link_response(mut self) -> Self {
+    pub fn enable_auto_enquire_link_response(mut self) -> Self {
         self.auto_enquire_link_response = true;
         self
     }
@@ -203,7 +203,7 @@ impl ConnectionBuilder {
     /// Disables automatic responses to enquire link requests from the server.
     ///
     /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
-    pub fn no_auto_enquire_link_response(mut self) -> Self {
+    pub fn disable_auto_enquire_link_response(mut self) -> Self {
         self.auto_enquire_link_response = false;
         self
     }

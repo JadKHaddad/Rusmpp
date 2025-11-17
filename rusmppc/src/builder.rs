@@ -119,7 +119,7 @@ impl ConnectionBuilder {
     /// - If the URL does not have a host.
     /// - If DNS resolution fails.
     /// - If the connection to the server fails.
-    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` feature is not enabled.
+    /// - If TLS is enabled (when using `ssmpp` or `smpps` schemes) but the `rustls` or `native-tls` features are not enabled.
     /// - If TLS handshake fails.
     pub async fn connect(
         self,
@@ -195,7 +195,7 @@ impl ConnectionBuilder {
     /// Enables automatic responses to enquire link requests from the server.
     ///
     /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
-    pub fn auto_enquire_link_response(mut self) -> Self {
+    pub fn enable_auto_enquire_link_response(mut self) -> Self {
         self.auto_enquire_link_response = true;
         self
     }
@@ -203,7 +203,7 @@ impl ConnectionBuilder {
     /// Disables automatic responses to enquire link requests from the server.
     ///
     /// See [`with_auto_enquire_link_response`](Self::with_auto_enquire_link_response) for more details.
-    pub fn no_auto_enquire_link_response(mut self) -> Self {
+    pub fn disable_auto_enquire_link_response(mut self) -> Self {
         self.auto_enquire_link_response = false;
         self
     }

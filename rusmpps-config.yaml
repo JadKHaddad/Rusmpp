@@ -1,7 +1,7 @@
 socket_addr: "127.0.0.1:2775"
 enquire_link_interval: "10s"
 enquire_link_response_timeout: "3s"
-enquire_link_response_delay: "100ms"
+enquire_link_response_delay: "100ms" # This will block the reading process
 session_timeout: "3s"
 bind_delay: "100ms"
-response_delay: "100ms"
+response_delay: "100ms" # This will block the reading process

@@ -22,7 +22,9 @@ tokio-util = { version = "0.7.15", default-features = false, features = [
     "codec",
 ] }
 tracing = { version = "0.1.41", default-features = false }
-futures = { version = "0.3.31", default-features = false }
+futures = { version = "0.3.31", default-features = false, features = [
+    "alloc",
+] } # alloc for the channels used in the factory
 thiserror = { version = "2.0.17", default-features = false }
 pin-project-lite = { version = "0.2.16", default-features = false }
 url = { version = "2.5.7", default-features = false }
@@ -89,6 +91,11 @@ rustdoc-args = ["--cfg", "docsrs"]
 [[example]]
 name = "manual_reconnect"
 path = "examples/manual_reconnect.rs"
+required-features = []
+
+[[example]]
+name = "reconnect"
+path = "examples/reconnect.rs"
 required-features = []
 
 [[example]]

@@ -1,7 +1,4 @@
-use std::{
-    pin::{Pin, pin},
-    time::Duration,
-};
+use std::{convert::Infallible, pin::pin, time::Duration};
 
 use futures::{
     Stream, StreamExt, TryFutureExt,
@@ -10,18 +7,19 @@ use futures::{
         oneshot,
     },
 };
+
+use tokio::io::{AsyncRead, AsyncWrite};
 use tracing::Instrument;
 use tryhard::backoff_strategies::*;
 
 use crate::{Client, ConnectionBuilder, Event};
 
-#[non_exhaustive]
-pub struct GenericFactory;
+struct GenericFactory;
 
 impl GenericFactory {
-    pub fn tuple<Item, Error, F, Fut, ConnectionFuture, OnConnectF, OnConnectFut, OnConnectError>(
+    fn tuple<Item, Error, F, Fut, ConnectionFuture, O>(
         f: F,
-        on_connect: OnConnectF,
+        on_connect: O,
     ) -> (GenericHandle<Item>, impl Future<Output = ()>)
     where
         Item: Clone,
@@ -29,8 +27,7 @@ impl GenericFactory {
         Fut: Future<Output = Result<(Item, ConnectionFuture), Error>>,
         // A future, when resolved, `connect` must be called again.
         ConnectionFuture: Future<Output = ()>,
-        OnConnectF: Fn(Item) -> OnConnectFut,
-        OnConnectFut: Future<Output = Result<Item, OnConnectError>>,
+        O: OnConnect<Item = Item>,
     {
         let (tx, mut rx) = unbounded::<Request<Item>>();
 
@@ -57,7 +54,7 @@ impl GenericFactory {
 
                                 continue;
                             },
-                            item  = on_connect(item) => {
+                            item  = on_connect.on_connect(item) => {
                                 match item {
                                     Ok(item) => item,
                                     Err(_) => {
@@ -116,8 +113,70 @@ impl GenericFactory {
     }
 }
 
+pub trait OnConnect {
+    type Item;
+    type Error;
+
+    fn on_connect(
+        &self,
+        item: Self::Item,
+    ) -> impl Future<Output = Result<Self::Item, Self::Error>> + Send;
+}
+
+impl OnConnect for () {
+    type Item = Client;
+    type Error = Infallible;
+
+    async fn on_connect(&self, item: Self::Item) -> Result<Self::Item, Self::Error> {
+        Ok(item)
+    }
+}
+
+#[derive(Debug)]
+pub struct OnConnectFn<F, Fut, Item, Error> {
+    f: F,
+    _phantom: std::marker::PhantomData<(Fut, Item, Error)>,
+}
+
+impl<F, Fut, Item, Error> Clone for OnConnectFn<F, Fut, Item, Error>
+where
+    F: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            f: self.f.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<F, Fut, Item, Error> OnConnectFn<F, Fut, Item, Error> {
+    fn new(f: F) -> Self {
+        Self {
+            f,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<F, Fut, Item, Error> OnConnect for OnConnectFn<F, Fut, Item, Error>
+where
+    F: Fn(Item) -> Fut + Send + Sync,
+    Fut: Future<Output = Result<Item, Error>> + Send,
+{
+    type Item = Item;
+    type Error = Error;
+
+    fn on_connect(
+        &self,
+        item: Self::Item,
+    ) -> impl Future<Output = Result<Self::Item, Self::Error>> + Send {
+        (self.f)(item)
+    }
+}
+
 #[derive(Clone)]
-pub struct GenericHandle<T> {
+struct GenericHandle<T> {
     tx: UnboundedSender<Request<T>>,
 }
 
@@ -177,7 +236,7 @@ impl<T> Request<T> {
 }
 
 /// XXX: Do not expose.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 enum BackOff {
     None,
     Exponential(ExponentialBackoff),
@@ -199,40 +258,31 @@ impl<'a, E> BackoffStrategy<'a, E> for BackOff {
 }
 
 #[derive(Debug, Clone)]
-pub struct FactoryBuilder<F> {
+pub struct ReconnectBuilder<C> {
     builder: ConnectionBuilder,
     back_off: BackOff,
     max_delay: Option<Duration>,
     max_retries: u32,
-    on_connect: F,
+    on_connect: C,
 }
 
-// TODO: on_connect should be able to return any error
-impl FactoryBuilder<()> {
+impl ReconnectBuilder<()> {
     #[allow(clippy::type_complexity)]
-    pub(crate) fn new(
-        builder: ConnectionBuilder,
-    ) -> FactoryBuilder<
-        impl Fn(Client) -> Pin<Box<dyn Future<Output = Result<Client, crate::error::Error>> + Send>>
-        + Clone,
-    > {
-        FactoryBuilder {
+    pub(crate) fn new(builder: ConnectionBuilder) -> ReconnectBuilder<()> {
+        ReconnectBuilder {
             builder,
             back_off: BackOff::None,
             max_delay: None,
             max_retries: 10,
-            on_connect: |client: Client| {
-                Box::pin(async { Ok(client) })
-                    as Pin<Box<dyn Future<Output = Result<Client, crate::error::Error>> + Send>>
-            },
+            on_connect: (),
         }
     }
 }
 
 // XXX: Do not provide a `custom_backoff` like retry. If so, we would need a lot of generics.
-impl<F> FactoryBuilder<F> {
-    pub fn no_spawn(self) -> NoSpawnFactoryBuilder<F> {
-        NoSpawnFactoryBuilder { builder: self }
+impl<C> ReconnectBuilder<C> {
+    pub fn no_spawn(self) -> NoSpawnReconnectBuilder<C> {
+        NoSpawnReconnectBuilder { builder: self }
     }
 
     pub fn max_delay(mut self, delay: Duration) -> Self {
@@ -275,25 +325,55 @@ impl<F> FactoryBuilder<F> {
         self
     }
 
-    pub fn on_connect<K>(self, on_connect: K) -> FactoryBuilder<K> {
-        FactoryBuilder {
+    pub fn on_connect<K, Fut, Error>(
+        self,
+        on_connect: K,
+    ) -> ReconnectBuilder<OnConnectFn<K, Fut, Client, Error>> {
+        ReconnectBuilder {
             builder: self.builder,
             back_off: self.back_off,
             max_delay: self.max_delay,
             max_retries: self.max_retries,
-            on_connect,
+            on_connect: OnConnectFn::new(on_connect),
         }
     }
 
-    pub fn connect<Fut>(
+    pub fn no_on_connect(self) -> ReconnectBuilder<()> {
+        ReconnectBuilder {
+            builder: self.builder,
+            back_off: self.back_off,
+            max_delay: self.max_delay,
+            max_retries: self.max_retries,
+            on_connect: (),
+        }
+    }
+
+    pub fn connect(
         self,
         url: impl AsRef<str> + Clone + Send + 'static,
     ) -> (ClientHandle, impl Stream<Item = Event> + Unpin + 'static)
     where
-        F: Fn(Client) -> Fut + Clone + Send + 'static,
-        Fut: Future<Output = Result<Client, crate::error::Error>> + Send + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
     {
         let (handle, events, future) = self.no_spawn().connect(url);
+
+        tokio::spawn(future);
+
+        (handle, events)
+    }
+
+    pub fn connect_with<F, Fut, E, S>(
+        self,
+        connect: F,
+    ) -> (ClientHandle, impl Stream<Item = Event> + Unpin + 'static)
+    where
+        F: FnOnce() -> Fut + Clone + Send + 'static,
+        Fut: Future<Output = Result<S, E>> + Send + 'static,
+        S: AsyncRead + AsyncWrite + Send + 'static,
+        E: Into<std::io::Error> + Send + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
+    {
+        let (handle, events, future) = self.no_spawn().connect_with(connect);
 
         tokio::spawn(future);
 
@@ -302,17 +382,22 @@ impl<F> FactoryBuilder<F> {
 }
 
 #[derive(Debug, Clone)]
-pub struct NoSpawnFactoryBuilder<F> {
-    builder: FactoryBuilder<F>,
+pub struct NoSpawnReconnectBuilder<C> {
+    builder: ReconnectBuilder<C>,
 }
 
-impl<F> NoSpawnFactoryBuilder<F> {
-    async fn connect_once(
-        url: impl AsRef<str>,
+impl<C> NoSpawnReconnectBuilder<C> {
+    async fn connect_once<F, Fut, S, Conn>(
+        connect: F,
         tx: UnboundedSender<Event>,
-        builder: ConnectionBuilder,
-    ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error> {
-        let (client, events, future) = builder.no_spawn().connect(url).await?;
+    ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error>
+    where
+        F: FnOnce() -> Fut,
+        Fut: Future<Output = Result<(Client, S, Conn), crate::error::Error>>,
+        S: Stream<Item = Event> + Unpin + 'static,
+        Conn: Future<Output = ()> + Send + 'static,
+    {
+        let (client, events, future) = connect().await?;
 
         let future = async move {
             tokio::select! {
@@ -324,29 +409,71 @@ impl<F> NoSpawnFactoryBuilder<F> {
         Ok((client, future))
     }
 
-    async fn connect_retry<Fut>(
-        self,
-        url: impl AsRef<str> + Clone,
+    async fn connect_retry<F, Fut, S, Conn>(
+        connect: F,
+        max_retries: u32,
+        back_off: BackOff,
+        max_delay: Option<Duration>,
         tx: UnboundedSender<Event>,
     ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error>
     where
-        F: Fn(Client) -> Fut + Clone,
-        Fut: Future<Output = Result<Client, crate::error::Error>> + 'static,
+        F: FnOnce() -> Fut + Clone,
+        Fut: Future<Output = Result<(Client, S, Conn), crate::error::Error>>,
+        S: Stream<Item = Event> + Unpin + 'static,
+        Conn: Future<Output = ()> + Send + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
     {
-        let mut fut = tryhard::retry_fn(move || {
-            Self::connect_once(url.clone(), tx.clone(), self.builder.builder.clone())
-        })
-        .retries(self.builder.max_retries)
-        .custom_backoff(self.builder.back_off);
+        let mut fut = tryhard::retry_fn(move || Self::connect_once(connect.clone(), tx.clone()))
+            .retries(max_retries)
+            .custom_backoff(back_off);
 
-        if let Some(delay) = self.builder.max_delay {
+        if let Some(delay) = max_delay {
             fut = fut.max_delay(delay)
         };
 
         fut.await
     }
 
-    pub fn connect<Fut>(
+    fn connected<F, Fut, S, Conn>(
+        self,
+        connect: F,
+    ) -> (
+        ClientHandle,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()> + 'static,
+    )
+    where
+        F: FnOnce() -> Fut + Clone + 'static,
+        Fut: Future<Output = Result<(Client, S, Conn), crate::error::Error>> + 'static,
+        S: Stream<Item = Event> + Unpin + 'static,
+        Conn: Future<Output = ()> + Send + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
+    {
+        let (tx, rx) = unbounded::<Event>();
+
+        let max_retries = self.builder.max_retries;
+        let back_off = self.builder.back_off;
+        let max_delay = self.builder.max_delay;
+
+        let on_connect = self.builder.on_connect;
+
+        let (handle, future) = GenericFactory::tuple(
+            move || {
+                Self::connect_retry(
+                    connect.clone(),
+                    max_retries,
+                    back_off,
+                    max_delay,
+                    tx.clone(),
+                )
+            },
+            on_connect,
+        );
+
+        (ClientHandle::new(handle), rx, future)
+    }
+
+    pub fn connect(
         self,
         url: impl AsRef<str> + Clone + 'static,
     ) -> (
@@ -355,18 +482,42 @@ impl<F> NoSpawnFactoryBuilder<F> {
         impl Future<Output = ()> + 'static,
     )
     where
-        F: Fn(Client) -> Fut + Clone + 'static,
-        Fut: Future<Output = Result<Client, crate::error::Error>> + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
     {
-        let (tx, rx) = unbounded::<Event>();
+        let this = self.clone();
+        let connect = move || this.builder.builder.no_spawn().connect(url);
 
-        let on_connect = self.builder.on_connect.clone();
+        self.connected(connect)
+    }
 
-        let (handle, future) = GenericFactory::tuple(
-            move || self.clone().connect_retry(url.clone(), tx.clone()),
-            on_connect,
-        );
+    pub fn connect_with<F, Fut, E, S>(
+        self,
+        connect: F,
+    ) -> (
+        ClientHandle,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()> + 'static,
+    )
+    where
+        F: FnOnce() -> Fut + Clone + Send + 'static,
+        Fut: Future<Output = Result<S, E>> + Send + 'static,
+        S: AsyncRead + AsyncWrite + Send + 'static,
+        E: Into<std::io::Error> + Send + 'static,
+        C: OnConnect<Item = Client> + Clone + Send + 'static,
+    {
+        let this = self.clone();
 
-        (ClientHandle::new(handle), rx, future)
+        let connect = move || async move {
+            let stream = connect()
+                .await
+                .map_err(Into::into)
+                .map_err(crate::error::Error::Connect)?;
+
+            let connected = this.builder.builder.no_spawn().connected(stream);
+
+            Ok(connected)
+        };
+
+        self.connected(connect)
     }
 }

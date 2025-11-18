@@ -22,12 +22,18 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("reconnect=debug,rusmpp=off,rusmppc=debug")
         .init();
 
+    let connect = || async {
+        tracing::info!("Connecting using custom connect function");
+
+        tokio::net::TcpStream::connect("localhost:2775").await
+    };
+
     let on_connect = |client: Client| async {
         client
             .bind_transceiver(
                 BindTransceiver::builder()
-                    .system_id(COctetString::from_str("NfDfddEKVI0NCxO").expect("Valid"))
-                    .password(COctetString::from_str("rEZYMq5j").expect("Valid"))
+                    .system_id(COctetString::from_str("NfDfddEKVI0NCxO")?)
+                    .password(COctetString::from_str("rEZYMq5j")?)
                     .system_type(COctetString::empty())
                     .addr_ton(Ton::Unknown)
                     .addr_npi(Npi::Unknown)
@@ -38,27 +44,22 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 
         tracing::info!("Bound");
 
-        Ok(client)
+        Ok::<_, Box<dyn std::error::Error + Send + Sync>>(client)
     };
 
-    let (handle, mut events, future) = ConnectionBuilder::new()
+    let (handle, mut events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(5))
         .response_timeout(Duration::from_secs(2))
-        .factory()
+        .reconnect()
+        .on_connect(on_connect)
         .max_retries(10)
         .max_delay(Duration::from_secs(10))
-        .linear_backoff(Duration::from_millis(100))
-        .on_connect(on_connect)
-        .no_spawn()
-        .connect("smpp://localhost:2775");
+        .linear_backoff(Duration::from_secs(1))
+        .connect_with(connect);
+    // .connect("smpp://localhost:2775");
 
-    tokio::spawn(future);
-
-    // XXX: I do not like the fact that we have to use a handle inside the events.
-    // can we make the stream give us a connected client and an event?
     let handle_clone = handle.clone();
     let events = tokio::spawn(async move {
-        // Listen for events like incoming commands and background errors.
         while let Some(event) = events.next().await {
             tracing::info!(?event, "Event");
 
@@ -66,21 +67,13 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
                 if command.id() == CommandId::DeliverSm {
                     tracing::info!("Received DeliverSm");
 
-                    match handle_clone.get().await {
-                        Some(client) => {
-                            let _ = client
-                                .deliver_sm_resp(
-                                    command.sequence_number(),
-                                    DeliverSmResp::default(),
-                                )
-                                .await;
-                        }
-                        None => {
-                            tracing::info!("Factory closed");
+                    let Some(client) = handle_clone.get().await else {
+                        break;
+                    };
 
-                            break;
-                        }
-                    }
+                    let _ = client
+                        .deliver_sm_resp(command.sequence_number(), DeliverSmResp::default())
+                        .await;
                 }
             }
         }

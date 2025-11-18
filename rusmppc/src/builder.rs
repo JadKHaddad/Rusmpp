@@ -1,4 +1,4 @@
-use std::{net::SocketAddr, pin::Pin, time::Duration};
+use std::{net::SocketAddr, time::Duration};
 
 use futures::{FutureExt, Stream};
 
@@ -7,7 +7,7 @@ use tokio::{
     net::TcpStream,
 };
 
-use crate::{Client, Connection, Event, MaybeTlsStream, error::Error, factory::FactoryBuilder};
+use crate::{Client, Connection, Event, MaybeTlsStream, error::Error, reconnect::ReconnectBuilder};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug, Clone)]
@@ -69,14 +69,8 @@ impl ConnectionBuilder {
         NoSpawnConnectionBuilder { builder: self }
     }
 
-    #[allow(clippy::type_complexity)]
-    pub fn factory(
-        self,
-    ) -> FactoryBuilder<
-        impl Fn(Client) -> Pin<Box<dyn Future<Output = Result<Client, crate::error::Error>> + Send>>
-        + Clone,
-    > {
-        FactoryBuilder::<()>::new(self)
+    pub fn reconnect(self) -> ReconnectBuilder<()> {
+        ReconnectBuilder::<()>::new(self)
     }
 
     /// Connects to the `SMPP` server.

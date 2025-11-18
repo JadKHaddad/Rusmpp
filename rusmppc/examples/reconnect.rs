@@ -22,32 +22,34 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("rusmpp=off,rusmppc=debug")
         .init();
 
-    let (handle, mut events, future) = ConnectionBuilder::new()
+    let on_connect = |client: Client| async {
+        client
+            .bind_transceiver(
+                BindTransceiver::builder()
+                    .system_id(COctetString::from_str("NfDfddEKVI0NCxO").expect("Valid"))
+                    .password(COctetString::from_str("rEZYMq5j").expect("Valid"))
+                    .system_type(COctetString::empty())
+                    .addr_ton(Ton::Unknown)
+                    .addr_npi(Npi::Unknown)
+                    .address_range(COctetString::empty())
+                    .build(),
+            )
+            .await?;
+
+        tracing::info!("Bound");
+
+        Ok(client)
+    };
+
+    let (handle, mut events) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(5))
         .response_timeout(Duration::from_secs(2))
         .factory()
-        .on_connect(|client: Client| async {
-            client
-                .bind_transceiver(
-                    BindTransceiver::builder()
-                        .system_id(COctetString::from_str("NfDfddEKVI0NCxO").expect("Valid"))
-                        .password(COctetString::from_str("rEZYMq5j").expect("Valid"))
-                        .system_type(COctetString::empty())
-                        .addr_ton(Ton::Unknown)
-                        .addr_npi(Npi::Unknown)
-                        .address_range(COctetString::empty())
-                        .build(),
-                )
-                .await?;
-
-            tracing::info!("Bound");
-
-            Ok(client)
-        })
-        .no_spawn()
+        .max_retries(10)
+        .max_delay(Duration::from_secs(10))
+        .linear_backoff(Duration::from_millis(100))
+        .on_connect(on_connect)
         .connect("smpp://localhost:2775");
-
-    tokio::spawn(future);
 
     let handle_clone = handle.clone();
     let events = tokio::spawn(async move {

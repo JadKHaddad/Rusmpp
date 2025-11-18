@@ -10,6 +10,7 @@ use futures::{
         oneshot,
     },
 };
+use tryhard::backoff_strategies::*;
 
 use crate::{Client, ConnectionBuilder, Event};
 
@@ -148,9 +149,34 @@ impl<T> Request<T> {
     }
 }
 
-#[derive(Debug)]
+/// XXX: Do not expose.
+#[derive(Debug, Clone)]
+enum BackOff {
+    None,
+    Exponential(ExponentialBackoff),
+    Fixed(FixedBackoff),
+    Linear(LinearBackoff),
+}
+
+impl<'a, E> BackoffStrategy<'a, E> for BackOff {
+    type Output = Duration;
+
+    fn delay(&mut self, attempt: u32, error: &'a E) -> Duration {
+        match self {
+            BackOff::None => NoBackoff.delay(attempt, error),
+            BackOff::Exponential(backoff) => backoff.delay(attempt, error),
+            BackOff::Fixed(backoff) => backoff.delay(attempt, error),
+            BackOff::Linear(backoff) => backoff.delay(attempt, error),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct FactoryBuilder<F> {
     builder: ConnectionBuilder,
+    back_off: BackOff,
+    max_delay: Option<Duration>,
+    max_retries: u32,
     on_connect: F,
 }
 
@@ -165,6 +191,9 @@ impl FactoryBuilder<()> {
     > {
         FactoryBuilder {
             builder,
+            back_off: BackOff::None,
+            max_delay: None,
+            max_retries: 10,
             on_connect: |client: Client| {
                 Box::pin(async { Ok(client) })
                     as Pin<Box<dyn Future<Output = Result<Client, crate::error::Error>> + Send>>
@@ -173,14 +202,58 @@ impl FactoryBuilder<()> {
     }
 }
 
+// XXX: Do not provide a `custom_backoff` like retry. If so, we would need a lot of generics.
 impl<F> FactoryBuilder<F> {
     pub fn no_spawn(self) -> NoSpawnFactoryBuilder<F> {
         NoSpawnFactoryBuilder { builder: self }
     }
 
+    pub fn max_delay(mut self, delay: Duration) -> Self {
+        self.max_delay = Some(delay);
+        self
+    }
+
+    pub fn no_max_delay(mut self) -> Self {
+        self.max_delay = None;
+        self
+    }
+
+    pub fn with_max_delay(mut self, delay: Option<Duration>) -> Self {
+        self.max_delay = delay;
+        self
+    }
+
+    pub fn no_backoff(mut self) -> Self {
+        self.back_off = BackOff::None;
+        self
+    }
+
+    pub fn exponential_backoff(mut self, initial_delay: Duration) -> Self {
+        self.back_off = BackOff::Exponential(ExponentialBackoff::new(initial_delay));
+        self
+    }
+
+    pub fn fixed_backoff(mut self, delay: Duration) -> Self {
+        self.back_off = BackOff::Fixed(FixedBackoff::new(delay));
+        self
+    }
+
+    pub fn linear_backoff(mut self, delay: Duration) -> Self {
+        self.back_off = BackOff::Linear(LinearBackoff::new(delay));
+        self
+    }
+
+    pub fn max_retries(mut self, retries: u32) -> Self {
+        self.max_retries = retries;
+        self
+    }
+
     pub fn on_connect<K>(self, on_connect: K) -> FactoryBuilder<K> {
         FactoryBuilder {
             builder: self.builder,
+            back_off: self.back_off,
+            max_delay: self.max_delay,
+            max_retries: self.max_retries,
             on_connect,
         }
     }
@@ -201,7 +274,7 @@ impl<F> FactoryBuilder<F> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct NoSpawnFactoryBuilder<F> {
     builder: FactoryBuilder<F>,
 }
@@ -231,23 +304,31 @@ impl<F> NoSpawnFactoryBuilder<F> {
         Ok((client, disconnected))
     }
 
-    async fn connect_retry<Fun, Fut>(
+    async fn connect_retry<Fut>(
+        self,
         url: impl AsRef<str> + Clone,
         tx: UnboundedSender<Event>,
-        builder: ConnectionBuilder,
-        on_connect: Fun,
     ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error>
     where
-        Fun: Fn(Client) -> Fut + Clone,
+        F: Fn(Client) -> Fut + Clone,
         Fut: Future<Output = Result<Client, crate::error::Error>> + 'static,
     {
-        tryhard::retry_fn(move || {
-            Self::connect_once(url.clone(), tx.clone(), builder.clone(), on_connect.clone())
+        let mut fut = tryhard::retry_fn(move || {
+            Self::connect_once(
+                url.clone(),
+                tx.clone(),
+                self.builder.builder.clone(),
+                self.builder.on_connect.clone(),
+            )
         })
-        .retries(10)
-        .exponential_backoff(Duration::from_millis(500))
-        .max_delay(Duration::from_secs(10))
-        .await
+        .retries(self.builder.max_retries)
+        .custom_backoff(self.builder.back_off);
+
+        if let Some(delay) = self.builder.max_delay {
+            fut = fut.max_delay(delay)
+        };
+
+        fut.await
     }
 
     pub fn connect<Fut>(
@@ -264,14 +345,8 @@ impl<F> NoSpawnFactoryBuilder<F> {
     {
         let (tx, rx) = unbounded::<Event>();
 
-        let (handle, future) = GenericFactory::tuple(move || {
-            Self::connect_retry(
-                url.clone(),
-                tx.clone(),
-                self.builder.builder.clone(),
-                self.builder.on_connect.clone(),
-            )
-        });
+        let (handle, future) =
+            GenericFactory::tuple(move || self.clone().connect_retry(url.clone(), tx.clone()));
 
         (ClientHandle::new(handle), rx, future)
     }

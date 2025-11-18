@@ -172,6 +172,7 @@
         "textwrap",
         "thiserror",
         "tlvs",
+        "tryhard",
         "tungstenite",
         "Udhi",
         "usize",

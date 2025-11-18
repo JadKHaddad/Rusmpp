@@ -109,6 +109,8 @@ pub(crate) use connection::Connection;
 mod builder;
 pub use builder::ConnectionBuilder;
 
+mod factory;
+
 mod event;
 pub use event::Event;
 

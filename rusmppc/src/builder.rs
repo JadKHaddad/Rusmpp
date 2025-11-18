@@ -10,7 +10,7 @@ use tokio::{
 use crate::{Client, Connection, Event, MaybeTlsStream, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct ConnectionBuilder {
     pub(crate) max_command_length: usize,
     pub(crate) enquire_link_interval: Option<Duration>,

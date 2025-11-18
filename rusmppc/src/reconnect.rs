@@ -20,6 +20,7 @@ impl GenericFactory {
     fn tuple<Item, Error, F, Fut, ConnectionFuture, O>(
         f: F,
         on_connect: O,
+        restart: bool,
     ) -> (GenericHandle<Item>, impl Future<Output = ()>)
     where
         Item: Clone,
@@ -34,78 +35,86 @@ impl GenericFactory {
         let future = async move {
             let mut id: usize = 0;
 
-            'outer: loop {
-                id += 1;
+            'restart: loop {
+                'outer: loop {
+                    id += 1;
 
-                tracing::info!("Connecting");
+                    tracing::info!(%id, "Connecting");
 
-                match f().await {
-                    Ok((item, connection)) => {
-                        tracing::info!("Connected");
+                    match f().await {
+                        Ok((item, connection)) => {
+                            tracing::info!("Connected");
 
-                        let connection =
-                            connection.instrument(tracing::info_span!("connection", %id));
+                            let connection =
+                                connection.instrument(tracing::info_span!("connection", %id));
 
-                        let mut connection = pin!(connection);
+                            let mut connection = pin!(connection);
 
-                        let item = tokio::select! {
-                            _ = &mut connection => {
-                                tracing::warn!("Disconnected");
+                            let item = tokio::select! {
+                                _ = &mut connection => {
+                                    tracing::warn!(%id, "Disconnected");
 
-                                continue;
-                            },
-                            item  = on_connect.on_connect(item) => {
-                                match item {
-                                    Ok(item) => item,
-                                    Err(_) => {
-                                        tracing::error!("On connect failed");
+                                    continue 'outer;
+                                },
+                                item  = on_connect.on_connect(item) => {
+                                    match item {
+                                        Ok(item) => item,
+                                        Err(_) => {
+                                            tracing::error!(%id, "On connect error");
 
-                                        continue;
+                                            continue 'outer;
+                                        }
                                     }
                                 }
-                            }
-                        };
+                            };
 
-                        'inner: loop {
-                            tokio::select! {
-                                request = rx.next() => {
-                                    match request {
-                                        None => {
-                                            tracing::info!("Factory closed");
-
-                                            connection.await;
-
-                                            tracing::info!("Stopping");
-
-                                            break 'outer;
-                                        }
-                                        Some(request) => {
-                                            if request.tx.send(item.clone()).is_err() {
-                                                tracing::info!("Factory closed");
+                            'inner: loop {
+                                tokio::select! {
+                                    request = rx.next() => {
+                                        match request {
+                                            None => {
+                                                tracing::info!(%id, "Closed");
 
                                                 connection.await;
 
-                                                tracing::info!("Stopping");
+                                                tracing::info!(%id, "Stopping");
 
                                                 break 'outer;
                                             }
-                                        }
-                                    }
-                                },
-                                _ = &mut connection => {
-                                    tracing::warn!("Disconnected");
+                                            Some(request) => {
+                                                if request.tx.send(item.clone()).is_err() {
+                                                    tracing::info!(%id, "Closed");
 
-                                    break 'inner;
+                                                    connection.await;
+
+                                                    tracing::info!(%id, "Stopping");
+
+                                                    break 'outer;
+                                                }
+                                            }
+                                        }
+                                    },
+                                    _ = &mut connection => {
+                                        tracing::warn!(%id, "Disconnected");
+
+                                        break 'inner;
+                                    }
                                 }
                             }
                         }
-                    }
-                    Err(_) => {
-                        tracing::error!("Connect error");
+                        Err(_) => {
+                            tracing::error!(%id, "Connect error");
 
-                        break;
+                            break 'outer;
+                        }
                     }
                 }
+
+                if !restart {
+                    break 'restart;
+                }
+
+                tracing::info!(%id, "Restarting connection");
             }
         };
 
@@ -257,9 +266,11 @@ impl<'a, E> BackoffStrategy<'a, E> for BackOff {
     }
 }
 
+// TODO: we need on_retry (when retry future retries), on_restart (when factory restarts), etc. callbacks.
 #[derive(Debug, Clone)]
 pub struct ReconnectBuilder<C> {
     builder: ConnectionBuilder,
+    restart: bool,
     back_off: BackOff,
     max_delay: Option<Duration>,
     max_retries: u32,
@@ -271,6 +282,7 @@ impl ReconnectBuilder<()> {
     pub(crate) fn new(builder: ConnectionBuilder) -> ReconnectBuilder<()> {
         ReconnectBuilder {
             builder,
+            restart: false,
             back_off: BackOff::None,
             max_delay: None,
             max_retries: 10,
@@ -283,6 +295,21 @@ impl ReconnectBuilder<()> {
 impl<C> ReconnectBuilder<C> {
     pub fn no_spawn(self) -> NoSpawnReconnectBuilder<C> {
         NoSpawnReconnectBuilder { builder: self }
+    }
+
+    pub fn restart(mut self) -> Self {
+        self.restart = true;
+        self
+    }
+
+    pub fn no_restart(mut self) -> Self {
+        self.restart = false;
+        self
+    }
+
+    pub fn with_restart(mut self, restart: bool) -> Self {
+        self.restart = restart;
+        self
     }
 
     pub fn max_delay(mut self, delay: Duration) -> Self {
@@ -331,6 +358,7 @@ impl<C> ReconnectBuilder<C> {
     ) -> ReconnectBuilder<OnConnectFn<K, Fut, Client, Error>> {
         ReconnectBuilder {
             builder: self.builder,
+            restart: self.restart,
             back_off: self.back_off,
             max_delay: self.max_delay,
             max_retries: self.max_retries,
@@ -341,6 +369,7 @@ impl<C> ReconnectBuilder<C> {
     pub fn no_on_connect(self) -> ReconnectBuilder<()> {
         ReconnectBuilder {
             builder: self.builder,
+            restart: self.restart,
             back_off: self.back_off,
             max_delay: self.max_delay,
             max_retries: self.max_retries,
@@ -454,6 +483,7 @@ impl<C> NoSpawnReconnectBuilder<C> {
         let max_retries = self.builder.max_retries;
         let back_off = self.builder.back_off;
         let max_delay = self.builder.max_delay;
+        let restart = self.builder.restart;
 
         let on_connect = self.builder.on_connect;
 
@@ -468,6 +498,7 @@ impl<C> NoSpawnReconnectBuilder<C> {
                 )
             },
             on_connect,
+            restart,
         );
 
         (ClientHandle::new(handle), rx, future)

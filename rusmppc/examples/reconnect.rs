@@ -22,7 +22,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .with_env_filter("reconnect=debug,rusmpp=off,rusmppc=debug")
         .init();
 
-    let connect = || async {
+    let _connect = || async {
         tracing::info!("Connecting using custom connect function");
 
         tokio::net::TcpStream::connect("localhost:2775").await
@@ -52,11 +52,12 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .response_timeout(Duration::from_secs(2))
         .reconnect()
         .on_connect(on_connect)
-        .max_retries(10)
+        .max_retries(5)
         .max_delay(Duration::from_secs(10))
         .linear_backoff(Duration::from_secs(1))
-        .connect_with(connect);
-    // .connect("smpp://localhost:2775");
+        .restart()
+        // .connect_with(_connect);
+        .connect("smpp://localhost:2775");
 
     let handle_clone = handle.clone();
     let events = tokio::spawn(async move {

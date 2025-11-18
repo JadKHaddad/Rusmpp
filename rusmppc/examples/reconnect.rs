@@ -19,7 +19,7 @@ use rusmppc::{Client, ConnectionBuilder, Event};
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn core::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter("rusmpp=off,rusmppc=debug")
+        .with_env_filter("reconnect=debug,rusmpp=off,rusmppc=debug")
         .init();
 
     let on_connect = |client: Client| async {
@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         Ok(client)
     };
 
-    let (handle, mut events) = ConnectionBuilder::new()
+    let (handle, mut events, future) = ConnectionBuilder::new()
         .enquire_link_interval(Duration::from_secs(5))
         .response_timeout(Duration::from_secs(2))
         .factory()
@@ -49,8 +49,13 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .max_delay(Duration::from_secs(10))
         .linear_backoff(Duration::from_millis(100))
         .on_connect(on_connect)
+        .no_spawn()
         .connect("smpp://localhost:2775");
 
+    tokio::spawn(future);
+
+    // XXX: I do not like the fact that we have to use a handle inside the events.
+    // can we make the stream give us a connected client and an event?
     let handle_clone = handle.clone();
     let events = tokio::spawn(async move {
         // Listen for events like incoming commands and background errors.

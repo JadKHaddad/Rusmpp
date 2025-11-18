@@ -10,6 +10,7 @@ use futures::{
         oneshot,
     },
 };
+use tracing::Instrument;
 use tryhard::backoff_strategies::*;
 
 use crate::{Client, ConnectionBuilder, Event};
@@ -18,51 +19,93 @@ use crate::{Client, ConnectionBuilder, Event};
 pub struct GenericFactory;
 
 impl GenericFactory {
-    pub fn tuple<Item, Error, F, Fut, DisconnectedFut>(
+    pub fn tuple<Item, Error, F, Fut, ConnectionFuture, OnConnectF, OnConnectFut, OnConnectError>(
         f: F,
+        on_connect: OnConnectF,
     ) -> (GenericHandle<Item>, impl Future<Output = ()>)
     where
         Item: Clone,
         F: Fn() -> Fut,
-        Fut: Future<Output = Result<(Item, DisconnectedFut), Error>>,
+        Fut: Future<Output = Result<(Item, ConnectionFuture), Error>>,
         // A future, when resolved, `connect` must be called again.
-        DisconnectedFut: Future<Output = ()>,
+        ConnectionFuture: Future<Output = ()>,
+        OnConnectF: Fn(Item) -> OnConnectFut,
+        OnConnectFut: Future<Output = Result<Item, OnConnectError>>,
     {
         let (tx, mut rx) = unbounded::<Request<Item>>();
 
         let future = async move {
+            let mut id: usize = 0;
+
             'outer: loop {
+                id += 1;
+
                 tracing::info!("Connecting");
 
                 match f().await {
-                    Ok((item, disconnected)) => {
+                    Ok((item, connection)) => {
                         tracing::info!("Connected");
 
-                        let mut disconnected = pin!(disconnected);
+                        let connection =
+                            connection.instrument(tracing::info_span!("connection", %id));
+
+                        let mut connection = pin!(connection);
+
+                        let item = tokio::select! {
+                            _ = &mut connection => {
+                                tracing::warn!("Disconnected");
+
+                                continue;
+                            },
+                            item  = on_connect(item) => {
+                                match item {
+                                    Ok(item) => item,
+                                    Err(_) => {
+                                        tracing::error!("On connect failed");
+
+                                        continue;
+                                    }
+                                }
+                            }
+                        };
 
                         'inner: loop {
                             tokio::select! {
                                 request = rx.next() => {
                                     match request {
                                         None => {
-                                            tracing::info!("Factory closed, stopping");
+                                            tracing::info!("Factory closed");
+
+                                            connection.await;
+
+                                            tracing::info!("Stopping");
+
                                             break 'outer;
                                         }
                                         Some(request) => {
-                                            request.tx.send(item.clone()).ok();
+                                            if request.tx.send(item.clone()).is_err() {
+                                                tracing::info!("Factory closed");
+
+                                                connection.await;
+
+                                                tracing::info!("Stopping");
+
+                                                break 'outer;
+                                            }
                                         }
                                     }
                                 },
-                                _ = &mut disconnected => {
+                                _ = &mut connection => {
                                     tracing::warn!("Disconnected");
+
                                     break 'inner;
                                 }
-
                             }
                         }
                     }
                     Err(_) => {
                         tracing::error!("Connect error");
+
                         break;
                     }
                 }
@@ -70,22 +113,6 @@ impl GenericFactory {
         };
 
         (GenericHandle::new(tx), future)
-    }
-
-    pub fn spawn<Item, Error, F, Fut, DisconnectedFut>(f: F) -> GenericHandle<Item>
-    where
-        Item: Clone + Send + 'static,
-        Error: Send + 'static,
-        F: Fn() -> Fut + Send + 'static,
-        Fut: Future<Output = Result<(Item, DisconnectedFut), Error>> + Send + 'static,
-        // A future, when resolved, `connect` must be called again.
-        DisconnectedFut: Future<Output = ()> + Send + 'static,
-    {
-        let (handle, future) = Self::tuple(f);
-
-        tokio::spawn(future);
-
-        handle
     }
 }
 
@@ -280,28 +307,21 @@ pub struct NoSpawnFactoryBuilder<F> {
 }
 
 impl<F> NoSpawnFactoryBuilder<F> {
-    async fn connect_once<Fun, Fut>(
+    async fn connect_once(
         url: impl AsRef<str>,
         tx: UnboundedSender<Event>,
         builder: ConnectionBuilder,
-        on_connect: Fun,
-    ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error>
-    where
-        Fun: Fn(Client) -> Fut,
-        Fut: Future<Output = Result<Client, crate::error::Error>> + 'static,
-    {
+    ) -> Result<(Client, impl Future<Output = ()>), crate::error::Error> {
         let (client, events, future) = builder.no_spawn().connect(url).await?;
 
-        // FIX: because we call on_connect here we cant poll the future in the Factory
-        // In the factory we should the connection and the disconnect (events forward).
-        // The factory should call on_connect
-        tokio::spawn(future);
+        let future = async move {
+            tokio::select! {
+                _ = future => {},
+                _ = events.map(Ok).forward(tx).unwrap_or_else(|_| ()) => {}
+            }
+        };
 
-        let client = on_connect(client).await?;
-
-        let disconnected = events.map(Ok).forward(tx).unwrap_or_else(|_| ());
-
-        Ok((client, disconnected))
+        Ok((client, future))
     }
 
     async fn connect_retry<Fut>(
@@ -314,12 +334,7 @@ impl<F> NoSpawnFactoryBuilder<F> {
         Fut: Future<Output = Result<Client, crate::error::Error>> + 'static,
     {
         let mut fut = tryhard::retry_fn(move || {
-            Self::connect_once(
-                url.clone(),
-                tx.clone(),
-                self.builder.builder.clone(),
-                self.builder.on_connect.clone(),
-            )
+            Self::connect_once(url.clone(), tx.clone(), self.builder.builder.clone())
         })
         .retries(self.builder.max_retries)
         .custom_backoff(self.builder.back_off);
@@ -345,8 +360,12 @@ impl<F> NoSpawnFactoryBuilder<F> {
     {
         let (tx, rx) = unbounded::<Event>();
 
-        let (handle, future) =
-            GenericFactory::tuple(move || self.clone().connect_retry(url.clone(), tx.clone()));
+        let on_connect = self.builder.on_connect.clone();
+
+        let (handle, future) = GenericFactory::tuple(
+            move || self.clone().connect_retry(url.clone(), tx.clone()),
+            on_connect,
+        );
 
         (ClientHandle::new(handle), rx, future)
     }

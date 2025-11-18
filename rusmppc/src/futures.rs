@@ -10,6 +10,14 @@ use crate::Action;
 pin_project_lite::pin_project! {
     /// The [`RequestFutureGuard`] is used to wrap a pending request future and remove its corresponding sequence number
     /// from the pending responses if the future got dropped.
+    ///
+    /// Why is removing the pending response so important even though the connection will pipe responses to the event stream anyway
+    /// if sending the response to the client fails due to the receiving half being dropped/closed?
+    ///
+    /// * [`Client::pending_responses`](crate::Client::pending_responses) must be correct.
+    /// * Prevent memory leaks. If the client sends a request and then the waiting future is dropped (using [`tokio::select!`]) and the server never responds to the sent request.
+    ///     The pending response will stay in the connection's pending responses map and never gets removed.
+    /// (response is never removed manually or because the server did not respond: memory leak).
     pub struct RequestFutureGuard<'a, F> {
         done: bool,
         sequence_number: u32,

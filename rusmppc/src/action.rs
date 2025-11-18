@@ -5,6 +5,8 @@ use crate::{CloseRequest, PendingResponses, RegisteredRequest, Request, Unregist
 pub enum Action {
     Request(Request),
     /// Removes a pending response from the connection's pending responses map.
+    ///
+    /// See [`RequestFutureGuard`](crate::futures::RequestFutureGuard).
     Remove(u32),
     /// The connection will stop reading from the server, stop time keeping, close the requests channel, flush pending requests and terminate.
     Close(CloseRequest),

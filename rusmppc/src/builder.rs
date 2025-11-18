@@ -104,7 +104,7 @@ impl ConnectionBuilder {
     ///
     /// # Supported URL schemes
     /// - `smpp`: Connect using plain TCP.
-    /// - `ssmpp` or `smpps`: Connect using TLS. Requires the `rustls` feature to be enabled.
+    /// - `ssmpp` or `smpps`: Connect using TLS. Requires the `rustls` or `native-tls` features to be enabled.
     ///
     /// # Notes
     /// - If no port is specified in the URL, the default port `2775` will be used.

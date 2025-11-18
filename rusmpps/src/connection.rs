@@ -25,12 +25,12 @@ use crate::{
 pub struct ConnectionConfig {
     pub connected_clients: ConnectedClients,
     pub clients: Vec<Client>,
-    pub enquire_link_interval: Duration,
+    pub enquire_link_interval: Option<Duration>,
     pub enquire_link_response_timeout: Duration,
     pub session_timeout: Duration,
-    pub bind_delay: Duration,
-    pub response_delay: Duration,
-    pub enquire_link_response_delay: Duration,
+    pub bind_delay: Option<Duration>,
+    pub response_delay: Option<Duration>,
+    pub enquire_link_response_delay: Option<Duration>,
 }
 
 #[derive(Debug)]
@@ -154,7 +154,9 @@ impl Connection {
             .sequence_number(sequence_number)
             .pdu(pdu);
 
-        tokio::time::sleep(self.config.bind_delay).await;
+        if let Some(delay) = self.config.bind_delay {
+            tokio::time::sleep(delay).await;
+        }
 
         tracing::debug!(session_id, id=?command.id(), "Sending response");
         tracing::trace!(session_id, ?command, "Sending response");
@@ -183,7 +185,12 @@ impl Connection {
         let enquire_link_resp_timer = Timer::new();
         tokio::pin!(enquire_link_resp_timer);
 
-        let enquire_link_timer = Timer::new().activated(self.config.enquire_link_interval);
+        let enquire_link_timer = self
+            .config
+            .enquire_link_interval
+            .map(|delay| Timer::new().activated(delay))
+            .unwrap_or_default();
+
         tokio::pin!(enquire_link_timer);
 
         loop {
@@ -212,7 +219,10 @@ impl Connection {
                     }
 
                     enquire_link_resp_timer.as_mut().activate(self.config.enquire_link_response_timeout);
-                    enquire_link_timer.as_mut().activate(self.config.enquire_link_interval);
+
+                    if let Some(delay) = self.config.enquire_link_interval {
+                         enquire_link_timer.as_mut().activate(delay);
+                    }
 
                     tracing::debug!(session_id, sequence_number, "EnquireLink response timer activated");
                 }
@@ -308,7 +318,10 @@ impl Connection {
                         .sequence_number(sequence_number)
                         .pdu(pdu);
 
-                    tokio::time::sleep(delay).await;
+                    if let Some(delay) = delay {
+                        // XXX: This will block the reading process
+                        tokio::time::sleep(delay).await;
+                    }
 
                     tracing::debug!(session_id, sequence_number, id=?command.id(), "Sending response");
                     tracing::trace!(session_id, sequence_number, ?command, "Sending response");

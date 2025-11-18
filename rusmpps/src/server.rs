@@ -12,12 +12,12 @@ use crate::{
 #[derive(Debug)]
 pub struct ServerParameters {
     pub clients: Vec<Client>,
-    pub enquire_link_interval: Duration,
+    pub enquire_link_interval: Option<Duration>,
     pub enquire_link_response_timeout: Duration,
-    pub enquire_link_response_delay: Duration,
+    pub enquire_link_response_delay: Option<Duration>,
     pub session_timeout: Duration,
-    pub bind_delay: Duration,
-    pub response_delay: Duration,
+    pub bind_delay: Option<Duration>,
+    pub response_delay: Option<Duration>,
     pub socket_addr: SocketAddr,
 }
 

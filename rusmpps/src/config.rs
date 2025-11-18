@@ -10,28 +10,32 @@ use serde::Deserialize;
 pub struct Config {
     pub socket_addr: SocketAddr,
     #[serde(with = "humantime_serde")]
-    pub enquire_link_interval: Duration,
+    #[serde(default)]
+    pub enquire_link_interval: Option<Duration>,
     #[serde(with = "humantime_serde")]
     pub enquire_link_response_timeout: Duration,
     #[serde(with = "humantime_serde")]
     pub session_timeout: Duration,
     #[serde(with = "humantime_serde")]
-    pub bind_delay: Duration,
+    #[serde(default)]
+    pub bind_delay: Option<Duration>,
     #[serde(with = "humantime_serde")]
-    pub response_delay: Duration,
+    #[serde(default)]
+    pub response_delay: Option<Duration>,
     #[serde(with = "humantime_serde")]
-    pub enquire_link_response_delay: Duration,
+    #[serde(default)]
+    pub enquire_link_response_delay: Option<Duration>,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            enquire_link_interval: Duration::from_secs(10),
+            enquire_link_interval: Some(Duration::from_secs(10)),
             enquire_link_response_timeout: Duration::from_secs(3),
-            enquire_link_response_delay: Duration::from_millis(100),
+            enquire_link_response_delay: Some(Duration::from_millis(100)),
             session_timeout: Duration::from_secs(3),
-            bind_delay: Duration::from_millis(100),
-            response_delay: Duration::from_millis(100),
+            bind_delay: Some(Duration::from_millis(100)),
+            response_delay: Some(Duration::from_millis(100)),
             socket_addr: "127.0.0.1:2775"
                 .parse()
                 .expect("Failed to parse socket address"),

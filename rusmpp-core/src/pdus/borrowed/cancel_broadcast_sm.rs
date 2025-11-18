@@ -55,10 +55,10 @@ pub struct CancelBroadcastSm<'a, const N: usize> {
     /// If not known, set to NULL (Unknown).
     pub source_addr_npi: Npi,
     /// Source address of message to be cancelled. This is used
-    // for verification purposes, and must match that supplied in
-    // the original message submission request PDU.
-    //
-    // If not known, set to NULL (Unknown).
+    /// for verification purposes, and must match that supplied in
+    /// the original message submission request PDU.
+    ///
+    /// If not known, set to NULL (Unknown).
     pub source_addr: COctetString<'a, 1, 21>,
     /// Cancel broadcast  TLVs ([`CancelBroadcastTlvValue`]).
     #[rusmpp(length = "unchecked")]

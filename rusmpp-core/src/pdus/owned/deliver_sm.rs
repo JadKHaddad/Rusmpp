@@ -70,7 +70,7 @@ pub struct DeliverSm {
     pub registered_delivery: RegisteredDelivery,
     /// Flag indicating if the submitted message should replace an existing message.
     pub replace_if_present_flag: ReplaceIfPresentFlag,
-    // Defines the encoding scheme of the short message user data.
+    /// Defines the encoding scheme of the short message user data.
     pub data_coding: DataCoding,
     /// Indicates the short message to send from a list of pre- defined (‘canned’)
     /// short messages stored on the MC. If not using a MC canned message, set to NULL.

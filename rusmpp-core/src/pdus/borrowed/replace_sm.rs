@@ -41,8 +41,8 @@ pub struct ReplaceSm<'a> {
     /// If not known, set to NULL (Unknown).
     pub source_addr: COctetString<'a, 1, 21>,
     /// New scheduled delivery time for the short message.
-    // Set to NULL to preserve the original scheduled
-    // delivery time.
+    /// Set to NULL to preserve the original scheduled
+    /// delivery time.
     pub schedule_delivery_time: EmptyOrFullCOctetString<'a, 17>,
     /// New expiry time for the short message.
     ///

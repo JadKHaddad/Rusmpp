@@ -70,8 +70,8 @@ pub struct SubmitMulti<'a, const N: usize> {
     /// Indicator to signify if a MC delivery receipt or an SME
     /// acknowledgement is required.
     pub registered_delivery: RegisteredDelivery,
-    // Flag indicating if submitted message should replace an
-    // existing message.
+    /// Flag indicating if submitted message should replace an
+    /// existing message.
     pub replace_if_present_flag: ReplaceIfPresentFlag,
     /// Defines the encoding scheme of the short message user data.
     pub data_coding: DataCoding,

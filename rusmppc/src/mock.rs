@@ -6,12 +6,12 @@ use std::{
 
 pub mod framed {
     use futures::{Sink, Stream};
-    use rusmpp::{Command, decode::DecodeError, tokio_codec::EncodeError};
+    use rusmpp::{Command, tokio_codec::DecodeError, tokio_codec::EncodeError};
 
     use super::*;
 
     #[mockall::automock]
-    trait Framed {
+    pub trait Framed {
         fn poll_next_pin<'a>(
             self: Pin<&mut Self>,
             cx: &mut Context<'a>,
@@ -22,7 +22,7 @@ pub mod framed {
             cx: &mut Context<'a>,
         ) -> Poll<Result<(), EncodeError>>;
 
-        fn start_send_pin(self: Pin<&mut Self>, item: Command) -> Result<(), EncodeError>;
+        fn start_send_pin(self: Pin<&mut Self>, item: &Command) -> Result<(), EncodeError>;
 
         fn poll_flush_pin<'a>(
             self: Pin<&mut Self>,
@@ -43,14 +43,14 @@ pub mod framed {
         }
     }
 
-    impl Sink<Command> for MockFramed {
+    impl Sink<&Command> for MockFramed {
         type Error = EncodeError;
 
         fn poll_ready(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
             self.poll_ready_pin(cx)
         }
 
-        fn start_send(self: Pin<&mut Self>, item: Command) -> Result<(), Self::Error> {
+        fn start_send(self: Pin<&mut Self>, item: &Command) -> Result<(), Self::Error> {
             self.start_send_pin(item)
         }
 
@@ -108,7 +108,7 @@ pub mod framed {
             let result = pinned.as_mut().poll_ready(&mut cx);
             assert!(matches!(result, Poll::Ready(Ok(()))));
 
-            let result = pinned.as_mut().start_send(Command::default());
+            let result = pinned.as_mut().start_send(&Command::default());
             assert!(matches!(result, Ok(())));
 
             let result = pinned.as_mut().poll_flush(&mut cx);
@@ -124,7 +124,7 @@ pub mod delay {
     use super::*;
 
     #[mockall::automock]
-    trait Delay {
+    pub trait Delay {
         fn delay_(&self, duration: Duration) -> MockDelayFuture;
     }
 
@@ -145,7 +145,7 @@ pub mod delay {
         }
     }
 
-    struct MockDelayFuture {
+    pub struct MockDelayFuture {
         complete: bool,
         /// Number of polls before completion.
         after: u64,

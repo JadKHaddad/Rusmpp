@@ -171,7 +171,7 @@ impl UnbindServer {
     }
 }
 
-fn init_tracing() {
+pub fn init_tracing() {
     _ = tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
         .try_init();
@@ -650,6 +650,7 @@ async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_re
     let _ = events.await;
 }
 
+/// See `server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts` in `connection.rs`` for a more reliable test of the same behavior.
 #[tokio::test]
 async fn server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts()
 {

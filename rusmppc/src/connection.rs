@@ -630,3 +630,60 @@ where
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::{task::Poll, time::Duration};
+
+    use futures::StreamExt;
+    use rusmpp::{Command, CommandStatus, Pdu, pdus::SubmitSm};
+
+    use crate::{
+        ConnectionBuilder,
+        mock::{delay::MockDelay, framed::MockFramed},
+        tests::init_tracing,
+    };
+
+    // RUST_LOG=rusmppc=trace cargo test --package rusmppc --lib -- connection::tests::server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts --exact --nocapture
+    #[tokio::test]
+    async fn server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts()
+     {
+        init_tracing();
+
+        let mut framed = MockFramed::new().sink_always_ready_ok();
+
+        // This framed sends an AlertNotification pdu none stop to simulate a server DDOSing the client.
+        framed.expect_poll_next_pin().returning(|_ctx| {
+            Poll::Ready(Some(Ok(Command::builder()
+                .status(CommandStatus::EsmeRok)
+                .sequence_number(0)
+                .pdu(Pdu::AlertNotification(Default::default())))))
+        });
+
+        let enquire_link_timer_delay = MockDelay::new().delay_after_seconds();
+        let enquire_link_response_timer_delay = MockDelay::new().delay_after_seconds();
+
+        let (client, events, future) = ConnectionBuilder::new()
+            // Send an enquire link every 50 polls
+            .enquire_link_interval(Duration::from_secs(50))
+            // Wait for 5 polls for the enquire link response
+            .enquire_link_response_timeout(Duration::from_secs(5))
+            .no_spawn()
+            .raw(
+                framed,
+                enquire_link_timer_delay,
+                enquire_link_response_timer_delay,
+            );
+
+        tokio::spawn(future);
+
+        client
+            .no_wait() // Server will not respond anyway, so we don't care about the response
+            .submit_sm(SubmitSm::default())
+            .await
+            .expect("Failed to submit SM");
+
+        // After the enquire link timeout, the connection should close
+        let _ = events.count().await;
+    }
+}

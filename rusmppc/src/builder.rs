@@ -7,7 +7,7 @@ use tokio::{
     net::TcpStream,
 };
 
-use crate::{Client, Connection, Event, MaybeTlsStream, error::Error};
+use crate::{Client, Connection, Event, MaybeTlsStream, delay::TokioDelay, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -452,6 +452,7 @@ impl NoSpawnConnectionBuilder {
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
             self.builder.auto_enquire_link_response,
+            TokioDelay::new(),
         );
 
         let client = Client::new(

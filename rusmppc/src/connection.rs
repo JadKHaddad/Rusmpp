@@ -5,10 +5,8 @@ use std::{
     time::Duration,
 };
 
-use crate::{Action, Event, Request, Timer, UnregisteredRequest, error::Error};
-
-use futures::Sink;
-use futures::Stream;
+use crate::{Action, Event, Request, Timer, UnregisteredRequest, delay::Delay, error::Error};
+use futures::{Sink, Stream};
 use pin_project_lite::pin_project;
 use rusmpp::{Command, CommandId, CommandStatus, Pdu, tokio_codec::CommandCodec};
 use tokio::{
@@ -38,8 +36,7 @@ enum State {
 // Actions will not be queued and the client would wait forever until the Connection is dropped.
 // We rely on this mechanism to work, to report correct and predictable errors.
 pin_project! {
-    #[derive(Debug)]
-    pub struct Connection<S> {
+    pub struct Connection<S, D: Delay> {
         state: State,
         sequence_number: u32,
         requests: VecDeque<Request>,
@@ -54,9 +51,9 @@ pin_project! {
         // Used to let the client wait for the connection to be closed
         _watch: watch::Receiver<()>,
         #[pin]
-        enquire_link_timer: Timer,
+        enquire_link_timer: Timer<D>,
         #[pin]
-        enquire_link_response_timer: Timer,
+        enquire_link_response_timer: Timer<D>,
         #[pin]
         framed: Framed<S, CommandCodec>,
         #[pin]
@@ -64,12 +61,13 @@ pin_project! {
     }
 }
 
-impl Connection<NoneStream> {
+impl<D: Delay> Connection<NoneStream, D> {
     pub fn new(
         max_command_length: usize,
         enquire_link_interval: Option<Duration>,
         enquire_link_response_timeout: Duration,
         auto_enquire_link_response: bool,
+        delay: D,
     ) -> (
         Self,
         watch::Sender<()>,
@@ -91,8 +89,10 @@ impl Connection<NoneStream> {
                 last_enquire_link_sequence_number: None,
                 enquire_link_response_timeout,
                 auto_enquire_link_response,
-                enquire_link_timer: enquire_link_interval.map(Timer::active).unwrap_or_default(),
-                enquire_link_response_timer: Timer::inactive(),
+                enquire_link_timer: enquire_link_interval
+                    .map(|duration| Timer::active(delay.clone(), duration))
+                    .unwrap_or_default(),
+                enquire_link_response_timer: Timer::inactive(delay),
                 _watch: watch_rx,
                 events: events_tx,
                 framed: Framed::new(
@@ -107,7 +107,7 @@ impl Connection<NoneStream> {
         )
     }
 
-    pub fn with_stream<S>(self, stream: S) -> Connection<S>
+    pub fn with_stream<S>(self, stream: S) -> Connection<S, D>
     where
         S: AsyncRead + AsyncWrite,
     {
@@ -131,7 +131,7 @@ impl Connection<NoneStream> {
     }
 }
 
-impl<S: AsyncRead + AsyncWrite> Connection<S> {
+impl<S: AsyncRead + AsyncWrite, D: Delay> Connection<S, D> {
     fn insert_response(
         self: Pin<&mut Self>,
         sequence_number: u32,
@@ -222,7 +222,7 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
     }
 }
 
-impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
+impl<S: AsyncRead + AsyncWrite, D: Delay> Future for Connection<S, D> {
     type Output = ();
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {

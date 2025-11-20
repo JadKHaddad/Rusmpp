@@ -8,9 +8,12 @@ use std::{
 use crate::{Action, Event, Request, Timer, UnregisteredRequest, delay::Delay, error::Error};
 use futures::{Sink, Stream};
 use pin_project_lite::pin_project;
-use rusmpp::{Command, CommandId, CommandStatus, Pdu, tokio_codec::CommandCodec};
+use rusmpp::{
+    Command, CommandId, CommandStatus, Pdu,
+    tokio_codec::{CommandCodec, DecodeError, EncodeError},
+};
 use tokio::{
-    io::{AsyncRead, AsyncWrite, ReadBuf},
+    io::{AsyncRead, AsyncWrite},
     sync::{
         mpsc::{self, UnboundedSender},
         oneshot, watch,
@@ -36,7 +39,7 @@ enum State {
 // Actions will not be queued and the client would wait forever until the Connection is dropped.
 // We rely on this mechanism to work, to report correct and predictable errors.
 pin_project! {
-    pub struct Connection<S, D: Delay> {
+    pub struct Connection<F, D: Delay> {
         state: State,
         sequence_number: u32,
         requests: VecDeque<Request>,
@@ -55,15 +58,14 @@ pin_project! {
         #[pin]
         enquire_link_response_timer: Timer<D>,
         #[pin]
-        framed: Framed<S, CommandCodec>,
+        framed: F,
         #[pin]
         actions: UnboundedReceiverStream<Action>,
     }
 }
 
-impl<D: Delay> Connection<NoneStream, D> {
+impl<D: Delay> Connection<(), D> {
     pub fn new(
-        max_command_length: usize,
         enquire_link_interval: Option<Duration>,
         enquire_link_response_timeout: Duration,
         auto_enquire_link_response: bool,
@@ -95,10 +97,7 @@ impl<D: Delay> Connection<NoneStream, D> {
                 enquire_link_response_timer: Timer::inactive(delay),
                 _watch: watch_rx,
                 events: events_tx,
-                framed: Framed::new(
-                    NoneStream,
-                    CommandCodec::new().with_max_length(max_command_length),
-                ),
+                framed: (),
                 actions: UnboundedReceiverStream::new(actions_rx),
             },
             watch_tx,
@@ -107,10 +106,21 @@ impl<D: Delay> Connection<NoneStream, D> {
         )
     }
 
-    pub fn with_stream<S>(self, stream: S) -> Connection<S, D>
+    pub fn with_stream<S>(
+        self,
+        stream: S,
+        max_command_length: usize,
+    ) -> Connection<Framed<S, CommandCodec>, D>
     where
         S: AsyncRead + AsyncWrite,
     {
+        self.with_framed(Framed::new(
+            stream,
+            CommandCodec::new().with_max_length(max_command_length),
+        ))
+    }
+
+    fn with_framed<F>(self, framed: F) -> Connection<F, D> {
         Connection {
             state: self.state,
             sequence_number: self.sequence_number,
@@ -125,13 +135,16 @@ impl<D: Delay> Connection<NoneStream, D> {
             _watch: self._watch,
             enquire_link_timer: self.enquire_link_timer,
             enquire_link_response_timer: self.enquire_link_response_timer,
-            framed: Framed::new(stream, self.framed.into_parts().codec),
+            framed,
             actions: self.actions,
         }
     }
 }
 
-impl<S: AsyncRead + AsyncWrite, D: Delay> Connection<S, D> {
+impl<F, D: Delay> Connection<F, D>
+where
+    F: Stream<Item = Result<Command, DecodeError>> + for<'a> Sink<&'a Command, Error = EncodeError>,
+{
     fn insert_response(
         self: Pin<&mut Self>,
         sequence_number: u32,
@@ -222,7 +235,10 @@ impl<S: AsyncRead + AsyncWrite, D: Delay> Connection<S, D> {
     }
 }
 
-impl<S: AsyncRead + AsyncWrite, D: Delay> Future for Connection<S, D> {
+impl<F, D: Delay> Future for Connection<F, D>
+where
+    F: Stream<Item = Result<Command, DecodeError>> + for<'a> Sink<&'a Command, Error = EncodeError>,
+{
     type Output = ();
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -365,7 +381,7 @@ impl<S: AsyncRead + AsyncWrite, D: Delay> Future for Connection<S, D> {
 
                             tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Sending command");
 
-                            match Sink::<Command>::poll_flush(self.as_mut().project().framed, cx) {
+                            match Sink::<&Command>::poll_flush(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(_)) => {
                                     tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
 
@@ -420,7 +436,7 @@ impl<S: AsyncRead + AsyncWrite, D: Delay> Future for Connection<S, D> {
 
                     match self.as_mut().requests_pop_front() {
                         Some(request) => {
-                            match Sink::<Command>::poll_ready(self.as_mut().project().framed, cx) {
+                            match Sink::<&Command>::poll_ready(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(())) => {
                                     let sequence_number = request.command().sequence_number();
                                     let status = request.command().status();
@@ -625,38 +641,5 @@ impl<S: AsyncRead + AsyncWrite, D: Delay> Future for Connection<S, D> {
                 }
             }
         }
-    }
-}
-
-pub struct NoneStream;
-
-impl AsyncRead for NoneStream {
-    fn poll_read(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-        _buf: &mut ReadBuf<'_>,
-    ) -> Poll<std::io::Result<()>> {
-        unreachable!("NoneStream must not be polled (poll_read)")
-    }
-}
-
-impl AsyncWrite for NoneStream {
-    fn poll_write(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-        _buf: &[u8],
-    ) -> Poll<Result<usize, std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_write)")
-    }
-
-    fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_flush)")
-    }
-
-    fn poll_shutdown(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-    ) -> Poll<Result<(), std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_shutdown)")
     }
 }

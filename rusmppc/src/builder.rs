@@ -448,7 +448,6 @@ impl NoSpawnConnectionBuilder {
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
         let (connection, watch, actions, events) = Connection::new(
-            self.builder.max_command_length,
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
             self.builder.auto_enquire_link_response,
@@ -465,7 +464,7 @@ impl NoSpawnConnectionBuilder {
         (client, events, async move {
             let mut stream = std::pin::pin!(stream);
 
-            let connection = connection.with_stream(&mut stream);
+            let connection = connection.with_stream(&mut stream, self.builder.max_command_length);
 
             // See comments on Connection struct to understand why we fuse the connection future.
             connection.fuse().await;

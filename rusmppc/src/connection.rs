@@ -21,6 +21,10 @@ use tokio_stream::wrappers::UnboundedReceiverStream;
 const CONN: &str = "rusmppc::connection::smpp";
 const TIMER: &str = "rusmppc::connection::smpp::timer";
 
+const ACTIONS_POLL_LIMIT: u8 = 5;
+const SINK_POLL_LIMIT: u8 = 5;
+const STREAM_POLL_LIMIT: u8 = 5;
+
 #[derive(Debug)]
 enum State {
     Active,
@@ -283,7 +287,7 @@ where
                 'actions: loop {
                     i += 1;
 
-                    if i > 5 {
+                    if i > ACTIONS_POLL_LIMIT {
                         break 'actions;
                     }
 
@@ -352,7 +356,7 @@ where
                 'sink: loop {
                     i += 1;
 
-                    if i > 5 {
+                    if i > SINK_POLL_LIMIT {
                         break 'sink;
                     }
 
@@ -510,7 +514,7 @@ where
                 'stream: loop {
                     i += 1;
 
-                    if i > 5 {
+                    if i > STREAM_POLL_LIMIT {
                         break 'stream;
                     }
 

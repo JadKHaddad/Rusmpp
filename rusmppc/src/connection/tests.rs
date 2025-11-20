@@ -278,3 +278,124 @@ async fn client_ddos_and_server_ddos_connection_should_still_respond_to_enquire_
             .unwrap()
     );
 }
+
+// RUST_LOG=rusmppc=trace cargo test --package rusmppc --lib -- connection::tests::sink_first_poll_ready_pending_pending_request_should_be_sent --exact --nocapture
+#[tokio::test]
+async fn sink_first_poll_ready_pending_pending_request_should_be_sent() {
+    init_tracing();
+
+    let mut framed = MockFramed::new()
+        .poll_next_always_pending()
+        .poll_flush_always_ready_ok()
+        .poll_close_always_ready_ok();
+
+    // first poll_ready is pending
+    framed.expect_poll_ready_pin().times(1).returning(|cx| {
+        cx.waker().wake_by_ref();
+        Poll::Pending
+    });
+
+    // second poll_ready is ready
+    framed
+        .expect_poll_ready_pin()
+        .times(1)
+        .returning(|_cx| Poll::Ready(Ok(())));
+
+    // Assert start send gets submit sm with correct sequence number
+    framed
+        .expect_start_send_pin()
+        .times(1)
+        .returning(|command| {
+            assert!(matches!(command.pdu(), Some(Pdu::SubmitSm(_))));
+            assert_eq!(command.sequence_number(), 1);
+            Ok(())
+        });
+
+    let enquire_link_timer_delay = MockDelay::new().delay_after_seconds();
+    let enquire_link_response_timer_delay = MockDelay::new().delay_after_seconds();
+
+    let (client, events, future) = ConnectionBuilder::new()
+        .no_enquire_link_interval()
+        .no_spawn()
+        .raw(
+            framed,
+            enquire_link_timer_delay,
+            enquire_link_response_timer_delay,
+        );
+
+    tokio::spawn(PollTraceFuture::new(future));
+
+    client
+        .no_wait()
+        .submit_sm(SubmitSm::default())
+        .await
+        .expect("Failed to submit SM");
+
+    client.close().await.expect("Failed to close connection");
+
+    let _ = events.count().await;
+}
+
+// RUST_LOG=rusmppc=trace cargo test --package rusmppc --lib -- connection::tests::sink_first_poll_flush_pending_pending_request_should_be_sent --exact --nocapture
+#[tokio::test]
+async fn sink_first_poll_flush_pending_pending_request_should_be_sent() {
+    init_tracing();
+
+    let submit_count = 10;
+
+    let mut framed = MockFramed::new()
+        .poll_next_always_pending()
+        .poll_ready_always_ready_ok()
+        .poll_close_always_ready_ok();
+
+    // first poll_flush is pending
+    framed.expect_poll_flush_pin().times(1).returning(|cx| {
+        cx.waker().wake_by_ref();
+        Poll::Pending
+    });
+
+    // second poll_flush is ready
+    framed
+        .expect_poll_flush_pin()
+        .returning(|_cx| Poll::Ready(Ok(())));
+
+    for n in 0..submit_count {
+        let i = 1 + n * 2;
+
+        // Assert start send gets submit sm with correct sequence number
+        framed
+            .expect_start_send_pin()
+            .times(1)
+            .returning(move |command| {
+                assert!(matches!(command.pdu(), Some(Pdu::SubmitSm(_))));
+                assert_eq!(command.sequence_number(), i);
+                Ok(())
+            });
+    }
+
+    let enquire_link_timer_delay = MockDelay::new().delay_after_seconds();
+    let enquire_link_response_timer_delay = MockDelay::new().delay_after_seconds();
+
+    let (client, events, future) = ConnectionBuilder::new()
+        .no_enquire_link_interval()
+        .no_spawn()
+        .raw(
+            framed,
+            enquire_link_timer_delay,
+            enquire_link_response_timer_delay,
+        );
+
+    tokio::spawn(PollTraceFuture::new(future));
+
+    for _ in 0..submit_count {
+        client
+            .no_wait()
+            .submit_sm(SubmitSm::default())
+            .await
+            .expect("Failed to submit SM");
+    }
+
+    client.close().await.expect("Failed to close connection");
+
+    let _ = events.count().await;
+}

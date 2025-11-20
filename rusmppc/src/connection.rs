@@ -314,7 +314,7 @@ where
                                 let _ = pending_responses.ack.send(Ok(pending));
                             }
                             Action::Request(request) => {
-                                tracing::trace!(target: CONN,
+                                tracing::debug!(target: CONN,
                                     sequence_number=request.command().sequence_number(),
                                     status=?request.command().status(),
                                     id=?request.command().id(),
@@ -324,12 +324,12 @@ where
                                 self.as_mut().requests_push_back(request);
                             }
                             Action::Remove(sequence_number) => {
-                                tracing::trace!(target: CONN, sequence_number, "Received remove response");
+                                tracing::debug!(target: CONN, sequence_number, "Received remove response");
 
                                 self.as_mut().remove_response(sequence_number);
                             }
                             Action::Close(request) => {
-                                tracing::trace!(target: CONN, "Received close");
+                                tracing::debug!(target: CONN, "Received close");
 
                                 self.as_mut().set_state(State::Closing);
 
@@ -380,7 +380,7 @@ where
                             let status = request.command().status();
                             let id = request.command().id();
 
-                            tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Sending command");
+                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sending command");
 
                             match Sink::<&Command>::poll_flush(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(_)) => {
@@ -426,6 +426,8 @@ where
                                 Poll::Pending => {
                                     self.as_mut().set_pending_request(request);
 
+                                    tracing::trace!(target: CONN, "Sink poll flush pending");
+
                                     break 'sink;
                                 }
                             }
@@ -443,7 +445,7 @@ where
                                     let status = request.command().status();
                                     let id = request.command().id();
 
-                                    tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Writing command");
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Writing command");
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())
@@ -497,6 +499,8 @@ where
                                 }
                                 Poll::Pending => {
                                     self.as_mut().requests_push_front(request);
+
+                                    tracing::trace!(target: CONN, "Sink poll ready pending");
 
                                     break 'sink;
                                 }

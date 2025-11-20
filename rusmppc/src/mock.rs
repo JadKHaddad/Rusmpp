@@ -64,6 +64,14 @@ pub mod framed {
     }
 
     impl MockFramed {
+        pub fn poll_next_always_pending(mut self) -> MockFramed {
+            self.expect_poll_next_pin().returning(|cx| {
+                cx.waker().wake_by_ref();
+                Poll::Pending
+            });
+            self
+        }
+
         pub fn poll_ready_always_ready_ok(mut self) -> MockFramed {
             self.expect_poll_ready_pin()
                 .returning(|_cx| Poll::Ready(Ok(())));

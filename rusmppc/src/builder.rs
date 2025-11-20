@@ -1,13 +1,22 @@
 use std::{net::SocketAddr, time::Duration};
 
-use futures::{FutureExt, Stream};
+use futures::{FutureExt, Sink, SinkExt, Stream};
 
+use rusmpp::{
+    Command,
+    tokio_codec::{CommandCodec, DecodeError, EncodeError},
+};
 use tokio::{
-    io::{AsyncRead, AsyncWrite, AsyncWriteExt},
+    io::{AsyncRead, AsyncWrite},
     net::TcpStream,
 };
+use tokio_util::codec::Framed;
 
-use crate::{Client, Connection, Event, MaybeTlsStream, delay::TokioDelay, error::Error};
+use crate::{
+    Client, Connection, Event, MaybeTlsStream,
+    delay::{Delay, TokioDelay},
+    error::Error,
+};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -447,11 +456,36 @@ impl NoSpawnConnectionBuilder {
     where
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
+        let framed = Framed::new(
+            stream,
+            CommandCodec::new().with_max_length(self.builder.max_command_length),
+        );
+
+        self.raw(framed, TokioDelay::new(), TokioDelay::new())
+    }
+
+    pub(crate) fn raw<F, D1, D2>(
+        self,
+        framed: F,
+        enquire_link_timer_delay: D1,
+        enquire_link_response_timer_delay: D2,
+    ) -> (
+        Client,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()>,
+    )
+    where
+        D1: Delay,
+        D2: Delay,
+        F: Stream<Item = Result<Command, DecodeError>>
+            + for<'a> Sink<&'a Command, Error = EncodeError>,
+    {
         let (connection, watch, actions, events) = Connection::new(
             self.builder.enquire_link_interval,
             self.builder.enquire_link_response_timeout,
             self.builder.auto_enquire_link_response,
-            TokioDelay::new(),
+            enquire_link_timer_delay,
+            enquire_link_response_timer_delay,
         );
 
         let client = Client::new(
@@ -462,16 +496,16 @@ impl NoSpawnConnectionBuilder {
         );
 
         (client, events, async move {
-            let mut stream = std::pin::pin!(stream);
+            let mut framed = std::pin::pin!(framed);
 
-            let connection = connection.with_stream(&mut stream, self.builder.max_command_length);
+            let connection = connection.with_framed(&mut framed);
 
             // See comments on Connection struct to understand why we fuse the connection future.
             connection.fuse().await;
 
             tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
 
-            if let Err(err) = stream.shutdown().await {
+            if let Err(err) = framed.close().await {
                 tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
             }
         })

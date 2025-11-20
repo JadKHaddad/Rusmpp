@@ -1,12 +1,12 @@
 use std::time::Duration;
 
-pub trait Delay: Default + Clone {
+pub trait Delay: Default {
     type Future: Future<Output = ()>;
 
     fn delay(&self, duration: Duration) -> Self::Future;
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 #[non_exhaustive]
 pub struct TokioDelay;
 

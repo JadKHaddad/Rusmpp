@@ -59,6 +59,7 @@ tokio-rustls = { version = "0.26.4", default-features = false, features = [
     "tls12",
 ] }
 argh = "0.1.13"
+mockall = "0.13.1"
 
 [features]
 default = [

@@ -138,4 +138,7 @@ pub(crate) use tcp_stream::MaybeTlsStream;
 #[cfg(test)]
 mod tests;
 
+#[cfg(test)]
+mod mock;
+
 mod delay;

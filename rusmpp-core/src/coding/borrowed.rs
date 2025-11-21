@@ -11,15 +11,3 @@ pub trait Encoder<T> {
     /// - `Some(Err(Self::Error))` if an encoding error occurs.
     fn encode(&self, value: T, out: &mut [u8]) -> Option<Result<usize, Self::Error>>;
 }
-
-/// Implements [`Encoder`] for any function or closure that matches the signature.
-impl<F, T, E> Encoder<T> for F
-where
-    F: Fn(T, &mut [u8]) -> Option<Result<usize, E>>,
-{
-    type Error = E;
-
-    fn encode(&self, value: T, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {
-        self(value, out)
-    }
-}

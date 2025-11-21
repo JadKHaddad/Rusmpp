@@ -1,7 +1,5 @@
 use rusmpp_macros::Rusmpp;
 
-use crate::coding::UdhType;
-
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]

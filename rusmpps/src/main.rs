@@ -8,7 +8,7 @@ use rusmpps::{
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter("rusmpps=debug")
+        .with_env_filter("rusmpps=trace")
         .init();
 
     dotenvy::dotenv().ok();

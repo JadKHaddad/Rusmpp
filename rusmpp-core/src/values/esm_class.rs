@@ -26,6 +26,15 @@ impl EsmClass {
             gsm_features,
         }
     }
+
+    pub(crate) fn with_udhi_indicator(self) -> Self {
+        Self {
+            messaging_mode: self.messaging_mode,
+            message_type: self.message_type,
+            ansi41_specific: self.ansi41_specific,
+            gsm_features: GsmFeatures::UdhiIndicator,
+        }
+    }
 }
 
 impl From<u8> for EsmClass {

@@ -1,13 +1,17 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
+    coding::{Gsm7Unpacked, UdhType, owned::Encoder},
     encode::Length,
     pdus::owned::Pdu,
     tlvs::{
         TlvTag,
         owned::{MessageSubmissionRequestTlvValue, Tlv},
     },
-    types::owned::{COctetString, EmptyOrFullCOctetString, OctetString},
+    types::{
+        OctetStringError,
+        owned::{COctetString, EmptyOrFullCOctetString, OctetString},
+    },
     values::{owned::*, *},
 };
 
@@ -202,6 +206,31 @@ impl SubmitSm {
     pub fn builder() -> SubmitSmBuilder {
         SubmitSmBuilder::new()
     }
+
+    pub fn encode(self, short_message: &str) -> SubmitSmEncoder<'_, Gsm7Unpacked> {
+        SubmitSmEncoder {
+            short_message,
+            encoder: Gsm7Unpacked::new(),
+            udh: UdhType::EightBit,
+            reference: 0,
+            sm: self,
+        }
+    }
+
+    fn with_data_coding(mut self, data_coding: DataCoding) -> Self {
+        self.data_coding = data_coding;
+        self
+    }
+
+    fn with_udhi_indicator(mut self) -> Self {
+        self.esm_class = self.esm_class.with_udhi_indicator();
+        self
+    }
+
+    fn with_short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+        self.set_short_message(short_message);
+        self
+    }
 }
 
 impl From<SubmitSm> for Pdu {
@@ -334,12 +363,92 @@ impl SubmitSmBuilder {
     }
 }
 
-struct SubmitSmEncoder<E> {
+#[derive(Debug)]
+pub struct SubmitSmEncoder<'a, E> {
+    short_message: &'a str,
     encoder: E,
-    /// Maximum character count for the short message.
-    ///
-    /// If not set, use the `max_char_count` defined by the `DataCoding`, returned by the encoder's `data_coding()` method.
-    max_char_count: Option<usize>,
+    udh: UdhType,
+    reference: u16,
+    sm: SubmitSm,
+}
+
+impl<'a, E> SubmitSmEncoder<'a, E> {
+    pub fn reference(mut self, reference: u16) -> Self {
+        self.reference = reference;
+        self
+    }
+
+    pub fn udh_type(mut self, udh: UdhType) -> Self {
+        self.udh = udh;
+        self
+    }
+
+    pub fn encoder<U>(self, encoder: U) -> SubmitSmEncoder<'a, U> {
+        SubmitSmEncoder {
+            short_message: self.short_message,
+            encoder,
+            udh: self.udh,
+            reference: self.reference,
+            sm: self.sm,
+        }
+    }
+}
+
+impl<'a, E> SubmitSmEncoder<'a, E>
+where
+    E: Encoder<&'a str>,
+{
+    // TODO: we should an iter. and then collect it
+    // maybe add iter method that returns an iterator
+    pub fn collect<B: FromIterator<Result<SubmitSm, OctetStringError>>>(
+        self,
+    ) -> Result<B, <E as Encoder<&'a str>>::Error> {
+        let encoded = self.encoder.encode(self.short_message)?;
+
+        let should_split = encoded.len() > self.encoder.max_bytes();
+
+        if should_split {
+            let parts = encoded.chunks(self.encoder.max_bytes_with_udh(&self.udh));
+
+            // XXX:  Downcast to u8 to truncate to max 255 parts which we can encode in `total_parts` as `u8`
+            let total_parts = parts.len() as u8;
+
+            return Ok(parts
+                // XXX: We take only truncated `total_parts` that we can encode in `u8`
+                .take(total_parts as usize)
+                .enumerate()
+                .map(move |(idx, chunk)| {
+                    // XXX: Do not fuck this up
+                    // part_number can not be 0
+                    let part_number = (idx + 1) as u8;
+
+                    let udh = self
+                        .udh
+                        .udh_unchecked(self.reference, total_parts, part_number);
+
+                    let mut payload =
+                        alloc::vec::Vec::with_capacity(self.udh.length() + chunk.length());
+
+                    payload.extend_from_slice(udh.bytes().as_bytes());
+                    payload.extend_from_slice(chunk);
+
+                    Ok(self
+                        .sm
+                        .clone()
+                        .with_udhi_indicator()
+                        .with_short_message(OctetString::new(&payload)?)
+                        .with_data_coding(self.encoder.data_coding()))
+                })
+                .collect::<B>());
+        }
+
+        Ok(core::iter::once(OctetString::new(&encoded).map(|oc| {
+            self.sm
+                .with_data_coding(self.encoder.data_coding())
+                .with_short_message(oc)
+        }))
+        .collect::<B>())
+    }
 }
 
 #[cfg(test)]

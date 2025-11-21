@@ -156,12 +156,12 @@ enum Lookup {
 /// GSM 7-bit encoding and decoding.
 #[non_exhaustive]
 #[derive(Debug, Clone, Default)]
-pub struct GSM7Unpacked;
+pub struct Gsm7Unpacked;
 
-impl GSM7Unpacked {
-    /// Creates a new [`GSM`] encoder/decoder.
+impl Gsm7Unpacked {
+    /// Creates a new [`Gsm7Unpacked`] encoder/decoder.
     pub const fn new() -> Self {
-        GSM7Unpacked
+        Gsm7Unpacked
     }
 
     /// Looks up the GSM 7-bit value for the given character.
@@ -188,6 +188,7 @@ impl GSM7Unpacked {
     /// - `Ok(Vec<u8>)` with the encoded bytes.
     ///
     /// See also [`encode_into`](GSM::encode_into).
+    #[allow(clippy::result_unit_err)]
     #[cfg(any(test, feature = "alloc"))]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
     pub fn encode_to_vec(&self, input: &str) -> Result<alloc::vec::Vec<u8>, ()> {
@@ -250,7 +251,7 @@ impl GSM7Unpacked {
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl super::owned::Encoder<&str> for GSM7Unpacked {
+impl super::owned::Encoder<&str> for Gsm7Unpacked {
     type Error = ();
 
     fn encode(&self, value: &str) -> Result<alloc::vec::Vec<u8>, Self::Error> {
@@ -261,31 +262,21 @@ impl super::owned::Encoder<&str> for GSM7Unpacked {
         crate::values::DataCoding::McSpecific
     }
 
-    fn max_chars(&self) -> Option<usize> {
-        Some(160)
+    fn max_bytes(&self) -> usize {
+        160
     }
 
-    /// Max characters for UDH, based on encoding.
-    ///
-    /// # Returns
-    ///
-    /// - `Some(usize)` if the encoding has a known max character count with UDH.
-    /// - `None` if the encoding does not have a known max character count with UDH.
-    /// - `Some(0)` if the UDH length `+1` exceeds the maximum allowed bytes for [`DataCoding::McSpecific`](crate::values::DataCoding::McSpecific) = `160`.
-    fn max_chars_with_udh(&self, udh: super::UdhType) -> Option<usize> {
+    fn max_bytes_with_udh(&self, udh: &super::UdhType) -> usize {
+        // XXX: if `udh.length()` got too large we underflow
         // We reserve 1 byte to avoid an escape character being split between payloads
-        if udh.length() + 1 >= 160 {
-            return Some(0);
-        }
 
         // for 8-bit UDH (length=6) => 153
         // for 16-bit UDH (length=7) => 152
-        // for user-defined UDH (length=n) => 160 - n - 1
-        Some(160 - udh.length() - 1)
+        160 - udh.length() - 1
     }
 }
 
-impl super::borrowed::Encoder<&str> for GSM7Unpacked {
+impl super::borrowed::Encoder<&str> for Gsm7Unpacked {
     type Error = ();
 
     fn encode(&self, value: &str, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {

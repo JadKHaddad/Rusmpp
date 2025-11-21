@@ -5,65 +5,72 @@ pub enum UdhType {
     EightBit,
     /// 16-bit reference number UDH
     SixteenBit,
-    /// Other UDH with specified length
-    Other(usize),
 }
 
 impl UdhType {
     /// Returns the length of the UDH type in bytes.
-    pub const fn length(&self) -> usize {
+    // XXX: Encoders rely on this value to be correct. Using bad (very large) values will cause underflow.
+    pub(crate) const fn length(&self) -> usize {
         match self {
             UdhType::EightBit => EightBitUdh::length(),
             UdhType::SixteenBit => SixteenBitUdh::length(),
-            UdhType::Other(len) => *len,
+        }
+    }
+
+    pub(crate) const fn udh_unchecked(
+        &self,
+        reference: u16,
+        total_parts: u8,
+        part_number: u8,
+    ) -> Udh {
+        match self {
+            UdhType::EightBit => {
+                let reference_8bit = (reference & 0xFF) as u8;
+                Udh::EightBit(EightBitUdh::new_unchecked(
+                    reference_8bit,
+                    total_parts,
+                    part_number,
+                ))
+            }
+            UdhType::SixteenBit => Udh::SixteenBit(SixteenBitUdh::new_unchecked(
+                reference,
+                total_parts,
+                part_number,
+            )),
         }
     }
 }
 
 /// User Data Header (UDH)
 #[derive(Debug)]
-pub enum Udh<'a> {
+pub enum Udh {
     /// 8-bit reference number UDH
     EightBit(EightBitUdh),
     /// 16-bit reference number UDH
     SixteenBit(SixteenBitUdh),
-    /// Other UDH represented as raw bytes
-    Other(&'a [u8]),
 }
 
-impl Udh<'_> {
-    /// Length of the UDH in bytes.
-    pub(crate) const fn length(&self) -> usize {
-        match self {
-            Udh::EightBit(_) => EightBitUdh::length(),
-            Udh::SixteenBit(_) => SixteenBitUdh::length(),
-            Udh::Other(bytes) => bytes.len(),
-        }
-    }
-
+impl Udh {
     /// Converts the UDH to its byte representation.
-    pub(crate) const fn bytes(&self) -> UdhBytes<'_> {
+    pub(crate) const fn bytes(&self) -> UdhBytes {
         match self {
             Udh::EightBit(udh) => UdhBytes::EightBit(udh.bytes()),
             Udh::SixteenBit(udh) => UdhBytes::SixteenBit(udh.bytes()),
-            Udh::Other(bytes) => UdhBytes::Other(bytes),
         }
     }
 }
 
-pub enum UdhBytes<'a> {
+pub enum UdhBytes {
     EightBit([u8; 6]),
     SixteenBit([u8; 7]),
-    Other(&'a [u8]),
 }
 
-impl<'a> UdhBytes<'a> {
+impl UdhBytes {
     /// Returns the byte slice representation of the UDH.
-    pub(crate) const fn as_bytes(&'a self) -> &'a [u8] {
+    pub(crate) const fn as_bytes(&self) -> &[u8] {
         match self {
             UdhBytes::EightBit(bytes) => bytes,
             UdhBytes::SixteenBit(bytes) => bytes,
-            UdhBytes::Other(bytes) => bytes,
         }
     }
 }
@@ -95,25 +102,30 @@ impl EightBitUdh {
     ///
     /// - `Some(EightBitUdh)` if the parameters are valid.
     /// - `None` if the parameters are invalid (e.g., part_number is 0 or greater than total_parts).
-    pub const fn new(reference: u8, total_parts: u8, part_number: u8) -> Option<Self> {
+    #[allow(dead_code)] // allowed dead_code to keep the invariants documented
+    const fn new(reference: u8, total_parts: u8, part_number: u8) -> Option<Self> {
         if part_number == 0 || part_number > total_parts || total_parts == 0 {
             return None;
         }
 
-        Some(Self {
+        Some(Self::new_unchecked(reference, total_parts, part_number))
+    }
+
+    const fn new_unchecked(reference: u8, total_parts: u8, part_number: u8) -> Self {
+        Self {
             reference,
             total_parts,
             part_number,
-        })
+        }
     }
 
     /// Length of the UDH in bytes.
-    pub(crate) const fn length() -> usize {
+    const fn length() -> usize {
         6
     }
 
     /// Converts the UDH to its byte representation.
-    pub(crate) const fn bytes(&self) -> [u8; 6] {
+    const fn bytes(&self) -> [u8; 6] {
         [
             0x05, // UDH length (following bytes = 5)
             0x00, // IEI = 8-bit ref number
@@ -153,24 +165,29 @@ impl SixteenBitUdh {
     ///
     /// - `Some(SixteenBitUdh)` if the parameters are valid.
     /// - `None` if the parameters are invalid (e.g., part_number is 0 or greater than total_parts).
-    pub const fn new(reference: u16, total_parts: u8, part_number: u8) -> Option<Self> {
+    #[allow(dead_code)] // allowed dead_code to keep the invariants documented
+    fn new(reference: u16, total_parts: u8, part_number: u8) -> Option<Self> {
         if part_number == 0 || part_number > total_parts || total_parts == 0 {
             return None;
         }
 
-        Some(Self {
+        Some(Self::new_unchecked(reference, total_parts, part_number))
+    }
+
+    const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
+        Self {
             reference,
             total_parts,
             part_number,
-        })
+        }
     }
 
     /// Length of the UDH in bytes.
-    pub(crate) const fn length() -> usize {
+    const fn length() -> usize {
         7
     }
 
-    pub(crate) const fn bytes(&self) -> [u8; 7] {
+    const fn bytes(&self) -> [u8; 7] {
         [
             0x06,                          // UDH length (following bytes = 6)
             0x08,                          // IEI = 16-bit ref number

@@ -1,3 +1,6 @@
+#[cfg(any(test, feature = "alloc"))]
+use crate::values::DataCoding;
+
 static TABLE_EXTENDED: phf::Map<char, u8> = phf::phf_map! {
     '^' => 0x14,
     '{' => 0x28,
@@ -250,15 +253,19 @@ impl GSM {
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl super::owned::Encode<&str> for GSM {
+impl super::owned::Encoder<&str> for GSM {
     type Error = ();
 
     fn encode(&self, value: &str) -> Result<alloc::vec::Vec<u8>, Self::Error> {
         self.encode_to_vec(value).ok_or(())
     }
+
+    fn data_coding(&self) -> DataCoding {
+        DataCoding::McSpecific
+    }
 }
 
-impl super::borrowed::Encode<&str> for GSM {
+impl super::borrowed::Encoder<&str> for GSM {
     type Error = ();
 
     fn encode(&self, value: &str, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {

@@ -1,11 +1,14 @@
 use rusmpp_macros::Rusmpp;
 
+use crate::coding::Udh;
+
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
 #[cfg_attr(feature = "arbitrary", derive(::arbitrary::Arbitrary))]
 #[cfg_attr(feature = "serde", derive(::serde::Serialize))]
 #[cfg_attr(feature = "serde-deserialize-unchecked", derive(::serde::Deserialize))]
 pub enum DataCoding {
+    /// GSM 7-bit default alphabet
     #[default]
     McSpecific = 0b00000000,
     Ia5 = 0b00000001,
@@ -27,16 +30,41 @@ pub enum DataCoding {
 }
 
 impl DataCoding {
-    pub(crate) const fn split_length(self) -> Option<usize> {
+    /// Max characters for no UDH, based on encoding.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(usize)` if the encoding has a known max character count.
+    /// - `None` if the encoding does not have a known max character count.
+    pub(crate) const fn max_chars(self) -> Option<usize> {
         match self {
             DataCoding::McSpecific => Some(160),
+            DataCoding::Ucs2 => Some(70),
             _ => None,
         }
     }
 
-    pub(crate) const fn part_size(self) -> Option<usize> {
+    /// Max characters for UDH, based on encoding.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(usize)` if the encoding has a known max character count with UDH.
+    /// - `None` if the encoding does not have a known max character count with UDH.
+    /// - `None` if the UDH length exceeds the maximum allowed bytes `140`.
+    pub(crate) const fn max_chars_with_udh(self, udh: Udh) -> Option<usize> {
+        const TP_UD_MAX_BYTES: usize = 140;
+
+        let udh_len = udh.length();
+
+        if udh_len >= TP_UD_MAX_BYTES {
+            return Some(0);
+        }
+
+        let payload_bytes = TP_UD_MAX_BYTES - udh_len;
+
         match self {
-            DataCoding::McSpecific => Some(153),
+            DataCoding::McSpecific => Some((payload_bytes * 8) / 7),
+            DataCoding::Ucs2 => Some(payload_bytes / 2),
             _ => None,
         }
     }

@@ -334,6 +334,14 @@ impl SubmitSmBuilder {
     }
 }
 
+struct SubmitSmEncoder<E> {
+    encoder: E,
+    /// Maximum character count for the short message.
+    ///
+    /// If not set, use the `max_char_count` defined by the `DataCoding`, returned by the encoder's `data_coding()` method.
+    max_char_count: Option<usize>,
+}
+
 #[cfg(test)]
 mod tests {
     use std::str::FromStr;

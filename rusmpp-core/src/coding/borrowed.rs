@@ -1,4 +1,4 @@
-pub trait Encode<T> {
+pub trait Encoder<T> {
     /// The associated error type for encoding operations.
     type Error;
 
@@ -12,8 +12,8 @@ pub trait Encode<T> {
     fn encode(&self, value: T, out: &mut [u8]) -> Option<Result<usize, Self::Error>>;
 }
 
-/// Implements [`Encode`] for any function or closure that matches the signature.
-impl<F, T, E> Encode<T> for F
+/// Implements [`Encoder`] for any function or closure that matches the signature.
+impl<F, T, E> Encoder<T> for F
 where
     F: Fn(T, &mut [u8]) -> Option<Result<usize, E>>,
 {

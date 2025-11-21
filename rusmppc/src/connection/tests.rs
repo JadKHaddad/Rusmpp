@@ -1,3 +1,11 @@
+//! Tests in this module test the [`Connection`](crate::Connection)'s functionality based on its internal API.
+//!
+//! They test some unrealistic scenarios by mocking the underlying framed transport and timers.
+//!
+//! Bugs found in the [`Connection`](crate::Connection)'s logic should be reproduced here.
+//!
+//! For tests that simulate real scenarios using the public API, see `tests.rs`.
+
 use std::{
     pin::Pin,
     sync::{

@@ -5,8 +5,11 @@ use std::{
     time::Duration,
 };
 
-use crate::{Action, Event, Request, Timer, UnregisteredRequest, delay::Delay, error::Error};
-use futures::{Sink, Stream};
+use crate::{
+    Action, Client, Event, Request, Timer, UnregisteredRequest, builder::NoSpawnConnectionBuilder,
+    delay::Delay, error::Error,
+};
+use futures::{FutureExt, Sink, SinkExt, Stream};
 use pin_project_lite::pin_project;
 use rusmpp::{
     Command, CommandId, CommandStatus, Pdu,
@@ -656,6 +659,56 @@ where
                 }
             }
         }
+    }
+}
+
+impl NoSpawnConnectionBuilder {
+    /// Consumes the builder and creates a new [`Client`] along with the connection future and event stream (from raw parts).
+    pub(crate) fn raw<F, D1, D2>(
+        self,
+        framed: F,
+        enquire_link_timer_delay: D1,
+        enquire_link_response_timer_delay: D2,
+    ) -> (
+        Client,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()>,
+    )
+    where
+        D1: Delay,
+        D2: Delay,
+        F: Stream<Item = Result<Command, DecodeError>>
+            + for<'a> Sink<&'a Command, Error = EncodeError>,
+    {
+        let (connection, watch, actions, events) = Connection::new(
+            self.builder.enquire_link_interval,
+            self.builder.enquire_link_response_timeout,
+            self.builder.auto_enquire_link_response,
+            enquire_link_timer_delay,
+            enquire_link_response_timer_delay,
+        );
+
+        let client = Client::new(
+            actions,
+            self.builder.response_timeout,
+            self.builder.check_interface_version,
+            watch,
+        );
+
+        (client, events, async move {
+            let mut framed = std::pin::pin!(framed);
+
+            let connection = connection.with_framed(&mut framed);
+
+            // See comments on Connection struct to understand why we fuse the connection future.
+            connection.fuse().await;
+
+            tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
+
+            if let Err(err) = framed.close().await {
+                tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
+            }
+        })
     }
 }
 

@@ -104,7 +104,6 @@ mod action;
 pub(crate) use action::Action;
 
 mod connection;
-pub(crate) use connection::Connection;
 
 mod builder;
 pub use builder::ConnectionBuilder;
@@ -135,10 +134,10 @@ pub(crate) use response::PendingResponses;
 mod tcp_stream;
 pub(crate) use tcp_stream::MaybeTlsStream;
 
+mod delay;
+
 #[cfg(test)]
 mod tests;
 
 #[cfg(test)]
 mod mock;
-
-mod delay;

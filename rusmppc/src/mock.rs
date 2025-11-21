@@ -1,3 +1,5 @@
+//! Mocks for Stream/Sink and Delay used in tests.
+
 use std::{
     pin::Pin,
     task::{Context, Poll},
@@ -10,6 +12,7 @@ pub mod framed {
 
     use super::*;
 
+    /// Stream and Sink mock for [`Command`] framers.
     #[mockall::automock]
     pub trait Framed {
         fn poll_next_pin<'a>(
@@ -131,6 +134,9 @@ pub mod framed {
 pub mod delay {
     use super::*;
 
+    /// Delay mock for timers.
+    ///
+    /// This mock translates each second in the requested duration to one poll before completion.
     #[mockall::automock]
     pub trait Delay {
         fn delay_(&self, duration: Duration) -> MockDelayFuture;
@@ -153,6 +159,9 @@ pub mod delay {
         }
     }
 
+    /// Future returned by the [`MockDelay`].
+    ///
+    /// Each poll corresponds to one second in the requested duration.
     pub struct MockDelayFuture {
         complete: bool,
         /// Number of polls before completion.

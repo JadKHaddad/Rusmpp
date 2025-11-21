@@ -1,6 +1,6 @@
 use rusmpp_macros::Rusmpp;
 
-use crate::coding::Udh;
+use crate::coding::UdhType;
 
 #[repr(u8)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Rusmpp)]
@@ -51,7 +51,7 @@ impl DataCoding {
     /// - `Some(usize)` if the encoding has a known max character count with UDH.
     /// - `None` if the encoding does not have a known max character count with UDH.
     /// - `None` if the UDH length exceeds the maximum allowed bytes `140`.
-    pub(crate) const fn max_chars_with_udh(self, udh: Udh) -> Option<usize> {
+    pub(crate) const fn max_chars_with_udh(self, udh: UdhType) -> Option<usize> {
         const TP_UD_MAX_BYTES: usize = 140;
 
         let udh_len = udh.length();

@@ -1,7 +1,7 @@
 mod gsm;
 mod udh;
 
-pub use udh::Udh;
+pub use udh::{Udh, UdhType};
 
 pub mod borrowed;
 #[cfg(any(test, feature = "alloc"))]

@@ -1,3 +1,25 @@
+/// UDH Type
+#[derive(Debug)]
+pub enum UdhType {
+    /// 8-bit reference number UDH
+    EightBit,
+    /// 16-bit reference number UDH
+    SixteenBit,
+    /// Other UDH with specified length
+    Other(usize),
+}
+
+impl UdhType {
+    /// Returns the length of the UDH type in bytes.
+    pub const fn length(&self) -> usize {
+        match self {
+            UdhType::EightBit => EightBitUdh::length(),
+            UdhType::SixteenBit => SixteenBitUdh::length(),
+            UdhType::Other(len) => *len,
+        }
+    }
+}
+
 /// User Data Header (UDH)
 #[derive(Debug)]
 pub enum Udh<'a> {
@@ -13,8 +35,8 @@ impl Udh<'_> {
     /// Length of the UDH in bytes.
     pub(crate) const fn length(&self) -> usize {
         match self {
-            Udh::EightBit(udh) => udh.length(),
-            Udh::SixteenBit(udh) => udh.length(),
+            Udh::EightBit(_) => EightBitUdh::length(),
+            Udh::SixteenBit(_) => SixteenBitUdh::length(),
             Udh::Other(bytes) => bytes.len(),
         }
     }
@@ -86,7 +108,7 @@ impl EightBitUdh {
     }
 
     /// Length of the UDH in bytes.
-    pub(crate) const fn length(&self) -> usize {
+    pub(crate) const fn length() -> usize {
         6
     }
 
@@ -144,7 +166,7 @@ impl SixteenBitUdh {
     }
 
     /// Length of the UDH in bytes.
-    pub(crate) const fn length(&self) -> usize {
+    pub(crate) const fn length() -> usize {
         7
     }
 

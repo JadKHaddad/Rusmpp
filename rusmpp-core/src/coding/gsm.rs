@@ -1,6 +1,3 @@
-#[cfg(any(test, feature = "alloc"))]
-use crate::values::DataCoding;
-
 static TABLE_EXTENDED: phf::Map<char, u8> = phf::phf_map! {
     '^' => 0x14,
     '{' => 0x28,
@@ -159,12 +156,12 @@ enum Lookup {
 /// GSM 7-bit encoding and decoding.
 #[non_exhaustive]
 #[derive(Debug, Clone, Default)]
-pub struct GSM;
+pub struct GSM7Unpacked;
 
-impl GSM {
+impl GSM7Unpacked {
     /// Creates a new [`GSM`] encoder/decoder.
     pub const fn new() -> Self {
-        GSM
+        GSM7Unpacked
     }
 
     /// Looks up the GSM 7-bit value for the given character.
@@ -187,13 +184,13 @@ impl GSM {
     ///
     /// # Returns
     ///
-    /// - `None` if the input string contains characters that cannot be encoded in GSM 7-bit.
-    /// - `Some(Vec<u8>)` with the encoded bytes.
+    /// - `Err(())` if the input string contains characters that cannot be encoded in GSM 7-bit.
+    /// - `Ok(Vec<u8>)` with the encoded bytes.
     ///
     /// See also [`encode_into`](GSM::encode_into).
     #[cfg(any(test, feature = "alloc"))]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    pub fn encode_to_vec(&self, input: &str) -> Option<alloc::vec::Vec<u8>> {
+    pub fn encode_to_vec(&self, input: &str) -> Result<alloc::vec::Vec<u8>, ()> {
         // We double the amount of `bytes` we have in the worst case.
         // If the amount of `bytes` is equals to the amount of `chars` (str = `[[[`, chars = [`[`, `[`, `[`] bytes = `[[[`) => we have 6 bytes of space, which is enough for standard/extended chars.
         // If the amount of `bytes` is more than the amount of `chars` (str = `Ä`, , chars = [`Ä`], bytes = [195, 132]) => we have 4 bytes of space, which is enough for standard/extended chars.
@@ -203,11 +200,11 @@ impl GSM {
             None => {
                 unreachable!("Capacity should be sufficient");
             }
-            Some(None) => None,
-            Some(Some(written)) => {
+            Some(Err(())) => Err(()),
+            Some(Ok(written)) => {
                 buf.truncate(written);
 
-                Some(buf)
+                Ok(buf)
             }
         }
     }
@@ -217,14 +214,14 @@ impl GSM {
     /// # Returns
     ///
     /// - `None` if the output buffer is not large enough.  
-    /// - `Some(None)` if the input string contains characters that cannot be encoded in GSM 7-bit.
-    /// - `Some(Some(usize))` with the number of bytes written to the output buffer.
-    fn encode_into(&self, input: &str, out: &mut [u8]) -> Option<Option<usize>> {
+    /// - `Some(Err(()))` if the input string contains characters that cannot be encoded in GSM 7-bit.
+    /// - `Some(Ok(usize))` with the number of bytes written to the output buffer.
+    fn encode_into(&self, input: &str, out: &mut [u8]) -> Option<Result<usize, ()>> {
         let mut idx = 0;
 
         for ch in input.chars() {
             match Self::lookup(ch) {
-                None => return Some(None),
+                None => return Some(Err(())),
                 Some(Lookup::Standard(val)) => {
                     if idx >= out.len() {
                         return None;
@@ -247,32 +244,51 @@ impl GSM {
             }
         }
 
-        Some(Some(idx))
+        Some(Ok(idx))
     }
 }
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl super::owned::Encoder<&str> for GSM {
+impl super::owned::Encoder<&str> for GSM7Unpacked {
     type Error = ();
 
     fn encode(&self, value: &str) -> Result<alloc::vec::Vec<u8>, Self::Error> {
-        self.encode_to_vec(value).ok_or(())
+        self.encode_to_vec(value)
     }
 
-    fn data_coding(&self) -> DataCoding {
-        DataCoding::McSpecific
+    fn data_coding(&self) -> crate::values::DataCoding {
+        crate::values::DataCoding::McSpecific
+    }
+
+    fn max_chars(&self) -> Option<usize> {
+        Some(160)
+    }
+
+    /// Max characters for UDH, based on encoding.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(usize)` if the encoding has a known max character count with UDH.
+    /// - `None` if the encoding does not have a known max character count with UDH.
+    /// - `Some(0)` if the UDH length `+1` exceeds the maximum allowed bytes for [`DataCoding::McSpecific`](crate::values::DataCoding::McSpecific) = `160`.
+    fn max_chars_with_udh(&self, udh: super::UdhType) -> Option<usize> {
+        // We reserve 1 byte to avoid an escape character being split between payloads
+        if udh.length() + 1 >= 160 {
+            return Some(0);
+        }
+
+        // for 8-bit UDH (length=6) => 153
+        // for 16-bit UDH (length=7) => 152
+        // for user-defined UDH (length=n) => 160 - n - 1
+        Some(160 - udh.length() - 1)
     }
 }
 
-impl super::borrowed::Encoder<&str> for GSM {
+impl super::borrowed::Encoder<&str> for GSM7Unpacked {
     type Error = ();
 
     fn encode(&self, value: &str, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {
-        match self.encode_into(value, out) {
-            None => None,
-            Some(None) => Some(Err(())),
-            Some(Some(written)) => Some(Ok(written)),
-        }
+        self.encode_into(value, out)
     }
 }

@@ -1,4 +1,4 @@
-use crate::values::DataCoding;
+use crate::{coding::UdhType, values::DataCoding};
 
 pub trait Encoder<T> {
     /// The associated error type for encoding operations.
@@ -14,6 +14,29 @@ pub trait Encoder<T> {
 
     /// The corresponding data coding for the encoded value.
     fn data_coding(&self) -> DataCoding;
+
+    /// Max characters for no UDH, based on encoding.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(usize)` if the encoding has a known max character count.
+    /// - `None` if the encoding does not have a known max character count.
+    fn max_chars(&self) -> Option<usize>;
+
+    /// Max characters for UDH, based on encoding.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(usize)` if the encoding has a known max character count with UDH.
+    /// - `None` if the encoding does not have a known max character count with UDH.
+    /// - `Some(0)` if the UDH length exceeds the maximum allowed bytes `140`.
+    fn max_chars_with_udh(&self, udh: UdhType) -> Option<usize> {
+        if udh.length() >= 140 {
+            return Some(0);
+        }
+
+        Some(140 - udh.length())
+    }
 }
 
 /// Implements [`Encoder`] for any function or closure that matches the signature.
@@ -29,5 +52,9 @@ where
 
     fn data_coding(&self) -> DataCoding {
         DataCoding::default()
+    }
+
+    fn max_chars(&self) -> Option<usize> {
+        None
     }
 }

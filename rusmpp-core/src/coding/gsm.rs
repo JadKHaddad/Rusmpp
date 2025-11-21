@@ -190,7 +190,7 @@ impl GSM {
     /// See also [`encode_into`](GSM::encode_into).
     #[cfg(any(test, feature = "alloc"))]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    pub fn encode(&self, input: &str) -> Option<alloc::vec::Vec<u8>> {
+    pub fn encode_to_vec(&self, input: &str) -> Option<alloc::vec::Vec<u8>> {
         // We double the amount of `bytes` we have in the worst case.
         // If the amount of `bytes` is equals to the amount of `chars` (str = `[[[`, chars = [`[`, `[`, `[`] bytes = `[[[`) => we have 6 bytes of space, which is enough for standard/extended chars.
         // If the amount of `bytes` is more than the amount of `chars` (str = `Ä`, , chars = [`Ä`], bytes = [195, 132]) => we have 4 bytes of space, which is enough for standard/extended chars.
@@ -245,5 +245,27 @@ impl GSM {
         }
 
         Some(Some(idx))
+    }
+}
+
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+impl super::owned::Encode<&str> for GSM {
+    type Error = ();
+
+    fn encode(&self, value: &str) -> Result<alloc::vec::Vec<u8>, Self::Error> {
+        self.encode_to_vec(value).ok_or(())
+    }
+}
+
+impl super::borrowed::Encode<&str> for GSM {
+    type Error = ();
+
+    fn encode(&self, value: &str, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {
+        match self.encode_into(value, out) {
+            None => None,
+            Some(None) => Some(Err(())),
+            Some(Some(written)) => Some(Ok(written)),
+        }
     }
 }

@@ -53,6 +53,7 @@
         "macrotest",
         "manylinux",
         "maturin",
+        "mockall",
         "monomorphization",
         "MSRV",
         "musleabihf",

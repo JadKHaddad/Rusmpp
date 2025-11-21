@@ -1,13 +1,14 @@
 use std::{net::SocketAddr, time::Duration};
 
-use futures::{FutureExt, Stream};
-
+use futures::Stream;
+use rusmpp::tokio_codec::CommandCodec;
 use tokio::{
-    io::{AsyncRead, AsyncWrite, AsyncWriteExt},
+    io::{AsyncRead, AsyncWrite},
     net::TcpStream,
 };
+use tokio_util::codec::Framed;
 
-use crate::{Client, Connection, Event, MaybeTlsStream, error::Error};
+use crate::{Client, Event, MaybeTlsStream, delay::TokioDelay, error::Error};
 
 /// Builder for creating a new `SMPP` connection.
 #[derive(Debug)]
@@ -299,7 +300,7 @@ impl ConnectionBuilder {
 /// Builder for creating a new `SMPP` connection without spawning it in the background.
 #[derive(Debug)]
 pub struct NoSpawnConnectionBuilder {
-    builder: ConnectionBuilder,
+    pub(crate) builder: ConnectionBuilder,
 }
 
 impl NoSpawnConnectionBuilder {
@@ -447,33 +448,11 @@ impl NoSpawnConnectionBuilder {
     where
         S: AsyncRead + AsyncWrite + Send + 'static,
     {
-        let (connection, watch, actions, events) = Connection::new(
-            self.builder.max_command_length,
-            self.builder.enquire_link_interval,
-            self.builder.enquire_link_response_timeout,
-            self.builder.auto_enquire_link_response,
+        let framed = Framed::new(
+            stream,
+            CommandCodec::new().with_max_length(self.builder.max_command_length),
         );
 
-        let client = Client::new(
-            actions,
-            self.builder.response_timeout,
-            self.builder.check_interface_version,
-            watch,
-        );
-
-        (client, events, async move {
-            let mut stream = std::pin::pin!(stream);
-
-            let connection = connection.with_stream(&mut stream);
-
-            // See comments on Connection struct to understand why we fuse the connection future.
-            connection.fuse().await;
-
-            tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
-
-            if let Err(err) = stream.shutdown().await {
-                tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
-            }
-        })
+        self.raw(framed, TokioDelay::new(), TokioDelay::new())
     }
 }

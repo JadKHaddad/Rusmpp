@@ -5,24 +5,28 @@ use std::{
     time::Duration,
 };
 
-use crate::{Action, Event, Request, Timer, UnregisteredRequest, error::Error};
-
-use futures::Sink;
-use futures::Stream;
+use crate::{
+    Action, Client, Event, Request, Timer, UnregisteredRequest, builder::NoSpawnConnectionBuilder,
+    delay::Delay, error::Error,
+};
+use futures::{FutureExt, Sink, SinkExt, Stream};
 use pin_project_lite::pin_project;
-use rusmpp::{Command, CommandId, CommandStatus, Pdu, tokio_codec::CommandCodec};
-use tokio::{
-    io::{AsyncRead, AsyncWrite, ReadBuf},
-    sync::{
-        mpsc::{self, UnboundedSender},
-        oneshot, watch,
-    },
+use rusmpp::{
+    Command, CommandId, CommandStatus, Pdu,
+    tokio_codec::{DecodeError, EncodeError},
+};
+use tokio::sync::{
+    mpsc::{self, UnboundedSender},
+    oneshot, watch,
 };
 use tokio_stream::wrappers::UnboundedReceiverStream;
-use tokio_util::codec::Framed;
 
 const CONN: &str = "rusmppc::connection::smpp";
 const TIMER: &str = "rusmppc::connection::smpp::timer";
+
+const ACTIONS_POLL_LIMIT: u8 = 5;
+const SINK_POLL_LIMIT: u8 = 5;
+const STREAM_POLL_LIMIT: u8 = 5;
 
 #[derive(Debug)]
 enum State {
@@ -38,8 +42,7 @@ enum State {
 // Actions will not be queued and the client would wait forever until the Connection is dropped.
 // We rely on this mechanism to work, to report correct and predictable errors.
 pin_project! {
-    #[derive(Debug)]
-    pub struct Connection<S> {
+    pub struct Connection<F, D1: Delay, D2: Delay> {
         state: State,
         sequence_number: u32,
         requests: VecDeque<Request>,
@@ -54,22 +57,23 @@ pin_project! {
         // Used to let the client wait for the connection to be closed
         _watch: watch::Receiver<()>,
         #[pin]
-        enquire_link_timer: Timer,
+        enquire_link_timer: Timer<D1>,
         #[pin]
-        enquire_link_response_timer: Timer,
+        enquire_link_response_timer: Timer<D2>,
         #[pin]
-        framed: Framed<S, CommandCodec>,
+        framed: F,
         #[pin]
         actions: UnboundedReceiverStream<Action>,
     }
 }
 
-impl Connection<NoneStream> {
+impl<D1: Delay, D2: Delay> Connection<(), D1, D2> {
     pub fn new(
-        max_command_length: usize,
         enquire_link_interval: Option<Duration>,
         enquire_link_response_timeout: Duration,
         auto_enquire_link_response: bool,
+        enquire_link_timer_delay: D1,
+        enquire_link_response_timer_delay: D2,
     ) -> (
         Self,
         watch::Sender<()>,
@@ -91,14 +95,13 @@ impl Connection<NoneStream> {
                 last_enquire_link_sequence_number: None,
                 enquire_link_response_timeout,
                 auto_enquire_link_response,
-                enquire_link_timer: enquire_link_interval.map(Timer::active).unwrap_or_default(),
-                enquire_link_response_timer: Timer::inactive(),
+                enquire_link_timer: enquire_link_interval
+                    .map(|duration| Timer::active(enquire_link_timer_delay, duration))
+                    .unwrap_or_default(),
+                enquire_link_response_timer: Timer::inactive(enquire_link_response_timer_delay),
                 _watch: watch_rx,
                 events: events_tx,
-                framed: Framed::new(
-                    NoneStream,
-                    CommandCodec::new().with_max_length(max_command_length),
-                ),
+                framed: (),
                 actions: UnboundedReceiverStream::new(actions_rx),
             },
             watch_tx,
@@ -107,10 +110,7 @@ impl Connection<NoneStream> {
         )
     }
 
-    pub fn with_stream<S>(self, stream: S) -> Connection<S>
-    where
-        S: AsyncRead + AsyncWrite,
-    {
+    pub fn with_framed<F>(self, framed: F) -> Connection<F, D1, D2> {
         Connection {
             state: self.state,
             sequence_number: self.sequence_number,
@@ -125,13 +125,16 @@ impl Connection<NoneStream> {
             _watch: self._watch,
             enquire_link_timer: self.enquire_link_timer,
             enquire_link_response_timer: self.enquire_link_response_timer,
-            framed: Framed::new(stream, self.framed.into_parts().codec),
+            framed,
             actions: self.actions,
         }
     }
 }
 
-impl<S: AsyncRead + AsyncWrite> Connection<S> {
+impl<F, D1: Delay, D2: Delay> Connection<F, D1, D2>
+where
+    F: Stream<Item = Result<Command, DecodeError>> + for<'a> Sink<&'a Command, Error = EncodeError>,
+{
     fn insert_response(
         self: Pin<&mut Self>,
         sequence_number: u32,
@@ -222,7 +225,10 @@ impl<S: AsyncRead + AsyncWrite> Connection<S> {
     }
 }
 
-impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
+impl<F, D1: Delay, D2: Delay> Future for Connection<F, D1, D2>
+where
+    F: Stream<Item = Result<Command, DecodeError>> + for<'a> Sink<&'a Command, Error = EncodeError>,
+{
     type Output = ();
 
     fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
@@ -230,7 +236,11 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
             return Poll::Ready(());
         }
 
+        let mut stream_polls: u8 = 0;
+
         'main: loop {
+            tracing::trace!(target: CONN, "Entering main poll loop");
+
             if matches!(self.state, State::Active) {
                 match self.as_mut().project().enquire_link_response_timer.poll(cx) {
                     Poll::Ready(()) => {
@@ -284,7 +294,11 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                 'actions: loop {
                     i += 1;
 
-                    if i > 5 {
+                    tracing::trace!(target: CONN, %i, "Entering actions poll loop");
+
+                    if i > ACTIONS_POLL_LIMIT {
+                        tracing::trace!(target: CONN, %i, "Exiting actions poll loop");
+
                         break 'actions;
                     }
 
@@ -303,7 +317,7 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 let _ = pending_responses.ack.send(Ok(pending));
                             }
                             Action::Request(request) => {
-                                tracing::trace!(target: CONN,
+                                tracing::debug!(target: CONN,
                                     sequence_number=request.command().sequence_number(),
                                     status=?request.command().status(),
                                     id=?request.command().id(),
@@ -313,12 +327,12 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 self.as_mut().requests_push_back(request);
                             }
                             Action::Remove(sequence_number) => {
-                                tracing::trace!(target: CONN, sequence_number, "Received remove response");
+                                tracing::debug!(target: CONN, sequence_number, "Received remove response");
 
                                 self.as_mut().remove_response(sequence_number);
                             }
                             Action::Close(request) => {
-                                tracing::trace!(target: CONN, "Received close");
+                                tracing::debug!(target: CONN, "Received close");
 
                                 self.as_mut().set_state(State::Closing);
 
@@ -343,6 +357,8 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             return Poll::Ready(());
                         }
                         Poll::Pending => {
+                            tracing::trace!(target: CONN, "No pending actions");
+
                             break 'actions;
                         }
                     }
@@ -353,7 +369,11 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                 'sink: loop {
                     i += 1;
 
-                    if i > 5 {
+                    tracing::trace!(target: CONN, %i, "Entering sink poll loop");
+
+                    if i > SINK_POLL_LIMIT {
+                        tracing::trace!(target: CONN, %i, "Exiting sink poll loop");
+
                         break 'sink;
                     }
 
@@ -363,9 +383,9 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             let status = request.command().status();
                             let id = request.command().id();
 
-                            tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Sending command");
+                            tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sending command");
 
-                            match Sink::<Command>::poll_flush(self.as_mut().project().framed, cx) {
+                            match Sink::<&Command>::poll_flush(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(_)) => {
                                     tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Sent command");
 
@@ -409,6 +429,8 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 Poll::Pending => {
                                     self.as_mut().set_pending_request(request);
 
+                                    tracing::trace!(target: CONN, "Sink poll flush pending");
+
                                     break 'sink;
                                 }
                             }
@@ -420,13 +442,13 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
 
                     match self.as_mut().requests_pop_front() {
                         Some(request) => {
-                            match Sink::<Command>::poll_ready(self.as_mut().project().framed, cx) {
+                            match Sink::<&Command>::poll_ready(self.as_mut().project().framed, cx) {
                                 Poll::Ready(Ok(())) => {
                                     let sequence_number = request.command().sequence_number();
                                     let status = request.command().status();
                                     let id = request.command().id();
 
-                                    tracing::trace!(target: CONN, sequence_number, ?status, ?id, "Writing command");
+                                    tracing::debug!(target: CONN, sequence_number, ?status, ?id, "Writing command");
 
                                     if let Err(err) =
                                         self.as_mut().project().framed.start_send(request.command())
@@ -481,6 +503,8 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                                 Poll::Pending => {
                                     self.as_mut().requests_push_front(request);
 
+                                    tracing::trace!(target: CONN, "Sink poll ready pending");
+
                                     break 'sink;
                                 }
                             }
@@ -506,13 +530,19 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
             }
 
             if matches!(self.state, State::Active) {
-                let mut i: u8 = 0;
-
                 'stream: loop {
-                    i += 1;
+                    stream_polls += 1;
 
-                    if i > 5 {
-                        break 'stream;
+                    tracing::trace!(target: CONN, i=%stream_polls, "Entering stream poll loop");
+
+                    if stream_polls > STREAM_POLL_LIMIT {
+                        tracing::trace!(target: CONN, i=%stream_polls, "Exiting stream poll loop");
+
+                        tracing::debug!(target: CONN, "Pending");
+
+                        cx.waker().wake_by_ref();
+
+                        return Poll::Pending;
                     }
 
                     match self.as_mut().project().framed.poll_next(cx) {
@@ -619,6 +649,10 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
                             return Poll::Ready(());
                         }
                         Poll::Pending => {
+                            tracing::trace!(target: CONN, "No incoming commands");
+
+                            tracing::debug!(target: CONN, "Pending");
+
                             return Poll::Pending;
                         }
                     }
@@ -628,35 +662,55 @@ impl<S: AsyncRead + AsyncWrite> Future for Connection<S> {
     }
 }
 
-pub struct NoneStream;
+impl NoSpawnConnectionBuilder {
+    /// Consumes the builder and creates a new [`Client`] along with the connection future and event stream (from raw parts).
+    pub(crate) fn raw<F, D1, D2>(
+        self,
+        framed: F,
+        enquire_link_timer_delay: D1,
+        enquire_link_response_timer_delay: D2,
+    ) -> (
+        Client,
+        impl Stream<Item = Event> + Unpin + 'static,
+        impl Future<Output = ()>,
+    )
+    where
+        D1: Delay,
+        D2: Delay,
+        F: Stream<Item = Result<Command, DecodeError>>
+            + for<'a> Sink<&'a Command, Error = EncodeError>,
+    {
+        let (connection, watch, actions, events) = Connection::new(
+            self.builder.enquire_link_interval,
+            self.builder.enquire_link_response_timeout,
+            self.builder.auto_enquire_link_response,
+            enquire_link_timer_delay,
+            enquire_link_response_timer_delay,
+        );
 
-impl AsyncRead for NoneStream {
-    fn poll_read(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-        _buf: &mut ReadBuf<'_>,
-    ) -> Poll<std::io::Result<()>> {
-        unreachable!("NoneStream must not be polled (poll_read)")
+        let client = Client::new(
+            actions,
+            self.builder.response_timeout,
+            self.builder.check_interface_version,
+            watch,
+        );
+
+        (client, events, async move {
+            let mut framed = std::pin::pin!(framed);
+
+            let connection = connection.with_framed(&mut framed);
+
+            // See comments on Connection struct to understand why we fuse the connection future.
+            connection.fuse().await;
+
+            tracing::debug!(target: "rusmppc::connection::tcp", "Shutting down stream");
+
+            if let Err(err) = framed.close().await {
+                tracing::error!(target: "rusmppc::connection::tcp", ?err, "Failed to shutdown stream");
+            }
+        })
     }
 }
 
-impl AsyncWrite for NoneStream {
-    fn poll_write(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-        _buf: &[u8],
-    ) -> Poll<Result<usize, std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_write)")
-    }
-
-    fn poll_flush(self: Pin<&mut Self>, _cx: &mut Context<'_>) -> Poll<Result<(), std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_flush)")
-    }
-
-    fn poll_shutdown(
-        self: Pin<&mut Self>,
-        _cx: &mut Context<'_>,
-    ) -> Poll<Result<(), std::io::Error>> {
-        unreachable!("NoneStream must not be polled (poll_shutdown)")
-    }
-}
+#[cfg(test)]
+mod tests;

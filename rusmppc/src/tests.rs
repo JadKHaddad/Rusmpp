@@ -1,3 +1,9 @@
+//! Tests in this module test the library's functionality based on the public API.
+//!
+//! They simulate real scenarios by creating in-memory connections between a test server and a client built using the library's public API.
+//!
+//! For more in depth tests, see `connection/tests.rs`.
+
 use std::time::{Duration, Instant};
 
 use futures::{SinkExt, StreamExt};
@@ -171,9 +177,11 @@ impl UnbindServer {
     }
 }
 
-fn init_tracing() {
+pub fn init_tracing() {
     _ = tracing_subscriber::fmt()
         .with_env_filter(tracing_subscriber::EnvFilter::from_default_env())
+        .with_line_number(true)
+        .with_ansi(false)
         .try_init();
 }
 
@@ -650,6 +658,7 @@ async fn server_sends_an_operation_with_the_same_sequence_number_of_a_pending_re
     let _ = events.await;
 }
 
+/// See `server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts` in `connection/tests.rs`` for a more reliable test of the same behavior.
 #[tokio::test]
 async fn server_ddos_client_should_still_send_requests_and_connection_should_still_manage_timeouts()
 {

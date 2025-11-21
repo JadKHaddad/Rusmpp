@@ -26,6 +26,22 @@ pub enum DataCoding {
     Other(u8),
 }
 
+impl DataCoding {
+    pub(crate) const fn split_length(self) -> Option<usize> {
+        match self {
+            DataCoding::McSpecific => Some(160),
+            _ => None,
+        }
+    }
+
+    pub(crate) const fn part_size(self) -> Option<usize> {
+        match self {
+            DataCoding::McSpecific => Some(153),
+            _ => None,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

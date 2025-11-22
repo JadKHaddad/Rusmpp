@@ -1,7 +1,7 @@
 use crate::{
     decode::{ConcatenatedShortMessageDecodeError, DecodeError},
     encode::Length,
-    udhs::{errors::ConcatenatedShortMessageError, owned::UdhValue},
+    udhs::{ConcatenatedShortMessage16Bit, errors::ConcatenatedShortMessageError, owned::UdhValue},
 };
 
 /// 8-bit Concatenated Short Message UDH
@@ -152,7 +152,6 @@ impl Length for ConcatenatedShortMessage8Bit {
 }
 
 impl crate::encode::Encode for ConcatenatedShortMessage8Bit {
-    #[allow(clippy::let_and_return)]
     fn encode(&self, dst: &mut [u8]) -> usize {
         let bytes = self.bytes();
 
@@ -193,6 +192,22 @@ impl crate::decode::owned::Decode for ConcatenatedShortMessage8Bit {
 impl From<ConcatenatedShortMessage8Bit> for UdhValue {
     fn from(udh: ConcatenatedShortMessage8Bit) -> Self {
         UdhValue::ConcatenatedShortMessage8Bit(udh)
+    }
+}
+
+/// Converts a [`ConcatenatedShortMessage8Bit`] into a [`ConcatenatedShortMessage16Bit`].
+///
+/// # Note
+///
+/// Conversion from [`ConcatenatedShortMessage16Bit`] to [`ConcatenatedShortMessage8Bit`] does not exist
+/// due to potential loss of information (the 16-bit reference number may not fit into 8 bits).
+impl From<ConcatenatedShortMessage8Bit> for ConcatenatedShortMessage16Bit {
+    fn from(udh: ConcatenatedShortMessage8Bit) -> Self {
+        ConcatenatedShortMessage16Bit::new_unchecked(
+            udh.reference as u16,
+            udh.total_parts,
+            udh.part_number,
+        )
     }
 }
 

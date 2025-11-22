@@ -82,7 +82,7 @@ impl ConcatenatedShortMessage16Bit {
     }
 
     /// Creates a new [`ConcatenatedShortMessage16Bit`] without checking invariants.
-    const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
+    pub(super) const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
         Self {
             reference,
             total_parts,
@@ -154,7 +154,6 @@ impl Length for ConcatenatedShortMessage16Bit {
 }
 
 impl crate::encode::Encode for ConcatenatedShortMessage16Bit {
-    #[allow(clippy::let_and_return)]
     fn encode(&self, dst: &mut [u8]) -> usize {
         let bytes = self.bytes();
 

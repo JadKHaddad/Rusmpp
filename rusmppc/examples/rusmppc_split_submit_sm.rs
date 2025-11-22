@@ -10,7 +10,7 @@ use std::str::FromStr;
 use futures::StreamExt;
 use rusmpp::{
     CommandId,
-    codecs::{Gsm7Unpacked, UdhType},
+    codecs::{Gsm7UnpackedCodec, UdhType},
     pdus::{BindTransceiver, DeliverSmResp, SubmitSm},
     types::COctetString,
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
@@ -62,11 +62,10 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
         .registered_delivery(RegisteredDelivery::request_all())
         .build()
         .encode("]]]]]]]]]")
-        .encoder(Gsm7Unpacked::new())
+        .encoder(Gsm7UnpackedCodec::new())
         .reference(0)
         .udh_type(UdhType::EightBit)
-        .collect::<Vec<_>>()
-        .map_err(|()| "Failed to encode short message")?;
+        .collect::<Vec<_>>()?;
 
     for submit_sm in submit_sms {
         let submit_sm = submit_sm?;

@@ -1,7 +1,7 @@
 mod gsm;
 mod udh;
 
-pub use gsm::Gsm7Unpacked;
+pub use gsm::Gsm7UnpackedCodec;
 pub use udh::UdhType;
 
 #[cfg(any(test, feature = "alloc"))]

@@ -1,7 +1,7 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
-    codecs::{Gsm7Unpacked, UdhType, owned::Encoder},
+    codecs::{Gsm7UnpackedCodec, UdhType, owned::Encoder},
     encode::Length,
     pdus::owned::Pdu,
     tlvs::{
@@ -207,10 +207,10 @@ impl SubmitSm {
         SubmitSmBuilder::new()
     }
 
-    pub fn encode(self, short_message: &str) -> SubmitSmEncoder<'_, Gsm7Unpacked> {
+    pub fn encode(self, short_message: &str) -> SubmitSmEncoder<'_, Gsm7UnpackedCodec> {
         SubmitSmEncoder {
             short_message,
-            encoder: Gsm7Unpacked::new(),
+            encoder: Gsm7UnpackedCodec::new(),
             udh: UdhType::EightBit,
             reference: 0,
             sm: self,
@@ -396,14 +396,14 @@ impl<'a, E> SubmitSmEncoder<'a, E> {
 
 impl<'a, E> SubmitSmEncoder<'a, E>
 where
-    E: Encoder<&'a str>,
+    E: Encoder<&'a [u8]>,
 {
     // TODO: we should an iter. and then collect it
     // maybe add iter method that returns an iterator
     pub fn collect<B: FromIterator<Result<SubmitSm, OctetStringError>>>(
         self,
-    ) -> Result<B, <E as Encoder<&'a str>>::Error> {
-        let encoded = self.encoder.encode(self.short_message)?;
+    ) -> Result<B, <E as Encoder<&'a [u8]>>::Error> {
+        let encoded = self.encoder.encode(self.short_message.as_bytes())?;
 
         let should_split = encoded.len() > self.encoder.max_bytes();
 

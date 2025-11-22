@@ -1,4 +1,6 @@
-use crate::{codecs::UdhType, values::DataCoding};
+use core::num::NonZeroUsize;
+
+use crate::values::{ConcatenatedShortMessageType, DataCoding};
 
 pub trait Encoder<T> {
     /// The associated error type for encoding operations.
@@ -15,9 +17,22 @@ pub trait Encoder<T> {
     /// The corresponding data coding for the encoded value.
     fn data_coding(&self) -> DataCoding;
 
-    /// Max bytes for no UDH, after encoding.
-    fn max_bytes(&self) -> usize;
+    /// Max bytes for no concatenation, after encoding.
+    ///
+    /// # Note
+    ///
+    /// `max_bytes` must not exceed `255`: the maximum length of an SMPP short message.
+    /// See [`SubmitSm::short_message`](crate::pdus::owned::SubmitSm::short_message).
+    fn max_bytes(&self) -> NonZeroUsize;
 
-    /// Max bytes for UDH, after encoding.
-    fn max_bytes_with_udh(&self, udh: &UdhType) -> usize;
+    /// Max bytes for concatenation, after encoding.
+    ///
+    /// # Note
+    ///
+    /// `max_bytes_with_concatenation` + [`ConcatenatedShortMessageType::udh_length`] must not exceed `255`: the maximum length of an SMPP short message.
+    /// See [`SubmitSm::short_message`](crate::pdus::owned::SubmitSm::short_message).
+    fn max_bytes_with_concatenation(
+        &self,
+        concatenation: ConcatenatedShortMessageType,
+    ) -> NonZeroUsize;
 }

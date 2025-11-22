@@ -1,1 +1,1 @@
-pub use rusmpp_core::codecs::{Gsm7UnpackedCodec, UdhType};
+pub use rusmpp_core::codecs::Gsm7UnpackedCodec;

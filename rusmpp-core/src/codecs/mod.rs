@@ -1,8 +1,6 @@
 mod gsm;
-mod udh;
 
 pub use gsm::Gsm7UnpackedCodec;
-pub use udh::UdhType;
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]

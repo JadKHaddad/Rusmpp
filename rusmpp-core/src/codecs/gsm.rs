@@ -1,3 +1,6 @@
+#[cfg(any(test, feature = "alloc"))]
+use core::num::NonZeroUsize;
+
 /// Errors that can occur during GSM 7-bit unpacked encoding.
 #[derive(Debug)]
 pub enum Gsm7UnpackedEncodeError {
@@ -100,17 +103,20 @@ impl super::owned::Encoder<&[u8]> for Gsm7UnpackedCodec {
         crate::values::DataCoding::McSpecific
     }
 
-    fn max_bytes(&self) -> usize {
-        160
+    fn max_bytes(&self) -> NonZeroUsize {
+        NonZeroUsize::new(160).expect("Obviously not zero")
     }
 
-    fn max_bytes_with_udh(&self, udh: &super::UdhType) -> usize {
-        // XXX: if `udh.length()` got too large we underflow
+    fn max_bytes_with_concatenation(
+        &self,
+        concatenation: crate::values::ConcatenatedShortMessageType,
+    ) -> NonZeroUsize {
+        // XXX: if `concatenation.udh_length()` got too large we underflow
         // We reserve 1 byte to avoid an escape character being split between payloads
 
         // for 8-bit UDH (length=6) => 153
         // for 16-bit UDH (length=7) => 152
-        160 - udh.length() - 1
+        NonZeroUsize::new(160 - concatenation.udh_length() - 1).expect("This value can not be zero")
     }
 }
 

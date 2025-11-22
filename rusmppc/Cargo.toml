@@ -96,8 +96,8 @@ path = "examples/rusmppc_submit_sm.rs"
 required-features = []
 
 [[example]]
-name = "rusmppc_split_submit_sm"
-path = "examples/rusmppc_split_submit_sm.rs"
+name = "rusmppc_submit_sm_multipart"
+path = "examples/rusmppc_submit_sm_multipart.rs"
 required-features = []
 
 [[example]]

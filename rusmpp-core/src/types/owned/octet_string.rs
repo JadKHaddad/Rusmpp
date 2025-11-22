@@ -56,6 +56,12 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
         assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
 
+    pub(crate) const fn new_unchecked(bytes: Vec<u8>) -> Self {
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
+        Self { bytes }
+    }
+
     /// Create a new empty [`OctetString`].
     ///
     /// Equivalent to [`OctetString::empty`].

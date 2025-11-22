@@ -40,7 +40,7 @@ impl ConcatenatedShortMessage16Bit {
     const LENGTH: usize = 5;
 
     /// The length of [`ConcatenatedShortMessage16Bit`] encoded as a full UDH.
-    const UDH_LENGTH: usize = Self::LENGTH + 2;
+    pub(crate) const UDH_LENGTH: usize = Self::LENGTH + 2;
 
     /// Creates a new [`ConcatenatedShortMessage16Bit`].
     ///
@@ -82,7 +82,7 @@ impl ConcatenatedShortMessage16Bit {
     }
 
     /// Creates a new [`ConcatenatedShortMessage16Bit`] without checking invariants.
-    pub(super) const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
+    pub(crate) const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
         Self {
             reference,
             total_parts,
@@ -117,7 +117,7 @@ impl ConcatenatedShortMessage16Bit {
     }
 
     /// The bytes representation of [`ConcatenatedShortMessage16Bit`] encoded as a full UDH.
-    const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
+    pub(crate) const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
         let bytes = self.bytes();
         [
             0x06, // UDH length = 6

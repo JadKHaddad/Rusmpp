@@ -150,6 +150,9 @@ pub use broadcast_rep_num::BroadcastRepNum;
 
 mod message_payload;
 
+mod concatenated_short_message;
+pub use concatenated_short_message::ConcatenatedShortMessage;
+
 pub mod borrowed {
     //! Borrowed `SMPP` values.
 

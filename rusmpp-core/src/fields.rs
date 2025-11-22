@@ -47,6 +47,7 @@
 /// # }
 #[allow(non_camel_case_types)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum SmppField {
     addr,
     addr_npi,
@@ -110,4 +111,7 @@ pub enum SmppField {
     validity_period,
     value,
     value_length,
+    udh_length,
+    udh_id,
+    udh_value,
 }

@@ -1,7 +1,7 @@
 use crate::{
     decode::{ConcatenatedShortMessageDecodeError, DecodeError},
     encode::Length,
-    udhs::errors::ConcatenatedShortMessageError,
+    udhs::{errors::ConcatenatedShortMessageError, owned::UdhValue},
 };
 
 /// 16-bit Concatenated Short Message UDH
@@ -48,7 +48,7 @@ impl ConcatenatedShortMessage16Bit {
     ///
     /// - `Ok(Self)` if the invariants are satisfied.
     /// - `Err(ConcatenatedShortMessageError)` if any invariant is violated.
-    const fn new(
+    pub const fn new(
         reference: u16,
         total_parts: u8,
         part_number: u8,
@@ -178,6 +178,12 @@ impl crate::decode::owned::Decode for ConcatenatedShortMessage16Bit {
         let decoded = Self::new(reference, total_parts, part_number)?;
 
         Ok((decoded, Self::LENGTH))
+    }
+}
+
+impl From<ConcatenatedShortMessage16Bit> for UdhValue {
+    fn from(udh: ConcatenatedShortMessage16Bit) -> Self {
+        UdhValue::ConcatenatedShortMessage16Bit(udh)
     }
 }
 

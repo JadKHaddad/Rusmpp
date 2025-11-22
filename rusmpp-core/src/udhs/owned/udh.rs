@@ -1,6 +1,10 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
+    decode::{
+        DecodeError, DecodeResultExt,
+        owned::{Decode, DecodeWithKey, DecodeWithLength},
+    },
     encode::{Encode, Length},
     types::owned::AnyOctetString,
     udhs::{ConcatenatedShortMessage8Bit, ConcatenatedShortMessage16Bit, UdhId},
@@ -59,7 +63,10 @@ pub enum UdhValue {
     /// 16-bit Concatenated Short Message UDH.
     ConcatenatedShortMessage16Bit(ConcatenatedShortMessage16Bit),
     /// Other UDH types.
-    Other { udh_id: UdhId, body: AnyOctetString },
+    Other {
+        udh_id: UdhId,
+        value: AnyOctetString,
+    },
 }
 
 impl UdhValue {
@@ -78,7 +85,7 @@ impl Length for UdhValue {
         match self {
             UdhValue::ConcatenatedShortMessage8Bit(udh) => udh.length(),
             UdhValue::ConcatenatedShortMessage16Bit(udh) => udh.length(),
-            UdhValue::Other { body, .. } => body.length(),
+            UdhValue::Other { value, .. } => value.length(),
         }
     }
 }
@@ -88,9 +95,154 @@ impl Encode for UdhValue {
         match self {
             UdhValue::ConcatenatedShortMessage8Bit(udh) => udh.encode(dst),
             UdhValue::ConcatenatedShortMessage16Bit(udh) => udh.encode(dst),
-            UdhValue::Other { body, .. } => body.encode(dst),
+            UdhValue::Other { value, .. } => value.encode(dst),
         }
     }
 }
 
-// TODO: decode this guy
+impl DecodeWithKey for UdhValue {
+    type Key = UdhId;
+
+    fn decode(key: Self::Key, src: &[u8], length: usize) -> Result<(Self, usize), DecodeError> {
+        let (value, size) = match key {
+            UdhId::ConcatenatedShortMessages8Bit => {
+                Decode::decode(src).map_decoded(Self::ConcatenatedShortMessage8Bit)?
+            }
+            UdhId::ConcatenatedShortMessages16Bit => {
+                Decode::decode(src).map_decoded(Self::ConcatenatedShortMessage16Bit)?
+            }
+            other => {
+                DecodeWithLength::decode(src, length).map_decoded(|value| UdhValue::Other {
+                    udh_id: other,
+                    value,
+                })?
+            }
+        };
+
+        Ok((value, size))
+    }
+}
+
+impl Decode for Udh {
+    fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
+        let size = 0;
+        let (length, size) = crate::decode::DecodeErrorExt::map_as_source(
+            crate::decode::owned::DecodeExt::decode_move(src, size),
+            crate::fields::SmppField::udh_length,
+        )?;
+        let (id, size): (UdhId, usize) = crate::decode::DecodeErrorExt::map_as_source(
+            crate::decode::owned::DecodeExt::decode_move(src, size),
+            crate::fields::SmppField::udh_id,
+        )?;
+
+        let value_length = (length as usize).saturating_sub(id.length());
+
+        let (value, size) = crate::decode::DecodeErrorExt::map_as_source(
+            crate::decode::owned::DecodeWithKeyExt::optional_length_checked_decode_move(
+                id,
+                src,
+                value_length,
+                size,
+            ),
+            crate::fields::SmppField::udh_value,
+        )?
+        .map(|(this, size)| (Some(this), size))
+        .unwrap_or((None, size));
+
+        Ok((Self { length, id, value }, size))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    mod encode {
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let udh = Udh::new(ConcatenatedShortMessage16Bit::new(0x1234, 3, 1).unwrap());
+
+            let expected = [
+                0x06, // UDH length (following bytes = 6)
+                0x08, // UDH ID: Concatenated Short Messages, 16-bit reference number
+                0x04, // IE Data Length = 4 bytes
+                0x12, // Ref high
+                0x34, // Ref low
+                0x03, // Total parts
+                0x01, // Part number
+            ];
+
+            let mut buf = [0u8; 24];
+            let size = udh.encode(&mut buf);
+
+            assert_eq!(size, 7);
+            assert_eq!(&buf[..size], &expected);
+
+            let udh = Udh::new(ConcatenatedShortMessage8Bit::new(0x12, 3, 1).unwrap());
+            let expected = [
+                0x05, // UDH length (following bytes = 5)
+                0x00, // UDH ID: Concatenated Short Messages, 8-bit reference number
+                0x03, // IE Data Length = 3 bytes
+                0x12, // Ref
+                0x03, // Total parts
+                0x01, // Part number
+            ];
+
+            let mut buf = [0u8; 24];
+            let size = udh.encode(&mut buf);
+
+            assert_eq!(size, 6);
+            assert_eq!(&buf[..size], &expected);
+        }
+    }
+
+    mod decode {
+        use crate::decode::owned::Decode;
+
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let buf = [
+                0x06, // UDH length (following bytes = 6)
+                0x08, // UDH ID: Concatenated Short Messages, 16-bit reference number
+                0x04, // IE Data Length = 4 bytes
+                0x12, // Ref high
+                0x34, // Ref low
+                0x03, // Total parts
+                0x01, // Part number
+                0x00, // Extra bytes
+                0x00,
+            ];
+
+            let (udh, size) = <Udh as Decode>::decode(&buf).unwrap();
+
+            assert_eq!(size, 7);
+            assert_eq!(
+                udh,
+                Udh::new(ConcatenatedShortMessage16Bit::new(0x1234, 3, 1).unwrap())
+            );
+
+            let buf = [
+                0x05, // UDH length (following bytes = 5)
+                0x00, // UDH ID: Concatenated Short Messages, 8-bit reference number
+                0x03, // IE Data Length = 3 bytes
+                0x12, // Ref
+                0x03, // Total parts
+                0x01, // Part number
+                0x00, // Extra bytes
+                0x00,
+            ];
+
+            let (udh, size) = <Udh as Decode>::decode(&buf).unwrap();
+
+            assert_eq!(size, 6);
+            assert_eq!(
+                udh,
+                Udh::new(ConcatenatedShortMessage8Bit::new(0x12, 3, 1).unwrap())
+            );
+        }
+    }
+}

@@ -90,6 +90,21 @@ impl ConcatenatedShortMessage16Bit {
         }
     }
 
+    /// Returns the reference number.
+    pub const fn reference(&self) -> u16 {
+        self.reference
+    }
+
+    /// Returns the total number of parts.
+    pub const fn total_parts(&self) -> u8 {
+        self.total_parts
+    }
+
+    /// Returns the part number.
+    pub const fn part_number(&self) -> u8 {
+        self.part_number
+    }
+
     /// The byte representation of [`ConcatenatedShortMessage16Bit`].
     const fn bytes(&self) -> [u8; Self::LENGTH] {
         [

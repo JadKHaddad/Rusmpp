@@ -100,13 +100,19 @@ impl ConcatenatedShortMessage8Bit {
         }
     }
 
-    /// Consumes the [`ConcatenatedShortMessage8Bit`] and returns its parts.
-    pub const fn into_parts(self) -> ConcatenatedShortMessage8BitParts {
-        ConcatenatedShortMessage8BitParts {
-            reference: self.reference,
-            total_parts: self.total_parts,
-            part_number: self.part_number,
-        }
+    /// Returns the reference number.
+    pub const fn reference(&self) -> u8 {
+        self.reference
+    }
+
+    /// Returns the total number of parts.
+    pub const fn total_parts(&self) -> u8 {
+        self.total_parts
+    }
+
+    /// Returns the part number.
+    pub const fn part_number(&self) -> u8 {
+        self.part_number
     }
 
     /// The bytes representation of [`ConcatenatedShortMessage8Bit`].
@@ -127,6 +133,15 @@ impl ConcatenatedShortMessage8Bit {
             0x00, // IEI = 00 (8-bit reference)
             bytes[0], bytes[1], bytes[2], bytes[3],
         ]
+    }
+
+    /// Consumes the [`ConcatenatedShortMessage8Bit`] and returns its parts.
+    pub const fn into_parts(self) -> ConcatenatedShortMessage8BitParts {
+        ConcatenatedShortMessage8BitParts {
+            reference: self.reference,
+            total_parts: self.total_parts,
+            part_number: self.part_number,
+        }
     }
 }
 

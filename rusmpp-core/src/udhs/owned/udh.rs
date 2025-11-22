@@ -23,6 +23,7 @@ pub struct Udh {
 }
 
 impl Udh {
+    /// Creates a new [`Udh`] from the given [`UdhValue`].
     pub fn new(value: impl Into<UdhValue>) -> Self {
         let value = value.into();
         let id = value.id();
@@ -35,14 +36,17 @@ impl Udh {
         }
     }
 
+    /// Returns the UDH identifier.
     pub const fn id(&self) -> UdhId {
         self.id
     }
 
+    /// Returns the UDH length (excluding the length field itself).
     pub const fn length(&self) -> u8 {
         self.length
     }
 
+    /// Returns a reference to the UDH value.
     pub const fn value(&self) -> Option<&UdhValue> {
         self.value.as_ref()
     }

@@ -1,4 +1,4 @@
-use crate::{coding::UdhType, values::DataCoding};
+use crate::{codecs::UdhType, values::DataCoding};
 
 pub trait Encoder<T> {
     /// The associated error type for encoding operations.

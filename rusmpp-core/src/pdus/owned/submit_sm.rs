@@ -1,7 +1,7 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
-    coding::{Gsm7Unpacked, UdhType, owned::Encoder},
+    codecs::{Gsm7Unpacked, UdhType, owned::Encoder},
     encode::Length,
     pdus::owned::Pdu,
     tlvs::{

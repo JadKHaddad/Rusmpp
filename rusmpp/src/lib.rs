@@ -122,4 +122,4 @@ pub mod fields;
 
 pub mod session;
 
-pub mod coding;
+pub mod codecs;

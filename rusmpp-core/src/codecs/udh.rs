@@ -9,7 +9,7 @@ pub enum UdhType {
 
 impl UdhType {
     /// Returns the length of the UDH type in bytes.
-    // XXX: Encoders rely on this value to be correct. Using bad (very large) values will cause underflow.
+    // XXX: Codecs rely on this value to be correct. Using bad (very large) values will cause underflow.
     pub(crate) const fn length(&self) -> usize {
         match self {
             UdhType::EightBit => EightBitUdh::length(),

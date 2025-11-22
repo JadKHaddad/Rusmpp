@@ -10,7 +10,7 @@ use std::str::FromStr;
 use futures::StreamExt;
 use rusmpp::{
     CommandId,
-    coding::{Gsm7Unpacked, UdhType},
+    codecs::{Gsm7Unpacked, UdhType},
     pdus::{BindTransceiver, DeliverSmResp, SubmitSm},
     types::COctetString,
     values::{EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},

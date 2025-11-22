@@ -36,6 +36,12 @@ pub struct ConcatenatedShortMessage16Bit {
 }
 
 impl ConcatenatedShortMessage16Bit {
+    /// The length of [`ConcatenatedShortMessage16Bit`].
+    const LENGTH: usize = 5;
+
+    /// The length of [`ConcatenatedShortMessage16Bit`] encoded as a full UDH.
+    const UDH_LENGTH: usize = Self::LENGTH + 2;
+
     /// Creates a new [`ConcatenatedShortMessage16Bit`].
     ///
     /// # Returns
@@ -84,6 +90,27 @@ impl ConcatenatedShortMessage16Bit {
         }
     }
 
+    /// The byte representation of [`ConcatenatedShortMessage16Bit`].
+    const fn bytes(&self) -> [u8; Self::LENGTH] {
+        [
+            0x04,                          // IE Data Length = 4 bytes
+            (self.reference >> 8) as u8,   // Ref high
+            (self.reference & 0xFF) as u8, // Ref low
+            self.total_parts,
+            self.part_number,
+        ]
+    }
+
+    /// The bytes representation of [`ConcatenatedShortMessage16Bit`] encoded as a full UDH.
+    const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
+        let bytes = self.bytes();
+        [
+            0x06, // UDH length = 6
+            0x08, // IEI = 08 (16-bit reference)
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4],
+        ]
+    }
+
     /// Consumes the [`ConcatenatedShortMessage16Bit`] and returns its parts.
     pub const fn into_parts(self) -> ConcatenatedShortMessage16BitParts {
         ConcatenatedShortMessage16BitParts {
@@ -107,31 +134,28 @@ pub struct ConcatenatedShortMessage16BitParts {
 
 impl Length for ConcatenatedShortMessage16Bit {
     fn length(&self) -> usize {
-        5
+        Self::LENGTH
     }
 }
 
 impl crate::encode::Encode for ConcatenatedShortMessage16Bit {
     #[allow(clippy::let_and_return)]
     fn encode(&self, dst: &mut [u8]) -> usize {
-        let size = 0;
-        let size = crate::encode::EncodeExt::encode_move(&0x04_u8, dst, size); // data length
-        let size = crate::encode::EncodeExt::encode_move(&((self.reference >> 8) as u8), dst, size);
-        let size =
-            crate::encode::EncodeExt::encode_move(&((self.reference & 0xFF) as u8), dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.total_parts, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.part_number, dst, size);
-        size
+        let bytes = self.bytes();
+
+        dst[..Self::LENGTH].copy_from_slice(&bytes);
+
+        Self::LENGTH
     }
 }
 
 impl crate::decode::owned::Decode for ConcatenatedShortMessage16Bit {
     fn decode(src: &[u8]) -> Result<(Self, usize), crate::decode::DecodeError> {
-        if src.len() < 5 {
+        if src.len() < Self::LENGTH {
             return Err(DecodeError::concatenated_short_message_decode_error(
                 ConcatenatedShortMessageDecodeError::TooFewBytes {
                     actual: src.len(),
-                    min: 5,
+                    min: Self::LENGTH,
                 },
             ));
         }
@@ -153,7 +177,7 @@ impl crate::decode::owned::Decode for ConcatenatedShortMessage16Bit {
 
         let decoded = Self::new(reference, total_parts, part_number)?;
 
-        Ok((decoded, 5))
+        Ok((decoded, Self::LENGTH))
     }
 }
 
@@ -286,6 +310,21 @@ mod tests {
                     )
                 )
             ));
+        }
+    }
+
+    mod encode {
+        use crate::encode::Encode;
+
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let udh = ConcatenatedShortMessage16Bit::new(0x1234, 3, 2).unwrap();
+            let mut buf = [0u8; 5];
+            let size = udh.encode(&mut buf);
+            assert_eq!(size, 5);
+            assert_eq!(buf, [0x04, 0x12, 0x34, 0x03, 0x02]);
         }
     }
 }

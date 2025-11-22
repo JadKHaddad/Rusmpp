@@ -46,6 +46,12 @@ pub struct ConcatenatedShortMessage8BitParts {
 }
 
 impl ConcatenatedShortMessage8Bit {
+    /// The length of [`ConcatenatedShortMessage8Bit`].
+    const LENGTH: usize = 4;
+
+    /// The length of [`ConcatenatedShortMessage8Bit`] encoded as a full UDH.
+    const UDH_LENGTH: usize = Self::LENGTH + 2;
+
     /// Creates a new [`ConcatenatedShortMessage8Bit`].
     ///
     /// # Returns
@@ -102,33 +108,52 @@ impl ConcatenatedShortMessage8Bit {
             part_number: self.part_number,
         }
     }
+
+    /// The bytes representation of [`ConcatenatedShortMessage8Bit`].
+    const fn bytes(&self) -> [u8; Self::LENGTH] {
+        [
+            0x03, // IE Data Length = 3 bytes
+            self.reference,
+            self.total_parts,
+            self.part_number,
+        ]
+    }
+
+    /// The bytes representation of [`ConcatenatedShortMessage8Bit`] encoded as a full UDH.
+    const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
+        let bytes = self.bytes();
+        [
+            0x05, // UDH Length = 5 bytes
+            0x00, // IEI = 00 (8-bit reference)
+            bytes[0], bytes[1], bytes[2], bytes[3],
+        ]
+    }
 }
 
 impl Length for ConcatenatedShortMessage8Bit {
     fn length(&self) -> usize {
-        4
+        Self::LENGTH
     }
 }
 
 impl crate::encode::Encode for ConcatenatedShortMessage8Bit {
     #[allow(clippy::let_and_return)]
     fn encode(&self, dst: &mut [u8]) -> usize {
-        let size = 0;
-        let size = crate::encode::EncodeExt::encode_move(&0x03_u8, dst, size); // data length
-        let size = crate::encode::EncodeExt::encode_move(&self.reference, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.total_parts, dst, size);
-        let size = crate::encode::EncodeExt::encode_move(&self.part_number, dst, size);
-        size
+        let bytes = self.bytes();
+
+        dst[..Self::LENGTH].copy_from_slice(&bytes);
+
+        Self::LENGTH
     }
 }
 
 impl crate::decode::owned::Decode for ConcatenatedShortMessage8Bit {
     fn decode(src: &[u8]) -> Result<(Self, usize), DecodeError> {
-        if src.len() < 4 {
+        if src.len() < Self::LENGTH {
             return Err(DecodeError::concatenated_short_message_decode_error(
                 ConcatenatedShortMessageDecodeError::TooFewBytes {
                     actual: src.len(),
-                    min: 4,
+                    min: Self::LENGTH,
                 },
             ));
         }
@@ -146,7 +171,7 @@ impl crate::decode::owned::Decode for ConcatenatedShortMessage8Bit {
 
         let decoded = Self::new(src[1], src[2], src[3])?;
 
-        Ok((decoded, 4))
+        Ok((decoded, Self::LENGTH))
     }
 }
 
@@ -279,6 +304,21 @@ mod tests {
                     )
                 )
             ));
+        }
+    }
+
+    mod encode {
+        use crate::encode::Encode;
+
+        use super::*;
+
+        #[test]
+        fn ok() {
+            let udh = ConcatenatedShortMessage8Bit::new(0x12, 0x34, 0x02).unwrap();
+            let mut buf = [0u8; 4];
+            let size = udh.encode(&mut buf);
+            assert_eq!(size, 4);
+            assert_eq!(buf, [0x03, 0x12, 0x34, 0x02]);
         }
     }
 }

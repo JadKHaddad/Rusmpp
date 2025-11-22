@@ -60,8 +60,12 @@ impl Udh {
     }
 }
 
+/// UDH Bytes representation
+#[derive(Debug)]
 pub enum UdhBytes {
+    /// 8-bit UDH bytes
     EightBit([u8; 6]),
+    /// 16-bit UDH bytes
     SixteenBit([u8; 7]),
 }
 
@@ -95,22 +99,58 @@ pub struct EightBitUdh {
     part_number: u8,
 }
 
+/// Errors that can occur when creating a [`EightBitUdh`].
+#[derive(Debug)]
+pub enum EightBitUdhError {
+    /// The part number is zero.
+    PartNumberZero,
+    /// The part number exceeds the total number of parts.
+    PartNumberExceedsTotalParts(u8, u8),
+    /// The total number of parts is zero.
+    TotalPartsZero,
+}
+
 impl EightBitUdh {
     /// Creates a new [`EightBitUdh`].
     ///
     /// # Returns
     ///
-    /// - `Some(EightBitUdh)` if the parameters are valid.
-    /// - `None` if the parameters are invalid (e.g., part_number is 0 or greater than total_parts).
-    #[allow(dead_code)] // allowed dead_code to keep the invariants documented
-    const fn new(reference: u8, total_parts: u8, part_number: u8) -> Option<Self> {
-        if part_number == 0 || part_number > total_parts || total_parts == 0 {
-            return None;
-        }
-
-        Some(Self::new_unchecked(reference, total_parts, part_number))
+    /// - `Ok(Self)` if the invariants are satisfied.
+    /// - `Err(EightBitUdhError)` if any invariant is violated.
+    const fn new(
+        reference: u8,
+        total_parts: u8,
+        part_number: u8,
+    ) -> Result<Self, EightBitUdhError> {
+        Self::new_unchecked(reference, total_parts, part_number).assert()
     }
 
+    /// Asserts the invariants of the UDH.
+    ///
+    /// # Returns
+    ///
+    /// - `Ok(Self)` if the invariants are satisfied.
+    /// - `Err(EightBitUdhError)` if any invariant is violated.
+    const fn assert(self) -> Result<Self, EightBitUdhError> {
+        if self.part_number == 0 {
+            return Err(EightBitUdhError::PartNumberZero);
+        }
+
+        if self.part_number > self.total_parts {
+            return Err(EightBitUdhError::PartNumberExceedsTotalParts(
+                self.part_number,
+                self.total_parts,
+            ));
+        }
+
+        if self.total_parts == 0 {
+            return Err(EightBitUdhError::TotalPartsZero);
+        }
+
+        Ok(self)
+    }
+
+    /// Creates a new [`EightBitUdh`] without checking invariants.
     const fn new_unchecked(reference: u8, total_parts: u8, part_number: u8) -> Self {
         Self {
             reference,
@@ -135,6 +175,48 @@ impl EightBitUdh {
             self.part_number,
         ]
     }
+
+    /// Decodes a [`EightBitUdh`] from a byte slice without checking invariants.
+    ///
+    /// # Returns
+    ///
+    /// - `Some((Self, usize))` if decoding is successful.
+    /// - `None` if the byte slice is too short or does not match the expected format.
+    const fn decode_unchecked(bytes: &[u8]) -> Option<(Self, usize)> {
+        if bytes.len() < Self::length() {
+            return None;
+        }
+
+        if bytes[0] != 0x05 || bytes[1] != 0x00 || bytes[2] != 0x03 {
+            return None;
+        }
+
+        let reference = bytes[3];
+        let total_parts = bytes[4];
+        let part_number = bytes[5];
+
+        Some((
+            Self::new_unchecked(reference, total_parts, part_number),
+            Self::length(),
+        ))
+    }
+
+    /// Decodes a [`EightBitUdh`] from a byte slice, checking invariants.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(Ok((Self, usize)))` if decoding and invariants are successful.
+    /// - `Some(Err(EightBitUdhError))` if invariants are violated.
+    /// - `None` if the byte slice is too short or does not match the expected format.
+    const fn decode(bytes: &[u8]) -> Option<Result<(Self, usize), EightBitUdhError>> {
+        match Self::decode_unchecked(bytes) {
+            Some((udh, len)) => match udh.assert() {
+                Ok(udh) => Some(Ok((udh, len))),
+                Err(err) => Some(Err(err)),
+            },
+            None => None,
+        }
+    }
 }
 
 /// 16-bit UDH
@@ -158,22 +240,58 @@ pub struct SixteenBitUdh {
     part_number: u8,
 }
 
+/// Errors that can occur when creating a [`SixteenBitUdh`].
+#[derive(Debug)]
+pub enum SixteenBitUdhError {
+    /// The part number is zero.
+    PartNumberZero,
+    /// The part number exceeds the total number of parts.
+    PartNumberExceedsTotalParts(u8, u8),
+    /// The total number of parts is zero.
+    TotalPartsZero,
+}
+
 impl SixteenBitUdh {
     /// Creates a new [`SixteenBitUdh`].
     ///
     /// # Returns
     ///
-    /// - `Some(SixteenBitUdh)` if the parameters are valid.
-    /// - `None` if the parameters are invalid (e.g., part_number is 0 or greater than total_parts).
-    #[allow(dead_code)] // allowed dead_code to keep the invariants documented
-    fn new(reference: u16, total_parts: u8, part_number: u8) -> Option<Self> {
-        if part_number == 0 || part_number > total_parts || total_parts == 0 {
-            return None;
-        }
-
-        Some(Self::new_unchecked(reference, total_parts, part_number))
+    /// - `Ok(Self)` if the invariants are satisfied.
+    /// - `Err(SixteenBitUdhError)` if any invariant is violated.
+    const fn new(
+        reference: u16,
+        total_parts: u8,
+        part_number: u8,
+    ) -> Result<Self, SixteenBitUdhError> {
+        Self::new_unchecked(reference, total_parts, part_number).assert()
     }
 
+    /// Asserts the invariants of the UDH.
+    ///
+    /// # Returns
+    ///
+    /// - `Ok(Self)` if the invariants are satisfied.
+    /// - `Err(SixteenBitUdhError)` if any invariant is violated.
+    const fn assert(self) -> Result<Self, SixteenBitUdhError> {
+        if self.part_number == 0 {
+            return Err(SixteenBitUdhError::PartNumberZero);
+        }
+
+        if self.part_number > self.total_parts {
+            return Err(SixteenBitUdhError::PartNumberExceedsTotalParts(
+                self.part_number,
+                self.total_parts,
+            ));
+        }
+
+        if self.total_parts == 0 {
+            return Err(SixteenBitUdhError::TotalPartsZero);
+        }
+
+        Ok(self)
+    }
+
+    /// Creates a new [`SixteenBitUdh`] without checking invariants.
     const fn new_unchecked(reference: u16, total_parts: u8, part_number: u8) -> Self {
         Self {
             reference,
@@ -187,6 +305,7 @@ impl SixteenBitUdh {
         7
     }
 
+    /// Converts the UDH to its byte representation.
     const fn bytes(&self) -> [u8; 7] {
         [
             0x06,                          // UDH length (following bytes = 6)
@@ -198,4 +317,88 @@ impl SixteenBitUdh {
             self.part_number,
         ]
     }
+
+    /// Decodes a [`SixteenBitUdh`] from a byte slice without checking invariants.
+    ///
+    /// # Returns
+    ///
+    /// - `Some((Self, usize))` if decoding is successful.
+    /// - `None` if the byte slice is too short or does not match the expected format.
+    const fn decode_unchecked(bytes: &[u8]) -> Option<(Self, usize)> {
+        if bytes.len() < Self::length() {
+            return None;
+        }
+
+        if bytes[0] != 0x06 || bytes[1] != 0x08 || bytes[2] != 0x04 {
+            return None;
+        }
+
+        let reference = ((bytes[3] as u16) << 8) | (bytes[4] as u16);
+        let total_parts = bytes[5];
+        let part_number = bytes[6];
+
+        Some((
+            Self::new_unchecked(reference, total_parts, part_number),
+            Self::length(),
+        ))
+    }
+
+    /// Decodes a [`SixteenBitUdh`] from a byte slice, checking invariants.
+    ///
+    /// # Returns
+    ///
+    /// - `Some(Ok((Self, usize)))` if decoding and invariants are successful.
+    /// - `Some(Err(SixteenBitUdhError))` if invariants are violated.
+    /// - `None` if the byte slice is too short or does not match the expected format.
+    const fn decode(bytes: &[u8]) -> Option<Result<(Self, usize), SixteenBitUdhError>> {
+        match Self::decode_unchecked(bytes) {
+            Some((udh, len)) => match udh.assert() {
+                Ok(udh) => Some(Ok((udh, len))),
+                Err(err) => Some(Err(err)),
+            },
+            None => None,
+        }
+    }
 }
+
+impl core::fmt::Display for EightBitUdhError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            EightBitUdhError::PartNumberZero => {
+                write!(f, "Part number cannot be zero")
+            }
+            EightBitUdhError::PartNumberExceedsTotalParts(part_number, total_parts) => {
+                write!(
+                    f,
+                    "Part number {} exceeds total parts {}",
+                    part_number, total_parts
+                )
+            }
+            EightBitUdhError::TotalPartsZero => {
+                write!(f, "Total parts cannot be zero")
+            }
+        }
+    }
+}
+
+impl core::fmt::Display for SixteenBitUdhError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            SixteenBitUdhError::PartNumberZero => {
+                write!(f, "Part number cannot be zero")
+            }
+            SixteenBitUdhError::PartNumberExceedsTotalParts(part_number, total_parts) => {
+                write!(
+                    f,
+                    "Part number {} exceeds total parts {}",
+                    part_number, total_parts
+                )
+            }
+            SixteenBitUdhError::TotalPartsZero => {
+                write!(f, "Total parts cannot be zero")
+            }
+        }
+    }
+}
+
+impl core::error::Error for SixteenBitUdhError {}

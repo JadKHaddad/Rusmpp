@@ -72,6 +72,20 @@ impl DecodeError {
         Self::new(DecodeErrorKind::TooManyElements { max })
     }
 
+    #[inline]
+    pub const fn udh_decode_error(error: UdhDecodeError) -> Self {
+        Self::new(DecodeErrorKind::UdhDecodeError(error))
+    }
+
+    #[inline]
+    pub const fn concatenated_short_message_decode_error(
+        error: ConcatenatedShortMessageDecodeError,
+    ) -> Self {
+        Self::new(DecodeErrorKind::UdhDecodeError(
+            UdhDecodeError::ConcatenatedShortMessageDecodeError(error),
+        ))
+    }
+
     /// Checks recursively if the field exists in the sources tree.
     #[cfg(feature = "verbose")]
     #[cfg_attr(docsrs, doc(cfg(feature = "verbose")))]
@@ -124,6 +138,7 @@ pub enum DecodeErrorKind {
     TooManyElements {
         max: usize,
     },
+    UdhDecodeError(UdhDecodeError),
 }
 
 /// An error that can occur when decoding a `COctetString`.
@@ -141,6 +156,37 @@ pub enum COctetStringDecodeError {
 pub enum OctetStringDecodeError {
     TooManyBytes { actual: usize, max: usize },
     TooFewBytes { actual: usize, min: usize },
+}
+
+/// An error that can occur when decoding a `UDH`.
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub enum UdhDecodeError {
+    ConcatenatedShortMessageDecodeError(ConcatenatedShortMessageDecodeError),
+}
+
+/// An error that can occur when decoding a `ConcatenatedShortMessage` UDH.
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub enum ConcatenatedShortMessageDecodeError {
+    /// The length of the information element is invalid.
+    InvalidInformationElementLength {
+        actual: u8,
+        expected: u8,
+    },
+    /// The total number of parts is zero.
+    TotalPartsZero,
+    /// The part number is zero.
+    PartNumberZero,
+    /// The part number exceeds the total number of parts.
+    PartNumberExceedsTotalParts {
+        part_number: u8,
+        total_parts: u8,
+    },
+    TooFewBytes {
+        actual: usize,
+        min: usize,
+    },
 }
 
 #[cfg(feature = "verbose")]
@@ -203,6 +249,7 @@ impl core::fmt::Display for DecodeErrorKind {
             DecodeErrorKind::TooManyElements { max } => {
                 write!(f, "Too many elements. max: {max}")
             }
+            DecodeErrorKind::UdhDecodeError(e) => write!(f, "UDH decode error: {e}"),
         }
     }
 }
@@ -235,6 +282,55 @@ impl core::fmt::Display for OctetStringDecodeError {
 }
 
 impl core::error::Error for OctetStringDecodeError {}
+
+impl core::fmt::Display for UdhDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            UdhDecodeError::ConcatenatedShortMessageDecodeError(e) => {
+                write!(f, "ConcatenatedShortMessage decode error: {e}")
+            }
+        }
+    }
+}
+
+impl core::error::Error for UdhDecodeError {}
+
+impl core::fmt::Display for ConcatenatedShortMessageDecodeError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            ConcatenatedShortMessageDecodeError::InvalidInformationElementLength {
+                actual,
+                expected,
+            } => {
+                write!(
+                    f,
+                    "Invalid information element length. actual: {actual}, expected: {expected}"
+                )
+            }
+            ConcatenatedShortMessageDecodeError::PartNumberZero => {
+                write!(f, "Part number cannot be zero")
+            }
+            ConcatenatedShortMessageDecodeError::PartNumberExceedsTotalParts {
+                part_number,
+                total_parts,
+            } => {
+                write!(
+                    f,
+                    "Part number {} exceeds total parts {}",
+                    part_number, total_parts
+                )
+            }
+            ConcatenatedShortMessageDecodeError::TotalPartsZero => {
+                write!(f, "Total parts cannot be zero")
+            }
+            ConcatenatedShortMessageDecodeError::TooFewBytes { actual, min } => {
+                write!(f, "Too few bytes. actual: {actual}, min: {min}")
+            }
+        }
+    }
+}
+
+impl core::error::Error for ConcatenatedShortMessageDecodeError {}
 
 #[doc(hidden)]
 pub trait DecodeResultExt<T, E> {

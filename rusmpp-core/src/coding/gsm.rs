@@ -275,11 +275,3 @@ impl super::owned::Encoder<&str> for Gsm7Unpacked {
         160 - udh.length() - 1
     }
 }
-
-impl super::borrowed::Encoder<&str> for Gsm7Unpacked {
-    type Error = ();
-
-    fn encode(&self, value: &str, out: &mut [u8]) -> Option<Result<usize, Self::Error>> {
-        self.encode_into(value, out)
-    }
-}

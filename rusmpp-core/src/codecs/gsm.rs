@@ -1,17 +1,18 @@
 /// Errors that can occur during GSM 7-bit unpacked encoding.
 #[derive(Debug)]
-pub enum Gsm7UnpackedEncodeError {
+#[non_exhaustive]
+pub enum Gsm7EncodeError {
     /// UTF-8 error that occurred during encoding.
     Utf8(core::str::Utf8Error),
     /// Character that cannot be encoded in GSM 7-bit.
     Encode(char),
 }
 
-impl core::fmt::Display for Gsm7UnpackedEncodeError {
+impl core::fmt::Display for Gsm7EncodeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
-            Gsm7UnpackedEncodeError::Utf8(err) => write!(f, "UTF-8 error: {err}"),
-            Gsm7UnpackedEncodeError::Encode(ch) => {
+            Gsm7EncodeError::Utf8(err) => write!(f, "UTF-8 error: {err}"),
+            Gsm7EncodeError::Encode(ch) => {
                 write!(
                     f,
                     "Input contains a character that cannot be encoded in GSM 7-bit: {ch:?}"
@@ -21,12 +22,18 @@ impl core::fmt::Display for Gsm7UnpackedEncodeError {
     }
 }
 
-impl core::error::Error for Gsm7UnpackedEncodeError {}
+impl core::error::Error for Gsm7EncodeError {}
 
 /// GSM 7-bit encoding and decoding.
 #[non_exhaustive]
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct Gsm7UnpackedCodec;
+
+impl Default for Gsm7UnpackedCodec {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 
 impl Gsm7UnpackedCodec {
     /// Creates a new [`Gsm7UnpackedCodec`] encoder/decoder.
@@ -68,10 +75,10 @@ impl super::owned::SealedEncoder for Gsm7UnpackedCodec {}
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl super::owned::Encoder<&[u8]> for Gsm7UnpackedCodec {
-    type Error = Gsm7UnpackedEncodeError;
+    type Error = Gsm7EncodeError;
 
     fn encode(&self, value: &[u8]) -> Result<alloc::vec::Vec<u8>, Self::Error> {
-        let value = core::str::from_utf8(value).map_err(Gsm7UnpackedEncodeError::Utf8)?;
+        let value = core::str::from_utf8(value).map_err(Gsm7EncodeError::Utf8)?;
 
         // We double the amount of `bytes` we have in the worst case.
         //
@@ -91,7 +98,7 @@ impl super::owned::Encoder<&[u8]> for Gsm7UnpackedCodec {
                     result.push(0x1B);
                     result.push(val);
                 }
-                None => return Err(Gsm7UnpackedEncodeError::Encode(ch)),
+                None => return Err(Gsm7EncodeError::Encode(ch)),
             }
         }
 
@@ -255,57 +262,127 @@ mod lookup {
     };
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::codecs::owned::Encoder;
+/// GSM 7-bit packed encoding and decoding.
+///
+/// # GSM 03.38 §6.1.2.3.1
+///
+/// ## Packing of 7 bits
+///
+/// Packing of 7 bits characters in USSD strings are done in the same way as for SMS (chapter 6.1.2.1).The
+/// character stream is bit padded to octet boundary with binary zeroes.
+///
+/// ## Note
+/// When multiple of 7 octets are sent the receiving entity has no knowledge weather the
+/// last 7 bits are padding bits or is an Internet "at" character.
+///
+/// The sending entity may optional add an "end of transmission" character after the last USSD character and
+/// then bitpadding to octet boundary before transmission in order to avoid the problem.
+///
+/// The CR character defined in the default alphabet in chapter 6.2 shall be used as the "end of transmission"
+/// sign.
+///
+/// Old mobiles will perform carriage return after displaying the last USSD character received.
+#[non_exhaustive]
+#[derive(Debug)]
+pub struct Gsm7PackedCodec {
+    inner: Gsm7UnpackedCodec,
+    end_of_transmission: bool,
+}
 
-    use super::*;
-
-    #[test]
-    fn encode() {
-        // c-spell: disable
-        let input = r##"Hello world!
-
-@£$¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ !"#¤%&'()*+,-./0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà
-
-^{}\[~]|€"##;
-        // c-spell: enable
-
-        let encoded = Gsm7UnpackedCodec::new()
-            .encode(input.as_bytes())
-            .expect("Encoding failed");
-
-        #[rustfmt::skip]
-        let expected: &[u8] = &[
-            // "Hello world!\n\n"
-            b'H', b'e', b'l', b'l', b'o', b' ', b'w', b'o', b'r', b'l', b'd', b'!', 0x0a, 0x0a,
-            // 00–09, 0b–0c, 0e–0f
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0b, 0x0c, 0x0e, 0x0f,
-            // 10–1f
-            0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1c, 0x1d, 0x1e,
-            0x1f,
-            // ASCII printable range 0x20–0x7f
-            // !"#$%&'()*+,-./0123456789:;<=>?@
-            b' ', b'!', b'"', b'#', b'$', b'%', b'&', b'\'', b'(', b')', b'*', b'+', b',', b'-',
-            b'.', b'/', b'0', b'1', b'2', b'3', b'4', b'5', b'6', b'7', b'8', b'9', b':', b';',
-            b'<', b'=', b'>', b'?', b'@', 
-            // A–Z
-            b'A', b'B', b'C', b'D', b'E', b'F', b'G', b'H', b'I', b'J', b'K', b'L', b'M', b'N',
-            b'O', b'P', b'Q', b'R', b'S', b'T', b'U', b'V', b'W', b'X', b'Y', b'Z',
-            // [\]^_`
-            b'[', b'\\', b']', b'^', b'_', b'`', 
-            // a–z
-            b'a', b'b', b'c', b'd', b'e', b'f', b'g', b'h', b'i', b'j', b'k', b'l', b'm', b'n',
-            b'o', b'p', b'q', b'r', b's', b't', b'u', b'v', b'w', b'x', b'y', b'z',
-            // {|}~ 0x7f
-            b'{', b'|', b'}', b'~', 0x7f, 
-            // 0a 0a
-            0x0a, 0x0a, 
-            // 1b 14 1b ( 1b ) 1b / 1b < 1b = 1b > 1b @ 1b e
-            0x1b, 0x14, 0x1b, b'(', 0x1b, b')', 0x1b, b'/', 0x1b, b'<', 0x1b, b'=', 0x1b, b'>',
-            0x1b, b'@', 0x1b, b'e',
-        ];
-
-        assert_eq!(encoded.as_slice(), expected);
+impl Default for Gsm7PackedCodec {
+    fn default() -> Self {
+        Self::new()
     }
 }
+
+impl Gsm7PackedCodec {
+    /// Creates a new [`Gsm7PackedCodec`] encoder/decoder.
+    ///
+    /// # Defaults
+    ///
+    /// - `end_of_transmission`: `false`
+    pub const fn new() -> Self {
+        Gsm7PackedCodec {
+            inner: Gsm7UnpackedCodec::new(),
+            end_of_transmission: false,
+        }
+    }
+
+    /// Returns whether end-of-transmission character (0x1A) padding is enabled.
+    pub fn end_of_transmission(&self) -> bool {
+        self.end_of_transmission
+    }
+
+    /// Sets whether to add end-of-transmission character (0x1A) padding.
+    pub fn with_end_of_transmission(mut self, enable: bool) -> Self {
+        self.end_of_transmission = enable;
+        self
+    }
+}
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+impl super::owned::SealedEncoder for Gsm7PackedCodec {}
+
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+impl super::owned::Encoder<&[u8]> for Gsm7PackedCodec {
+    type Error = Gsm7EncodeError;
+
+    fn encode(&self, value: &[u8]) -> Result<alloc::vec::Vec<u8>, Self::Error> {
+        let septets = self.inner.encode(value)?;
+
+        Ok(self.pack(&septets))
+    }
+
+    fn data_coding(&self) -> crate::values::DataCoding {
+        crate::values::DataCoding::McSpecific
+    }
+
+    fn padding(&self) -> usize {
+        1 // reserve 1 byte for escape character split prevention
+    }
+}
+
+impl Gsm7PackedCodec {
+    #[cfg(any(test, feature = "alloc"))]
+    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+    fn pack(&self, septets: &[u8]) -> alloc::vec::Vec<u8> {
+        let n_octets = (septets.len() * 7).div_ceil(8);
+        let mut packed = alloc::vec::Vec::with_capacity(n_octets);
+
+        let mut carry: u16 = 0;
+        let mut carry_bits: u8 = 0;
+
+        for &septet in septets {
+            carry |= (septet as u16) << carry_bits;
+            carry_bits += 7;
+
+            while carry_bits >= 8 {
+                packed.push((carry & 0xFF) as u8);
+                carry >>= 8;
+                carry_bits -= 8;
+            }
+        }
+
+        if carry_bits > 0 {
+            packed.push(carry as u8);
+        }
+
+        if self.end_of_transmission {
+            let total_bits = septets.len() * 7;
+
+            if total_bits % 8 == 1 {
+                if let Some(last) = packed.last_mut() {
+                    if *last == 0x00 || *last == 0x01 {
+                        *last |= 0x0D << 1; // insert CR << 1 = 0x1A
+                    }
+                }
+            }
+        }
+
+        packed
+    }
+}
+
+#[cfg(test)]
+mod tests;

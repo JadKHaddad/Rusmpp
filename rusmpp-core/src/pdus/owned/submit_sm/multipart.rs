@@ -1,7 +1,7 @@
 use alloc::vec::Vec;
 
 use crate::{
-    codecs::owned::Encoder,
+    codecs::{Gsm7PackedCodec, Gsm7UnpackedCodec, owned::Encoder},
     types::{OctetStringError, owned::OctetString},
     values::{ConcatenatedShortMessageType, DataCoding},
 };
@@ -104,8 +104,15 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     }
 
     /// Sets the GSM 7-bit unpacked encoder.
-    pub fn gsm7_unpacked(self) -> SubmitSmMultipartBuilder<'a, crate::codecs::Gsm7UnpackedCodec> {
-        self.encoder(crate::codecs::Gsm7UnpackedCodec::new())
+    pub fn gsm7_unpacked(self) -> SubmitSmMultipartBuilder<'a, Gsm7UnpackedCodec> {
+        self.encoder(Gsm7UnpackedCodec::new())
+    }
+
+    /// Sets the GSM 7-bit packed encoder with default settings.
+    ///
+    /// See [`Gsm7PackedCodec`] for more configuration options.
+    pub fn gsm7_packed(self) -> SubmitSmMultipartBuilder<'a, Gsm7PackedCodec> {
+        self.encoder(Gsm7PackedCodec::new())
     }
 }
 

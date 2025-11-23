@@ -5,14 +5,14 @@
 //! ```
 //!
 
-use std::{convert::Infallible, str::FromStr};
+use std::str::FromStr;
 
 use futures::StreamExt;
 use rusmpp::{
     CommandId,
+    codecs::Gsm7PackedCodec,
     pdus::{BindTransceiver, DeliverSmResp, SubmitSm},
-    types::{COctetString, OctetString},
-    values::{DataCoding, EsmClass, Npi, RegisteredDelivery, ServiceType, Ton},
+    types::COctetString,
 };
 use rusmppc::{ConnectionBuilder, Event};
 
@@ -63,16 +63,15 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 ^{}\[~]|€"##;
     // c-spell: enable
 
-    let message = "Hi there";
-
     let multipart = SubmitSm::builder()
         .build()
         .multipart()
         .short_message(message.as_bytes())
         .reference_u8(1)
         .gsm7_unpacked()
-        // .encoder(|bytes: &[u8]| Ok::<_, Infallible>(bytes.to_vec()))
-        .max_short_message_size(8)
+        .encoder(Gsm7PackedCodec::new())
+        // .encoder(|bytes: &[u8]| Ok::<_, std::convert::Infallible, >(bytes.to_vec()))
+        // .max_short_message_size(8)
         .build()?
         .ok_or("Part size was 0")?;
 

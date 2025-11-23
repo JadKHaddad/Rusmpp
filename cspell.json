@@ -14,6 +14,7 @@
         "asyncio",
         "Atag",
         "bindgen",
+        "CCITT",
         "CDMA",
         "Cdpd",
         "cdylib",

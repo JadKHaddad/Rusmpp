@@ -1,5 +1,7 @@
 use rusmpp_macros::Rusmpp;
 
+/// Indicates Message Mode and Message Type.
+///
 /// The esm_class parameter is used to indicate special message attributes associated with the
 /// short message.
 ///

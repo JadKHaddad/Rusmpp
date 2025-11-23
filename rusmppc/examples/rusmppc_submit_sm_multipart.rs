@@ -5,7 +5,7 @@
 //! ```
 //!
 
-use std::str::FromStr;
+use std::{convert::Infallible, str::FromStr};
 
 use futures::StreamExt;
 use rusmpp::{
@@ -63,29 +63,26 @@ async fn main() -> Result<(), Box<dyn core::error::Error>> {
 ^{}\[~]|€"##;
     // c-spell: enable
 
+    let message = "Hi there";
+
     let multipart = SubmitSm::builder()
-        .source_addr_ton(Ton::Unknown)
-        .source_addr_npi(Npi::Unknown)
-        .source_addr(COctetString::from_str("12345")?)
-        .destination_addr(COctetString::from_str("491701234567")?)
-        // esm_class will be updated with UDHI indicator by the multipart builder.
-        .esm_class(EsmClass::default())
-        // data_coding will be overridden by the multipart builder to match the encoder.
-        .data_coding(DataCoding::default())
-        // short_message will be overridden by `short_message` of the multipart builder.
-        .short_message(OctetString::from_str("Hi, I am a short message.")?)
         .build()
         .multipart()
         .short_message(message.as_bytes())
-        .reference_u16(1)
+        .reference_u8(1)
         .gsm7_unpacked()
-        .build()?;
+        // .encoder(|bytes: &[u8]| Ok::<_, Infallible>(bytes.to_vec()))
+        .max_short_message_size(8)
+        .build()?
+        .ok_or("Part size was 0")?;
 
     let total = multipart.len();
 
     tracing::info!(total = total, "Submitting multipart message");
 
     for (idx, sm) in multipart.enumerate() {
+        let sm = sm?;
+
         tracing::info!(?sm, "Submitting part {}/{}", idx + 1, total);
 
         let response = client.submit_sm(sm).await?;

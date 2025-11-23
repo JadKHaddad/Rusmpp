@@ -1,8 +1,9 @@
-use core::num::NonZeroUsize;
+use crate::values::DataCoding;
 
-use crate::values::{ConcatenatedShortMessageType, DataCoding};
+pub(super) trait SealedEncoder {}
 
-pub trait Encoder<T> {
+#[allow(private_bounds)]
+pub trait Encoder<T>: SealedEncoder {
     /// The associated error type for encoding operations.
     type Error;
 
@@ -17,22 +18,25 @@ pub trait Encoder<T> {
     /// The corresponding data coding for the encoded value.
     fn data_coding(&self) -> DataCoding;
 
-    /// Max bytes for no concatenation, after encoding.
-    ///
-    /// # Note
-    ///
-    /// `max_bytes` must not exceed `255`: the maximum length of an SMPP short message.
-    /// See [`SubmitSm::short_message`](crate::pdus::owned::SubmitSm::short_message).
-    fn max_bytes(&self) -> NonZeroUsize;
+    /// TODO: what should this be called?
+    fn padding(&self) -> usize {
+        0
+    }
+}
 
-    /// Max bytes for concatenation, after encoding.
-    ///
-    /// # Note
-    ///
-    /// `max_bytes_with_concatenation` + [`ConcatenatedShortMessageType::udh_length`] must not exceed `255`: the maximum length of an SMPP short message.
-    /// See [`SubmitSm::short_message`](crate::pdus::owned::SubmitSm::short_message).
-    fn max_bytes_with_concatenation(
-        &self,
-        concatenation: ConcatenatedShortMessageType,
-    ) -> NonZeroUsize;
+impl<F, E> SealedEncoder for F where F: Fn(&[u8]) -> Result<alloc::vec::Vec<u8>, E> {}
+
+impl<F, E> Encoder<&[u8]> for F
+where
+    F: Fn(&[u8]) -> Result<alloc::vec::Vec<u8>, E>,
+{
+    type Error = E;
+
+    fn encode(&self, value: &[u8]) -> Result<alloc::vec::Vec<u8>, Self::Error> {
+        (self)(value)
+    }
+
+    fn data_coding(&self) -> DataCoding {
+        DataCoding::McSpecific
+    }
 }

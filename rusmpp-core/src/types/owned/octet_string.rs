@@ -56,12 +56,6 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     const _ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX: () =
         assert!(MIN <= MAX, "MIN must be less than or equal to MAX");
 
-    pub(crate) const fn new_unchecked(bytes: Vec<u8>) -> Self {
-        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
-
-        Self { bytes }
-    }
-
     /// Create a new empty [`OctetString`].
     ///
     /// Equivalent to [`OctetString::empty`].
@@ -89,10 +83,11 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
         self.bytes.is_empty()
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+    /// Create a new [`OctetString`] from the given bytes.
+    ///
+    /// This should replace the current `new` method.
+    pub(crate) fn new_(bytes: Vec<u8>) -> Result<Self, Error> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
-
-        let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
             return Err(Error::TooManyBytes {
@@ -108,9 +103,16 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
             });
         }
 
-        let bytes = bytes.to_vec();
-
         Ok(Self { bytes })
+    }
+
+    // TODO: what the fuck is this api? impl as rer really? see `new_`
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
+        let bytes = bytes.as_ref().to_vec();
+
+        Self::new_(bytes)
     }
 
     /// Convert an [`OctetString`] to a &[`str`].

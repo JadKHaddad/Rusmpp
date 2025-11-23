@@ -2,7 +2,7 @@ use alloc::vec::Vec;
 
 use crate::{
     codecs::owned::Encoder,
-    types::owned::OctetString,
+    types::{OctetStringError, owned::OctetString},
     values::{ConcatenatedShortMessageType, DataCoding},
 };
 
@@ -13,6 +13,9 @@ use super::SubmitSm;
 #[derive(Debug)]
 pub struct SubmitSmMultipartBuilder<'a, E> {
     short_message: &'a [u8],
+    max_short_message_size: usize,
+    padding: Option<usize>,
+    data_coding: Option<DataCoding>,
     sm: SubmitSm,
     encoder: E,
     concatenation_type: ConcatenatedShortMessageType,
@@ -22,6 +25,9 @@ impl<E> SubmitSmMultipartBuilder<'static, E> {
     pub fn new(sm: SubmitSm, encoder: E) -> SubmitSmMultipartBuilder<'static, E> {
         Self {
             short_message: &[],
+            max_short_message_size: SubmitSm::default_max_short_message_size(),
+            padding: None,
+            data_coding: None,
             sm,
             encoder,
             concatenation_type: ConcatenatedShortMessageType::u8(0),
@@ -33,10 +39,41 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     pub fn short_message<'b>(self, short_message: &'b [u8]) -> SubmitSmMultipartBuilder<'b, E> {
         SubmitSmMultipartBuilder {
             short_message,
+            max_short_message_size: self.max_short_message_size,
+            padding: self.padding,
+            data_coding: self.data_coding,
             sm: self.sm,
             encoder: self.encoder,
             concatenation_type: self.concatenation_type,
         }
+    }
+
+    /// Override the default max short message size.
+    ///
+    /// See [`SubmitSm::default_max_short_message_size`].
+    pub fn max_short_message_size(mut self, size: usize) -> Self {
+        self.max_short_message_size = size;
+        self
+    }
+
+    /// Override the default padding size provided by the encoder.
+    ///
+    /// If not set, the encoder's padding size will be used.
+    ///
+    /// Set this value when using a custom encoder function.
+    pub fn padding(mut self, padding: usize) -> Self {
+        self.padding = Some(padding);
+        self
+    }
+
+    /// Override the default data coding provided by the encoder.
+    ///
+    /// If not set, the encoder's data coding will be used.
+    ///
+    /// Set this value when using a custom encoder function.
+    pub fn data_coding(mut self, data_coding: DataCoding) -> Self {
+        self.data_coding = Some(data_coding);
+        self
     }
 
     /// Sets the reference number for the concatenated short message as [`u8`].
@@ -52,9 +89,14 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     }
 
     /// Sets a custom encoder.
+    ///
+    /// See [`Self::padding`] and [`Self::data_coding`] to override padding and data coding if needed.
     pub fn encoder<U>(self, encoder: U) -> SubmitSmMultipartBuilder<'a, U> {
         SubmitSmMultipartBuilder {
             short_message: self.short_message,
+            max_short_message_size: self.max_short_message_size,
+            padding: self.padding,
+            data_coding: self.data_coding,
             sm: self.sm,
             encoder,
             concatenation_type: self.concatenation_type,
@@ -73,36 +115,47 @@ where
 {
     pub fn build(
         self,
-    ) -> Result<impl ExactSizeIterator<Item = SubmitSm>, <E as Encoder<&'a [u8]>>::Error> {
+    ) -> Result<
+        Option<impl ExactSizeIterator<Item = Result<SubmitSm, OctetStringError>>>,
+        <E as Encoder<&'a [u8]>>::Error,
+    > {
         let encoded = self.encoder.encode(self.short_message)?;
 
         let part_size = self
-            .encoder
-            .max_bytes_with_concatenation(self.concatenation_type)
-            .get();
+            .max_short_message_size
+            .saturating_sub(self.concatenation_type.udh_length())
+            .saturating_sub(self.padding.unwrap_or(self.encoder.padding()));
+
+        if part_size == 0 {
+            // Cannot build multipart with 0 part size
+            return Ok(None);
+        }
+
+        let data_coding = self.data_coding.unwrap_or(self.encoder.data_coding());
 
         if encoded.len() > part_size {
             let total_parts = encoded.len().div_ceil(part_size);
+            // Truncate to max 255 parts which we can encode in `total_parts` as `u8` in UDH
             let total_parts = total_parts.min(255) as u8;
 
-            return Ok(MultipartIterator::new(
+            return Ok(Some(MultipartIterator::new(
                 encoded,
-                self.encoder.data_coding(),
+                data_coding,
                 self.sm,
                 self.concatenation_type,
                 part_size,
                 total_parts,
-            ));
+            )));
         }
 
-        Ok(MultipartIterator::new(
+        Ok(Some(MultipartIterator::new(
             encoded,
-            self.encoder.data_coding(),
+            data_coding,
             self.sm,
             self.concatenation_type,
             part_size,
             1,
-        ))
+        )))
     }
 }
 
@@ -138,9 +191,10 @@ impl MultipartIterator {
 }
 
 impl Iterator for MultipartIterator {
-    type Item = SubmitSm;
+    type Item = Result<SubmitSm, OctetStringError>;
 
     fn next(&mut self) -> Option<Self::Item> {
+        // We take up to `total_parts` that we can encode as `u8` in UDH
         if self.idx >= self.total_parts as usize {
             return None;
         }
@@ -149,6 +203,7 @@ impl Iterator for MultipartIterator {
         let end = (start + self.part_size).min(self.encoded.len());
         let chunk = &self.encoded[start..end];
 
+        // Part number can not be 0
         let part_number = (self.idx + 1) as u8;
 
         let concatenation = self
@@ -160,17 +215,17 @@ impl Iterator for MultipartIterator {
         payload.extend_from_slice(concatenation.udh_bytes().as_bytes());
         payload.extend_from_slice(chunk);
 
-        let short_message = OctetString::new_unchecked(payload);
-
         self.idx += 1;
 
-        Some(
-            self.sm
+        match OctetString::new_(payload) {
+            Ok(short_message) => Some(Ok(self
+                .sm
                 .clone()
                 .with_udhi_indicator()
                 .with_short_message(short_message)
-                .with_data_coding(self.data_coding),
-        )
+                .with_data_coding(self.data_coding))),
+            Err(e) => Some(Err(e)),
+        }
     }
 }
 

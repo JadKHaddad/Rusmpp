@@ -65,3 +65,5 @@ pub mod tokio_codec;
 pub mod codecs;
 
 pub mod udhs;
+
+mod sealed;

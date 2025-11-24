@@ -1,9 +1,7 @@
-use crate::values::DataCoding;
-
-pub(super) trait SealedEncoder {}
+use crate::{sealed::Sealed, values::DataCoding};
 
 #[allow(private_bounds)]
-pub trait Encoder<T>: SealedEncoder {
+pub trait Encoder<T>: Sealed {
     /// The associated error type for encoding operations.
     type Error;
 
@@ -18,25 +16,8 @@ pub trait Encoder<T>: SealedEncoder {
     /// The corresponding data coding for the encoded value.
     fn data_coding(&self) -> DataCoding;
 
-    /// TODO: what should this be called?
-    fn padding(&self) -> usize {
+    /// TODO: document this
+    fn tolerance(&self) -> usize {
         0
-    }
-}
-
-impl<F, E> SealedEncoder for F where F: Fn(&[u8]) -> Result<alloc::vec::Vec<u8>, E> {}
-
-impl<F, E> Encoder<&[u8]> for F
-where
-    F: Fn(&[u8]) -> Result<alloc::vec::Vec<u8>, E>,
-{
-    type Error = E;
-
-    fn encode(&self, value: &[u8]) -> Result<alloc::vec::Vec<u8>, Self::Error> {
-        (self)(value)
-    }
-
-    fn data_coding(&self) -> DataCoding {
-        DataCoding::McSpecific
     }
 }

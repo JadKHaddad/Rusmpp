@@ -131,7 +131,7 @@ where
         let part_size = self
             .max_short_message_size
             .saturating_sub(self.concatenation_type.udh_length())
-            .saturating_sub(self.padding.unwrap_or(self.encoder.padding()));
+            .saturating_sub(self.padding.unwrap_or(self.encoder.tolerance()));
 
         if part_size == 0 {
             // Cannot build multipart with 0 part size

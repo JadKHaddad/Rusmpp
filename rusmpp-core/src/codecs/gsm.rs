@@ -1,3 +1,5 @@
+use crate::sealed::Sealed;
+
 /// Errors that can occur during GSM 7-bit unpacked encoding.
 #[derive(Debug)]
 #[non_exhaustive]
@@ -68,9 +70,7 @@ enum Lookup {
     Extended(u8),
 }
 
-#[cfg(any(test, feature = "alloc"))]
-#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl super::owned::SealedEncoder for Gsm7UnpackedCodec {}
+impl Sealed for Gsm7UnpackedCodec {}
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
@@ -111,7 +111,7 @@ impl super::owned::Encoder<&[u8]> for Gsm7UnpackedCodec {
         crate::values::DataCoding::McSpecific
     }
 
-    fn padding(&self) -> usize {
+    fn tolerance(&self) -> usize {
         // We reserve 1 byte to avoid an escape character being split between payloads
         1
     }
@@ -319,9 +319,8 @@ impl Gsm7PackedCodec {
         self
     }
 }
-#[cfg(any(test, feature = "alloc"))]
-#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-impl super::owned::SealedEncoder for Gsm7PackedCodec {}
+
+impl Sealed for Gsm7PackedCodec {}
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
@@ -338,7 +337,7 @@ impl super::owned::Encoder<&[u8]> for Gsm7PackedCodec {
         crate::values::DataCoding::McSpecific
     }
 
-    fn padding(&self) -> usize {
+    fn tolerance(&self) -> usize {
         1 // reserve 1 byte for escape character split prevention
     }
 }

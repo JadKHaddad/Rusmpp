@@ -112,12 +112,14 @@ impl super::owned::Encoder<&[u8]> for Gsm7UnpackedCodec {
     }
 
     fn tolerance(&self) -> usize {
+        // TODO: is that really so?
         // We reserve 1 byte to avoid an escape character being split between payloads
         1
     }
 }
 
 mod lookup {
+    // TODO: replace with match
     pub(super) static TABLE_EXTENDED: phf::Map<char, u8> = phf::phf_map! {
         '^' => 0x14,
         '{' => 0x28,
@@ -286,6 +288,7 @@ mod lookup {
 #[derive(Debug)]
 pub struct Gsm7PackedCodec {
     inner: Gsm7UnpackedCodec,
+    // TODO: how do we handle this when we pack with padding other than 0?
     end_of_transmission: bool,
 }
 
@@ -309,12 +312,12 @@ impl Gsm7PackedCodec {
     }
 
     /// Returns whether end-of-transmission character (0x1A) padding is enabled.
-    pub fn end_of_transmission(&self) -> bool {
+    fn end_of_transmission(&self) -> bool {
         self.end_of_transmission
     }
 
     /// Sets whether to add end-of-transmission character (0x1A) padding.
-    pub fn with_end_of_transmission(mut self, enable: bool) -> Self {
+    fn with_end_of_transmission(mut self, enable: bool) -> Self {
         self.end_of_transmission = enable;
         self
     }
@@ -328,9 +331,7 @@ impl super::owned::Encoder<&[u8]> for Gsm7PackedCodec {
     type Error = Gsm7EncodeError;
 
     fn encode(&self, value: &[u8]) -> Result<alloc::vec::Vec<u8>, Self::Error> {
-        let septets = self.inner.encode(value)?;
-
-        Ok(self.pack(&septets))
+        self.inner.encode(value)
     }
 
     fn data_coding(&self) -> crate::values::DataCoding {
@@ -338,21 +339,41 @@ impl super::owned::Encoder<&[u8]> for Gsm7PackedCodec {
     }
 
     fn tolerance(&self) -> usize {
+        // TODO: should we reserve 2 because when finalizing with padding more than 0 we might need an extra byte?
+
         1 // reserve 1 byte for escape character split prevention
+    }
+
+    fn finalize(&self, header: &[u8], encoded: alloc::vec::Vec<u8>) -> alloc::vec::Vec<u8> {
+        self.pack_with_header(header, &encoded)
     }
 }
 
+// TODO: this padding anb packing logic is not working!
+
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 impl Gsm7PackedCodec {
-    #[cfg(any(test, feature = "alloc"))]
-    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    fn pack(&self, septets: &[u8]) -> alloc::vec::Vec<u8> {
-        let n_octets = (septets.len() * 7).div_ceil(8);
+    /// packs the encoded data with the given header length taken into account.
+    fn pack_with_header(&self, header: &[u8], encoded: &[u8]) -> alloc::vec::Vec<u8> {
+        use std::println;
+
+        println!("Header length (bytes): {}", header.len());
+        let padding = (7 - ((header.len() * 8) % 7)) % 7;
+
+        println!("Padding (bits): {}", padding);
+
+        self.pack(padding, encoded)
+    }
+
+    fn pack(&self, padding: usize, encoded: &[u8]) -> alloc::vec::Vec<u8> {
+        let n_octets = (encoded.len() * 7).div_ceil(8);
         let mut packed = alloc::vec::Vec::with_capacity(n_octets);
 
         let mut carry: u16 = 0;
         let mut carry_bits: u8 = 0;
 
-        for &septet in septets {
+        for &septet in encoded {
             carry |= (septet as u16) << carry_bits;
             carry_bits += 7;
 
@@ -367,16 +388,35 @@ impl Gsm7PackedCodec {
             packed.push(carry as u8);
         }
 
-        if self.end_of_transmission {
-            let total_bits = septets.len() * 7;
+        // if self.end_of_transmission {
+        //     let total_bits = septets.len() * 7;
 
-            if total_bits % 8 == 1 {
-                if let Some(last) = packed.last_mut() {
-                    if *last == 0x00 || *last == 0x01 {
-                        *last |= 0x0D << 1; // insert CR << 1 = 0x1A
-                    }
-                }
+        //     if total_bits % 8 == 1 {
+        //         if let Some(last) = packed.last_mut() {
+        //             if *last == 0x00 || *last == 0x01 {
+        //                 *last |= 0x0D << 1; // insert CR << 1 = 0x1A
+        //             }
+        //         }
+        //     }
+        // }
+
+        // padding
+        if padding > 0 {
+            let mut shifted = alloc::vec![0u8; packed.len() + 1];
+
+            for i in 0..packed.len() {
+                let cur = packed[i];
+                let next = packed.get(i + 1).copied().unwrap_or(0);
+
+                shifted[i] = (cur << padding) | (next >> (8 - padding));
             }
+
+            // Remove last zero if it’s not needed
+            while shifted.last() == Some(&0u8) {
+                shifted.pop();
+            }
+
+            return shifted;
         }
 
         packed

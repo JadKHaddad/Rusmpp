@@ -166,6 +166,8 @@ where
     }
 }
 
+// TODO: get rid of the MultipartIterator and create a `OwnedChunks` that with Item Vec<u8>. copy the std impl of chunks that uses slices. then use it in the return impl just like chunks.
+
 struct MultipartIterator {
     idx: usize,
     encoded: Vec<u8>,
@@ -218,6 +220,8 @@ impl Iterator for MultipartIterator {
             .concatenated_short_message_unchecked(self.total_parts, part_number);
 
         let mut payload = Vec::with_capacity(concatenation.udh_length() + chunk.len());
+
+        // TODO: we need to finalize the encoded data using the finalize method on the encoder
 
         payload.extend_from_slice(concatenation.udh_bytes().as_bytes());
         payload.extend_from_slice(chunk);

@@ -13,6 +13,12 @@ pub trait Encoder<T>: Sealed {
     /// - `Err(Self::Error)` if an encoding error occurs.
     fn encode(&self, value: T) -> Result<alloc::vec::Vec<u8>, Self::Error>;
 
+    /// finalizes the encoded value knowing that the `header` will be prepended.
+    #[allow(unused_variables)]
+    fn finalize(&self, header: &[u8], encoded: alloc::vec::Vec<u8>) -> alloc::vec::Vec<u8> {
+        encoded
+    }
+
     /// The corresponding data coding for the encoded value.
     fn data_coding(&self) -> DataCoding;
 

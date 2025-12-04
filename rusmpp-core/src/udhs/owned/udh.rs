@@ -7,7 +7,10 @@ use crate::{
     },
     encode::{Encode, Length},
     types::owned::AnyOctetString,
-    udhs::{ConcatenatedShortMessage8Bit, ConcatenatedShortMessage16Bit, UdhId},
+    udhs::{
+        UdhId,
+        owned::concatenation::{ConcatenatedShortMessage8Bit, ConcatenatedShortMessage16Bit},
+    },
 };
 
 /// User Data Header (UDH).

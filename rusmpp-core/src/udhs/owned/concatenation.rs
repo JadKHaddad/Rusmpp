@@ -1,4 +1,15 @@
-use crate::udhs::{ConcatenatedShortMessage8Bit, ConcatenatedShortMessage16Bit};
+//! Short message concatenation UDHs.
+
+mod concatenated_short_message_16_bit;
+pub use concatenated_short_message_16_bit::ConcatenatedShortMessage16Bit;
+
+mod concatenated_short_message_8_bit;
+pub use concatenated_short_message_8_bit::ConcatenatedShortMessage8Bit;
+
+pub mod parts {
+    pub use super::concatenated_short_message_8_bit::ConcatenatedShortMessage8BitParts;
+    pub use super::concatenated_short_message_16_bit::ConcatenatedShortMessage16BitParts;
+}
 
 /// Concatenated short message.
 #[derive(Debug, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -10,10 +21,10 @@ pub enum ConcatenatedShortMessage {
 }
 
 impl ConcatenatedShortMessage {
-    /// Very similar to [`ConcatenatedShortMessageType::udh_length`], but used elsewhere.
+    /// Returns the length of the UDH type in bytes.
     ///
     /// See [`ConcatenatedShortMessageType::udh_length`].
-    pub(crate) const fn udh_length(&self) -> usize {
+    pub const fn udh_length(&self) -> usize {
         match self {
             Self::EightBit(_) => ConcatenatedShortMessage8Bit::UDH_LENGTH,
             Self::SixteenBit(_) => ConcatenatedShortMessage16Bit::UDH_LENGTH,
@@ -21,7 +32,7 @@ impl ConcatenatedShortMessage {
     }
 
     /// Converts [`ConcatenatedShortMessage`] to its UDH bytes representation.
-    pub(crate) const fn udh_bytes(&self) -> ConcatenatedShortMessageUdhBytes {
+    pub const fn udh_bytes(&self) -> ConcatenatedShortMessageUdhBytes {
         match self {
             Self::EightBit(concatenation) => {
                 ConcatenatedShortMessageUdhBytes::EightBit(concatenation.udh_bytes())
@@ -35,7 +46,7 @@ impl ConcatenatedShortMessage {
 
 /// Bytes representation of [`ConcatenatedShortMessage`] as full UDH.
 #[derive(Debug)]
-pub(crate) enum ConcatenatedShortMessageUdhBytes {
+pub enum ConcatenatedShortMessageUdhBytes {
     /// 8-bit UDH bytes
     EightBit([u8; 6]),
     /// 16-bit UDH bytes
@@ -44,7 +55,7 @@ pub(crate) enum ConcatenatedShortMessageUdhBytes {
 
 impl ConcatenatedShortMessageUdhBytes {
     /// Returns the bytes as a slice.
-    pub(crate) const fn as_bytes(&self) -> &[u8] {
+    pub const fn as_bytes(&self) -> &[u8] {
         match self {
             Self::EightBit(bytes) => bytes,
             Self::SixteenBit(bytes) => bytes,
@@ -62,24 +73,28 @@ pub enum ConcatenatedShortMessageType {
 }
 
 impl ConcatenatedShortMessageType {
-    pub(crate) const fn u8(reference: u8) -> Self {
+    /// Creates a new [`ConcatenatedShortMessageType::EightBit`].
+    pub const fn u8(reference: u8) -> Self {
         Self::EightBit { reference }
     }
 
-    pub(crate) const fn u16(reference: u16) -> Self {
+    /// Creates a new [`ConcatenatedShortMessageType::SixteenBit`].
+    pub const fn u16(reference: u16) -> Self {
         Self::SixteenBit { reference }
     }
 
     /// Returns the length of the UDH type in bytes.
-    // XXX: Codecs rely on this value to be correct. Using bad (very large) values will cause underflow.
-    pub(crate) const fn udh_length(self) -> usize {
+    pub const fn udh_length(self) -> usize {
         match self {
             Self::EightBit { .. } => ConcatenatedShortMessage8Bit::UDH_LENGTH,
             Self::SixteenBit { .. } => ConcatenatedShortMessage16Bit::UDH_LENGTH,
         }
     }
 
-    pub(crate) const fn concatenated_short_message_unchecked(
+    /// Creates a new [`ConcatenatedShortMessage`]without checking invariants.
+    ///
+    /// See [`ConcatenatedShortMessage8Bit::new_unchecked`] and [`ConcatenatedShortMessage16Bit::new_unchecked`].
+    pub const fn concatenated_short_message_unchecked(
         self,
         total_parts: u8,
         part_number: u8,

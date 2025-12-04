@@ -1,10 +1,13 @@
 use crate::{
     decode::{ConcatenatedShortMessageDecodeError, DecodeError},
     encode::Length,
-    udhs::{ConcatenatedShortMessage16Bit, errors::ConcatenatedShortMessageError, owned::UdhValue},
+    udhs::{
+        errors::ConcatenatedShortMessageError,
+        owned::{UdhValue, concatenation::ConcatenatedShortMessage16Bit},
+    },
 };
 
-/// 8-bit Concatenated Short Message UDH
+/// 8-bit Concatenated Short Message UDH.
 ///
 /// 8-bit reference number (IEI = 0x00)
 ///
@@ -50,7 +53,7 @@ impl ConcatenatedShortMessage8Bit {
     const LENGTH: usize = 4;
 
     /// The length of [`ConcatenatedShortMessage8Bit`] encoded as a full UDH.
-    pub(crate) const UDH_LENGTH: usize = Self::LENGTH + 2;
+    pub const UDH_LENGTH: usize = Self::LENGTH + 2;
 
     /// Creates a new [`ConcatenatedShortMessage8Bit`].
     ///
@@ -92,7 +95,7 @@ impl ConcatenatedShortMessage8Bit {
     }
 
     /// Creates a new [`ConcatenatedShortMessage8Bit`] without checking invariants.
-    pub(crate) const fn new_unchecked(reference: u8, total_parts: u8, part_number: u8) -> Self {
+    pub const fn new_unchecked(reference: u8, total_parts: u8, part_number: u8) -> Self {
         Self {
             reference,
             total_parts,
@@ -126,7 +129,7 @@ impl ConcatenatedShortMessage8Bit {
     }
 
     /// The bytes representation of [`ConcatenatedShortMessage8Bit`] encoded as a full UDH.
-    pub(crate) const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
+    pub const fn udh_bytes(&self) -> [u8; Self::LENGTH + 2] {
         let bytes = self.bytes();
         [
             0x05, // UDH Length = 5 bytes

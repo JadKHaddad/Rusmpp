@@ -62,8 +62,4 @@ pub mod framez;
 #[cfg_attr(docsrs, doc(cfg(feature = "tokio-codec")))]
 pub mod tokio_codec;
 
-pub mod codecs;
-
 pub mod udhs;
-
-mod sealed;

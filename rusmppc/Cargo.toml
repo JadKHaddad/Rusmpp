@@ -96,11 +96,6 @@ path = "examples/rusmppc_submit_sm.rs"
 required-features = []
 
 [[example]]
-name = "rusmppc_submit_sm_multipart"
-path = "examples/rusmppc_submit_sm_multipart.rs"
-required-features = []
-
-[[example]]
 name = "tls_manual_rustls"
 path = "examples/tls_manual_rustls.rs"
 required-features = ["rustls"]

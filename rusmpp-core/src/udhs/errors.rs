@@ -1,6 +1,6 @@
 //! Errors related to User Data Header (UDH).
 
-/// Errors that can occur when creating [`ConcatenatedShortMessage8Bit`](super::ConcatenatedShortMessage8Bit) or [`ConcatenatedShortMessage16Bit`](super::ConcatenatedShortMessage16Bit).
+/// Errors that can occur when creating `ConcatenatedShortMessage8Bit` or `ConcatenatedShortMessage16Bit`.
 #[derive(Debug)]
 pub enum ConcatenatedShortMessageError {
     /// The total number of parts is zero.

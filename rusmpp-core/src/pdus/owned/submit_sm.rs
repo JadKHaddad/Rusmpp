@@ -1,7 +1,6 @@
 use rusmpp_macros::Rusmpp;
 
 use crate::{
-    codecs::Gsm7UnpackedCodec,
     encode::Length,
     pdus::owned::Pdu,
     tlvs::{
@@ -11,8 +10,6 @@ use crate::{
     types::owned::{COctetString, EmptyOrFullCOctetString, OctetString},
     values::{owned::*, *},
 };
-
-mod multipart;
 
 /// This operation is used by an ESME to submit a short message to the MC for onward
 /// transmission to a specified short message entity (SME).
@@ -232,21 +229,22 @@ impl SubmitSm {
         SubmitSmBuilder::new()
     }
 
-    pub fn multipart(self) -> multipart::SubmitSmMultipartBuilder<'static, Gsm7UnpackedCodec> {
-        multipart::SubmitSmMultipartBuilder::new(self, Gsm7UnpackedCodec::new())
-    }
-
-    fn with_data_coding(mut self, data_coding: DataCoding) -> Self {
+    /// Sets the [`SubmitSm::data_coding`].
+    pub fn with_data_coding(mut self, data_coding: DataCoding) -> Self {
         self.data_coding = data_coding;
         self
     }
 
-    fn with_udhi_indicator(mut self) -> Self {
+    /// Sets the UDH Indicator bit in the GSM Features field of the [`SubmitSm::esm_class`].
+    pub fn with_udhi_indicator(mut self) -> Self {
         self.esm_class = self.esm_class.with_udhi_indicator();
         self
     }
 
-    fn with_short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+    /// Sets the [`SubmitSm::short_message`] and [`SubmitSm::sm_length`](SubmitSm::sm_length).
+    ///
+    /// See [`SubmitSm::set_short_message`] for details.
+    pub fn with_short_message(mut self, short_message: OctetString<0, 255>) -> Self {
         self.set_short_message(short_message);
         self
     }

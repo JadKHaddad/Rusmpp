@@ -86,7 +86,7 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
     /// Create a new [`OctetString`] from the given bytes.
     ///
     /// This should replace the current `new` method.
-    pub(crate) fn new_(bytes: Vec<u8>) -> Result<Self, Error> {
+    fn new_(bytes: Vec<u8>) -> Result<Self, Error> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 
         if bytes.len() > MAX {
@@ -106,7 +106,7 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
         Ok(Self { bytes })
     }
 
-    // TODO: what the fuck is this api? impl as rer really? see `new_`
+    // TODO: what the fuck is this api? impl as ref really? see `new_`
     pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
 

@@ -1,5 +1,5 @@
 /// Character that cannot be encoded in the target encoding.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
 #[error("Character '{character}' cannot be encoded in target encoding.")]
 pub struct UnencodableCharacterError {
     /// The unencodable character.
@@ -7,7 +7,7 @@ pub struct UnencodableCharacterError {
 }
 
 impl UnencodableCharacterError {
-    /// Creates a new [`UnencodableCharacter`] error.
+    /// Creates a new [`UnencodableCharacterError`] error.
     pub(crate) const fn new(character: char) -> Self {
         Self { character }
     }

@@ -16,7 +16,7 @@ thiserror = { version = "2.0.17", default-features = false }
 ucs2 = { version = "0.3.3", default-features = false, optional = true }
 
 [features]
-default = ["concatenation", "codecs"]
+default = ["concatenation", "codecs", "alloc"]
 
 # Enables the `alloc` crate.
 alloc = ["rusmpp-core/alloc"]

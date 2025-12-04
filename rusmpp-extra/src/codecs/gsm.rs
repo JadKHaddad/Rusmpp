@@ -3,3 +3,6 @@
 mod alphabet;
 mod codec;
 mod errors;
+
+#[cfg(test)]
+mod tests;

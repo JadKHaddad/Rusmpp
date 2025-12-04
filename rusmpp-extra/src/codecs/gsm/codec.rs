@@ -3,21 +3,21 @@ use crate::codecs::gsm::alphabet::Gsm7BitAlphabet;
 /// GSM 7-bit unpacked codec.
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct Gsm7BitCodec {
+pub struct Gsm7Bit {
     /// The GSM 7-bit alphabet to use for encoding.
     alphabet: Gsm7BitAlphabet,
     /// Whether to allow splitting extended characters across message parts.
     allow_split_extended_character: bool,
 }
 
-impl Default for Gsm7BitCodec {
+impl Default for Gsm7Bit {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Gsm7BitCodec {
-    /// Creates a new [`Gsm7BitCodec`] with [`Gsm7BitAlphabet::Default`].
+impl Gsm7Bit {
+    /// Creates a new [`Gsm7Bit`] with [`Gsm7BitAlphabet::Default`].
     ///
     /// # Defaults
     ///
@@ -65,7 +65,7 @@ mod impl_owned {
 
     use super::*;
 
-    impl Gsm7BitCodec {
+    impl Gsm7Bit {
         /// Encodes the given message into a vector of bytes.
         pub fn encode_to_vec(&self, message: &str) -> Result<Vec<u8>, Gsm7BitEncodeError> {
             self.alphabet
@@ -74,7 +74,7 @@ mod impl_owned {
         }
     }
 
-    impl Encoder for Gsm7BitCodec {
+    impl Encoder for Gsm7Bit {
         type Error = Gsm7BitEncodeError;
 
         fn data_coding(&self) -> DataCoding {
@@ -87,7 +87,7 @@ mod impl_owned {
         }
     }
 
-    impl Concatenator for Gsm7BitCodec {
+    impl Concatenator for Gsm7Bit {
         type Error = Gsm7BitConcatenateError;
 
         fn concatenate(
@@ -105,9 +105,9 @@ mod impl_owned {
             ///
             /// Must never create invalid parts while iterating. This is done by
             ///
-            /// - Early checks for `part_payload_size < 2 && !allow_split_extended_character` in [`Gsm7BitCodec::concatenate`]:
+            /// - Early checks for `part_payload_size < 2 && !allow_split_extended_character` in [`Gsm7Bit::concatenate`]:
             ///   this removes the possibility of creating invalid parts while iterating.
-            /// - `part_payload_size` is `u8` in [`Gsm7BitCodec::concatenate`]:
+            /// - `part_payload_size` is `u8` in [`Gsm7Bit::concatenate`]:
             ///   this ensures that created parts can never exceed `255` bytes.
             struct ConcatenationIter {
                 encoded: Vec<u8>,

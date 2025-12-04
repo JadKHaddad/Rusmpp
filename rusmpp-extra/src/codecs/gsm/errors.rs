@@ -1,7 +1,7 @@
 use crate::codecs::errors::UnencodableCharacterError;
 
 /// Errors that can occur during GSM 7-bit encoding.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum Gsm7BitEncodeError {
     /// Input contains un-encodable character.
     #[error(transparent)]
@@ -15,7 +15,7 @@ impl Gsm7BitEncodeError {
 }
 
 /// Errors that can occur during GSM 7-bit concatenation.
-#[derive(Debug, thiserror::Error)]
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum Gsm7BitConcatenateError {
     /// Part cannot fit even a single septet.
     ///

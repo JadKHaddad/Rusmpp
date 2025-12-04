@@ -1,0 +1,32 @@
+[package]
+name = "rusmpp-extra"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.86.0"
+description = "Extra components for rusmpp-core."
+authors = ["Jad K. Haddad <jadkhaddad@gmail.com>"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/Rusmpp/Rusmpp"
+readme = "Readme.md"
+keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
+
+[dependencies]
+rusmpp-core = { path = "../rusmpp-core", version = "0.3.0", default-features = false }
+thiserror = { version = "2.0.17", default-features = false }
+ucs2 = { version = "0.3.3", default-features = false, optional = true }
+
+[features]
+default = ["concatenation", "codecs"]
+
+# Enables the `alloc` crate.
+alloc = ["rusmpp-core/alloc"]
+
+# Enables concatenation support.
+concatenation = ["codecs"]
+
+# Enables encoding/decoding support.
+codecs = ["dep:ucs2"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

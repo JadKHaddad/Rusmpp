@@ -1,5 +1,4 @@
 //! Encoding and decoding support.
-
 mod errors;
 mod gsm;
 

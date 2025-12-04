@@ -11,14 +11,14 @@ pub trait Concatenator: Encoder {
     ///
     /// # Arguments
     ///
-    /// * `message` - The full message as a string slice.
-    /// * `max_message_size` - The maximum size of each message part.
+    /// * `encoded` - The full encoded message as a byte vector.
+    /// * `max_message_size` - The maximum size of each message part. Max is `255` so no invalid `OctetStrings` are created.
     /// * `part_header_size` - The size of the header for each part.
     fn concatenate(
         &self,
-        message: &str,
-        max_message_size: usize,
-        part_header_size: usize,
+        encoded: alloc::vec::Vec<u8>,
+        max_message_size: u8,
+        part_header_size: u8,
     ) -> Result<
         Concatenation<impl Iterator<Item = OctetString<0, 255>> + '_>,
         <Self as Concatenator>::Error,

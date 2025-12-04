@@ -2,9 +2,6 @@ mod default;
 
 use default::DefaultGsm7BitAlphabet;
 
-#[cfg(any(test, feature = "alloc"))]
-use crate::codecs::errors::UnencodableCharacterError;
-
 /// GSM 7-bit alphabet.
 #[derive(Debug)]
 pub enum Gsm7BitAlphabet {
@@ -37,13 +34,10 @@ impl Gsm7BitAlphabet {
     ///
     /// # Errors
     ///
-    /// - Returns `Err(UnencodableCharacterError)` if a character in the message cannot be encoded.
+    /// - Returns `Err(char)` if a character in the message cannot be encoded.
     #[cfg(any(test, feature = "alloc"))]
     #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    pub(crate) fn encode_to_vec(
-        &self,
-        message: &str,
-    ) -> Result<alloc::vec::Vec<u8>, UnencodableCharacterError> {
+    pub(crate) fn encode_to_vec(&self, message: &str) -> Result<alloc::vec::Vec<u8>, char> {
         // We double the amount of `bytes` we have in the worst case.
         //
         // If the amount of `bytes` is equals to the amount of `chars`
@@ -62,7 +56,7 @@ impl Gsm7BitAlphabet {
                     encoded.push(0x1B);
                     encoded.push(byte);
                 }
-                None => return Err(UnencodableCharacterError::new(ch)),
+                None => return Err(ch),
             }
         }
 

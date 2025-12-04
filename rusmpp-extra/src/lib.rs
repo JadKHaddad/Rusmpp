@@ -21,3 +21,6 @@ pub mod concatenation;
 #[cfg(feature = "codecs")]
 #[cfg_attr(docsrs, doc(cfg(feature = "codecs")))]
 pub mod codecs;
+
+mod iterator;
+use iterator::EitherIterator;

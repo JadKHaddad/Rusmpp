@@ -90,6 +90,32 @@ pub struct SubmitSm {
 }
 
 impl SubmitSm {
+    /// The default maximum size of the short message in bytes (octets).
+    const DEFAULT_MAX_SHORT_MESSAGE_SIZE: usize = 140;
+
+    /// Returns the default maximum size of the short message in bytes (octets).
+    ///
+    /// # Note
+    ///
+    /// Depending on the [`DataCoding`] used, the amount of characters* `(not bytes)`
+    /// that can fit in a short message may vary.
+    ///
+    /// * `GSM 7-bit` encoding allows for up to `160` characters in `140` bytes.
+    ///   `GSM 7-bit` encoding performs character packing to fit more characters in less bytes.
+    ///   The formula to calculate the maximum number of characters is: `(bytes * 8) / 7`.
+    ///   Therefore the maximum number of characters is: `(140 * 8) / 7 = 160`.
+    /// * `GSM 7-bit unpacked` encoding allows for up to `140` characters in `140` bytes.
+    ///   `GSM 7-bit unpacked` does not perform character packing, so each character takes up to `2` bytes.
+    ///   In the worst case, each character may require an escape character `(0x1B)` followed by the actual character byte,
+    ///   ending up fitting only `70` characters in `140` bytes.
+    /// * `UCS2` encoding allows for up to `70` characters in `140` bytes.
+    /// * `ISO-8859-1` encoding allows for up to `140` characters in `140` bytes.
+    ///
+    /// `*` A character is a single textual unit, which may be represented by one or more bytes depending on the encoding scheme.
+    pub const fn default_max_short_message_size() -> usize {
+        Self::DEFAULT_MAX_SHORT_MESSAGE_SIZE
+    }
+
     #[allow(clippy::too_many_arguments)]
     pub fn new(
         service_type: ServiceType,
@@ -202,6 +228,26 @@ impl SubmitSm {
     pub fn builder() -> SubmitSmBuilder {
         SubmitSmBuilder::new()
     }
+
+    /// Sets the [`SubmitSm::data_coding`].
+    pub fn with_data_coding(mut self, data_coding: DataCoding) -> Self {
+        self.data_coding = data_coding;
+        self
+    }
+
+    /// Sets the UDH Indicator bit in the GSM Features field of the [`SubmitSm::esm_class`].
+    pub fn with_udhi_indicator(mut self) -> Self {
+        self.esm_class = self.esm_class.with_udhi_indicator();
+        self
+    }
+
+    /// Sets the [`SubmitSm::short_message`] and [`SubmitSm::sm_length`](SubmitSm::sm_length).
+    ///
+    /// See [`SubmitSm::set_short_message`] for details.
+    pub fn with_short_message(mut self, short_message: OctetString<0, 255>) -> Self {
+        self.set_short_message(short_message);
+        self
+    }
 }
 
 impl From<SubmitSm> for Pdu {
@@ -210,7 +256,7 @@ impl From<SubmitSm> for Pdu {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct SubmitSmBuilder {
     inner: SubmitSm,
 }

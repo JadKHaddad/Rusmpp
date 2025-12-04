@@ -83,10 +83,11 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
         self.bytes.is_empty()
     }
 
-    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+    /// Create a new [`OctetString`] from the given bytes.
+    ///
+    /// This should replace the current `new` method.
+    fn new_(bytes: Vec<u8>) -> Result<Self, Error> {
         Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
-
-        let bytes = bytes.as_ref();
 
         if bytes.len() > MAX {
             return Err(Error::TooManyBytes {
@@ -102,9 +103,16 @@ impl<const MIN: usize, const MAX: usize> OctetString<MIN, MAX> {
             });
         }
 
-        let bytes = bytes.to_vec();
-
         Ok(Self { bytes })
+    }
+
+    // TODO: what the fuck is this api? impl as ref really? see `new_`
+    pub fn new(bytes: impl AsRef<[u8]>) -> Result<Self, Error> {
+        Self::_ASSERT_MIN_LESS_THAN_OR_EQUAL_TO_MAX;
+
+        let bytes = bytes.as_ref().to_vec();
+
+        Self::new_(bytes)
     }
 
     /// Convert an [`OctetString`] to a &[`str`].

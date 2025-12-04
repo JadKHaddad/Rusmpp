@@ -651,7 +651,7 @@ where
                         Poll::Pending => {
                             tracing::trace!(target: CONN, "No incoming commands");
 
-                            tracing::debug!(target: CONN, "Pending");
+                            tracing::trace!(target: CONN, "Pending");
 
                             return Poll::Pending;
                         }

@@ -155,6 +155,22 @@ mod concatenate {
             assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
         }
 
+        #[test]
+        fn zero_message_size() {
+            let message = "1234567";
+            let max_message_size = 0;
+            let part_header_size = 6;
+
+            let encoder = Gsm7BitUnpacked::new();
+            let encoded = encoder.encode(message).expect("Encoding failed");
+
+            let err = encoder
+                .concatenate(encoded, max_message_size, part_header_size)
+                .unwrap_err();
+
+            assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
+        }
+
         mod no_split {
             use super::*;
 
@@ -212,6 +228,22 @@ mod concatenate {
                 assert_eq!(*escape, 0x1B);
             }
         }
+    }
+
+    // The iterator must never panic even when max_message_size is very big
+    #[test]
+    fn max_message_size() {
+        let message = "a[]b".repeat(u8::MAX as usize * 10);
+        let max_message_size = u8::MAX;
+        let part_header_size = 0;
+
+        let encoder = Gsm7BitUnpacked::new();
+        let encoded = encoder.encode(&message).expect("Encoding failed");
+
+        let _ = encoder
+            .concatenate(encoded, max_message_size, part_header_size)
+            .expect("Concatenation failed")
+            .into_vec();
     }
 
     #[test]

@@ -166,6 +166,12 @@ where
 /// Extension trait for [`SubmitSm`] to create multipart messages.
 pub trait SubmitSmMultipartExt {
     /// Creates a new [`SubmitSmMultipartBuilder`] with the default [`Gsm7BitUnpacked`] encoder.
+    ///
+    /// # Notes
+    ///
+    /// - [`SubmitSm::esm_class`] will be updated with UDHI indicator by the multipart builder.
+    /// - [`SubmitSm::data_coding`] will be overridden by the multipart builder to match the encoder.
+    /// - [`SubmitSm::short_message`] will be overridden by `short_message` of the multipart builder.
     fn multipart(self) -> SubmitSmMultipartBuilder<'static, Gsm7BitUnpacked>;
 }
 

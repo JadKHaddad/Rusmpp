@@ -1,4 +1,4 @@
-use crate::codecs::{gsm::codec::Gsm7Bit, owned::Encoder};
+use crate::codecs::{gsm::unpacked::Gsm7BitUnpacked, owned::Encoder};
 
 mod encode {
     use super::*;
@@ -13,7 +13,9 @@ mod encode {
 ^{}\[~]|€"##;
         // c-spell: enable
 
-        let encoded = Gsm7Bit::new().encode(input).expect("Encoding failed");
+        let encoded = Gsm7BitUnpacked::new()
+            .encode(input)
+            .expect("Encoding failed");
 
         let expected: &[u8] = &[
             // "Hello world!\n\n"
@@ -90,7 +92,7 @@ mod encode {
         ];
         // c-spell: enable
 
-        let encoder = Gsm7Bit::new();
+        let encoder = Gsm7BitUnpacked::new();
 
         for (text, expected) in cases {
             let encoded = encoder.encode(text).expect("Encoding failed");
@@ -108,7 +110,7 @@ mod encode {
         fn unencodable_character() {
             let message = "Hi ✓";
 
-            let encoder = Gsm7Bit::new();
+            let encoder = Gsm7BitUnpacked::new();
 
             let err = encoder.encode(message).unwrap_err();
 
@@ -143,7 +145,7 @@ mod concatenate {
             let max_message_size = 6;
             let part_header_size = 6;
 
-            let encoder = Gsm7Bit::new();
+            let encoder = Gsm7BitUnpacked::new();
             let encoded = encoder.encode(message).expect("Encoding failed");
 
             let err = encoder
@@ -164,7 +166,7 @@ mod concatenate {
                 let max_message_size = 9;
                 let part_header_size = 8;
 
-                let encoder = Gsm7Bit::new();
+                let encoder = Gsm7BitUnpacked::new();
                 let encoded = encoder.encode(message).expect("Encoding failed");
 
                 let err = encoder
@@ -188,7 +190,7 @@ mod concatenate {
                 let max_message_size = 9;
                 let part_header_size = 8;
 
-                let encoder = Gsm7Bit::new().with_allow_split_extended_character(true);
+                let encoder = Gsm7BitUnpacked::new().with_allow_split_extended_character(true);
                 let encoded = encoder.encode(message).expect("Encoding failed");
 
                 let concatenated = encoder
@@ -229,7 +231,7 @@ mod concatenate {
         let cases: &[TestCase] = &[];
 
         for case in cases {
-            let encoder = Gsm7Bit::new()
+            let encoder = Gsm7BitUnpacked::new()
                 .with_allow_split_extended_character(case.allow_split_extended_character);
             let encoded = encoder.encode(case.message).expect("Encoding failed");
 

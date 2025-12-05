@@ -3,21 +3,21 @@ use crate::codecs::gsm::alphabet::Gsm7BitAlphabet;
 /// GSM 7-bit unpacked codec.
 #[non_exhaustive]
 #[derive(Debug)]
-pub struct Gsm7Bit {
+pub struct Gsm7BitUnpacked {
     /// The GSM 7-bit alphabet to use for encoding.
     alphabet: Gsm7BitAlphabet,
     /// Whether to allow splitting extended characters across message parts.
     allow_split_extended_character: bool,
 }
 
-impl Default for Gsm7Bit {
+impl Default for Gsm7BitUnpacked {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Gsm7Bit {
-    /// Creates a new [`Gsm7Bit`] with [`Gsm7BitAlphabet::Default`].
+impl Gsm7BitUnpacked {
+    /// Creates a new [`Gsm7BitUnpacked`] with [`Gsm7BitAlphabet::Default`].
     ///
     /// # Defaults
     ///
@@ -65,7 +65,7 @@ mod impl_owned {
 
     use super::*;
 
-    impl Gsm7Bit {
+    impl Gsm7BitUnpacked {
         /// Encodes the given message into a vector of bytes.
         pub fn encode_to_vec(&self, message: &str) -> Result<Vec<u8>, Gsm7BitEncodeError> {
             self.alphabet
@@ -74,11 +74,10 @@ mod impl_owned {
         }
     }
 
-    impl Encoder for Gsm7Bit {
+    impl Encoder for Gsm7BitUnpacked {
         type Error = Gsm7BitEncodeError;
 
         fn data_coding(&self) -> DataCoding {
-            // TODO: use the alphabet with the data coding
             DataCoding::McSpecific
         }
 
@@ -87,7 +86,7 @@ mod impl_owned {
         }
     }
 
-    impl Concatenator for Gsm7Bit {
+    impl Concatenator for Gsm7BitUnpacked {
         type Error = Gsm7BitConcatenateError;
 
         fn concatenate(
@@ -158,7 +157,7 @@ mod impl_owned {
                 return Err(Gsm7BitConcatenateError::PartCapacityExceeded);
             }
 
-            // This early check removes the possibility of of creating invalid parts in the iterator.
+            // This early check removes the possibility of creating invalid parts in the iterator.
             // The iterator must never create invalid parts while iterating.
             if part_payload_size < 2 && !self.allow_split_extended_character {
                 return Err(Gsm7BitConcatenateError::InvalidBoundary);

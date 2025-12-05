@@ -13,6 +13,7 @@ use crate::{
         errors::MultipartError,
         owned::{Concatenation, Concatenator},
     },
+    fallback::Fallback,
 };
 
 /// Builder for creating multipart [`SubmitSm`] messages.
@@ -91,6 +92,17 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     /// Sets the [`Ucs2`] encoder.
     pub fn ucs2(self) -> SubmitSmMultipartBuilder<'a, Ucs2> {
         self.encoder(Ucs2::new())
+    }
+
+    /// Sets a fallback encoder.
+    pub fn fallback<U>(self, encoder: U) -> SubmitSmMultipartBuilder<'a, Fallback<E, U>> {
+        SubmitSmMultipartBuilder {
+            short_message: self.short_message,
+            max_short_message_size: self.max_short_message_size,
+            sm: self.sm,
+            encoder: Fallback::new(self.encoder, encoder),
+            concatenation_type: self.concatenation_type,
+        }
     }
 }
 

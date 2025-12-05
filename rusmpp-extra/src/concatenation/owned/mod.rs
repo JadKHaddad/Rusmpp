@@ -8,3 +8,5 @@ pub use concatenator::Concatenator;
 
 mod multipart;
 pub use multipart::{SubmitSmMultipartBuilder, SubmitSmMultipartExt};
+
+mod fallback;

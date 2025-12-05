@@ -38,3 +38,8 @@ rustdoc-args = ["--cfg", "docsrs"]
 name = "submit_sm_multipart"
 path = "examples/submit_sm_multipart.rs"
 required-features = ["alloc", "concatenation"]
+
+[[example]]
+name = "submit_sm_multipart_fallback"
+path = "examples/submit_sm_multipart_fallback.rs"
+required-features = ["alloc", "concatenation"]

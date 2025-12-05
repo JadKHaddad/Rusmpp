@@ -127,14 +127,14 @@ mod encode {
 mod concatenate {
     use alloc::vec::Vec;
 
-    use crate::concatenation::owned::Concatenator;
+    use crate::{
+        codecs::gsm::errors::Gsm7BitConcatenateError,
+        concatenation::owned::{Concatenation, Concatenator},
+    };
 
     use super::*;
 
     mod error {
-        use crate::{
-            codecs::gsm::errors::Gsm7BitConcatenateError, concatenation::owned::Concatenator,
-        };
 
         use super::*;
 
@@ -194,7 +194,6 @@ mod concatenate {
         }
 
         mod split {
-            use crate::concatenation::owned::Concatenation;
 
             use super::*;
 
@@ -219,13 +218,10 @@ mod concatenate {
 
                 let parts: Vec<_> = iter.collect();
 
-                assert_eq!(parts.len(), 2);
+                assert_eq!(parts.len(), 11);
 
-                let Some(escape) = parts[0].bytes().last() else {
-                    panic!("Expected first part to have at least one byte");
-                };
-
-                assert_eq!(*escape, 0x1B);
+                assert_eq!(parts[9].bytes(), &[0x1B]);
+                assert_eq!(parts[10].bytes(), &[0x3C]);
             }
         }
     }
@@ -257,10 +253,80 @@ mod concatenate {
             expected: Result<&'static [&'static [u8]], Gsm7BitConcatenateError>,
         }
 
-        use crate::codecs::gsm::errors::Gsm7BitConcatenateError;
-
-        // TODO
-        let cases: &[TestCase] = &[];
+        let cases: &[TestCase] = &[
+            TestCase {
+                name: "empty_message",
+                message: "",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: false,
+                expected: Ok(&[&[]]),
+            },
+            TestCase {
+                name: "one_part",
+                message: "123456789",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: false,
+                expected: Ok(&[b"123456789"]),
+            },
+            TestCase {
+                name: "two_parts",
+                message: "123456789123456789",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: false,
+                expected: Ok(&[b"1234567891", b"23456789"]),
+            },
+            TestCase {
+                name: "concatenate_on_extended_character_once_no_split",
+                message: "123456789[3456789",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: false,
+                expected: Ok(&[
+                    b"123456789",
+                    constcat::concat_slices!([u8]: &[0x1B, 0x3C], b"3456789"),
+                ]),
+            },
+            TestCase {
+                name: "concatenate_on_extended_character_once_split",
+                message: "123456789[3456789",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: true,
+                expected: Ok(&[
+                    constcat::concat_slices!([u8]: b"123456789", &[0x1B]),
+                    constcat::concat_slices!([u8]: &[0x3C], b"3456789"),
+                ]),
+            },
+            TestCase {
+                name: "concatenate_on_extended_character_three_times_no_split",
+                message: "123456789[23456789[23456789[",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: false,
+                expected: Ok(&[
+                    b"123456789",
+                    constcat::concat_slices!([u8]: &[0x1B, 0x3C], b"23456789"),
+                    constcat::concat_slices!([u8]: &[0x1B, 0x3C], b"23456789"),
+                    &[0x1B, 0x3C],
+                ]),
+            },
+            TestCase {
+                name: "concatenate_on_extended_character_three_times_split",
+                message: "123456789[23456789[23456789[",
+                max_message_size: 16,
+                part_header_size: 6,
+                allow_split_extended_character: true,
+                expected: Ok(&[
+                    constcat::concat_slices!([u8]: b"123456789", &[0x1B]),
+                    constcat::concat_slices!([u8]: &[0x3C], b"23456789", &[0x1B]),
+                    constcat::concat_slices!([u8]: &[0x3C], b"23456789", &[0x1B]),
+                    &[0x3C],
+                ]),
+            },
+        ];
 
         for case in cases {
             let encoder = Gsm7BitUnpacked::new()

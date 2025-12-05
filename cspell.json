@@ -23,6 +23,7 @@
         "classmethod",
         "clippy",
         "concatenator",
+        "constcat",
         "Datagram",
         "defmt",
         "Deque",

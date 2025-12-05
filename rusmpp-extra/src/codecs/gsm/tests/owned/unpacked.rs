@@ -125,8 +125,6 @@ mod encode {
 }
 
 mod concatenate {
-    use alloc::vec::Vec;
-
     use crate::{
         codecs::gsm::errors::Gsm7BitConcatenateError,
         concatenation::owned::{Concatenation, Concatenator},
@@ -171,6 +169,10 @@ mod concatenate {
             assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
         }
 
+        // TODO
+        #[test]
+        fn parts_count_exceeded() {}
+
         mod no_split {
             use super::*;
 
@@ -212,11 +214,9 @@ mod concatenate {
                     .concatenate(encoded, max_message_size, part_header_size)
                     .expect("Concatenation failed");
 
-                let Concatenation::Concatenated(iter) = concatenated else {
+                let Concatenation::Concatenated(parts) = concatenated else {
                     panic!("Expected concatenated message");
                 };
-
-                let parts: Vec<_> = iter.collect();
 
                 assert_eq!(parts.len(), 11);
 
@@ -226,29 +226,13 @@ mod concatenate {
         }
     }
 
-    // The iterator must never panic even when max_message_size is very big
-    #[test]
-    fn max_message_size() {
-        let message = "a[]b".repeat(u8::MAX as usize * 10);
-        let max_message_size = u8::MAX;
-        let part_header_size = 0;
-
-        let encoder = Gsm7BitUnpacked::new();
-        let encoded = encoder.encode(&message).expect("Encoding failed");
-
-        let _ = encoder
-            .concatenate(encoded, max_message_size, part_header_size)
-            .expect("Concatenation failed")
-            .collect();
-    }
-
     #[test]
     fn cases() {
         struct TestCase {
             name: &'static str,
             message: &'static str,
-            max_message_size: u8,
-            part_header_size: u8,
+            max_message_size: usize,
+            part_header_size: usize,
             allow_split_extended_character: bool,
             expected: Result<&'static [&'static [u8]], Gsm7BitConcatenateError>,
         }

@@ -1,5 +1,6 @@
 // TODO: We have to deal MessagePayload if set instead of ShortMessage. Do we override? or we ignore it?
 
+use alloc::vec::Vec;
 use rusmpp_core::{
     pdus::owned::SubmitSm, types::owned::OctetString,
     udhs::owned::concatenation::ConcatenatedShortMessageType, values::DataCoding,
@@ -14,7 +15,6 @@ use crate::{
 pub struct SubmitSmMultipartBuilder<'a, E> {
     short_message: &'a str,
     max_short_message_size: usize,
-    data_coding: Option<DataCoding>,
     sm: SubmitSm,
     encoder: E,
     concatenation_type: ConcatenatedShortMessageType,
@@ -25,7 +25,6 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
         SubmitSmMultipartBuilder {
             short_message,
             max_short_message_size: self.max_short_message_size,
-            data_coding: self.data_coding,
             sm: self.sm,
             encoder: self.encoder,
             concatenation_type: self.concatenation_type,
@@ -37,16 +36,6 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     /// See [`SubmitSm::default_max_short_message_size`].
     pub fn max_short_message_size(mut self, size: usize) -> Self {
         self.max_short_message_size = size;
-        self
-    }
-
-    /// Override the default data coding provided by the encoder.
-    ///
-    /// If not set, the encoder's data coding will be used.
-    ///
-    /// Set this value when using a custom encoder function.
-    pub fn data_coding(mut self, data_coding: DataCoding) -> Self {
-        self.data_coding = Some(data_coding);
         self
     }
 
@@ -63,13 +52,10 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     }
 
     /// Sets a custom encoder.
-    ///
-    /// See [`Self::data_coding`] to override data coding if needed.
     pub fn encoder<U>(self, encoder: U) -> SubmitSmMultipartBuilder<'a, U> {
         SubmitSmMultipartBuilder {
             short_message: self.short_message,
             max_short_message_size: self.max_short_message_size,
-            data_coding: self.data_coding,
             sm: self.sm,
             encoder,
             concatenation_type: self.concatenation_type,
@@ -88,11 +74,9 @@ where
 {
     pub fn build(
         self,
-    ) -> Result<
-        (), // impl Iterator<Item = SubmitSm>,
-        MultipartError<<E as Encoder>::Error, <E as Concatenator>::Error>,
-    > {
-        let data_coding = self.data_coding.unwrap_or(self.encoder.data_coding());
+    ) -> Result<Vec<SubmitSm>, MultipartError<<E as Encoder>::Error, <E as Concatenator>::Error>>
+    {
+        let data_coding = self.encoder.data_coding();
 
         let encoded = self
             .encoder
@@ -103,26 +87,66 @@ where
             .encoder
             .concatenate(
                 encoded,
-                self.max_short_message_size as u8,
-                self.concatenation_type.udh_length() as u8,
+                self.max_short_message_size,
+                self.concatenation_type.udh_length(),
             )
             .map_err(MultipartError::concatenation)?;
 
         match concatenation {
             Concatenation::Single(bytes) => {
-                let short_message = OctetString::new(bytes)
-                    .expect("Encoder produced invalid short message. This is a bug in the encoder");
+                let short_message = OctetString::new(bytes)?;
 
                 let sm = self
                     .sm
                     .with_short_message(short_message)
                     .with_data_coding(data_coding);
+
+                Ok(alloc::vec![sm])
             }
-            Concatenation::Concatenated(iter) => {
-                let iter = iter.enumerate().map(|(index, bytes)| todo!());
+            Concatenation::Concatenated(parts) => {
+                if parts.len() < Concatenation::MIN_PARTS {
+                    return Err(MultipartError::min_part_count(parts.len()));
+                }
+
+                if parts.len() > Concatenation::MAX_PARTS {
+                    return Err(MultipartError::max_parts_count(parts.len()));
+                }
+
+                let total_parts = parts.len().min(Concatenation::MAX_PARTS) as u8;
+
+                parts
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, part)| {
+                        let udh = self
+                            .concatenation_type
+                            /*
+                               Correctness:
+                               - total_parts is at least 2 due to the earlier check.
+                               - total_parts is at most 255 due to the earlier check.
+                               - part_number (index + 1) is at least 1.
+                               - part_number (index + 1) is at most total_parts due to the earlier check.
+                            */
+                            .concatenated_short_message_unchecked(total_parts, index as u8 + 1);
+
+                        let mut payload = Vec::with_capacity(udh.udh_length() + part.len());
+
+                        payload.extend_from_slice(udh.udh_bytes().as_bytes());
+                        payload.extend_from_slice(&part);
+
+                        let short_message = OctetString::new(payload)?;
+
+                        let sm = self
+                            .sm
+                            .clone()
+                            .with_udhi_indicator()
+                            .with_short_message(short_message)
+                            .with_data_coding(data_coding);
+
+                        Ok(sm)
+                    })
+                    .collect()
             }
         }
-
-        Ok(())
     }
 }

@@ -92,91 +92,51 @@ mod impl_owned {
         fn concatenate(
             &self,
             encoded: Vec<u8>,
-            max_message_size: u8,
-            part_header_size: u8,
-        ) -> Result<Concatenation<impl Iterator<Item = Vec<u8>> + '_>, <Self as Concatenator>::Error>
-        {
-            /// Iterator for concatenated message parts.
-            ///
-            /// # Note
-            ///
-            /// Must never create invalid parts while iterating. This is done by
-            ///
-            /// - Early checks for `part_payload_size < 2 && !allow_split_extended_character` in [`Gsm7Bit::concatenate`]:
-            ///   this removes the possibility of creating invalid parts while iterating.
-            /// - `part_payload_size` is `u8` in [`Gsm7Bit::concatenate`], created from `max_message_size - part_header_size`:
-            ///   this ensures that created parts can never exceed `255` bytes.
-            struct ConcatenationIter {
-                encoded: Vec<u8>,
-                allow_split_extended_character: bool,
-                part_payload_size: usize,
-                pos: usize,
-            }
-
-            impl Iterator for ConcatenationIter {
-                type Item = Vec<u8>;
-
-                fn next(&mut self) -> Option<Self::Item> {
-                    if self.pos >= self.encoded.len() {
-                        return None;
-                    }
-
-                    let total = self.encoded.len();
-                    let mut end = (self.pos + self.part_payload_size).min(total);
-
-                    // avoid splitting extended characters unless `allow_split_extended_character == true`
-                    if !self.allow_split_extended_character
-                        && end < total
-                        && self.encoded[end - 1] == 0x1B
-                    {
-                        end -= 1;
-
-                        // We made sure that `end == i` would never happen because we checked for part_payload_size < 2 earlier.
-                    }
-
-                    let chunk = &self.encoded[self.pos..end];
-                    self.pos = end;
-
-                    Some(chunk.to_vec())
-                }
-            }
-
+            max_message_size: usize,
+            part_header_size: usize,
+        ) -> Result<Concatenation, <Self as Concatenator>::Error> {
             let total = encoded.len();
 
-            if total <= max_message_size as usize {
-                debug_assert!(
-                    total <= 255,
-                    "`encoded.len(): usize` must not be greater than `max_message_size: u8`, which can not be greater than `255`"
-                );
-
+            if total <= max_message_size {
                 return Ok(Concatenation::single(encoded));
             }
 
-            let part_payload_size: u8 = max_message_size.saturating_sub(part_header_size);
+            let part_payload_size = max_message_size.saturating_sub(part_header_size);
 
             if part_payload_size == 0 {
                 return Err(Gsm7BitConcatenateError::PartCapacityExceeded);
             }
 
-            // This early check removes the possibility of creating invalid parts in the iterator.
-            // The iterator must never create invalid parts while iterating.
-            if part_payload_size < 2 && !self.allow_split_extended_character {
-                return Err(Gsm7BitConcatenateError::InvalidBoundary);
+            let mut parts: Vec<Vec<u8>> = Vec::new();
+            let mut i = 0;
+
+            while i < total {
+                let mut end = (i + part_payload_size).min(total);
+
+                // avoid splitting extended characters unless allow_split_extended_character == true
+                if !self.allow_split_extended_character {
+                    // If not last part AND the last byte of this part is 0x1B,
+                    // we must shrink the part to avoid splitting ESC + next byte.
+                    if end < total && encoded[end - 1] == 0x1B {
+                        end -= 1;
+
+                        // If shrinking removed the entire part
+                        if end == i {
+                            return Err(Gsm7BitConcatenateError::InvalidBoundary);
+                        }
+                    }
+                }
+
+                parts.push(encoded[i..end].to_vec());
+
+                i = end;
             }
 
-            let iter = ConcatenationIter {
-                encoded,
-                allow_split_extended_character: self.allow_split_extended_character,
-                part_payload_size: part_payload_size as usize,
-                pos: 0,
-            }.inspect(move |bytes| {
-                debug_assert!(
-                    bytes.len() <= part_payload_size as usize,
-                    "`part_payload_size: u8` must not be greater than `max_message_size: u8` - `part_header_size: u8`"
-                );
-            });
+            if parts.len() > Concatenation::MAX_PARTS {
+                return Err(Gsm7BitConcatenateError::parts_count_exceeded(parts.len()));
+            }
 
-            Ok(Concatenation::concatenated(iter))
+            Ok(Concatenation::concatenated(parts))
         }
     }
 }

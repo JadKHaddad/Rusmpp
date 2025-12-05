@@ -1,4 +1,4 @@
-use crate::codecs::errors::UnencodableCharacterError;
+use crate::{codecs::errors::UnencodableCharacterError, concatenation::owned::Concatenation};
 
 /// Errors that can occur during GSM 7-bit encoding.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
@@ -31,4 +31,21 @@ pub enum Gsm7BitConcatenateError {
         "A part would end with an escape (0x1B) septet, which is not allowed unless allow_split_extended_character=true"
     )]
     InvalidBoundary,
+    #[error("The number of parts exceeds the maximum allowed. actual: {actual} > max: {max}")]
+    /// The number of parts exceeds the maximum allowed.
+    PartsCountExceeded {
+        /// The maximum allowed number of parts.
+        max: usize,
+        /// The actual number of parts.
+        actual: usize,
+    },
+}
+
+impl Gsm7BitConcatenateError {
+    pub(crate) const fn parts_count_exceeded(actual: usize) -> Self {
+        Self::PartsCountExceeded {
+            max: Concatenation::MAX_PARTS,
+            actual,
+        }
+    }
 }

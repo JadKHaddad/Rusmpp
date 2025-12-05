@@ -1,30 +1,28 @@
 use alloc::vec::Vec;
 
-/// Represents either a single encoded message or an iterator over concatenated message parts.
-pub enum Concatenation<Iter> {
+/// Represents either a single encoded message or a vector of concatenated message parts.
+#[derive(Debug)]
+pub enum Concatenation {
     /// A single encoded message.
     Single(Vec<u8>),
-    /// An iterator over concatenated message parts.
-    Concatenated(Iter),
+    /// A vector of concatenated message parts.
+    Concatenated(Vec<Vec<u8>>),
 }
 
-impl<Iter> core::fmt::Debug for Concatenation<Iter> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        match self {
-            Self::Single(value) => f.debug_tuple("Single").field(value).finish(),
-            Self::Concatenated(_) => f.debug_tuple("Concatenated").field(&"...").finish(),
-        }
-    }
-}
+impl Concatenation {
+    /// The minimum number of parts in a concatenated message.
+    pub const MIN_PARTS: usize = 2;
 
-impl<Iter: Iterator<Item = Vec<u8>>> Concatenation<Iter> {
+    /// The maximum number of parts in a concatenated message.
+    pub const MAX_PARTS: usize = 255;
+
     /// Creates a new [`Concatenation::Single`] instance.
     pub(crate) const fn single(value: Vec<u8>) -> Self {
         Self::Single(value)
     }
 
     /// Creates a new [`Concatenation::Concatenated`] instance.
-    pub(crate) const fn concatenated(value: Iter) -> Self {
+    pub(crate) const fn concatenated(value: Vec<Vec<u8>>) -> Self {
         Self::Concatenated(value)
     }
 
@@ -33,7 +31,7 @@ impl<Iter: Iterator<Item = Vec<u8>>> Concatenation<Iter> {
     pub(crate) fn collect(self) -> Vec<Vec<u8>> {
         match self {
             Self::Single(part) => alloc::vec![part],
-            Self::Concatenated(iter) => iter.collect(),
+            Self::Concatenated(vec) => vec,
         }
     }
 }

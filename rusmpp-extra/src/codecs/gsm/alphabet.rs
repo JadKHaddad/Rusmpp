@@ -4,6 +4,7 @@ use default::DefaultGsm7BitAlphabet;
 
 /// GSM 7-bit alphabet.
 #[derive(Debug)]
+#[non_exhaustive]
 pub enum Gsm7BitAlphabet {
     /// Default GSM 7-bit alphabet.
     Default(DefaultGsm7BitAlphabet),

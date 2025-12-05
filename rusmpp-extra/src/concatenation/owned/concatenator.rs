@@ -7,10 +7,7 @@ pub trait Concatenator {
     /// The type of errors that can occur during concatenation.
     type Error;
 
-    /// The associated [`DataCoding`] for this concatenator.
-    fn data_coding(&self) -> DataCoding;
-
-    /// Splits the encoded message into concatenated parts.
+    /// Splits the encoded message into concatenated parts and their associated [`DataCoding`].
     ///
     /// # Arguments
     ///
@@ -31,5 +28,5 @@ pub trait Concatenator {
         message: &str,
         max_message_size: usize,
         part_header_size: usize,
-    ) -> Result<Concatenation, Self::Error>;
+    ) -> Result<(Concatenation, DataCoding), Self::Error>;
 }

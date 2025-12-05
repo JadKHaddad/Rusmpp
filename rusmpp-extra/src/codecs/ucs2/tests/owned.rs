@@ -115,11 +115,11 @@ mod concatenate {
 
                 let encoder = Ucs2::new().with_allow_split_character(true);
 
-                let concatenated = encoder
+                let (concatenation, _) = encoder
                     .concatenate(message, max_message_size, part_header_size)
                     .expect("Concatenation failed");
 
-                let Concatenation::Concatenated(parts) = concatenated else {
+                let Concatenation::Concatenated(parts) = concatenation else {
                     panic!("Expected concatenated message");
                 };
 
@@ -236,7 +236,7 @@ mod concatenate {
                 encoder.concatenate(case.message, case.max_message_size, case.part_header_size);
 
             match (result, &case.expected) {
-                (Ok(concatenation), Ok(expected_parts)) => {
+                (Ok((concatenation, _)), Ok(expected_parts)) => {
                     let parts = concatenation.collect().into_iter();
 
                     assert_eq!(

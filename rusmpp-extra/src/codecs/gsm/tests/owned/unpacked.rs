@@ -6,9 +6,12 @@ use crate::{
         },
         owned::Encoder,
     },
-    concatenation::{MAX_PARTS, owned::{Concatenation, Concatenator}},
+    concatenation::{
+        MAX_PARTS,
+        owned::{Concatenation, Concatenator},
+    },
 };
-        
+
 mod encode {
     use super::*;
 
@@ -22,7 +25,7 @@ mod encode {
 ^{}\[~]|€"##;
         // c-spell: enable
 
-        let encoded = Gsm7BitUnpacked::new()
+        let (encoded, _) = Gsm7BitUnpacked::new()
             .encode(input)
             .expect("Encoding failed");
 
@@ -104,7 +107,7 @@ mod encode {
         let encoder = Gsm7BitUnpacked::new();
 
         for (text, expected) in cases {
-            let encoded = encoder.encode(text).expect("Encoding failed");
+            let (encoded, _) = encoder.encode(text).expect("Encoding failed");
 
             assert_eq!(encoded, *expected, "Encoding failed for text: {text:?}");
         }
@@ -216,11 +219,11 @@ mod concatenate {
 
                 let encoder = Gsm7BitUnpacked::new().with_allow_split_extended_character(true);
 
-                let concatenated = encoder
+                let (concatenation, _) = encoder
                     .concatenate(message, max_message_size, part_header_size)
                     .expect("Concatenation failed");
 
-                let Concatenation::Concatenated(parts) = concatenated else {
+                let Concatenation::Concatenated(parts) = concatenation else {
                     panic!("Expected concatenated message");
                 };
 
@@ -326,7 +329,7 @@ mod concatenate {
                 encoder.concatenate(case.message, case.max_message_size, case.part_header_size);
 
             match (result, &case.expected) {
-                (Ok(concatenation), Ok(expected_parts)) => {
+                (Ok((concatenation, _)), Ok(expected_parts)) => {
                     let parts = concatenation.collect().into_iter();
 
                     assert_eq!(

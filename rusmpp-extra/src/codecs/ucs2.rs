@@ -1,5 +1,6 @@
 mod errors;
 pub use errors::{Ucs2ConcatenateError, Ucs2EncodeError};
+use rusmpp_core::values::DataCoding;
 
 /// UCS2 codec.
 #[derive(Debug)]
@@ -36,14 +37,17 @@ impl Ucs2 {
         self.allow_split_character = allow;
         self
     }
+
+    /// Returns the associated [`DataCoding`].
+    pub const fn data_coding(&self) -> DataCoding {
+        DataCoding::Ucs2
+    }
 }
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 mod impl_owned {
     use alloc::vec::Vec;
-
-    use rusmpp_core::values::DataCoding;
 
     use crate::{
         codecs::owned::Encoder,
@@ -86,34 +90,27 @@ mod impl_owned {
     impl Encoder for Ucs2 {
         type Error = Ucs2EncodeError;
 
-        fn data_coding(&self) -> DataCoding {
-            DataCoding::Ucs2
-        }
-
-        fn encode(&self, message: &str) -> Result<Vec<u8>, Self::Error> {
+        fn encode(&self, message: &str) -> Result<(Vec<u8>, DataCoding), Self::Error> {
             self.encode_to_vec(message)
+                .map(|vec| (vec, self.data_coding()))
         }
     }
 
     impl Concatenator for Ucs2 {
         type Error = Ucs2ConcatenateError;
 
-        fn data_coding(&self) -> DataCoding {
-            DataCoding::Ucs2
-        }
-
         fn concatenate(
             &self,
             message: &str,
             max_message_size: usize,
             part_header_size: usize,
-        ) -> Result<Concatenation, Self::Error> {
+        ) -> Result<(Concatenation, DataCoding), Self::Error> {
             let encoded = self.encode_to_vec(message)?;
 
             let total = encoded.len();
 
             if total <= max_message_size {
-                return Ok(Concatenation::single(encoded));
+                return Ok((Concatenation::single(encoded), self.data_coding()));
             }
 
             let part_payload_size = max_message_size.saturating_sub(part_header_size);
@@ -151,7 +148,7 @@ mod impl_owned {
                 return Err(Ucs2ConcatenateError::parts_count_exceeded(parts.len()));
             }
 
-            Ok(Concatenation::concatenated(parts))
+            Ok((Concatenation::concatenated(parts), self.data_coding()))
         }
     }
 }

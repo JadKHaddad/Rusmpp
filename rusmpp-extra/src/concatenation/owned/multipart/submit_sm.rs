@@ -99,9 +99,7 @@ where
     E: Concatenator + 'a,
 {
     pub fn build(self) -> Result<Vec<SubmitSm>, MultipartError<E::Error>> {
-        let data_coding = self.encoder.data_coding();
-
-        let concatenation = self
+        let (concatenation, data_coding) = self
             .encoder
             .concatenate(
                 self.short_message,

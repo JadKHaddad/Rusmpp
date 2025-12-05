@@ -1,3 +1,5 @@
+use rusmpp_core::values::DataCoding;
+
 use crate::codecs::gsm::alphabet::Gsm7BitAlphabet;
 
 /// GSM 7-bit unpacked codec.
@@ -46,14 +48,17 @@ impl Gsm7BitUnpacked {
         self.allow_split_extended_character = allow;
         self
     }
+
+    /// Returns the associated [`DataCoding`].
+    pub const fn data_coding(&self) -> DataCoding {
+        DataCoding::McSpecific
+    }
 }
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 mod impl_owned {
     use alloc::vec::Vec;
-
-    use rusmpp_core::values::DataCoding;
 
     use crate::{
         codecs::{
@@ -80,34 +85,27 @@ mod impl_owned {
     impl Encoder for Gsm7BitUnpacked {
         type Error = Gsm7BitEncodeError;
 
-        fn data_coding(&self) -> DataCoding {
-            DataCoding::McSpecific
-        }
-
-        fn encode(&self, message: &str) -> Result<Vec<u8>, Self::Error> {
+        fn encode(&self, message: &str) -> Result<(Vec<u8>, DataCoding), Self::Error> {
             self.encode_to_vec(message)
+                .map(|vec| (vec, self.data_coding()))
         }
     }
 
     impl Concatenator for Gsm7BitUnpacked {
         type Error = Gsm7BitConcatenateError;
 
-        fn data_coding(&self) -> DataCoding {
-            DataCoding::McSpecific
-        }
-
         fn concatenate(
             &self,
             message: &str,
             max_message_size: usize,
             part_header_size: usize,
-        ) -> Result<Concatenation, Self::Error> {
+        ) -> Result<(Concatenation, DataCoding), Self::Error> {
             let encoded = self.encode_to_vec(message)?;
 
             let total = encoded.len();
 
             if total <= max_message_size {
-                return Ok(Concatenation::single(encoded));
+                return Ok((Concatenation::single(encoded), self.data_coding()));
             }
 
             let part_payload_size = max_message_size.saturating_sub(part_header_size);
@@ -145,7 +143,7 @@ mod impl_owned {
                 return Err(Gsm7BitConcatenateError::parts_count_exceeded(parts.len()));
             }
 
-            Ok(Concatenation::concatenated(parts))
+            Ok((Concatenation::concatenated(parts), self.data_coding()))
         }
     }
 }

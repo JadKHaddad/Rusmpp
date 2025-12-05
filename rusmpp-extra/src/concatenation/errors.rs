@@ -1,13 +1,15 @@
+//! Errors related to concatenated message creation.
+
 use rusmpp_core::types::OctetStringError;
 
 use crate::concatenation::owned::Concatenation;
 
+/// Errors that can occur during multipart message creation.
 #[derive(Debug, thiserror::Error)]
-pub enum MultipartError<E, C> {
-    #[error("Encode error: {0}")]
-    Encode(E),
+#[non_exhaustive]
+pub enum MultipartError<E> {
     #[error("Concatenation error: {0}")]
-    Concatenation(C),
+    Concatenation(E),
     #[error("Encoder produced invalid short message: {0}")]
     ShortMessage(
         #[from]
@@ -30,12 +32,8 @@ pub enum MultipartError<E, C> {
     },
 }
 
-impl<E, C> MultipartError<E, C> {
-    pub(crate) const fn encode(error: E) -> Self {
-        Self::Encode(error)
-    }
-
-    pub(crate) const fn concatenation(error: C) -> Self {
+impl<E> MultipartError<E> {
+    pub(crate) const fn concatenation(error: E) -> Self {
         Self::Concatenation(error)
     }
 

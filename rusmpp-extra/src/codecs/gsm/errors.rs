@@ -17,6 +17,13 @@ impl Gsm7BitEncodeError {
 /// Errors that can occur during GSM 7-bit concatenation.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum Gsm7BitConcatenateError {
+    /// Encoding error.
+    #[error("Encoding error: {0}")]
+    Encode(
+        #[from]
+        #[source]
+        Gsm7BitEncodeError,
+    ),
     /// Part cannot fit even a single septet.
     ///
     /// This error is returned when `max_message_size - part_header_size == 0`.

@@ -1,15 +1,20 @@
-use crate::{codecs::owned::Encoder, concatenation::owned::concatenation::Concatenation};
+use rusmpp_core::values::DataCoding;
+
+use crate::concatenation::owned::concatenation::Concatenation;
 
 /// A trait for concatenating messages into smaller parts.
-pub trait Concatenator: Encoder {
+pub trait Concatenator {
     /// The type of errors that can occur during concatenation.
     type Error;
+
+    /// The associated [`DataCoding`] for this concatenator.
+    fn data_coding(&self) -> DataCoding;
 
     /// Splits the encoded message into concatenated parts.
     ///
     /// # Arguments
     ///
-    /// * `encoded` - The full encoded message as a byte vector.
+    /// * `message` - The message to encode and concatenate.
     /// * `max_message_size` - The maximum size of each message part.
     /// * `part_header_size` - The size of the header for each part.
     ///
@@ -23,8 +28,8 @@ pub trait Concatenator: Encoder {
     ///        - E.g., `Ucs2` encoding uses 2 bytes per character, while `Gsm7Bit` uses 7 bits per character. This means that a message that fits in 3 parts with `Gsm7Bit` might require 5 parts with `Ucs2`.
     fn concatenate(
         &self,
-        encoded: alloc::vec::Vec<u8>,
+        message: &str,
         max_message_size: usize,
         part_header_size: usize,
-    ) -> Result<Concatenation, <Self as Concatenator>::Error>;
+    ) -> Result<Concatenation, Self::Error>;
 }

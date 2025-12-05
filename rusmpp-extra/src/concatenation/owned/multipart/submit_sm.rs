@@ -3,14 +3,20 @@
 use alloc::vec::Vec;
 use rusmpp_core::{
     pdus::owned::SubmitSm, types::owned::OctetString,
-    udhs::owned::concatenation::ConcatenatedShortMessageType, values::DataCoding,
+    udhs::owned::concatenation::ConcatenatedShortMessageType,
 };
 
 use crate::{
-    codecs::{gsm::Gsm7BitUnpacked, owned::Encoder},
-    concatenation::owned::{Concatenation, Concatenator, multipart::errors::MultipartError},
+    codecs::gsm::Gsm7BitUnpacked,
+    concatenation::{
+        errors::MultipartError,
+        owned::{Concatenation, Concatenator},
+    },
 };
 
+/// Builder for creating multipart [`SubmitSm`] messages.
+///
+/// Created using [`SubmitSmMultipartExt::multipart`].
 #[derive(Debug)]
 pub struct SubmitSmMultipartBuilder<'a, E> {
     short_message: &'a str,
@@ -20,7 +26,21 @@ pub struct SubmitSmMultipartBuilder<'a, E> {
     concatenation_type: ConcatenatedShortMessageType,
 }
 
+impl<E> SubmitSmMultipartBuilder<'static, E> {
+    /// Creates a new [`SubmitSmMultipartBuilder`].
+    const fn new(sm: SubmitSm, encoder: E) -> SubmitSmMultipartBuilder<'static, E> {
+        Self {
+            short_message: "",
+            max_short_message_size: SubmitSm::default_max_short_message_size(),
+            sm,
+            encoder,
+            concatenation_type: ConcatenatedShortMessageType::u8(0),
+        }
+    }
+}
+
 impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
+    /// Sets the short message.
     pub fn short_message<'b>(self, short_message: &'b str) -> SubmitSmMultipartBuilder<'b, E> {
         SubmitSmMultipartBuilder {
             short_message,
@@ -34,19 +54,19 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     /// Override the default max short message size.
     ///
     /// See [`SubmitSm::default_max_short_message_size`].
-    pub fn max_short_message_size(mut self, size: usize) -> Self {
+    pub const fn max_short_message_size(mut self, size: usize) -> Self {
         self.max_short_message_size = size;
         self
     }
 
     /// Sets the reference number for the concatenated short message as [`u8`].
-    pub fn reference_u8(mut self, reference: u8) -> Self {
+    pub const fn reference_u8(mut self, reference: u8) -> Self {
         self.concatenation_type = ConcatenatedShortMessageType::u8(reference);
         self
     }
 
     /// Sets the reference number for the concatenated short message as [`u16`].
-    pub fn reference_u16(mut self, reference: u16) -> Self {
+    pub const fn reference_u16(mut self, reference: u16) -> Self {
         self.concatenation_type = ConcatenatedShortMessageType::u16(reference);
         self
     }
@@ -72,21 +92,13 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E>
 where
     E: Concatenator + 'a,
 {
-    pub fn build(
-        self,
-    ) -> Result<Vec<SubmitSm>, MultipartError<<E as Encoder>::Error, <E as Concatenator>::Error>>
-    {
+    pub fn build(self) -> Result<Vec<SubmitSm>, MultipartError<E::Error>> {
         let data_coding = self.encoder.data_coding();
-
-        let encoded = self
-            .encoder
-            .encode(self.short_message)
-            .map_err(MultipartError::encode)?;
 
         let concatenation = self
             .encoder
             .concatenate(
-                encoded,
+                self.short_message,
                 self.max_short_message_size,
                 self.concatenation_type.udh_length(),
             )
@@ -148,5 +160,17 @@ where
                     .collect()
             }
         }
+    }
+}
+
+/// Extension trait for [`SubmitSm`] to create multipart messages.
+pub trait SubmitSmMultipartExt {
+    /// Creates a new [`SubmitSmMultipartBuilder`] with the default [`Gsm7BitUnpacked`] encoder.
+    fn multipart(self) -> SubmitSmMultipartBuilder<'static, Gsm7BitUnpacked>;
+}
+
+impl SubmitSmMultipartExt for SubmitSm {
+    fn multipart(self) -> SubmitSmMultipartBuilder<'static, Gsm7BitUnpacked> {
+        SubmitSmMultipartBuilder::new(self, Gsm7BitUnpacked::new())
     }
 }

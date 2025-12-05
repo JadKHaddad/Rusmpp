@@ -89,12 +89,18 @@ mod impl_owned {
     impl Concatenator for Gsm7BitUnpacked {
         type Error = Gsm7BitConcatenateError;
 
+        fn data_coding(&self) -> DataCoding {
+            DataCoding::McSpecific
+        }
+
         fn concatenate(
             &self,
-            encoded: Vec<u8>,
+            message: &str,
             max_message_size: usize,
             part_header_size: usize,
-        ) -> Result<Concatenation, <Self as Concatenator>::Error> {
+        ) -> Result<Concatenation, Self::Error> {
+            let encoded = self.encode_to_vec(message)?;
+
             let total = encoded.len();
 
             if total <= max_message_size {

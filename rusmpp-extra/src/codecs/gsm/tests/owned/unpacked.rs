@@ -144,10 +144,9 @@ mod concatenate {
             let part_header_size = 6;
 
             let encoder = Gsm7BitUnpacked::new();
-            let encoded = encoder.encode(message).expect("Encoding failed");
 
             let err = encoder
-                .concatenate(encoded, max_message_size, part_header_size)
+                .concatenate(message, max_message_size, part_header_size)
                 .unwrap_err();
 
             assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
@@ -160,10 +159,9 @@ mod concatenate {
             let part_header_size = 6;
 
             let encoder = Gsm7BitUnpacked::new();
-            let encoded = encoder.encode(message).expect("Encoding failed");
 
             let err = encoder
-                .concatenate(encoded, max_message_size, part_header_size)
+                .concatenate(message, max_message_size, part_header_size)
                 .unwrap_err();
 
             assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
@@ -185,10 +183,9 @@ mod concatenate {
                 let part_header_size = 8;
 
                 let encoder = Gsm7BitUnpacked::new();
-                let encoded = encoder.encode(message).expect("Encoding failed");
 
                 let err = encoder
-                    .concatenate(encoded, max_message_size, part_header_size)
+                    .concatenate(message, max_message_size, part_header_size)
                     .unwrap_err();
 
                 assert!(matches!(err, Gsm7BitConcatenateError::InvalidBoundary));
@@ -208,10 +205,9 @@ mod concatenate {
                 let part_header_size = 8;
 
                 let encoder = Gsm7BitUnpacked::new().with_allow_split_extended_character(true);
-                let encoded = encoder.encode(message).expect("Encoding failed");
 
                 let concatenated = encoder
-                    .concatenate(encoded, max_message_size, part_header_size)
+                    .concatenate(message, max_message_size, part_header_size)
                     .expect("Concatenation failed");
 
                 let Concatenation::Concatenated(parts) = concatenated else {
@@ -315,9 +311,9 @@ mod concatenate {
         for case in cases {
             let encoder = Gsm7BitUnpacked::new()
                 .with_allow_split_extended_character(case.allow_split_extended_character);
-            let encoded = encoder.encode(case.message).expect("Encoding failed");
 
-            let result = encoder.concatenate(encoded, case.max_message_size, case.part_header_size);
+            let result =
+                encoder.concatenate(case.message, case.max_message_size, case.part_header_size);
 
             match (result, &case.expected) {
                 (Ok(concatenation), Ok(expected_parts)) => {

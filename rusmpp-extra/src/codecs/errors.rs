@@ -1,3 +1,5 @@
+//! Errors related to character encoding.
+
 /// Character that cannot be encoded in the target encoding.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 #[error("Character '{character}' cannot be encoded in target encoding.")]

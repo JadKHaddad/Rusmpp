@@ -1,5 +1,3 @@
-use rusmpp_core::types::owned::OctetString;
-
 use crate::{codecs::owned::Encoder, concatenation::owned::concatenation::Concatenation};
 
 /// A trait for concatenating messages into smaller parts.
@@ -12,15 +10,21 @@ pub trait Concatenator: Encoder {
     /// # Arguments
     ///
     /// * `encoded` - The full encoded message as a byte vector.
-    /// * `max_message_size` - The maximum size of each message part. Max is `255` so no invalid `OctetStrings` are created.
+    /// * `max_message_size` - The maximum size of each message part.
     /// * `part_header_size` - The size of the header for each part.
+    ///
+    /// # Note
+    ///
+    /// The returned `Vec<u8>` in the `Concatenation` must *`NOT`* exceed `max_message_size - part_header_size` in length.
+    ///
+    /// `max_message_size` and `part_header_size` are defined as `u8` to never exceed 255, which is the maximum size of an SMS message.
     fn concatenate(
         &self,
         encoded: alloc::vec::Vec<u8>,
         max_message_size: u8,
         part_header_size: u8,
     ) -> Result<
-        Concatenation<impl Iterator<Item = OctetString<0, 255>> + '_>,
+        Concatenation<impl Iterator<Item = alloc::vec::Vec<u8>> + '_>,
         <Self as Concatenator>::Error,
     >;
 }

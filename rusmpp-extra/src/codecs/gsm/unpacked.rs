@@ -94,10 +94,8 @@ mod impl_owned {
             encoded: Vec<u8>,
             max_message_size: u8,
             part_header_size: u8,
-        ) -> Result<
-            Concatenation<impl Iterator<Item = OctetString<0, 255>> + '_>,
-            <Self as Concatenator>::Error,
-        > {
+        ) -> Result<Concatenation<impl Iterator<Item = Vec<u8>> + '_>, <Self as Concatenator>::Error>
+        {
             /// Iterator for concatenated message parts.
             ///
             /// # Note
@@ -106,7 +104,7 @@ mod impl_owned {
             ///
             /// - Early checks for `part_payload_size < 2 && !allow_split_extended_character` in [`Gsm7Bit::concatenate`]:
             ///   this removes the possibility of creating invalid parts while iterating.
-            /// - `part_payload_size` is `u8` in [`Gsm7Bit::concatenate`]:
+            /// - `part_payload_size` is `u8` in [`Gsm7Bit::concatenate`], created from `max_message_size - part_header_size`:
             ///   this ensures that created parts can never exceed `255` bytes.
             struct ConcatenationIter {
                 encoded: Vec<u8>,
@@ -146,9 +144,12 @@ mod impl_owned {
             let total = encoded.len();
 
             if total <= max_message_size as usize {
-                return Ok(Concatenation::single(OctetString::new(encoded).expect(
-                    "encoded.len() <= max_message_size (u8), which can not be greater than 255",
-                )));
+                debug_assert!(
+                    total <= 255,
+                    "`encoded.len(): usize` must not be greater than `max_message_size: u8`, which can not be greater than `255`"
+                );
+
+                return Ok(Concatenation::single(encoded));
             }
 
             let part_payload_size: u8 = max_message_size.saturating_sub(part_header_size);
@@ -168,10 +169,11 @@ mod impl_owned {
                 allow_split_extended_character: self.allow_split_extended_character,
                 part_payload_size: part_payload_size as usize,
                 pos: 0,
-            }
-            .map(|bytes| {
-                OctetString::<0, 255>::new(bytes)
-                    .expect("part_payload_size (u8) can not be greater than 255")
+            }.inspect(move |bytes| {
+                debug_assert!(
+                    bytes.len() <= part_payload_size as usize,
+                    "`part_payload_size: u8` must not be greater than `max_message_size: u8` - `part_header_size: u8`"
+                );
             });
 
             Ok(Concatenation::concatenated(iter))

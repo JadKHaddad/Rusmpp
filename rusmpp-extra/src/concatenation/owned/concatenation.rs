@@ -1,9 +1,9 @@
-use rusmpp_core::types::owned::OctetString;
+use alloc::vec::Vec;
 
 /// Represents either a single encoded message or an iterator over concatenated message parts.
 pub enum Concatenation<Iter> {
     /// A single encoded message.
-    Single(OctetString<0, 255>),
+    Single(Vec<u8>),
     /// An iterator over concatenated message parts.
     Concatenated(Iter),
 }
@@ -17,9 +17,9 @@ impl<Iter> core::fmt::Debug for Concatenation<Iter> {
     }
 }
 
-impl<Iter: Iterator<Item = OctetString<0, 255>>> Concatenation<Iter> {
+impl<Iter: Iterator<Item = Vec<u8>>> Concatenation<Iter> {
     /// Creates a new [`Concatenation::Single`] instance.
-    pub(crate) const fn single(value: OctetString<0, 255>) -> Self {
+    pub(crate) const fn single(value: Vec<u8>) -> Self {
         Self::Single(value)
     }
 
@@ -29,8 +29,8 @@ impl<Iter: Iterator<Item = OctetString<0, 255>>> Concatenation<Iter> {
     }
 
     #[cfg(test)]
-    /// Converts the [`Concatenation`] into a vector of `OctetString<0, 255>`.
-    pub(crate) fn into_vec(self) -> alloc::vec::Vec<OctetString<0, 255>> {
+    /// Collects the [`Concatenation`] into a vector of `Vec<u8>`.
+    pub(crate) fn collect(self) -> Vec<Vec<u8>> {
         match self {
             Self::Single(part) => alloc::vec![part],
             Self::Concatenated(iter) => iter.collect(),

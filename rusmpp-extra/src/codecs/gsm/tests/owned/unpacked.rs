@@ -220,8 +220,8 @@ mod concatenate {
 
                 assert_eq!(parts.len(), 11);
 
-                assert_eq!(parts[9].bytes(), &[0x1B]);
-                assert_eq!(parts[10].bytes(), &[0x3C]);
+                assert_eq!(parts[9], &[0x1B]);
+                assert_eq!(parts[10], &[0x3C]);
             }
         }
     }
@@ -239,7 +239,7 @@ mod concatenate {
         let _ = encoder
             .concatenate(encoded, max_message_size, part_header_size)
             .expect("Concatenation failed")
-            .into_vec();
+            .collect();
     }
 
     #[test]
@@ -337,10 +337,7 @@ mod concatenate {
 
             match (result, &case.expected) {
                 (Ok(concatenation), Ok(expected_parts)) => {
-                    let parts = concatenation
-                        .into_vec()
-                        .into_iter()
-                        .map(|octet_string| octet_string.into_bytes());
+                    let parts = concatenation.collect().into_iter();
 
                     assert_eq!(
                         parts.len(),

@@ -7,7 +7,7 @@ use rusmpp_core::{
 };
 
 use crate::{
-    codecs::gsm::Gsm7BitUnpacked,
+    codecs::{gsm::Gsm7BitUnpacked, ucs2::Ucs2},
     concatenation::{
         MAX_PARTS, MIN_PARTS,
         errors::MultipartError,
@@ -83,9 +83,14 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
         }
     }
 
-    /// Sets the GSM 7-bit unpacked encoder.
+    /// Sets the [`Gsm7BitUnpacked`] encoder.
     pub fn gsm7bit_unpacked(self) -> SubmitSmMultipartBuilder<'a, Gsm7BitUnpacked> {
         self.encoder(Gsm7BitUnpacked::new())
+    }
+
+    /// Sets the [`Ucs2`] encoder.
+    pub fn ucs2(self) -> SubmitSmMultipartBuilder<'a, Ucs2> {
+        self.encoder(Ucs2::new())
     }
 }
 

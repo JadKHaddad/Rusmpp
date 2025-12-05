@@ -19,8 +19,8 @@ pub trait Concatenator {
     ///
     /// * The returned `Vec<u8>` in the [`Concatenation::Single`] must *`NOT`* exceed `max_message_size` in length. (this is considered a bug in the implementation)
     /// * Each `Vec<u8>` in the [`Concatenation::Concatenated`] must *`NOT`* exceed `max_message_size  - part_header_size` in length. (this is considered a bug in the implementation)
-    /// * The parts count in [`Concatenation::Concatenated`] must be at least [`Concatenation::MIN_PARTS`]. (this is considered a bug in the implementation)
-    /// * The parts count in [`Concatenation::Concatenated`] must *`NOT`* exceed [`Concatenation::MAX_PARTS`]. (this is considered an error that might be returned as a [`Concatenator::Error`])
+    /// * The parts count in [`Concatenation::Concatenated`] must be at least [`concatenation::MIN_PARTS`](crate::concatenation::MIN_PARTS). (this is considered a bug in the implementation)
+    /// * The parts count in [`Concatenation::Concatenated`] must *`NOT`* exceed [`concatenation::MAX_PARTS`](crate::concatenation::MAX_PARTS). (this is considered an error that might be returned as a [`Concatenator::Error`])
     ///     - Why is this an error? Some encoders might use less bytes per part than others. This allows us to implement a `FallbackConcatenator` that tries different concatenation strategies until one works within the parts limit.
     ///        - E.g., `Ucs2` encoding uses 2 bytes per character, while `Gsm7Bit` uses 7 bits per character. This means that a message that fits in 3 parts with `Gsm7Bit` might require 5 parts with `Ucs2`.
     fn concatenate(

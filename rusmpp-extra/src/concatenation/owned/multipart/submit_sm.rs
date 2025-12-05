@@ -110,6 +110,7 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E>
 where
     E: Concatenator + 'a,
 {
+    /// Builds the multipart [`SubmitSm`] messages.
     pub fn build(self) -> Result<Vec<SubmitSm>, MultipartError<E::Error>> {
         let (concatenation, data_coding) = self
             .encoder

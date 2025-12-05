@@ -43,3 +43,8 @@ required-features = ["alloc", "concatenation"]
 name = "submit_sm_multipart_fallback"
 path = "examples/submit_sm_multipart_fallback.rs"
 required-features = ["alloc", "concatenation"]
+
+[[example]]
+name = "submit_sm_encode"
+path = "examples/submit_sm_encode.rs"
+required-features = ["alloc", "concatenation"]

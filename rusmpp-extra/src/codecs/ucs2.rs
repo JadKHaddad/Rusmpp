@@ -1,3 +1,5 @@
+//! Ucs2 encoding/decoding support.
+
 mod errors;
 pub use errors::{Ucs2ConcatenateError, Ucs2EncodeError};
 use rusmpp_core::values::DataCoding;

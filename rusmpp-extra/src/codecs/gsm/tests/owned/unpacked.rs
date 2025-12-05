@@ -6,9 +6,9 @@ use crate::{
         },
         owned::Encoder,
     },
-    concatenation::owned::{Concatenation, Concatenator},
+    concatenation::{MAX_PARTS, owned::{Concatenation, Concatenator}},
 };
-
+        
 mod encode {
     use super::*;
 
@@ -164,9 +164,23 @@ mod concatenate {
             assert!(matches!(err, Gsm7BitConcatenateError::PartCapacityExceeded))
         }
 
-        // TODO
         #[test]
-        fn parts_count_exceeded() {}
+        fn parts_count_exceeded() {
+            let max_message_size = 6;
+            let part_header_size = 0;
+            let message = "123456".repeat(MAX_PARTS + 1);
+
+            let encoder = Gsm7BitUnpacked::new();
+
+            let err = encoder
+                .concatenate(&message, max_message_size, part_header_size)
+                .unwrap_err();
+
+            assert!(matches!(
+                err,
+                Gsm7BitConcatenateError::PartsCountExceeded { actual: 256, .. }
+            ))
+        }
 
         mod no_split {
             use super::*;

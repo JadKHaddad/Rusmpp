@@ -1,4 +1,13 @@
-use crate::codecs::{gsm::unpacked::Gsm7BitUnpacked, owned::Encoder};
+use crate::{
+    codecs::{
+        gsm::{
+            errors::{Gsm7BitConcatenateError, Gsm7BitEncodeError},
+            unpacked::Gsm7BitUnpacked,
+        },
+        owned::Encoder,
+    },
+    concatenation::owned::{Concatenation, Concatenator},
+};
 
 mod encode {
     use super::*;
@@ -102,8 +111,6 @@ mod encode {
     }
 
     mod error {
-        use crate::codecs::{errors::UnencodableCharacterError, gsm::errors::Gsm7BitEncodeError};
-
         use super::*;
 
         #[test]
@@ -114,26 +121,16 @@ mod encode {
 
             let err = encoder.encode(message).unwrap_err();
 
-            assert!(matches!(
-                err,
-                Gsm7BitEncodeError::UnencodableCharacter(UnencodableCharacterError {
-                    character: '✓'
-                })
-            ))
+            assert!(matches!(err, Gsm7BitEncodeError::UnencodableCharacter('✓')))
         }
     }
 }
 
 mod concatenate {
-    use crate::{
-        codecs::gsm::errors::Gsm7BitConcatenateError,
-        concatenation::owned::{Concatenation, Concatenator},
-    };
 
     use super::*;
 
     mod error {
-
         use super::*;
 
         // We have to concatenate but the part size was zero
@@ -193,7 +190,6 @@ mod concatenate {
         }
 
         mod split {
-
             use super::*;
 
             // We have to split and part size = 1 but we allow splitting extended chars

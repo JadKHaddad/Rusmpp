@@ -2,7 +2,7 @@
 
 use rusmpp_core::types::OctetStringError;
 
-use crate::concatenation::owned::Concatenation;
+use crate::concatenation::{MAX_PARTS, MIN_PARTS};
 
 /// Errors that can occur during multipart message creation.
 #[derive(Debug, thiserror::Error)]
@@ -39,14 +39,14 @@ impl<E> MultipartError<E> {
 
     pub(crate) const fn min_part_count(actual: usize) -> Self {
         Self::MinPartCount {
-            min: Concatenation::MIN_PARTS,
+            min: MIN_PARTS,
             actual,
         }
     }
 
     pub(crate) const fn max_parts_count(actual: usize) -> Self {
         Self::MaxPartsCount {
-            max: Concatenation::MAX_PARTS,
+            max: MAX_PARTS,
             actual,
         }
     }

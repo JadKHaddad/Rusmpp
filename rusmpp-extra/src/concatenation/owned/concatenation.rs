@@ -10,12 +10,6 @@ pub enum Concatenation {
 }
 
 impl Concatenation {
-    /// The minimum number of parts in a concatenated message.
-    pub const MIN_PARTS: usize = 2;
-
-    /// The maximum number of parts in a concatenated message.
-    pub const MAX_PARTS: usize = 255;
-
     /// Creates a new [`Concatenation::Single`] instance.
     pub(crate) const fn single(value: Vec<u8>) -> Self {
         Self::Single(value)

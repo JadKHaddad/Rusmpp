@@ -60,17 +60,20 @@ mod impl_owned {
             gsm::errors::{Gsm7BitConcatenateError, Gsm7BitEncodeError},
             owned::Encoder,
         },
-        concatenation::owned::{Concatenation, Concatenator},
+        concatenation::{
+            MAX_PARTS,
+            owned::{Concatenation, Concatenator},
+        },
     };
 
     use super::*;
 
     impl Gsm7BitUnpacked {
         /// Encodes the given message into a vector of bytes.
-        pub fn encode_to_vec(&self, message: &str) -> Result<Vec<u8>, Gsm7BitEncodeError> {
+        pub fn encode_to_vec(&self, input: &str) -> Result<Vec<u8>, Gsm7BitEncodeError> {
             self.alphabet
-                .encode_to_vec(message)
-                .map_err(Gsm7BitEncodeError::unencodable_character)
+                .encode_to_vec(input)
+                .map_err(Gsm7BitEncodeError::UnencodableCharacter)
         }
     }
 
@@ -126,7 +129,7 @@ mod impl_owned {
                     if end < total && encoded[end - 1] == 0x1B {
                         end -= 1;
 
-                        // If shrinking removed the entire part
+                        // If shrinking removed the entire part -> impossible
                         if end == i {
                             return Err(Gsm7BitConcatenateError::InvalidBoundary);
                         }
@@ -138,7 +141,7 @@ mod impl_owned {
                 i = end;
             }
 
-            if parts.len() > Concatenation::MAX_PARTS {
+            if parts.len() > MAX_PARTS {
                 return Err(Gsm7BitConcatenateError::parts_count_exceeded(parts.len()));
             }
 

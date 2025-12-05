@@ -1,7 +1,7 @@
 //! Encoding and decoding support.
 
-pub mod errors;
 pub mod gsm;
+pub mod ucs2;
 
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]

@@ -1,35 +1,35 @@
 use crate::concatenation::MAX_PARTS;
 
-/// Errors that can occur during GSM 7-bit encoding.
+/// Errors that can occur during UCS2 encoding.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
-pub enum Gsm7BitEncodeError {
+pub enum Ucs2EncodeError {
     /// Input contains un-encodable character.
-    #[error("Input contains un-encodable character: '{0}'")]
-    UnencodableCharacter(char),
+    #[error("Input contains un-encodable character")]
+    UnencodableCharacter,
 }
 
-/// Errors that can occur during GSM 7-bit concatenation.
+/// Errors that can occur during UCS2 concatenation.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
-pub enum Gsm7BitConcatenateError {
+pub enum Ucs2ConcatenateError {
     /// Encoding error.
     #[error("Encoding error: {0}")]
     Encode(
         #[from]
         #[source]
-        Gsm7BitEncodeError,
+        Ucs2EncodeError,
     ),
     /// Part cannot fit even a single septet.
     ///
     /// This error is returned when `max_message_size - part_header_size == 0`.
     #[error(
-        "Cannot fit even a single septet into a part with the given header and size constraints"
+        "Cannot fit even a single character into a part with the given header and size constraints"
     )]
     PartCapacityExceeded,
-    /// A part would end with an escape (0x1B) septet, which is not allowed unless allow_split_extended_character=true.
+    /// A part would end with a leading surrogate, which is not allowed unless allow_split_character=true.
     ///
-    /// This error might be returned when `max_message_size - part_header_size < 2 && allow_split_extended_character == false`.
+    /// This error might be returned when `max_message_size - part_header_size < 2 && allow_split_character == false`.
     #[error(
-        "A part would end with an escape (0x1B) septet, which is not allowed unless allow_split_extended_character=true"
+        "A part would end with a leading surrogate, which is not allowed unless allow_split_character=true"
     )]
     InvalidBoundary,
     #[error("The number of parts exceeds the maximum allowed. actual: {actual}, max: {max}")]
@@ -42,7 +42,7 @@ pub enum Gsm7BitConcatenateError {
     },
 }
 
-impl Gsm7BitConcatenateError {
+impl Ucs2ConcatenateError {
     pub(crate) const fn parts_count_exceeded(actual: usize) -> Self {
         Self::PartsCountExceeded {
             max: MAX_PARTS,

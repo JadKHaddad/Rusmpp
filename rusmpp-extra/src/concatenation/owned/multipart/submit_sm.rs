@@ -9,6 +9,7 @@ use rusmpp_core::{
 use crate::{
     codecs::gsm::Gsm7BitUnpacked,
     concatenation::{
+        MAX_PARTS, MIN_PARTS,
         errors::MultipartError,
         owned::{Concatenation, Concatenator},
     },
@@ -116,15 +117,15 @@ where
                 Ok(alloc::vec![sm])
             }
             Concatenation::Concatenated(parts) => {
-                if parts.len() < Concatenation::MIN_PARTS {
+                if parts.len() < MIN_PARTS {
                     return Err(MultipartError::min_part_count(parts.len()));
                 }
 
-                if parts.len() > Concatenation::MAX_PARTS {
+                if parts.len() > MAX_PARTS {
                     return Err(MultipartError::max_parts_count(parts.len()));
                 }
 
-                let total_parts = parts.len().min(Concatenation::MAX_PARTS) as u8;
+                let total_parts = parts.len().min(MAX_PARTS) as u8;
 
                 parts
                     .into_iter()

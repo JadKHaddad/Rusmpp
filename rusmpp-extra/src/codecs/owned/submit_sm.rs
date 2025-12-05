@@ -1,7 +1,9 @@
 use rusmpp_core::{pdus::owned::SubmitSm, types::owned::OctetString};
 
 use crate::{
-    codecs::{errors::EncodeError, gsm7bit::Gsm7BitUnpacked, owned::Encoder, ucs2::Ucs2},
+    codecs::{
+        errors::EncodeError, gsm7bit::Gsm7BitUnpacked, latin1::Latin1, owned::Encoder, ucs2::Ucs2,
+    },
     fallback::Fallback,
 };
 
@@ -53,6 +55,11 @@ impl<'a, E> EncodedSubmitSmBuilder<'a, E> {
     /// Sets the [`Ucs2`] encoder.
     pub fn ucs2(self) -> EncodedSubmitSmBuilder<'a, Ucs2> {
         self.encoder(Ucs2::new())
+    }
+
+    /// Sets the [`Latin1`] encoder.
+    pub fn latin1(self) -> EncodedSubmitSmBuilder<'a, Latin1> {
+        self.encoder(Latin1::new())
     }
 
     /// Sets a fallback encoder.

@@ -7,7 +7,7 @@ use rusmpp_core::{
 };
 
 use crate::{
-    codecs::{gsm7bit::Gsm7BitUnpacked, ucs2::Ucs2},
+    codecs::{gsm7bit::Gsm7BitUnpacked, latin1::Latin1, ucs2::Ucs2},
     concatenation::{
         MAX_PARTS, MIN_PARTS,
         errors::MultipartError,
@@ -92,6 +92,11 @@ impl<'a, E> SubmitSmMultipartBuilder<'a, E> {
     /// Sets the [`Ucs2`] encoder.
     pub fn ucs2(self) -> SubmitSmMultipartBuilder<'a, Ucs2> {
         self.encoder(Ucs2::new())
+    }
+
+    /// Sets the [`Latin1`] encoder.
+    pub fn latin1(self) -> SubmitSmMultipartBuilder<'a, Latin1> {
+        self.encoder(Latin1::new())
     }
 
     /// Sets a fallback encoder.

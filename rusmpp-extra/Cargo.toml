@@ -14,6 +14,7 @@ keywords = ["smpp", "smsc", "messaging", "networking", "protocol"]
 rusmpp-core = { path = "../rusmpp-core", version = "0.3.0", default-features = false }
 thiserror = { version = "2.0.17", default-features = false }
 ucs2 = { version = "0.3.3", default-features = false, optional = true }
+encoding_rs = { version = "0.8.35", default-features = false, optional = true }
 
 [features]
 default = ["concatenation", "codecs", "alloc"]
@@ -25,7 +26,7 @@ alloc = ["rusmpp-core/alloc"]
 concatenation = ["codecs"]
 
 # Enables encoding/decoding support.
-codecs = ["dep:ucs2"]
+codecs = ["dep:ucs2", "dep:encoding_rs"]
 
 [dev-dependencies]
 constcat = "0.6.1"

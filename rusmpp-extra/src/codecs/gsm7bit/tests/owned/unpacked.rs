@@ -1,6 +1,6 @@
 use crate::{
     codecs::{
-        gsm::{
+        gsm7bit::{
             errors::{Gsm7BitConcatenateError, Gsm7BitEncodeError},
             unpacked::Gsm7BitUnpacked,
         },

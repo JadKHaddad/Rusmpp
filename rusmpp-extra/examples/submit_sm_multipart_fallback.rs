@@ -13,7 +13,7 @@ use rusmpp_core::{
 };
 use rusmpp_extra::{
     codecs::{
-        gsm::{Gsm7BitAlphabet, Gsm7BitUnpacked},
+        gsm7bit::{Gsm7BitAlphabet, Gsm7BitUnpacked},
         ucs2::Ucs2,
     },
     concatenation::owned::SubmitSmMultipartExt,

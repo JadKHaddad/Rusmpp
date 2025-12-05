@@ -7,7 +7,7 @@ use rusmpp_core::{
 };
 
 use crate::{
-    codecs::{gsm::Gsm7BitUnpacked, ucs2::Ucs2},
+    codecs::{gsm7bit::Gsm7BitUnpacked, ucs2::Ucs2},
     concatenation::{
         MAX_PARTS, MIN_PARTS,
         errors::MultipartError,

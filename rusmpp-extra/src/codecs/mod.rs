@@ -1,6 +1,7 @@
 //! Encoding and decoding support.
 
-pub mod gsm;
+pub mod gsm7bit;
+pub mod latin1;
 pub mod ucs2;
 
 #[cfg(any(test, feature = "alloc"))]

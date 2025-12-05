@@ -53,7 +53,7 @@ impl Gsm7BitUnpacked {
 mod impl_owned {
     use alloc::vec::Vec;
 
-    use rusmpp_core::{types::owned::OctetString, values::DataCoding};
+    use rusmpp_core::values::DataCoding;
 
     use crate::{
         codecs::{

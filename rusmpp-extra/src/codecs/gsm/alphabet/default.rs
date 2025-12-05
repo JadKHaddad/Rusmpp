@@ -3,22 +3,22 @@ use super::Encoded;
 #[non_exhaustive]
 #[derive(Debug)]
 /// Default GSM 7-bit alphabet.
-pub struct DefaultGsm7BitAlphabet;
+pub struct Gsm7BitDefaultAlphabet;
 
-impl Default for DefaultGsm7BitAlphabet {
+impl Default for Gsm7BitDefaultAlphabet {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl DefaultGsm7BitAlphabet {
-    /// Creates a new [`DefaultGsm7BitAlphabet`].
+impl Gsm7BitDefaultAlphabet {
+    /// Creates a new [`Gsm7BitDefaultAlphabet`].
     pub const fn new() -> Self {
         Self
     }
 }
 
-impl DefaultGsm7BitAlphabet {
+impl Gsm7BitDefaultAlphabet {
     /// # Returns
     ///
     /// - `Some(Self)` if the character is found in the GSM 7-bit tables.

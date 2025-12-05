@@ -1,13 +1,13 @@
 mod default;
 
-use default::DefaultGsm7BitAlphabet;
+pub use default::Gsm7BitDefaultAlphabet;
 
 /// GSM 7-bit alphabet.
 #[derive(Debug)]
 #[non_exhaustive]
 pub enum Gsm7BitAlphabet {
     /// Default GSM 7-bit alphabet.
-    Default(DefaultGsm7BitAlphabet),
+    Default(Gsm7BitDefaultAlphabet),
 }
 
 impl Default for Gsm7BitAlphabet {
@@ -18,7 +18,7 @@ impl Default for Gsm7BitAlphabet {
 
 impl Gsm7BitAlphabet {
     pub const fn default() -> Self {
-        Self::Default(DefaultGsm7BitAlphabet::new())
+        Self::Default(Gsm7BitDefaultAlphabet::new())
     }
 
     /// # Returns

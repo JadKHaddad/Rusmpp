@@ -63,7 +63,9 @@ impl Gsm7BitUnpacked {
 #[cfg(any(test, feature = "alloc"))]
 #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
 mod impl_owned {
-    use alloc::vec::Vec;
+    use core::ops::ControlFlow;
+
+    use alloc::{string::String, vec::Vec};
 
     use crate::{
         codecs::{
@@ -90,14 +92,42 @@ mod impl_owned {
         }
 
         /// Decodes the given bytes into a string.
-        pub fn decode_to_string(
-            &self,
-            input: &[u8],
-        ) -> Result<alloc::string::String, Gsm7BitDecodeError> {
+        // TODO: docs, how to use it.
+        pub fn decode_to_string(&self, input: &[u8]) -> Result<String, Gsm7BitDecodeError> {
             let (decoded, escape) = self
                 .alphabet
                 .decode_to_string(input)
                 .map_err(Gsm7BitDecodeError::UndecodableByte)?;
+
+            match escape {
+                None => Ok(decoded),
+                Some(_) => Err(Gsm7BitDecodeError::PartialEscapeSequence),
+            }
+        }
+
+        // TODO: docs, how to use it. use fold_decode_to_string as example
+        // TODO: docs on why this exists if we have fold_decode_to_string?
+        pub fn step_decode_to_string(
+            &self,
+            input: ControlFlow<(String, Option<u8>), (&[u8], String, Option<u8>)>,
+        ) -> Result<(String, Option<u8>), Gsm7BitDecodeError> {
+            self.alphabet
+                .step_decode_to_string(input)
+                .map_err(Gsm7BitDecodeError::UndecodableByte)
+        }
+
+        // TODO: docs, how to use it.
+        pub fn fold_decode_to_string<'a>(
+            &self,
+            mut input: impl Iterator<Item = &'a [u8]>,
+        ) -> Result<String, Gsm7BitDecodeError> {
+            let (decoded, escape) =
+                input.try_fold((String::new(), None), |(decoded, escape), bytes| {
+                    self.step_decode_to_string(ControlFlow::Continue((bytes, decoded, escape)))
+                })?;
+
+            let (decoded, escape) =
+                self.step_decode_to_string(ControlFlow::Break((decoded, escape)))?;
 
             match escape {
                 None => Ok(decoded),

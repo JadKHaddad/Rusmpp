@@ -141,6 +141,28 @@ mod decode {
     }
 
     #[test]
+    fn step_decode() {
+        let expected = "123456789[23456789[23456789[";
+
+        let parts: &[&[u8]] = &[
+            constcat::concat_slices!([u8]: b"123456789", &[0x1B]),
+            constcat::concat_slices!([u8]: &[0x3C], b"23456789", &[0x1B]),
+            constcat::concat_slices!([u8]: &[0x3C], b"23456789", &[0x1B]),
+            &[0x3C],
+        ];
+
+        // TODO: something like: `&[&[0x1B],&[0x3C],&[0x1B],&[],&[0x3C]]` would decode to `[[`, should it fail on th empty part with undecodable byte (0x1B)?
+
+        let decoder = Gsm7BitUnpacked::new();
+
+        let decoded = decoder
+            .fold_decode_to_string(parts.iter().copied())
+            .expect("Decoding failed");
+
+        assert_eq!(decoded, expected);
+    }
+
+    #[test]
     fn cases() {
         let decoder = Gsm7BitUnpacked::new();
 

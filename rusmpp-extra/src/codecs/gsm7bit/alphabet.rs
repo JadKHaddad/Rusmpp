@@ -44,85 +44,130 @@ impl Gsm7BitAlphabet {
             Self::Default(alphabet) => alphabet.decode(byte),
         }
     }
+}
 
-    /// Encodes the given message into a vector of GSM 7-bit encoded bytes.
-    ///
-    /// # Errors
-    ///
-    /// - Returns `Err(char)` if a character in the message cannot be encoded.
-    #[cfg(any(test, feature = "alloc"))]
-    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    pub(crate) fn encode_to_vec(&self, message: &str) -> Result<alloc::vec::Vec<u8>, char> {
-        // We double the amount of `bytes` we have in the worst case.
-        //
-        // If the amount of `bytes` is equals to the amount of `chars`
-        //      (str = `[[[`, chars = [`[`, `[`, `[`] bytes = `[[[`)
-        //      => we have 6 bytes of space, which is enough for standard/extended chars.
-        //
-        // If the amount of `bytes` is more than the amount of `chars`
-        //      (str = `Ä`, , chars = [`Ä`], bytes = [195, 132])
-        //      => we have 4 bytes of space, which is enough for standard/extended chars.
-        let mut encoded = alloc::vec::Vec::with_capacity(message.len() * 2);
+#[cfg(any(test, feature = "alloc"))]
+#[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
+mod impl_owned {
+    use core::ops::ControlFlow;
 
-        for ch in message.chars() {
-            match self.encode(ch) {
-                Some(Encoded::Standard(byte)) => encoded.push(byte),
-                Some(Encoded::Extended(byte)) => {
-                    encoded.push(0x1B);
-                    encoded.push(byte);
+    use alloc::string::String;
+
+    use super::*;
+
+    impl Gsm7BitAlphabet {
+        /// Encodes the given message into a vector of GSM 7-bit encoded bytes.
+        ///
+        /// # Errors
+        ///
+        /// - Returns `Err(char)` if a character in the message cannot be encoded.
+        pub(crate) fn encode_to_vec(&self, message: &str) -> Result<alloc::vec::Vec<u8>, char> {
+            // We double the amount of `bytes` we have in the worst case.
+            //
+            // If the amount of `bytes` is equals to the amount of `chars`
+            //      (str = `[[[`, chars = [`[`, `[`, `[`] bytes = `[[[`)
+            //      => we have 6 bytes of space, which is enough for standard/extended chars.
+            //
+            // If the amount of `bytes` is more than the amount of `chars`
+            //      (str = `Ä`, , chars = [`Ä`], bytes = [195, 132])
+            //      => we have 4 bytes of space, which is enough for standard/extended chars.
+            let mut encoded = alloc::vec::Vec::with_capacity(message.len() * 2);
+
+            for ch in message.chars() {
+                match self.encode(ch) {
+                    Some(Encoded::Standard(byte)) => encoded.push(byte),
+                    Some(Encoded::Extended(byte)) => {
+                        encoded.push(0x1B);
+                        encoded.push(byte);
+                    }
+                    None => return Err(ch),
                 }
-                None => return Err(ch),
             }
+
+            encoded.truncate(encoded.len());
+
+            Ok(encoded)
         }
 
-        encoded.truncate(encoded.len());
+        // TODO: docs
+        pub(crate) fn decode_to_string(&self, bytes: &[u8]) -> Result<(String, Option<u8>), u8> {
+            let decoded = String::with_capacity(bytes.len());
 
-        Ok(encoded)
-    }
+            self.decode_into_string(bytes, decoded)
+        }
 
-    /// Decodes the given GSM 7-bit encoded bytes into a string.
-    ///
-    /// # Returns
-    ///
-    /// - `Ok((String, None)) if decoding is successful.
-    /// - `Ok((String, Some(u8)))` if the inputs ends with an escape byte (0x1B) without a following byte.
-    /// - `Err(u8)` if a byte cannot be decoded.
-    #[cfg(any(test, feature = "alloc"))]
-    #[cfg_attr(docsrs, doc(cfg(feature = "alloc")))]
-    pub(crate) fn decode_to_string(
-        &self,
-        bytes: &[u8],
-    ) -> Result<(alloc::string::String, Option<u8>), u8> {
-        let mut decoded = alloc::string::String::with_capacity(bytes.len());
-        let mut i = 0;
+        // TODO: docs
+        fn decode_into_string(
+            &self,
+            bytes: &[u8],
+            mut decoded: String,
+        ) -> Result<(String, Option<u8>), u8> {
+            let mut i = 0;
 
-        while i < bytes.len() {
-            let byte = bytes[i];
-
-            if byte == 0x1B {
-                i += 1;
-
-                if i >= bytes.len() {
-                    return Ok((decoded, Some(0x1B)));
-                }
-
+            while i < bytes.len() {
                 let byte = bytes[i];
 
-                match self.decode(Encoded::Extended(byte)) {
-                    Some(ch) => decoded.push(ch),
-                    None => return Err(byte),
+                if byte == 0x1B {
+                    i += 1;
+
+                    if i >= bytes.len() {
+                        return Ok((decoded, Some(0x1B)));
+                    }
+
+                    let byte = bytes[i];
+
+                    match self.decode(Encoded::Extended(byte)) {
+                        Some(ch) => decoded.push(ch),
+                        None => return Err(byte),
+                    }
+                } else {
+                    match self.decode(Encoded::Standard(byte)) {
+                        Some(ch) => decoded.push(ch),
+                        None => return Err(byte),
+                    }
                 }
-            } else {
-                match self.decode(Encoded::Standard(byte)) {
-                    Some(ch) => decoded.push(ch),
-                    None => return Err(byte),
-                }
+
+                i += 1;
             }
 
-            i += 1;
+            Ok((decoded, None))
         }
 
-        Ok((decoded, None))
+        // TODO: docs
+        pub(crate) fn step_decode_to_string(
+            &self,
+            input: ControlFlow<(String, Option<u8>), (&[u8], String, Option<u8>)>,
+        ) -> Result<(String, Option<u8>), u8> {
+            match input {
+                ControlFlow::Break((decoded, escape)) => Ok((decoded, escape)),
+                ControlFlow::Continue((bytes, mut decoded, escape)) => match escape {
+                    Some(escape) => {
+                        if bytes.is_empty() {
+                            return Ok((decoded, Some(escape)));
+                        }
+
+                        let escaped = [escape, bytes[0]];
+
+                        // We do not care about the escape here, because 2 escapes are invalid.
+                        let (part_decoded, _) = self.decode_to_string(&escaped)?;
+
+                        decoded.push_str(&part_decoded);
+
+                        // Continue decoding the rest of the bytes
+                        let (decoded, escape) = self.decode_into_string(&bytes[1..], decoded)?;
+
+                        Ok((decoded, escape))
+                    }
+                    None => {
+                        let (part_decoded, escape) = self.decode_to_string(bytes)?;
+
+                        decoded.push_str(&part_decoded);
+
+                        Ok((decoded, escape))
+                    }
+                },
+            }
+        }
     }
 }
 

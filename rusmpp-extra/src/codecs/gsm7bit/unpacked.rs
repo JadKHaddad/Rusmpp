@@ -49,6 +49,11 @@ impl Gsm7BitUnpacked {
         self
     }
 
+    /// Returns the associated [`Gsm7BitAlphabet`].
+    pub const fn alphabet(&self) -> Gsm7BitAlphabet {
+        self.alphabet
+    }
+
     /// Returns the associated [`DataCoding`].
     pub const fn data_coding(&self) -> DataCoding {
         DataCoding::McSpecific
@@ -62,7 +67,10 @@ mod impl_owned {
 
     use crate::{
         codecs::{
-            gsm7bit::errors::{Gsm7BitConcatenateError, Gsm7BitEncodeError},
+            gsm7bit::{
+                Gsm7BitDecodeError,
+                errors::{Gsm7BitConcatenateError, Gsm7BitEncodeError},
+            },
             owned::Encoder,
         },
         concatenation::{
@@ -79,6 +87,22 @@ mod impl_owned {
             self.alphabet
                 .encode_to_vec(input)
                 .map_err(Gsm7BitEncodeError::UnencodableCharacter)
+        }
+
+        /// Decodes the given bytes into a string.
+        pub fn decode_to_string(
+            &self,
+            input: &[u8],
+        ) -> Result<alloc::string::String, Gsm7BitDecodeError> {
+            let (decoded, escape) = self
+                .alphabet
+                .decode_to_string(input)
+                .map_err(Gsm7BitDecodeError::UndecodableByte)?;
+
+            match escape {
+                None => Ok(decoded),
+                Some(_) => Err(Gsm7BitDecodeError::PartialEscapeSequence),
+            }
         }
     }
 

@@ -8,6 +8,17 @@ pub enum Gsm7BitEncodeError {
     UnencodableCharacter(char),
 }
 
+/// Errors that can occur during GSM 7-bit decoding.
+#[derive(Debug, thiserror::Error, PartialEq, Eq)]
+pub enum Gsm7BitDecodeError {
+    /// Input contains un-decodable byte.
+    #[error("Input contains un-decodable byte: '{0}'")]
+    UndecodableByte(u8),
+    /// Input ends with a partial escape sequence.
+    #[error("Input ends with a partial escape sequence: 0x1B")]
+    PartialEscapeSequence,
+}
+
 /// Errors that can occur during GSM 7-bit concatenation.
 #[derive(Debug, thiserror::Error, PartialEq, Eq)]
 pub enum Gsm7BitConcatenateError {
